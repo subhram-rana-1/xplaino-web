@@ -1,0 +1,14 @@
+.termsAndConditions {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.termsAndConditions h1 {
+  margin-bottom: 1.5rem;
+}
+
+.termsAndConditions p {
+  line-height: 1.6;
+}
+

@@ -9,13 +9,10 @@ import styles from './Home.module.css';
 export const Home: React.FC = () => {
   return (
     <div className={styles.home}>
-      <div className={styles.container}>
-        <h1 className={styles.title}>Welcome to Xplaino</h1>
-        <p className={styles.subtitle}>Your home page content goes here</p>
-      </div>
+      <h1>Welcome to Xplaino</h1>
+      <p>Your platform for explanations and discussions.</p>
     </div>
   );
 };
 
 Home.displayName = 'Home';
-

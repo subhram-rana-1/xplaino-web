@@ -22,9 +22,6 @@ export const Navbar: React.FC = () => {
         </Link>
         
         <div className={styles.navLinks}>
-          <Link to="/about" className={styles.navLink}>
-            About
-          </Link>
           <Link to="/contact" className={styles.navLink}>
             Contact
           </Link>

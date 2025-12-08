@@ -1,0 +1,14 @@
+.privacyPolicy {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.privacyPolicy h1 {
+  margin-bottom: 1.5rem;
+}
+
+.privacyPolicy p {
+  line-height: 1.6;
+}
+
