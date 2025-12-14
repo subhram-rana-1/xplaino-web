@@ -1,14 +1,176 @@
 .privacyPolicy {
-  padding: 2rem;
+  padding: 3rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  font-family: 'Inter', sans-serif;
+  color: #333;
+  line-height: 1.8;
 }
 
-.privacyPolicy h1 {
-  margin-bottom: 1.5rem;
+.header {
+  margin-bottom: 3rem;
+  border-bottom: 2px solid var(--very-light-purple);
+  padding-bottom: 1.5rem;
 }
 
-.privacyPolicy p {
-  line-height: 1.6;
+.header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 0.5rem 0;
+  font-family: 'Inter', sans-serif;
 }
 
+.lastUpdated {
+  color: #666;
+  font-size: 0.95rem;
+  margin: 0;
+  font-style: italic;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.section {
+  scroll-margin-top: 2rem;
+}
+
+.section h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--purple);
+  margin: 0 0 1rem 0;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.4;
+}
+
+.section h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #000;
+  margin: 1.5rem 0 0.75rem 0;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.4;
+}
+
+.section p {
+  margin: 0 0 1rem 0;
+  color: #444;
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.section p:last-child {
+  margin-bottom: 0;
+}
+
+.section ul {
+  margin: 1rem 0;
+  padding-left: 2rem;
+  color: #444;
+}
+
+.section li {
+  margin: 0.75rem 0;
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
+.section li strong {
+  color: #000;
+  font-weight: 600;
+}
+
+.contactInfo {
+  background-color: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border-left: 4px solid var(--purple);
+  margin-top: 1rem;
+}
+
+.contactInfo p {
+  margin: 0.5rem 0;
+}
+
+.contactInfo p:first-child {
+  margin-top: 0;
+}
+
+.contactInfo p:last-child {
+  margin-bottom: 0;
+}
+
+.link {
+  color: var(--purple);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: var(--darker-purple);
+  text-decoration: underline;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .privacyPolicy {
+    padding: 2rem 1.5rem;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .section h2 {
+    font-size: 1.35rem;
+  }
+
+  .section h3 {
+    font-size: 1.15rem;
+  }
+
+  .content {
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .privacyPolicy {
+    padding: 1.5rem 1rem;
+  }
+
+  .header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+  }
+
+  .header h1 {
+    font-size: 1.75rem;
+  }
+
+  .section h2 {
+    font-size: 1.25rem;
+  }
+
+  .section h3 {
+    font-size: 1.1rem;
+  }
+
+  .section p,
+  .section li {
+    font-size: 0.95rem;
+  }
+
+  .section ul {
+    padding-left: 1.5rem;
+  }
+
+  .contactInfo {
+    padding: 1.25rem;
+  }
+}

@@ -1,14 +1,212 @@
 .refundPolicy {
-  padding: 2rem;
+  padding: 3rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  font-family: 'Inter', sans-serif;
+  color: #333;
+  line-height: 1.8;
 }
 
-.refundPolicy h1 {
-  margin-bottom: 1.5rem;
+.header {
+  margin-bottom: 3rem;
+  border-bottom: 2px solid var(--very-light-purple);
+  padding-bottom: 1.5rem;
 }
 
-.refundPolicy p {
+.header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 0.5rem 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.lastUpdated {
+  color: #666;
+  font-size: 0.95rem;
+  margin: 0;
+  font-style: italic;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.section {
+  scroll-margin-top: 2rem;
+}
+
+.section h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--purple);
+  margin: 0 0 1rem 0;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.4;
+}
+
+.section p {
+  margin: 0 0 1rem 0;
+  color: #444;
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.section p:last-child {
+  margin-bottom: 0;
+}
+
+.section ul {
+  margin: 1rem 0;
+  padding-left: 2rem;
+  color: #444;
+}
+
+.section li {
+  margin: 0.75rem 0;
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
+.section li strong {
+  color: #000;
+  font-weight: 600;
+}
+
+.policyStatement {
+  background: linear-gradient(135deg, #f5f0ff 0%, #ede5ff 100%);
+  border: 2px solid var(--purple);
+  border-radius: 16px;
+  padding: 2rem;
+  margin: 1rem 0 2rem 0;
+  text-align: center;
+}
+
+.policyStatement h2 {
+  font-size: 1.75rem;
+  color: var(--darker-purple);
+  margin: 0 0 1rem 0;
+}
+
+.policyStatement .emphasis {
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: #000;
+  margin: 0;
   line-height: 1.6;
 }
 
+.policyStatement .emphasis strong {
+  color: var(--darker-purple);
+  font-weight: 700;
+}
+
+.contactInfo {
+  background-color: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border-left: 4px solid var(--purple);
+  margin-top: 1rem;
+}
+
+.contactInfo p {
+  margin: 0.5rem 0;
+}
+
+.contactInfo p:first-child {
+  margin-top: 0;
+}
+
+.contactInfo p:last-child {
+  margin-bottom: 0;
+}
+
+.link {
+  color: var(--purple);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: var(--darker-purple);
+  text-decoration: underline;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .refundPolicy {
+    padding: 2rem 1.5rem;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .section h2 {
+    font-size: 1.35rem;
+  }
+
+  .policyStatement {
+    padding: 1.5rem;
+  }
+
+  .policyStatement h2 {
+    font-size: 1.5rem;
+  }
+
+  .policyStatement .emphasis {
+    font-size: 1.05rem;
+  }
+
+  .content {
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .refundPolicy {
+    padding: 1.5rem 1rem;
+  }
+
+  .header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+  }
+
+  .header h1 {
+    font-size: 1.75rem;
+  }
+
+  .section h2 {
+    font-size: 1.25rem;
+  }
+
+  .section p,
+  .section li {
+    font-size: 0.95rem;
+  }
+
+  .section ul {
+    padding-left: 1.5rem;
+  }
+
+  .policyStatement {
+    padding: 1.25rem;
+    margin: 0.5rem 0 1.5rem 0;
+  }
+
+  .policyStatement h2 {
+    font-size: 1.35rem;
+  }
+
+  .policyStatement .emphasis {
+    font-size: 1rem;
+  }
+
+  .contactInfo {
+    padding: 1.25rem;
+  }
+}

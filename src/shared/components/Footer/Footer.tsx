@@ -16,7 +16,7 @@ export const Footer: React.FC = () => {
             Privacy Policy
           </Link>
           <Link to="/terms-and-conditions" className={styles.link}>
-            Terms
+            Terms & Conditions
           </Link>
           <Link to="/refund-policy" className={styles.link}>
             Refund Policy
