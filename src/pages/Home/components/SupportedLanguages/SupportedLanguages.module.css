@@ -1,4 +1,4 @@
-.useCase {
+.supportedLanguages {
   padding: 3rem 4.5rem;
   max-width: 1400px;
   margin: 0 auto;
@@ -45,11 +45,13 @@
 .scrollingContent {
   display: inline-flex;
   gap: 3rem;
-  animation: scroll 30s linear infinite;
+  animation: scrollLeftToRight 150s linear infinite;
 }
 
-.useCaseItem {
-  display: inline-block;
+.languageItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
   font-size: 1.5rem;
   font-weight: 400;
   color: #000;
@@ -58,18 +60,27 @@
   flex-shrink: 0;
 }
 
-@keyframes scroll {
+.flag {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.languageName {
+  font-size: 1.5rem;
+}
+
+@keyframes scrollLeftToRight {
   0% {
-    transform: translateX(0);
+    transform: translateX(-50%);
   }
   100% {
-    transform: translateX(-50%);
+    transform: translateX(0);
   }
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .useCase {
+  .supportedLanguages {
     padding: 2rem 2rem;
   }
 
@@ -82,13 +93,21 @@
     gap: 2rem;
   }
 
-  .useCaseItem {
+  .languageItem {
+    font-size: 1.25rem;
+  }
+
+  .flag {
+    font-size: 1.75rem;
+  }
+
+  .languageName {
     font-size: 1.25rem;
   }
 }
 
 @media (max-width: 480px) {
-  .useCase {
+  .supportedLanguages {
     padding: 1.5rem 1rem;
   }
 
@@ -101,7 +120,15 @@
     gap: 1.5rem;
   }
 
-  .useCaseItem {
+  .languageItem {
+    font-size: 1.125rem;
+  }
+
+  .flag {
+    font-size: 1.5rem;
+  }
+
+  .languageName {
     font-size: 1.125rem;
   }
 }

@@ -2,6 +2,8 @@
   background-color: var(--purple);
   padding: 1rem 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1000;
 }
 
 .container {
@@ -20,6 +22,35 @@
   transform: translateX(-50%);
   display: flex;
   align-items: center;
+}
+
+.navRight {
+  display: flex;
+  align-items: center;
+}
+
+.loginButton {
+  padding: 0.5rem 1.5rem;
+  background-color: white;
+  color: var(--purple);
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: var(--button-border-radius);
+  font-family: 'Inter', sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+  border: 2px solid white;
+}
+
+.loginButton:hover {
+  background-color: var(--very-light-purple);
+  color: var(--purple);
+}
+
+.loginButton:active {
+  background-color: var(--very-light-purple);
+  color: var(--purple);
+  transform: scale(0.98);
 }
 
 .brand {
@@ -70,6 +101,96 @@
   color: var(--very-light-purple);
 }
 
+/* Dropdown styles */
+.dropdownContainer {
+  position: relative;
+}
+
+.dropdownTrigger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Inter', sans-serif;
+  transition: color 0.2s ease, transform 0.1s ease;
+}
+
+.dropdownTrigger:active {
+  transform: scale(0.98);
+}
+
+
+.dropdownContainer:hover .dropdownChevron,
+.dropdownContainer[aria-expanded="true"] .dropdownChevron {
+  transform: rotate(180deg);
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 180px;
+  margin-top: 0.5rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+  transform: translateX(-50%) translateY(-10px);
+  z-index: 1001;
+  padding: 0.5rem 0;
+}
+
+/* Bridge element to maintain hover when moving from button to dropdown */
+.dropdownContainer::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 180px;
+  height: 0.5rem;
+  background: transparent;
+  pointer-events: auto;
+  z-index: 1002;
+}
+
+.dropdownMenuOpen {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.dropdownItem {
+  display: block;
+  padding: 0.75rem 1.25rem;
+  color: var(--purple);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.dropdownItem:hover {
+  background-color: var(--very-light-purple);
+  color: var(--purple);
+}
+
+.dropdownItem:first-child {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.dropdownItem:last-child {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
 .menuToggle {
   display: none;
   background: none;
@@ -81,11 +202,11 @@
   width: 2rem;
   height: 2rem;
   z-index: 20;
-  transition: transform 0.2s ease;
+  transition: opacity 0.2s ease;
 }
 
 .menuToggle:hover {
-  transform: scale(1.05);
+  opacity: 0.8;
 }
 
 .hamburger {
@@ -133,6 +254,10 @@
     transform: none;
   }
 
+  .navRight {
+    display: none;
+  }
+
   .menuToggle {
     display: flex;
   }
@@ -175,6 +300,66 @@
   .navLink:hover {
     background-color: rgba(255, 255, 255, 0.1);
     color: white;
+  }
+
+  .navRight {
+    display: flex;
+    width: 100%;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .loginButton {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    padding: 0.875rem 1.5rem;
+  }
+
+  .dropdownContainer {
+    width: 100%;
+  }
+
+  .dropdownTrigger {
+    width: 100%;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .dropdownMenu {
+    position: static;
+    transform: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    box-shadow: none;
+    margin-top: 0;
+    padding: 0;
+    opacity: 1;
+    visibility: visible;
+    display: none;
+    border-radius: 0;
+  }
+
+  .dropdownMenuOpen {
+    display: block;
+    transform: none;
+  }
+
+  .dropdownItem {
+    padding: 0.875rem 1.5rem 0.875rem 3rem;
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.95rem;
+  }
+
+  .dropdownItem:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: white;
+  }
+
+  .dropdownItem:last-child {
+    border-bottom: none;
   }
 }
 

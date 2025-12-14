@@ -1,0 +1,2 @@
+export { MyParagraphs } from './MyParagraphs';
+

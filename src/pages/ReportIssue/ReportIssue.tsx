@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styles from './ReportIssue.module.css';
+import { DropdownIcon } from '@/shared/components/DropdownIcon';
 
 enum IssueType {
   GLITCH = 'GLITCH',
@@ -227,9 +228,7 @@ export const ReportIssue: React.FC = () => {
                 aria-expanded={isDropdownOpen}
               >
                 <span className={styles.dropdownButtonText}>{selectedLabel}</span>
-                <span className={`${styles.dropdownChevron} ${isDropdownOpen ? styles.dropdownChevronOpen : ''}`}>
-                  ▼
-                </span>
+                <DropdownIcon isOpen={isDropdownOpen} />
               </button>
               {isDropdownOpen && (
                 <div className={styles.dropdownList} role="listbox">

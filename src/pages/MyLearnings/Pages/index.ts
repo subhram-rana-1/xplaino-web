@@ -1,0 +1,2 @@
+export { MyPages } from './MyPages';
+

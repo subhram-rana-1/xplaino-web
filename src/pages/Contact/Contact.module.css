@@ -51,19 +51,19 @@
   padding: 0.5rem;
   width: 40px;
   height: 40px;
-  border-radius: 8px;
+  border-radius: var(--button-border-radius);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
   font-family: 'Inter', sans-serif;
 }
 
 .copyButton:hover {
   background-color: var(--very-light-purple);
-  transform: scale(1.05);
 }
 
 .copyButton:active {
-  transform: scale(1);
+  background-color: var(--very-light-purple);
+  transform: scale(0.98);
 }
 
 .copyButton.copied {

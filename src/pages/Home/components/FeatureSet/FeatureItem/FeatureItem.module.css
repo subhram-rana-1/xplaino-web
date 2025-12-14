@@ -6,12 +6,11 @@
   border-radius: 20px;
   padding: 2px;
   background-color: #f5f0fc;
-  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
 }
 
 .featureItem:hover {
-  transform: scale(1.02);
   background-color: #ede5f7;
   box-shadow: 0 4px 20px rgba(149, 39, 245, 0.25), 0 2px 8px rgba(149, 39, 245, 0.15);
 }

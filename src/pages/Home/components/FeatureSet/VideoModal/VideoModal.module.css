@@ -81,12 +81,21 @@
   align-items: center;
   justify-content: center;
   z-index: 10;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .closeButton:hover {
   background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.05);
+}
+
+.closeButton:active {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(0.98);
+}
+
+.closeButton:active {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(0.98);
 }
 
 .modalTitle {
@@ -131,13 +140,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.1s ease;
   min-width: 40px;
+  border-radius: var(--button-border-radius);
 }
 
 .controlButton:hover {
   opacity: 0.8;
-  transform: scale(1.05);
+}
+
+.controlButton:active {
+  opacity: 0.8;
+  transform: scale(0.98);
 }
 
 .seekBar {
