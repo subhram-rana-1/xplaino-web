@@ -10,6 +10,14 @@
   width: 100%;
 }
 
+.heading {
+  font-family: 'Inter', sans-serif;
+  font-size: 2rem;
+  font-weight: 500;
+  color: var(--purple);
+  margin-bottom: 2rem;
+}
+
 .searchContainer {
   display: flex;
   justify-content: center;

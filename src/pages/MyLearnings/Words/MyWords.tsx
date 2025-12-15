@@ -153,6 +153,7 @@ export const MyWords: React.FC = () => {
   return (
     <div className={styles.myWords}>
       <div className={styles.container}>
+        <h1 className={styles.heading}>My Words</h1>
         {state.isLoading && state.words.length === 0 ? (
           <div className={styles.loading}>Loading...</div>
         ) : state.words.length === 0 ? (

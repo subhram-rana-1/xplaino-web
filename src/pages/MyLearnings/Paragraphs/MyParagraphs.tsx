@@ -180,6 +180,7 @@ export const MyParagraphs: React.FC = () => {
   return (
     <div className={styles.myParagraphs}>
       <div className={styles.container}>
+        <h1 className={styles.heading}>My Paragraphs</h1>
         {/* Header */}
         <div className={styles.header}>
           <div className={styles.headerLeft}>

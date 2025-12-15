@@ -157,6 +157,7 @@ export const MyPages: React.FC = () => {
   return (
     <div className={styles.myPages}>
       <div className={styles.container}>
+        <h1 className={styles.heading}>My Pages</h1>
         {/* Header */}
         <div className={styles.header}>
           <div className={styles.headerLeft}>
