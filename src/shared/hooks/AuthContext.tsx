@@ -16,6 +16,7 @@ import {
   clearAuthFromStorage,
 } from '@/shared/services/auth.service';
 import { useMyWords } from './useMyWords';
+import { useMyParagraphs } from './useMyParagraphs';
 
 interface AuthContextValue {
   isLoggedIn: boolean;
@@ -41,6 +42,19 @@ const WordsStateManager: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) =>
       resetWords();
     }
   }, [isLoggedIn, resetWords]);
+
+  return null;
+};
+
+// Internal component to handle paragraphs state reset on logout
+const ParagraphsStateManager: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => {
+  const { resetParagraphs } = useMyParagraphs();
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      resetParagraphs();
+    }
+  }, [isLoggedIn, resetParagraphs]);
 
   return null;
 };
@@ -128,6 +142,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   return (
     <AuthContext.Provider value={value}>
       <WordsStateManager isLoggedIn={isLoggedIn} />
+      <ParagraphsStateManager isLoggedIn={isLoggedIn} />
       {children}
     </AuthContext.Provider>
   );

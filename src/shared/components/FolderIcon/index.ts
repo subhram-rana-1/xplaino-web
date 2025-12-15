@@ -1,0 +1,2 @@
+export { FolderIcon } from './FolderIcon';
+
