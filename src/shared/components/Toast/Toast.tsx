@@ -5,9 +5,10 @@ export interface ToastProps {
   message: string;
   onClose: () => void;
   duration?: number;
+  type?: 'success' | 'error';
 }
 
-export const Toast: React.FC<ToastProps> = ({ message, onClose, duration = 3000 }) => {
+export const Toast: React.FC<ToastProps> = ({ message, onClose, duration = 3000, type = 'success' }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
@@ -17,7 +18,7 @@ export const Toast: React.FC<ToastProps> = ({ message, onClose, duration = 3000 
   }, [duration, onClose]);
 
   return (
-    <div className={styles.toast}>
+    <div className={`${styles.toast} ${type === 'error' ? styles.toastError : ''}`}>
       {message}
     </div>
   );

@@ -1,0 +1,356 @@
+.issueDetail {
+  min-height: 60vh;
+  padding: 2rem 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  max-width: 800px;
+  width: 100%;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--purple);
+  padding: 0.75rem 1rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  border-radius: 10px;
+  transition: background-color 0.2s ease;
+}
+
+.backButton:hover {
+  background: #f5f0ff;
+}
+
+.backButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+.titleContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.heading {
+  font-family: 'Inter', sans-serif;
+  font-size: 2rem;
+  font-weight: 500;
+  color: var(--purple);
+  margin: 0;
+}
+
+.content {
+  background: white;
+  border-radius: 0;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--very-light-purple);
+}
+
+.ticketIdRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.status {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.375rem 0.75rem;
+  border-radius: 12px;
+}
+
+.statusOPEN {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.statusWORK_IN_PROGRESS {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.statusDISCARDED {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.statusRESOLVED {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detailRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.value {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.ticketIdLabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: var(--purple);
+  font-weight: 700;
+}
+
+.ticketIdValue {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.valueRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.issueTypeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.issueTypeLabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: var(--purple);
+  font-weight: 700;
+}
+
+.raisedOnRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.raisedOnLabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: var(--purple);
+  font-weight: 700;
+}
+
+.raisedOnValue {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.headingRow {
+  margin-top: 1rem;
+}
+
+.headingText {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: #333;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.copyButtonWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.copyButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--purple);
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.copyButton:hover {
+  background: #f5f0ff;
+}
+
+.copyButton:active {
+  background: #e8dfff;
+}
+
+.copyButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+.checkIcon {
+  color: #10b981;
+}
+
+.copiedTooltip {
+  position: absolute;
+  top: -35px;
+  left: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  color: #10b981;
+  font-weight: 500;
+  white-space: nowrap;
+  background: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.descriptionText {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: #333;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+}
+
+.urlValue {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: var(--purple);
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.urlValue:hover {
+  text-decoration: underline;
+}
+
+.issueTypeBadge {
+  display: inline-block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.375rem 0.75rem;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+.issueTypeGLITCH {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.issueTypeSUBSCRIPTION {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.issueTypeAUTHENTICATION {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.issueTypeFEATURE_REQUEST {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.issueTypeOTHERS {
+  background: #e9d5ff;
+  color: #6b21a8;
+}
+
+.errorState {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.errorHeading {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #000;
+  margin: 0 0 0.5rem 0;
+}
+
+.errorMessage {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: #666;
+  margin: 0 0 2rem 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .issueDetail {
+    padding: 1.5rem 1rem;
+  }
+
+  .content {
+    padding: 1.5rem;
+  }
+
+  .heading {
+    font-size: 1.75rem;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .heading {
+    font-size: 1.5rem;
+  }
+
+  .content {
+    padding: 1rem;
+  }
+
+  .details {
+    gap: 1.25rem;
+  }
+}
+

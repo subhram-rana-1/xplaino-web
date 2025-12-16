@@ -113,7 +113,7 @@ export const Navbar: React.FC = () => {
                 </Link>
               </div>
             </div>
-            <Link to="/report-issue" className={styles.navLink} onClick={closeMenu}>
+            <Link to="/issues" className={styles.navLink} onClick={closeMenu}>
               Report Issue
             </Link>
           </div>

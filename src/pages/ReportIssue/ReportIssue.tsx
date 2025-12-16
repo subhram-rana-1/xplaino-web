@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './ReportIssue.module.css';
 import { DropdownIcon } from '@/shared/components/DropdownIcon';
-
-enum IssueType {
-  GLITCH = 'GLITCH',
-  SUBSCRIPTION = 'SUBSCRIPTION',
-  AUTHENTICATION = 'AUTHENTICATION',
-  FEATURE_REQUEST = 'FEATURE_REQUEST',
-  OTHERS = 'OTHERS',
-}
+import { useAuth } from '@/shared/hooks/useAuth';
+import { reportIssue } from '@/shared/services/issues.service';
+import { IssueType } from '@/shared/types/issues.types';
+import { Toast } from '@/shared/components/Toast';
+import { LoginModal } from '@/shared/components/LoginModal';
 
 const ISSUE_TYPES_REQUIRING_URL = [IssueType.GLITCH];
 
@@ -17,6 +15,7 @@ const MAX_FILES = 3; // Maximum number of files allowed
 
 interface FormErrors {
   issueType?: string;
+  heading?: string;
   description?: string;
   webpageUrl?: string;
   files?: string;
@@ -28,13 +27,17 @@ interface FormErrors {
  * @returns JSX element
  */
 export const ReportIssue: React.FC = () => {
+  const { isLoggedIn, accessToken } = useAuth();
+  const navigate = useNavigate();
   const [issueType, setIssueType] = useState<IssueType | ''>('');
+  const [heading, setHeading] = useState('');
   const [description, setDescription] = useState('');
   const [webpageUrl, setWebpageUrl] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' } | null>(null);
 
   const requiresUrl = issueType && ISSUE_TYPES_REQUIRING_URL.includes(issueType as IssueType);
 
@@ -107,6 +110,10 @@ export const ReportIssue: React.FC = () => {
       newErrors.issueType = 'Issue type is required';
     }
 
+    if (heading.trim().length > 100) {
+      newErrors.heading = 'Heading must be less than 100 characters';
+    }
+
     if (!description.trim()) {
       newErrors.description = 'Description is required';
     }
@@ -121,42 +128,36 @@ export const ReportIssue: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) {
+    if (!validateForm() || !isLoggedIn || !accessToken) {
       return;
     }
 
-    // Prepare API payload
-    const payload = {
-      issueType: issueType as IssueType,
-      description: description.trim(),
-      ...(requiresUrl && { webpageUrl: webpageUrl.trim() }),
-      ...(files.length > 0 && { attachments: files }),
-    };
+    setIsSubmitting(true);
 
-    // Handle form submission here
-    console.log('Issue reported:', payload);
-    // You can add API call or other logic here
+    try {
+      // Prepare API payload
+      const payload = {
+        type: issueType as IssueType,
+        heading: heading.trim() || null,
+        description: description.trim(),
+        webpage_url: requiresUrl && webpageUrl.trim() ? webpageUrl.trim() : null,
+      };
 
-    setIsSubmitted(true);
-    // Reset form
-    setIssueType('');
-    setDescription('');
-    setWebpageUrl('');
-    setFiles([]);
-    setErrors({});
-  };
+      const response = await reportIssue(accessToken, payload);
 
-  const handleReportAnother = () => {
-    setIsSubmitted(false);
-    setIssueType('');
-    setDescription('');
-    setWebpageUrl('');
-    setFiles([]);
-    setErrors({});
-    setIsDropdownOpen(false);
+      // Redirect to /issues with ticket_id in state
+      navigate('/issues', { 
+        state: { ticketId: response.ticket_id } 
+      });
+    } catch (error) {
+      console.error('Error reporting issue:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to report issue';
+      setToast({ message: errorMessage, type: 'error' });
+      setIsSubmitting(false);
+    }
   };
 
   const issueTypeOptions = [
@@ -199,11 +200,15 @@ export const ReportIssue: React.FC = () => {
     };
   }, [isDropdownOpen]);
 
+  if (!isLoggedIn) {
+    return <LoginModal />;
+  }
+
   return (
     <div className={styles.reportIssue}>
       <div className={styles.container}>
         <form 
-          className={`${styles.form} ${isSubmitted ? styles.formHidden : styles.formVisible}`} 
+          className={styles.form}
           onSubmit={handleSubmit}
         >
           <h1 className={styles.heading}>Report an Issue</h1>
@@ -248,6 +253,26 @@ export const ReportIssue: React.FC = () => {
               )}
             </div>
             {errors.issueType && <span className={styles.errorMessage}>{errors.issueType}</span>}
+          </div>
+
+          {/* Heading - Optional */}
+          <div className={styles.fieldGroup}>
+            <label htmlFor="heading" className={styles.label}>
+              Heading <span className={styles.optional}>(Optional)</span>
+            </label>
+            <input
+              id="heading"
+              type="text"
+              className={`${styles.input} ${errors.heading ? styles.inputError : ''}`}
+              value={heading}
+              onChange={(e) => {
+                setHeading(e.target.value);
+                setErrors((prev) => ({ ...prev, heading: undefined }));
+              }}
+              placeholder="Brief summary of the issue"
+              maxLength={100}
+            />
+            {errors.heading && <span className={styles.errorMessage}>{errors.heading}</span>}
           </div>
 
           {/* Webpage URL - Conditional */}
@@ -337,22 +362,23 @@ export const ReportIssue: React.FC = () => {
             )}
           </div>
 
-          <button type="submit" className={styles.submitButton}>
-            Submit
+          <button 
+            type="submit" 
+            className={styles.submitButton}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Submitting...' : 'Submit'}
           </button>
         </form>
-        <div 
-          className={`${styles.successMessage} ${isSubmitted ? styles.successVisible : styles.successHidden}`}
-        >
-          <p className={styles.successText}>We have received your issue, We will get back to you soon</p>
-          <button 
-            type="button" 
-            className={styles.reportAnotherButton}
-            onClick={handleReportAnother}
-          >
-            Report another issue
-          </button>
-        </div>
+
+        {/* Toast Notification */}
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
+          />
+        )}
       </div>
     </div>
   );

@@ -7,6 +7,8 @@ import { Footer } from '@/shared/components/Footer';
 import { Home } from '@/pages/Home';
 import { Contact } from '@/pages/Contact';
 import { ReportIssue } from '@/pages/ReportIssue';
+import { Issues } from '@/pages/Issues';
+import { IssueDetail } from '@/pages/IssueDetail';
 import { TermsAndConditions } from '@/pages/TermsAndConditions';
 import { PrivacyPolicy } from '@/pages/PrivacyPolicy';
 import { RefundPolicy } from '@/pages/RefundPolicy';
@@ -33,6 +35,8 @@ export const App: React.FC = () => {
               <Route path="/" element={<Home />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/report-issue" element={<ReportIssue />} />
+              <Route path="/issues" element={<Issues />} />
+              <Route path="/issue/:ticketId" element={<IssueDetail />} />
               <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/refund-policy" element={<RefundPolicy />} />
