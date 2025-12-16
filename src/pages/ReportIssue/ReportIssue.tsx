@@ -146,7 +146,7 @@ export const ReportIssue: React.FC = () => {
         webpage_url: requiresUrl && webpageUrl.trim() ? webpageUrl.trim() : null,
       };
 
-      const response = await reportIssue(accessToken, payload);
+      const response = await reportIssue(accessToken, payload, files.length > 0 ? files : undefined);
 
       // Redirect to /issues with ticket_id in state
       navigate('/issues', { 
@@ -201,7 +201,7 @@ export const ReportIssue: React.FC = () => {
   }, [isDropdownOpen]);
 
   if (!isLoggedIn) {
-    return <LoginModal />;
+    return <LoginModal actionText="report an issue" />;
   }
 
   return (

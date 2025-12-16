@@ -19,6 +19,18 @@ export interface ReportIssueRequest {
   webpage_url?: string | null;
 }
 
+export interface FileUploadResponse {
+  id: string;
+  file_name: string;
+  file_type: string;
+  entity_type: string;
+  entity_id: string;
+  s3_url: string | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface IssueResponse {
   id: string;
   ticket_id: string;
@@ -32,6 +44,7 @@ export interface IssueResponse {
   closed_at: string | null;
   created_at: string;
   updated_at: string;
+  file_uploads: FileUploadResponse[];
 }
 
 export interface GetMyIssuesResponse {

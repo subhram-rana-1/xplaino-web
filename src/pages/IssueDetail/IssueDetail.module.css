@@ -265,6 +265,77 @@
   text-decoration: underline;
 }
 
+.filesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.fileItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.imagePreview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 100%;
+}
+
+.previewImage {
+  max-width: 100%;
+  max-height: 400px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid var(--very-light-purple);
+  background: #fafafa;
+}
+
+.fileLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--purple);
+  text-decoration: none;
+  padding: 0.5rem 0.75rem;
+  background-color: #f5f0ff;
+  border: 1px solid var(--very-light-purple);
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  width: fit-content;
+}
+
+.fileLink:hover {
+  background-color: #ede5ff;
+  text-decoration: none;
+}
+
+.fileIcon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.fileName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 300px;
+  font-weight: 500;
+}
+
+.fileOpenIcon {
+  font-size: 0.875rem;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
 .issueTypeBadge {
   display: inline-block;
   font-family: 'Inter', sans-serif;
@@ -351,6 +422,14 @@
 
   .details {
     gap: 1.25rem;
+  }
+
+  .previewImage {
+    max-height: 250px;
+  }
+
+  .fileName {
+    max-width: 200px;
   }
 }
 

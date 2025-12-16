@@ -222,6 +222,50 @@ export const IssueDetail: React.FC = () => {
               </div>
             )}
 
+            {issue.file_uploads && issue.file_uploads.length > 0 && (
+              <div className={styles.detailRow}>
+                <label className={styles.label}>Attachments</label>
+                <div className={styles.filesContainer}>
+                  {issue.file_uploads.map((file) => (
+                    <div key={file.id} className={styles.fileItem}>
+                      {file.file_type === 'IMAGE' && file.s3_url ? (
+                        <div className={styles.imagePreview}>
+                          <img
+                            src={file.s3_url}
+                            alt={file.file_name}
+                            className={styles.previewImage}
+                            loading="lazy"
+                          />
+                          <a
+                            href={file.s3_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.fileLink}
+                            title={file.file_name}
+                          >
+                            <span className={styles.fileName}>{file.file_name}</span>
+                            <span className={styles.fileOpenIcon}>↗</span>
+                          </a>
+                        </div>
+                      ) : (
+                        <a
+                          href={file.s3_url || '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.fileLink}
+                          title={file.file_name}
+                        >
+                          <span className={styles.fileIcon}>📄</span>
+                          <span className={styles.fileName}>{file.file_name}</span>
+                          <span className={styles.fileOpenIcon}>↗</span>
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {issue.closed_at && (
               <div className={styles.detailRow}>
                 <label className={styles.label}>Closed At</label>

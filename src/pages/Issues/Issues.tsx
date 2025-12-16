@@ -266,6 +266,29 @@ export const Issues: React.FC = () => {
                     </a>
                   </div>
                 )}
+                {issue.file_uploads && issue.file_uploads.length > 0 && (
+                  <div className={styles.issueFiles}>
+                    <span className={styles.filesLabel}>Attachments:</span>
+                    <div className={styles.filesList}>
+                      {issue.file_uploads.map((file) => (
+                        <a
+                          key={file.id}
+                          href={file.s3_url || '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.fileLink}
+                          onClick={(e) => e.stopPropagation()}
+                          title={file.file_name}
+                        >
+                          <span className={styles.fileIcon}>
+                            {file.file_type === 'IMAGE' ? '🖼️' : '📄'}
+                          </span>
+                          <span className={styles.fileName}>{file.file_name}</span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>

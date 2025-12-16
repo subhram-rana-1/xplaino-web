@@ -44,18 +44,39 @@ export async function getMyIssues(
  */
 export async function reportIssue(
   accessToken: string,
-  body: ReportIssueRequest
+  body: ReportIssueRequest,
+  files?: File[]
 ): Promise<IssueResponse> {
+  // Create FormData for multipart/form-data request
+  const formData = new FormData();
+  
+  // Append form fields
+  formData.append('type', body.type);
+  if (body.heading !== null && body.heading !== undefined) {
+    formData.append('heading', body.heading);
+  }
+  formData.append('description', body.description);
+  if (body.webpage_url !== null && body.webpage_url !== undefined) {
+    formData.append('webpage_url', body.webpage_url);
+  }
+  
+  // Append files if provided
+  if (files && files.length > 0) {
+    files.forEach((file) => {
+      formData.append('files', file);
+    });
+  }
+
   const response = await fetch(
     `${authConfig.catenBaseUrl}/api/issue/`,
     {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        // Don't set Content-Type header - let browser set it with boundary for multipart/form-data
         'Authorization': `Bearer ${accessToken}`,
         'X-Source': 'XPLAINO_WEB',
       },
-      body: JSON.stringify(body),
+      body: formData,
     }
   );
 
