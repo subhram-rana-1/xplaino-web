@@ -1,0 +1,127 @@
+.commentSection {
+  background: white;
+  border-radius: 0;
+  padding: 1.5rem;
+  margin-top: 2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.sectionTitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--purple);
+  margin: 0;
+}
+
+.addCommentButton {
+  background: var(--purple);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.addCommentButton:hover {
+  background: #7c3aed;
+  transform: translateY(-1px);
+}
+
+.addCommentButton:active {
+  transform: translateY(0);
+}
+
+.inputContainer {
+  margin-bottom: 1.5rem;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.commentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.emptyText {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  color: #999;
+  margin: 0;
+}
+
+.errorMessage {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .commentSection {
+    padding: 1.25rem;
+    margin-top: 1.5rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.125rem;
+  }
+
+  .addCommentButton {
+    font-size: 0.8125rem;
+    padding: 0.4375rem 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .commentSection {
+    padding: 1rem;
+  }
+
+  .sectionTitle {
+    font-size: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .addCommentButton {
+    font-size: 0.8125rem;
+    padding: 0.4375rem 0.875rem;
+    width: 100%;
+  }
+}
+

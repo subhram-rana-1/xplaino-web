@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FiArrowLeft, FiCopy, FiCheck } from 'react-icons/fi';
 import styles from './IssueDetail.module.css';
@@ -6,6 +6,10 @@ import { useAuth } from '@/shared/hooks/useAuth';
 import { LoginModal } from '@/shared/components/LoginModal';
 import { IssueType } from '@/shared/types/issues.types';
 import type { IssueResponse } from '@/shared/types/issues.types';
+import { CommentSection } from './components/CommentSection';
+import { getCommentsByEntity } from '@/shared/services/comments.service';
+import { EntityType } from '@/shared/types/comments.types';
+import type { CommentResponse } from '@/shared/types/comments.types';
 
 /**
  * IssueDetail - Issue detail page component displaying a single issue
@@ -13,12 +17,43 @@ import type { IssueResponse } from '@/shared/types/issues.types';
  * @returns JSX element
  */
 export const IssueDetail: React.FC = () => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, accessToken } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [copiedTicketId, setCopiedTicketId] = useState(false);
+  const [comments, setComments] = useState<CommentResponse[]>([]);
+  const [lastFetchedIssueId, setLastFetchedIssueId] = useState<string | null>(null);
 
   const issue = (location.state as { issue?: IssueResponse } | null)?.issue;
+
+  // Fetch comments when issue is loaded
+  useEffect(() => {
+    if (!issue?.id || !isLoggedIn || !accessToken) {
+      return;
+    }
+
+    // Only fetch if we haven't fetched for this issue yet
+    if (lastFetchedIssueId === issue.id) {
+      return;
+    }
+
+    const fetchComments = async () => {
+      try {
+        const response = await getCommentsByEntity(
+          accessToken,
+          EntityType.ISSUE,
+          issue.id
+        );
+        setComments(response.comments);
+        setLastFetchedIssueId(issue.id);
+      } catch (error) {
+        console.error('Failed to fetch comments:', error);
+        // Comments will remain empty on error
+      }
+    };
+
+    fetchComments();
+  }, [issue?.id, isLoggedIn, accessToken, lastFetchedIssueId]);
 
   if (!isLoggedIn) {
     return (
@@ -195,6 +230,16 @@ export const IssueDetail: React.FC = () => {
             )}
           </div>
         </div>
+
+        {isLoggedIn && accessToken && issue?.id && (
+          <CommentSection
+            issueId={issue.id}
+            accessToken={accessToken}
+            comments={comments}
+            onCommentsChange={setComments}
+            issueCreatedBy={issue.created_by}
+          />
+        )}
       </div>
     </div>
   );
