@@ -18,7 +18,7 @@ type TabFilter = 'ALL' | 'OPEN' | 'WORK_IN_PROGRESS' | 'DISCARDED' | 'RESOLVED';
 
 export const Issues: React.FC = () => {
   const { isLoggedIn, accessToken } = useAuth();
-  const { state, fetchIssues } = useMyIssues();
+  const { state, fetchIssues, resetIssues } = useMyIssues();
   const navigate = useNavigate();
   const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' } | null>(null);
   const [activeTab, setActiveTab] = useState<TabFilter>('OPEN');
@@ -47,18 +47,32 @@ export const Issues: React.FC = () => {
     }
   }, [isLoggedIn, accessToken, activeTab, fetchIssues]);
 
-  // Check for success message from navigation state
+  // Check for success message from navigation state and refresh issues
   useEffect(() => {
     const navigationState = location.state as { ticketId?: string } | null;
-    if (navigationState?.ticketId) {
+    if (navigationState?.ticketId && isLoggedIn && accessToken) {
       setToast({ 
         message: `Issue created successfully. Ticket ID: ${navigationState.ticketId}`, 
         type: 'success' 
       });
+      
+      // Clear cache and refresh issues to show the newly created issue
+      resetIssues();
+      setIsTransitioning(true);
+      const statuses = activeTab === 'ALL' ? undefined : [activeTab];
+      fetchIssues(accessToken, statuses)
+        .then(() => {
+          setTimeout(() => setIsTransitioning(false), 150);
+        })
+        .catch((error) => {
+          console.error('Error refreshing issues:', error);
+          setIsTransitioning(false);
+        });
+      
       // Clear the state to prevent showing the toast again on re-render
       window.history.replaceState({}, document.title);
     }
-  }, [location]);
+  }, [location, isLoggedIn, accessToken, activeTab, fetchIssues, resetIssues]);
 
   const getIssueTypeLabel = (type: string): string => {
     const typeMap: Record<string, string> = {
