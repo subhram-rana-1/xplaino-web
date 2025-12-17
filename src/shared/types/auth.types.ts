@@ -13,6 +13,7 @@ export interface UserInfo {
   lastName?: string | null;
   email: string;
   picture?: string | null;
+  role?: 'ADMIN' | 'SUPER_ADMIN' | null;
 }
 
 export interface LoginRequest {

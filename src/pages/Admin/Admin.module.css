@@ -1,0 +1,127 @@
+.admin {
+  display: flex;
+  min-height: calc(100vh - 200px);
+  width: 100%;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #f8f9fa;
+  border-right: 1px solid #e0e0e0;
+  padding: 2rem 0;
+  flex-shrink: 0;
+}
+
+.sidebarTitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--purple);
+  margin: 0 0 2rem 0;
+  padding: 0 1.5rem;
+}
+
+.sidebarNav {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0 1rem;
+}
+
+.sidebarButton {
+  padding: 0.875rem 1.25rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebarButton:hover {
+  background-color: #e9ecef;
+  color: var(--purple);
+}
+
+.sidebarButtonActive {
+  background-color: var(--purple);
+  color: white;
+}
+
+.sidebarButtonActive:hover {
+  background-color: var(--darker-purple);
+  color: white;
+}
+
+.content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+  background: white;
+}
+
+.comingSoon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+}
+
+.comingSoon h2 {
+  font-family: 'Inter', sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #000;
+  margin: 0 0 1rem 0;
+}
+
+.comingSoon p {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.125rem;
+  color: #666;
+  margin: 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .admin {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 1rem 0;
+  }
+
+  .sidebarTitle {
+    padding: 0 1rem;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+  }
+
+  .sidebarNav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 0 1rem;
+    gap: 0.5rem;
+  }
+
+  .sidebarButton {
+    white-space: nowrap;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+  }
+
+  .content {
+    padding: 1.5rem 1rem;
+  }
+}
+

@@ -1,0 +1,264 @@
+.pricing {
+  min-height: 60vh;
+  padding: 3rem 1rem;
+  background: none;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  max-width: 1200px;
+  width: 100%;
+}
+
+.heading {
+  font-family: 'Inter', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 400;
+  color: #000;
+  margin: 0 0 3rem 0;
+  text-align: center;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.card {
+  background: white;
+  border-radius: 30px;
+  padding: 1.5rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(149, 39, 245, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(149, 39, 245, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(149, 39, 245, 0.02) 0%, transparent 50%);
+}
+
+.card:hover {
+  transform: scale(1.005);
+  box-shadow: 0 4px 16px rgba(149, 39, 245, 0.3);
+}
+
+.cardMiddle {
+  background-image: 
+    linear-gradient(135deg, rgba(149, 39, 245, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(149, 39, 245, 0.03) 0%, transparent 70%);
+}
+
+.banner {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 20px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.cardTitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 0.75rem 0;
+  text-align: center;
+}
+
+.price {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #000;
+  margin: 0 0 0.75rem 0;
+  text-align: center;
+}
+
+.description {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  color: #666;
+  margin: 0 0 1rem 0;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.buttonPrimary,
+.buttonSecondary {
+  padding: 0.75rem 1.5rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: var(--button-border-radius);
+  border: 2px solid;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.buttonPrimary {
+  background-color: var(--purple);
+  color: white;
+  border-color: var(--purple);
+}
+
+.buttonPrimary:hover {
+  background-color: var(--darker-purple);
+  border-color: var(--darker-purple);
+}
+
+.buttonSecondary {
+  background-color: white;
+  color: #333;
+  border-color: #ddd;
+}
+
+.buttonSecondary:hover {
+  background-color: #f9f9f9;
+  border-color: #ccc;
+}
+
+.buttonPrimary:active,
+.buttonSecondary:active {
+  transform: scale(0.98);
+}
+
+.features {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.featuresPrefix {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #000;
+  margin: 0 0 0.75rem 0;
+}
+
+.featuresList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.featureItem {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  color: #333;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  line-height: 1.4;
+}
+
+.featureText {
+  flex: 1;
+}
+
+.featureText strong {
+  font-weight: 600;
+}
+
+.checkmark {
+  color: var(--green);
+  font-weight: bold;
+  font-size: 1.125rem;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1.125rem;
+  color: #666;
+}
+
+.pricingEmpty {
+  min-height: calc(100vh - 200px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  padding: 0;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 0;
+}
+
+.emptyHeading {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #000;
+  margin: 0;
+}
+
+.emptyMessage {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+}
+
+/* Responsive design */
+@media (max-width: 968px) {
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .pricing {
+    padding: 2rem 1rem;
+  }
+
+  .heading {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .cards {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .card {
+    padding: 1.25rem;
+    border-radius: 30px;
+  }
+
+  .cardTitle {
+    font-size: 1.25rem;
+  }
+
+  .price {
+    font-size: 1rem;
+  }
+
+  .description {
+    font-size: 0.875rem;
+  }
+}
+

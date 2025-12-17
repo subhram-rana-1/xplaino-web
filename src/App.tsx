@@ -16,6 +16,9 @@ import { MyWords } from '@/pages/MyLearnings/Words';
 import { MyParagraphs } from '@/pages/MyLearnings/Paragraphs';
 import { MyPages } from '@/pages/MyLearnings/Pages';
 import { Login } from '@/pages/Login';
+import { Pricing } from '@/pages/Pricing';
+import { Admin } from '@/pages/Admin';
+import { PricingEdit } from '@/pages/Admin/components/PricingEdit';
 import { authConfig } from '@/config/auth.config';
 import { AuthProvider } from '@/shared/hooks/AuthContext';
 
@@ -34,6 +37,7 @@ export const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/pricing" element={<Pricing />} />
               <Route path="/report-issue" element={<ReportIssue />} />
               <Route path="/issues" element={<Issues />} />
               <Route path="/issue/:ticketId" element={<IssueDetail />} />
@@ -44,6 +48,8 @@ export const App: React.FC = () => {
               <Route path="/my-paragraphs" element={<MyParagraphs />} />
               <Route path="/my-pages" element={<MyPages />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/admin/pricing/:pricingId" element={<PricingEdit />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </PageContent>

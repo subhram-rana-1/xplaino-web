@@ -113,6 +113,14 @@ export const Navbar: React.FC = () => {
                 </Link>
               </div>
             </div>
+            <Link to="/pricing" className={styles.navLink} onClick={closeMenu}>
+              Pricing
+            </Link>
+            {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
+              <Link to="/admin" className={styles.navLink} onClick={closeMenu}>
+                Admin
+              </Link>
+            )}
             <Link to="/issues" className={styles.navLink} onClick={closeMenu}>
               Report Issue
             </Link>
