@@ -74,7 +74,7 @@ export const IssueDetail: React.FC = () => {
             </p>
             <button 
               className={styles.backButton}
-              onClick={() => navigate('/issues')}
+              onClick={() => navigate('/user/issues')}
             >
               <FiArrowLeft />
               <span>Back to Issues</span>
@@ -139,7 +139,7 @@ export const IssueDetail: React.FC = () => {
       <div className={styles.container}>
         <button 
           className={styles.backButton}
-          onClick={() => navigate('/issues')}
+          onClick={() => navigate('/user/issues')}
         >
           <FiArrowLeft />
           <span>Back to Issues</span>

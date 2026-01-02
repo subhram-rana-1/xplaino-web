@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { FiArrowLeft, FiCopy, FiCheck, FiChevronDown } from 'react-icons/fi';
 import styles from './AdminIssueDetail.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
-import { LoginModal } from '@/shared/components/LoginModal';
 import { IssueType, IssueStatus } from '@/shared/types/issues.types';
 import type { IssueResponse } from '@/shared/types/issues.types';
 import { updateIssue } from '@/shared/services/issues.service';
@@ -15,7 +14,7 @@ import { Toast } from '@/shared/components/Toast';
  * @returns JSX element
  */
 export const AdminIssueDetail: React.FC = () => {
-  const { isLoggedIn, accessToken, user } = useAuth();
+  const { accessToken } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [copiedTicketId, setCopiedTicketId] = useState(false);
@@ -49,39 +48,6 @@ export const AdminIssueDetail: React.FC = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isStatusDropdownOpen]);
-
-  // Check if user is admin
-  const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
-
-  if (!isLoggedIn) {
-    return (
-      <div className={styles.issueDetail}>
-        <LoginModal actionText="view issue details" />
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className={styles.issueDetail}>
-        <div className={styles.container}>
-          <div className={styles.errorState}>
-            <h2 className={styles.errorHeading}>Access Denied</h2>
-            <p className={styles.errorMessage}>
-              You don't have permission to access this page.
-            </p>
-            <button 
-              className={styles.backButton}
-              onClick={() => navigate('/admin')}
-            >
-              <FiArrowLeft />
-              <span>Back to Admin</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (!issue) {
     return (

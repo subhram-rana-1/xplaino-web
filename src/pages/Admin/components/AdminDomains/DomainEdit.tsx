@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, useLocation, Navigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FiRefreshCw } from 'react-icons/fi';
 import styles from './DomainEdit.module.css';
 import { updateDomain, getDomainById } from '@/shared/services/domain.service';
@@ -16,7 +16,7 @@ export const DomainEdit: React.FC = () => {
   const { domainId } = useParams<{ domainId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const { isLoggedIn, user, accessToken } = useAuth();
+  const { accessToken } = useAuth();
 
   // Get domain data from navigation state
   const domainFromState = (location.state as { domain?: DomainResponse })?.domain;
@@ -37,11 +37,6 @@ export const DomainEdit: React.FC = () => {
     status: 'ALLOWED' as DomainStatus,
   });
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
-
-  // Redirect non-admin users
-  if (!isLoggedIn || (user?.role !== 'ADMIN' && user?.role !== 'SUPER_ADMIN')) {
-    return <Navigate to="/" replace />;
-  }
 
   // Fetch domain if not in state
   useEffect(() => {

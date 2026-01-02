@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { FiX } from 'react-icons/fi';
 import styles from './Toast.module.css';
 
 export interface ToastProps {
@@ -19,7 +20,14 @@ export const Toast: React.FC<ToastProps> = ({ message, onClose, duration = 3000,
 
   return (
     <div className={`${styles.toast} ${type === 'error' ? styles.toastError : ''}`}>
-      {message}
+      <span className={styles.message}>{message}</span>
+      <button 
+        className={styles.closeButton}
+        onClick={onClose}
+        aria-label="Close toast"
+      >
+        <FiX size={18} />
+      </button>
     </div>
   );
 };

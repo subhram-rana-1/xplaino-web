@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, useLocation, Navigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import styles from './PricingEdit.module.css';
 import { updatePricing, deletePricing } from '@/shared/services/pricing.service';
 import type { PricingResponse, UpdatePricingRequest } from '@/shared/types/pricing.types';
@@ -16,7 +16,7 @@ export const PricingEdit: React.FC = () => {
   const { pricingId } = useParams<{ pricingId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const { isLoggedIn, user, accessToken } = useAuth();
+  const { accessToken } = useAuth();
 
   // Get pricing data from navigation state
   const pricingFromState = (location.state as { pricing?: PricingResponse })?.pricing;
@@ -52,11 +52,6 @@ export const PricingEdit: React.FC = () => {
   });
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
   const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false);
-
-  // Redirect non-admin users
-  if (!isLoggedIn || (user?.role !== 'ADMIN' && user?.role !== 'SUPER_ADMIN')) {
-    return <Navigate to="/" replace />;
-  }
 
   // Initialize form data from pricing (from navigation state)
   useEffect(() => {

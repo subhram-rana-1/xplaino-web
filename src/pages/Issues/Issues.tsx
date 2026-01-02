@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FiCopy, FiCheck, FiPlus } from 'react-icons/fi';
+import { FiCopy, FiCheck, FiPlus, FiRefreshCw } from 'react-icons/fi';
 import styles from './Issues.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { LoginModal } from '@/shared/components/LoginModal';
@@ -166,6 +166,23 @@ export const Issues: React.FC = () => {
     setActiveTab(tabValue);
   };
 
+  const handleRefresh = async () => {
+    if (!accessToken) return;
+    
+    setIsTransitioning(true);
+    const statuses = activeTab === 'ALL' ? undefined : [activeTab];
+    try {
+      // Clear cache to force fresh API call
+      resetIssues();
+      await fetchIssues(accessToken, statuses);
+      setTimeout(() => setIsTransitioning(false), 150);
+    } catch (error) {
+      console.error('Error refreshing issues:', error);
+      setToast({ message: 'Failed to refresh issues', type: 'error' });
+      setIsTransitioning(false);
+    }
+  };
+
   if (!isLoggedIn) {
     return (
       <div className={styles.issues}>
@@ -180,7 +197,17 @@ export const Issues: React.FC = () => {
     <div className={styles.issues}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <h1 className={styles.heading}>My Issues</h1>
+          <div className={styles.headingContainer}>
+            <h1 className={styles.heading}>My Issues</h1>
+            <button
+              className={styles.refreshButton}
+              onClick={handleRefresh}
+              disabled={state.isLoading}
+              title="Refresh issues"
+            >
+              <FiRefreshCw className={state.isLoading ? styles.spin : ''} />
+            </button>
+          </div>
           <Link to="/report-issue" className={styles.reportButton}>
             <FiPlus />
             <span>Report an issue</span>

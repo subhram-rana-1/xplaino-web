@@ -194,6 +194,14 @@ export const AdminTickets: React.FC<AdminTicketsProps> = ({ accessToken }) => {
   return (
     <div className={styles.adminTickets}>
       <div className={styles.header}>
+        <button
+          className={styles.refreshButton}
+          onClick={() => fetchIssues(currentOffset)}
+          disabled={isLoading}
+          title="Refresh issues"
+        >
+          <FiRefreshCw className={isLoading ? styles.spin : ''} />
+        </button>
         <div className={styles.filters}>
           {/* Ticket ID Input */}
           <div className={styles.filterGroup}>

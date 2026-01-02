@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FiRefreshCw } from 'react-icons/fi';
 import styles from './AdminPricing.module.css';
 import { getAllPricings, getLivePricings } from '@/shared/services/pricing.service';
 import type { PricingResponse } from '@/shared/types/pricing.types';
@@ -30,33 +31,33 @@ export const AdminPricing: React.FC<AdminPricingProps> = ({ accessToken }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' } | null>(null);
 
+  const fetchPricings = async () => {
+    if (!accessToken) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      let response;
+      
+      if (filter === 'live') {
+        response = await getLivePricings();
+      } else {
+        response = await getAllPricings(accessToken);
+      }
+      
+      setPricings(response.pricings);
+    } catch (error) {
+      console.error('Error fetching pricings:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load pricing plans';
+      setToast({ message: errorMessage, type: 'error' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchPricings = async () => {
-      if (!accessToken) {
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        setIsLoading(true);
-        let response;
-        
-        if (filter === 'live') {
-          response = await getLivePricings();
-        } else {
-          response = await getAllPricings(accessToken);
-        }
-        
-        setPricings(response.pricings);
-      } catch (error) {
-        console.error('Error fetching pricings:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Failed to load pricing plans';
-        setToast({ message: errorMessage, type: 'error' });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchPricings();
   }, [filter, accessToken]);
 
@@ -174,6 +175,14 @@ export const AdminPricing: React.FC<AdminPricingProps> = ({ accessToken }) => {
   return (
     <div className={styles.adminPricing}>
       <div className={styles.header}>
+        <button
+          className={styles.refreshButton}
+          onClick={() => fetchPricings()}
+          disabled={isLoading}
+          title="Refresh pricing plans"
+        >
+          <FiRefreshCw className={isLoading ? styles.spin : ''} />
+        </button>
         <div className={styles.filterContainer}>
           <button
             className={styles.filterButton}
@@ -326,23 +335,8 @@ export const AdminPricing: React.FC<AdminPricingProps> = ({ accessToken }) => {
         onClose={() => setIsModalOpen(false)}
         onSuccess={() => {
           // Refresh pricings after successful creation
-          const fetchPricings = async () => {
-            if (!accessToken) return;
-
-            try {
-              let response;
-              if (filter === 'live') {
-                response = await getLivePricings();
-              } else {
-                response = await getAllPricings(accessToken);
-              }
-              setPricings(response.pricings);
-              setToast({ message: 'Pricing created successfully', type: 'success' });
-            } catch (error) {
-              console.error('Error refreshing pricings:', error);
-            }
-          };
           fetchPricings();
+          setToast({ message: 'Pricing created successfully', type: 'success' });
         }}
         accessToken={accessToken}
       />

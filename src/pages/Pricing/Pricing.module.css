@@ -208,21 +208,22 @@
 .emptyState {
   text-align: center;
   padding: 0;
-}
-
-.emptyHeading {
-  font-family: 'Inter', sans-serif;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #000;
-  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
 }
 
 .emptyMessage {
   font-family: 'Inter', sans-serif;
-  font-size: 1rem;
+  font-size: 2rem;
+  font-weight: 300;
   color: #666;
   margin: 0;
+}
+
+.chromeButtonContainer {
+  margin-top: 0.5rem;
 }
 
 /* Responsive design */

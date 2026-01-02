@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '@/shared/hooks/useAuth';
+import { FiX } from 'react-icons/fi';
 import styles from './LoginModal.module.css';
 import loginStyles from '../../../pages/Login/Login.module.css';
 
 interface LoginModalProps {
   actionText: string;
+  onClose?: () => void;
 }
 
 /**
@@ -15,7 +17,7 @@ interface LoginModalProps {
  * @param props - Component props
  * @returns JSX element
  */
-export const LoginModal: React.FC<LoginModalProps> = ({ actionText }) => {
+export const LoginModal: React.FC<LoginModalProps> = ({ actionText, onClose }) => {
   const { login, isLoading: authLoading } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,6 +52,15 @@ export const LoginModal: React.FC<LoginModalProps> = ({ actionText }) => {
     <div className={loginStyles.login}>
       <div className={loginStyles.content}>
         <div className={loginStyles.loginContainer}>
+          {onClose && (
+            <button
+              className={styles.closeButton}
+              onClick={onClose}
+              aria-label="Close modal"
+            >
+              <FiX size={20} />
+            </button>
+          )}
           <p className={styles.actionText}>Login to {actionText}</p>
           <div className={loginStyles.googleButtonWrapper}>
             <GoogleLogin

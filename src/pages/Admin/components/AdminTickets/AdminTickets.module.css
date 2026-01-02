@@ -11,6 +11,46 @@
   gap: 1rem;
 }
 
+.refreshButton {
+  padding: 0.625rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1.125rem;
+  color: var(--purple);
+  background: white;
+  border: 2px solid var(--purple);
+  border-radius: var(--button-border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 44px;
+}
+
+.refreshButton:hover:not(:disabled) {
+  background: var(--purple);
+  color: white;
+}
+
+.refreshButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.refreshButton .spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .filters {
   display: flex;
   flex-wrap: wrap;

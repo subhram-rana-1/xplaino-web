@@ -7,3 +7,40 @@
   text-align: center;
 }
 
+.closeButton {
+  position: absolute;
+  top: 3rem;
+  right: 3rem;
+  background: white;
+  border: 2px solid var(--purple);
+  color: var(--purple);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease, transform 0.1s ease, color 0.2s ease;
+  width: 36px;
+  height: 36px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+.closeButton:hover {
+  background-color: var(--purple);
+  color: white;
+  transform: scale(1.1);
+}
+
+.closeButton:active {
+  transform: scale(0.95);
+  background-color: var(--darker-purple);
+}
+
+@media (max-width: 768px) {
+  .closeButton {
+    top: 2rem;
+    right: 1.5rem;
+  }
+}

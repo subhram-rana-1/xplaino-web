@@ -40,6 +40,7 @@
   font-family: 'Inter', sans-serif;
   transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
   border: 2px solid white;
+  cursor: pointer;
 }
 
 .loginButton:hover {
@@ -59,6 +60,13 @@
   gap: 0.75rem;
 }
 
+.nameContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
 .welcomeText {
   font-family: 'Inter', sans-serif;
   font-size: 1.05rem;
@@ -73,6 +81,56 @@
   object-fit: cover;
   border: 2px solid white;
   flex-shrink: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  display: block;
+}
+
+.profilePicture:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.profilePicturePlaceholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid white;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--very-light-purple);
+  color: var(--purple);
+  font-family: 'Inter', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profilePicturePlaceholder:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.adminBadge {
+  background-color: #fbbf24;
+  color: white;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: 8px;
+  border: 2px solid white;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.superAdminBadge {
+  background-color: #ef4444;
 }
 
 .logoutButton {
@@ -108,6 +166,186 @@
 .logoutIcon {
   width: 22px;
   height: 22px;
+}
+
+/* Profile Popover */
+.userSection {
+  position: relative;
+}
+
+.profilePopover {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  padding: 0;
+  z-index: 1001;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+}
+
+.profilePopoverOpen {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.popoverItem {
+  display: block;
+  padding: 0.75rem 1.25rem;
+  color: var(--purple);
+  font-size: 0.95rem;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.popoverItem:first-child {
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+}
+
+.popoverItem:hover {
+  background-color: var(--very-light-purple);
+}
+
+.popoverLogoutButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1.25rem;
+  background-color: transparent;
+  border: none;
+  color: #ef4444;
+  font-size: 0.95rem;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  margin-top: 0;
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
+}
+
+.popoverLogoutButton:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.popoverLogoutButton:active {
+  background-color: rgba(239, 68, 68, 0.15);
+}
+
+.popoverLogoutButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Modal Overlay and Container */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modalContainer {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  width: 100%;
+  max-width: 500px;
+  padding: 1rem;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.modalOverlayClosing {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+.modalContainerClosing {
+  animation: modalSlideOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes modalSlideOut {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+}
+
+.modalContainer :global(.login) {
+  min-height: auto !important;
+  padding: 0 !important;
+}
+
+.modalContainer :global(.content) {
+  width: 100%;
+}
+
+.modalContainer :global(.loginContainer) {
+  position: relative;
+  margin: 0 auto;
+}
+
+.modalCloseButton:hover {
+  background-color: var(--purple);
+  color: white;
+  transform: scale(1.1);
+}
+
+.modalCloseButton:active {
+  transform: scale(0.95);
+  background-color: var(--darker-purple);
 }
 
 .brand {
@@ -152,6 +390,9 @@
   transition: color 0.2s ease;
   padding: 0.5rem 0;
   font-family: 'Inter', sans-serif;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 .navLink:hover {
@@ -437,6 +678,43 @@
 
   .dropdownItem:last-child {
     border-bottom: none;
+  }
+
+  .profilePopover {
+    position: static;
+    transform: none;
+    margin-top: 0.5rem;
+    width: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    opacity: 1;
+    visibility: visible;
+    display: none;
+  }
+
+  .profilePopoverOpen {
+    display: block;
+  }
+
+  .popoverItem {
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .popoverItem:last-of-type {
+    border-bottom: none;
+  }
+
+  .popoverLogoutButton {
+    color: #ef4444;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .popoverLogoutButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
   }
 }
 

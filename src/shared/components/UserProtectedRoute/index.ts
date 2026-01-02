@@ -1,0 +1,2 @@
+export { UserProtectedRoute } from './UserProtectedRoute';
+

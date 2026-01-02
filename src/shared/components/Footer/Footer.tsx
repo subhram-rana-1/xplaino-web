@@ -21,7 +21,7 @@ export const Footer: React.FC = () => {
           <Link to="/refund-policy" className={styles.link}>
             Refund Policy
           </Link>
-          <Link to="/contact" className={styles.link}>
+          <Link to="/contact-us" className={styles.link}>
             Contact Us
           </Link>
         </div>

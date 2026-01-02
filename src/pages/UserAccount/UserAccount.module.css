@@ -1,0 +1,171 @@
+.account {
+  min-height: 60vh;
+  padding: 2rem 1rem;
+  display: flex;
+  justify-content: center;
+  background-color: white;
+  width: 100%;
+}
+
+.container {
+  max-width: 800px;
+  width: 100%;
+}
+
+.titleContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.heading {
+  font-family: 'Inter', sans-serif;
+  font-size: 2rem;
+  font-weight: 500;
+  color: var(--purple);
+  margin: 0;
+}
+
+.content {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.profileInfoRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.profileIconContainer {
+  flex-shrink: 0;
+}
+
+.profileIcon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--purple);
+}
+
+.profileIconPlaceholder {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--purple);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  border: 2px solid var(--purple);
+}
+
+.infoSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.fieldName {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  min-width: 60px;
+}
+
+.fieldValue {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: #000;
+  word-break: break-word;
+}
+
+.logoutButton {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #dc2626;
+  background: white;
+  border: none;
+  border-radius: var(--button-border-radius);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  width: auto;
+}
+
+.logoutButton:hover:not(:disabled) {
+  background: #fee2e2;
+}
+
+.logoutButton:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.logoutButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.logoutIcon {
+  width: 18px;
+  height: 18px;
+  color: #dc2626;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .account {
+    padding: 1.5rem 1rem;
+  }
+
+  .heading {
+    font-size: 1.75rem;
+  }
+
+  .content {
+    padding: 1.5rem;
+  }
+
+  .profileInfoRow {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .infoSection {
+    width: 100%;
+    align-items: center;
+  }
+
+  .infoRow {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .fieldName {
+    min-width: auto;
+  }
+}
+

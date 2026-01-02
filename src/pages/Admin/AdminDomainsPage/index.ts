@@ -1,0 +1,2 @@
+export { AdminDomainsPage } from './AdminDomainsPage';
+

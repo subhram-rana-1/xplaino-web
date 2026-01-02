@@ -40,6 +40,8 @@
   cursor: pointer;
   text-align: left;
   transition: background-color 0.2s ease, color 0.2s ease;
+  text-decoration: none;
+  display: block;
 }
 
 .sidebarButton:hover {

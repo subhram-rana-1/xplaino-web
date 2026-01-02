@@ -3,6 +3,7 @@ import styles from './Pricing.module.css';
 import { getLivePricings } from '@/shared/services/pricing.service';
 import type { PricingResponse } from '@/shared/types/pricing.types';
 import { Toast } from '@/shared/components/Toast';
+import { ChromeButton } from '@/shared/components/ChromeButton';
 
 /**
  * Pricing - Pricing page component displaying pricing plans
@@ -165,7 +166,10 @@ export const Pricing: React.FC = () => {
     return (
       <div className={styles.pricingEmpty}>
         <div className={styles.emptyState}>
-          <h2 className={styles.emptyHeading}>We are launching our pricing plans soon</h2>
+          <p className={styles.emptyMessage}>Its free ! Download chrome extension to get started</p>
+          <div className={styles.chromeButtonContainer}>
+            <ChromeButton />
+          </div>
         </div>
       </div>
     );

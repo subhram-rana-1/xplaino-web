@@ -148,8 +148,8 @@ export const ReportIssue: React.FC = () => {
 
       const response = await reportIssue(accessToken, payload, files.length > 0 ? files : undefined);
 
-      // Redirect to /issues with ticket_id in state
-      navigate('/issues', { 
+      // Redirect to /user/issues with ticket_id in state
+      navigate('/user/issues', { 
         state: { ticketId: response.ticket_id } 
       });
     } catch (error) {
