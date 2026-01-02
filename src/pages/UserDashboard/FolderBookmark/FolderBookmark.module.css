@@ -74,6 +74,15 @@
   gap: 0;
 }
 
+.tabWrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
 .tab {
   flex: 1;
   padding: 1rem 1.5rem;
@@ -87,11 +96,7 @@
   cursor: pointer;
   transition: color 0.3s ease, border-color 0.3s ease;
   margin-bottom: -2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  position: relative;
+  text-align: center;
 }
 
 .tab:hover {

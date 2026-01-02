@@ -510,74 +510,70 @@ export const FolderBookmark: React.FC = () => {
 
         <div className={styles.tabContainer}>
           <div className={styles.tabs}>
-            <button
-              className={`${styles.tab} ${activeTab === 'paragraph' ? styles.tabActive : ''}`}
-              onClick={() => setActiveTab('paragraph')}
-            >
-              Paragraphs
+            <div className={styles.tabWrapper}>
+              <button
+                className={`${styles.tab} ${activeTab === 'paragraph' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('paragraph')}
+              >
+                Paragraphs
+              </button>
               <button
                 className={styles.refreshButton}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  getRefreshHandler('paragraph')();
-                }}
+                onClick={() => getRefreshHandler('paragraph')()}
                 disabled={isLoading('paragraph') || refreshingTab === 'paragraph'}
                 title="Refresh paragraphs"
               >
                 <FiRefreshCw className={refreshingTab === 'paragraph' ? styles.spin : ''} />
               </button>
-            </button>
-            <button
-              className={`${styles.tab} ${activeTab === 'link' ? styles.tabActive : ''}`}
-              onClick={() => setActiveTab('link')}
-            >
-              Links
+            </div>
+            <div className={styles.tabWrapper}>
+              <button
+                className={`${styles.tab} ${activeTab === 'link' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('link')}
+              >
+                Links
+              </button>
               <button
                 className={styles.refreshButton}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  getRefreshHandler('link')();
-                }}
+                onClick={() => getRefreshHandler('link')()}
                 disabled={isLoading('link') || refreshingTab === 'link'}
                 title="Refresh links"
               >
                 <FiRefreshCw className={refreshingTab === 'link' ? styles.spin : ''} />
               </button>
-            </button>
-            <button
-              className={`${styles.tab} ${activeTab === 'word' ? styles.tabActive : ''}`}
-              onClick={() => setActiveTab('word')}
-            >
-              Words
+            </div>
+            <div className={styles.tabWrapper}>
+              <button
+                className={`${styles.tab} ${activeTab === 'word' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('word')}
+              >
+                Words
+              </button>
               <button
                 className={styles.refreshButton}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  getRefreshHandler('word')();
-                }}
+                onClick={() => getRefreshHandler('word')()}
                 disabled={isLoading('word') || refreshingTab === 'word'}
                 title="Refresh words"
               >
                 <FiRefreshCw className={refreshingTab === 'word' ? styles.spin : ''} />
               </button>
-            </button>
-            <button
-              className={`${styles.tab} ${activeTab === 'image' ? styles.tabActive : ''}`}
-              onClick={() => setActiveTab('image')}
-            >
-              Images
+            </div>
+            <div className={styles.tabWrapper}>
+              <button
+                className={`${styles.tab} ${activeTab === 'image' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('image')}
+              >
+                Images
+              </button>
               <button
                 className={styles.refreshButton}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  getRefreshHandler('image')();
-                }}
+                onClick={() => getRefreshHandler('image')()}
                 disabled={isLoading('image') || refreshingTab === 'image'}
                 title="Refresh images"
               >
                 <FiRefreshCw className={refreshingTab === 'image' ? styles.spin : ''} />
               </button>
-            </button>
+            </div>
           </div>
           <div className={styles.tabContent}>
             {renderTabContent()}
