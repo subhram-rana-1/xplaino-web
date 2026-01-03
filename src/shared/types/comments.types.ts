@@ -16,6 +16,7 @@ export enum CommentVisibility {
 export interface CreatedByUser {
   id: string;
   name: string;
+  profileIconUrl?: string | null;
   role?: 'ADMIN' | 'SUPER_ADMIN' | null;
 }
 

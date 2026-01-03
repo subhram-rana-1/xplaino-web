@@ -15,11 +15,12 @@ interface PageContentProps {
 export const PageContent: React.FC<PageContentProps> = ({ children }) => {
   const location = useLocation();
   const isHomePage = location.pathname === '/';
+  const isAdminRoute = location.pathname.startsWith('/admin');
   
   return (
     <main 
       key={location.pathname}
-      className={`${isHomePage ? styles.pageContentFullWidth : styles.pageContent} ${styles.fadeIn}`}
+      className={`${isHomePage ? styles.pageContentFullWidth : styles.pageContent} ${!isAdminRoute ? styles.fadeIn : ''}`}
     >
       {children}
     </main>

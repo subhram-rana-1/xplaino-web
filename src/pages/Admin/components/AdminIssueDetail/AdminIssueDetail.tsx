@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { FiArrowLeft, FiCopy, FiCheck, FiChevronDown } from 'react-icons/fi';
+import { useNavigate, useParams } from 'react-router-dom';
+import { FiArrowLeft } from 'react-icons/fi';
 import styles from './AdminIssueDetail.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
-import { IssueType, IssueStatus } from '@/shared/types/issues.types';
-import type { IssueResponse } from '@/shared/types/issues.types';
-import { updateIssue } from '@/shared/services/issues.service';
+import { IssueStatus } from '@/shared/types/issues.types';
+import type { GetIssueByTicketIdResponse } from '@/shared/types/issues.types';
+import { updateIssue, getIssueByTicketId } from '@/shared/services/issues.service';
+import { getCommentsByEntity } from '@/shared/services/comments.service';
+import { EntityType } from '@/shared/types/comments.types';
+import type { CommentResponse } from '@/shared/types/comments.types';
+import { IssueDetails } from '@/shared/components/IssueDetails';
 import { Toast } from '@/shared/components/Toast';
 
 /**
@@ -14,40 +18,96 @@ import { Toast } from '@/shared/components/Toast';
  * @returns JSX element
  */
 export const AdminIssueDetail: React.FC = () => {
-  const { accessToken } = useAuth();
+  const { accessToken, user } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [copiedTicketId, setCopiedTicketId] = useState(false);
+  const { ticketId } = useParams<{ ticketId: string }>();
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isLoadingIssue, setIsLoadingIssue] = useState(false);
+  const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' } | null>(null);
 
-  const initialIssue = (location.state as { issue?: IssueResponse } | null)?.issue;
-  const [issue, setIssue] = useState<IssueResponse | undefined>(initialIssue);
-  const [selectedStatus, setSelectedStatus] = useState<IssueStatus | null>(
-    initialIssue ? (initialIssue.status as IssueStatus) : null
-  );
+  const [issue, setIssue] = useState<GetIssueByTicketIdResponse | undefined>(undefined);
+  const [comments, setComments] = useState<CommentResponse[]>([]);
+  const [creatorName, setCreatorName] = useState<string>('');
+  const [selectedStatus, setSelectedStatus] = useState<IssueStatus | null>(null);
 
-  const originalStatus = initialIssue?.status as IssueStatus | undefined;
+  const originalStatus = issue?.status as IssueStatus | undefined;
   const hasStatusChanged = selectedStatus !== null && selectedStatus !== originalStatus;
 
-  // Close dropdown when clicking outside
+  // Always fetch issue by ticket ID from API
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (!target.closest(`.${styles.statusContainer}`)) {
-        setIsStatusDropdownOpen(false);
+    const fetchIssue = async () => {
+      if (!accessToken || !ticketId) {
+        return;
+      }
+
+      try {
+        setIsLoadingIssue(true);
+        const fetchedIssue = await getIssueByTicketId(accessToken, ticketId);
+        setIssue(fetchedIssue);
+        setSelectedStatus(fetchedIssue.status as IssueStatus);
+        // Extract creator name directly from the API response
+        setCreatorName(fetchedIssue.created_by.name || 'Unknown');
+      } catch (error) {
+        console.error('Error fetching issue:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Failed to load issue';
+        setToast({ message: errorMessage, type: 'error' });
+      } finally {
+        setIsLoadingIssue(false);
       }
     };
 
-    if (isStatusDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
+    fetchIssue();
+  }, [accessToken, ticketId]);
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+  // Fetch comments when issue is loaded
+  useEffect(() => {
+    const fetchComments = async () => {
+      if (!issue?.id || !accessToken) {
+        return;
+      }
+
+      try {
+        setIsLoadingComments(true);
+        const response = await getCommentsByEntity(
+          accessToken,
+          EntityType.ISSUE,
+          issue.id
+        );
+        setComments(response.comments);
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+        // Don't show error toast for comments, just log it
+      } finally {
+        setIsLoadingComments(false);
+      }
     };
-  }, [isStatusDropdownOpen]);
+
+    fetchComments();
+  }, [issue?.id, accessToken]);
+
+  // Determine if user can add comments
+  // Only Admin, Super Admin, and the ticket creator can add comments
+  // Hide comment button if issue is resolved or discarded
+  const canAddComment = !!user && !!issue && 
+    issue.status !== IssueStatus.RESOLVED &&
+    issue.status !== IssueStatus.DISCARDED &&
+    (
+      user.role === 'ADMIN' ||
+      user.role === 'SUPER_ADMIN' ||
+      user.id === issue.created_by.id
+    );
+
+  if (isLoadingIssue) {
+    return (
+      <div className={styles.issueDetail}>
+        <div className={styles.container}>
+          <div className={styles.loading}>Loading issue...</div>
+        </div>
+      </div>
+    );
+  }
 
   if (!issue) {
     return (
@@ -60,7 +120,7 @@ export const AdminIssueDetail: React.FC = () => {
             </p>
             <button 
               className={styles.backButton}
-              onClick={() => navigate('/admin', { state: { activeSection: 'ticket' } })}
+              onClick={() => navigate('/admin/ticket')}
             >
               <FiArrowLeft />
               <span>Back to Tickets</span>
@@ -71,69 +131,24 @@ export const AdminIssueDetail: React.FC = () => {
     );
   }
 
-  const getIssueTypeLabel = (type: string): string => {
-    const typeMap: Record<string, string> = {
-      [IssueType.GLITCH]: 'Glitch',
-      [IssueType.SUBSCRIPTION]: 'Subscription',
-      [IssueType.AUTHENTICATION]: 'Authentication',
-      [IssueType.FEATURE_REQUEST]: 'Feature Request',
-      [IssueType.OTHERS]: 'Others',
-    };
-    return typeMap[type] || type;
-  };
-
-  const getStatusLabel = (status: string): string => {
-    const statusMap: Record<string, string> = {
-      'OPEN': 'Open',
-      'WORK_IN_PROGRESS': 'Work in Progress',
-      'DISCARDED': 'Discarded',
-      'RESOLVED': 'Resolved',
-    };
-    return statusMap[status] || status;
-  };
-
-  const formatDate = (dateString: string | null): string => {
-    if (!dateString) return 'N/A';
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    } catch {
-      return dateString;
-    }
-  };
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(issue.ticket_id);
-      setCopiedTicketId(true);
-      setTimeout(() => {
-        setCopiedTicketId(false);
-      }, 2000);
-    } catch (error) {
-      console.error('Failed to copy ticket ID:', error);
-    }
-  };
-
   const handleStatusSelect = (status: IssueStatus) => {
     setSelectedStatus(status);
     setIsStatusDropdownOpen(false);
   };
 
-  const handleUpdate = async () => {
-    if (!accessToken || !selectedStatus || !hasStatusChanged) {
+  const handleUpdate = async (status: IssueStatus) => {
+    if (!accessToken || !status || !issue || !ticketId) {
       return;
     }
 
     try {
       setIsUpdating(true);
-      const updatedIssue = await updateIssue(accessToken, issue.id, { status: selectedStatus });
+      await updateIssue(accessToken, issue.id, { status });
+      // Refetch issue to get updated data with CreatedByUser objects
+      const updatedIssue = await getIssueByTicketId(accessToken, ticketId);
       setIssue(updatedIssue);
+      setSelectedStatus(updatedIssue.status as IssueStatus);
+      setCreatorName(updatedIssue.created_by.name || 'Unknown');
       setToast({ message: 'Issue status updated successfully', type: 'success' });
     } catch (error) {
       console.error('Failed to update issue:', error);
@@ -144,21 +159,12 @@ export const AdminIssueDetail: React.FC = () => {
     }
   };
 
-  const statusOptions: { value: IssueStatus; label: string }[] = [
-    { value: IssueStatus.OPEN, label: 'Open' },
-    { value: IssueStatus.WORK_IN_PROGRESS, label: 'Work in Progress' },
-    { value: IssueStatus.DISCARDED, label: 'Discarded' },
-    { value: IssueStatus.RESOLVED, label: 'Resolved' },
-  ];
-
-  const currentStatusDisplay = selectedStatus || (issue.status as IssueStatus);
-
   return (
     <div className={styles.issueDetail}>
       <div className={styles.container}>
         <button 
           className={styles.backButton}
-          onClick={() => navigate('/admin', { state: { activeSection: 'ticket' } })}
+          onClick={() => navigate('/admin/ticket')}
         >
           <FiArrowLeft />
           <span>Back to Tickets</span>
@@ -168,168 +174,29 @@ export const AdminIssueDetail: React.FC = () => {
           <h1 className={styles.heading}>Issue Details</h1>
         </div>
 
-        <div className={styles.content}>
-          <div className={styles.details}>
-            <div className={styles.detailRow}>
-              <div className={styles.ticketIdRow}>
-                <div className={styles.valueRow}>
-                  <span className={styles.ticketIdLabel}>Ticket Id: </span>
-                  <span className={styles.ticketIdValue}>{issue.ticket_id}</span>
-                  <div className={styles.copyButtonWrapper}>
-                    <button
-                      className={styles.copyButton}
-                      onClick={handleCopy}
-                      aria-label={`Copy ${issue.ticket_id}`}
-                      title="Copy ticket ID"
-                    >
-                      {copiedTicketId ? (
-                        <FiCheck className={styles.checkIcon} />
-                      ) : (
-                        <FiCopy />
-                      )}
-                    </button>
-                    {copiedTicketId && (
-                      <div className={styles.copiedTooltip}>Copied</div>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Editable Status Dropdown */}
-                <div className={styles.statusContainer}>
-                  <button
-                    className={`${styles.statusDropdownButton} ${styles[`statusDropdownButton${currentStatusDisplay}`]}`}
-                    onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
-                    aria-haspopup="listbox"
-                    aria-expanded={isStatusDropdownOpen}
-                  >
-                    <span>{getStatusLabel(currentStatusDisplay)}</span>
-                    <FiChevronDown />
-                  </button>
-                  {isStatusDropdownOpen && (
-                    <div className={styles.statusDropdown} role="listbox">
-                      {statusOptions.map((option) => (
-                        <button
-                          key={option.value}
-                          type="button"
-                          className={`${styles.statusOption} ${currentStatusDisplay === option.value ? styles.statusOptionSelected : ''}`}
-                          onClick={() => handleStatusSelect(option.value)}
-                          role="option"
-                          aria-selected={currentStatusDisplay === option.value}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className={styles.detailRow}>
-              <div className={styles.issueTypeRow}>
-                <span className={styles.issueTypeLabel}>Issue Type: </span>
-                <span className={`${styles.issueTypeBadge} ${styles[`issueType${issue.type}`]}`}>
-                  {getIssueTypeLabel(issue.type)}
-                </span>
-              </div>
-            </div>
-
-            <div className={styles.detailRow}>
-              <div className={styles.raisedOnRow}>
-                <span className={styles.raisedOnLabel}>Raised on: </span>
-                <span className={styles.raisedOnValue}>{formatDate(issue.created_at)}</span>
-              </div>
-            </div>
-
-            {issue.heading && (
-              <div className={`${styles.detailRow} ${styles.headingRow}`}>
-                <h2 className={styles.headingText}>{issue.heading}</h2>
-              </div>
-            )}
-
-            <div className={styles.detailRow}>
-              <p className={styles.descriptionText}>{issue.description}</p>
-            </div>
-
-            {issue.webpage_url && (
-              <div className={styles.detailRow}>
-                <span className={styles.value}>
-                  Webpage URL:{' '}
-                  <a
-                    href={issue.webpage_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.urlValue}
-                  >
-                    {issue.webpage_url}
-                  </a>
-                </span>
-              </div>
-            )}
-
-            {issue.file_uploads && issue.file_uploads.length > 0 && (
-              <div className={styles.detailRow}>
-                <label className={styles.label}>Attachments</label>
-                <div className={styles.filesContainer}>
-                  {issue.file_uploads.map((file) => (
-                    <div key={file.id} className={styles.fileItem}>
-                      {file.file_type === 'IMAGE' && file.s3_url ? (
-                        <div className={styles.imagePreview}>
-                          <img
-                            src={file.s3_url}
-                            alt={file.file_name}
-                            className={styles.previewImage}
-                            loading="lazy"
-                          />
-                          <a
-                            href={file.s3_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={styles.fileLink}
-                            title={file.file_name}
-                          >
-                            <span className={styles.fileName}>{file.file_name}</span>
-                            <span className={styles.fileOpenIcon}>↗</span>
-                          </a>
-                        </div>
-                      ) : (
-                        <a
-                          href={file.s3_url || '#'}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={styles.fileLink}
-                          title={file.file_name}
-                        >
-                          <span className={styles.fileIcon}>📄</span>
-                          <span className={styles.fileName}>{file.file_name}</span>
-                          <span className={styles.fileOpenIcon}>↗</span>
-                        </a>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {issue.closed_at && (
-              <div className={styles.detailRow}>
-                <label className={styles.label}>Closed At</label>
-                <span className={styles.value}>{formatDate(issue.closed_at)}</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Update Button Section */}
-        <div className={styles.updateSection}>
-          <button
-            className={styles.updateButton}
-            onClick={handleUpdate}
-            disabled={!hasStatusChanged || isUpdating}
-          >
-            {isUpdating ? 'Updating...' : 'Update'}
-          </button>
-        </div>
+        <IssueDetails
+          issue={issue}
+          isAdmin={true}
+          isLoading={isLoadingIssue}
+          accessToken={accessToken}
+          user={user}
+          onBack={() => navigate('/admin/ticket')}
+          onStatusUpdate={handleUpdate}
+          canEditStatus={true}
+          selectedStatus={selectedStatus}
+          onStatusSelect={handleStatusSelect}
+          isUpdating={isUpdating}
+          creatorName={creatorName}
+          comments={comments}
+          onCommentsChange={setComments}
+          issueCreatedBy={issue?.created_by.id || ''}
+          canAddComment={canAddComment}
+          toast={toast}
+          onToastClose={() => setToast(null)}
+          isStatusDropdownOpen={isStatusDropdownOpen}
+          onStatusDropdownToggle={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
+          hasStatusChanged={hasStatusChanged}
+        />
 
         {/* Toast Notification */}
         {toast && (

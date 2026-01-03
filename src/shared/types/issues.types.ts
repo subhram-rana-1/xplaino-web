@@ -4,6 +4,8 @@
  * Matches the API models from the Caten backend
  */
 
+import type { CreatedByUser } from '@/shared/types/comments.types';
+
 export enum IssueType {
   GLITCH = 'GLITCH',
   SUBSCRIPTION = 'SUBSCRIPTION',
@@ -77,5 +79,21 @@ export interface GetAllIssuesFilters {
 
 export interface UpdateIssueRequest {
   status: IssueStatus;
+}
+
+export interface GetIssueByTicketIdResponse {
+  id: string;
+  ticket_id: string;
+  type: string;
+  heading: string | null;
+  description: string;
+  webpage_url: string | null;
+  status: string;
+  created_by: CreatedByUser;
+  closed_by: CreatedByUser | null;
+  closed_at: string | null;
+  created_at: string;
+  updated_at: string;
+  file_uploads: FileUploadResponse[];
 }
 

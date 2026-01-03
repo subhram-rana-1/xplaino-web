@@ -211,8 +211,8 @@ export const DomainEdit: React.FC = () => {
     return (
       <div className={styles.domainEdit}>
         <div className={styles.error}>Domain not found</div>
-        <button className={styles.backButton} onClick={() => navigate('/admin')}>
-          Back to Admin
+        <button className={styles.backButton} onClick={() => navigate('/admin/domain')}>
+          Back to Domain
         </button>
       </div>
     );
@@ -223,7 +223,7 @@ export const DomainEdit: React.FC = () => {
       <div className={styles.header}>
         <button 
           className={styles.backButton} 
-          onClick={() => navigate('/admin', { state: { activeSection: 'domain' } })}
+          onClick={() => navigate('/admin/domain')}
         >
           ← Back to Domain
         </button>

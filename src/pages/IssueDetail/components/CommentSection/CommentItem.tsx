@@ -89,13 +89,23 @@ export const CommentItem: React.FC<CommentItemProps> = ({ comment, isReply = fal
   const isIssueCreator = issueCreatedBy && comment.created_by.id === issueCreatedBy;
   const avatarClass = isIssueCreator ? styles.avatarYellow : styles.avatarGreen;
   const showAdminBadge = comment.created_by.role === 'ADMIN' || comment.created_by.role === 'SUPER_ADMIN';
+  const hasProfileIcon = comment.created_by.profileIconUrl && comment.created_by.profileIconUrl.trim().length > 0;
 
   return (
     <div className={`${styles.commentItem} ${isReply ? styles.reply : ''}`}>
       <div className={styles.commentContent}>
-        <div className={`${styles.avatar} ${avatarClass}`}>
-          {getInitials(comment.created_by.name)}
-        </div>
+        {hasProfileIcon ? (
+          <img
+            src={comment.created_by.profileIconUrl!}
+            alt={comment.created_by.name || 'User'}
+            className={`${styles.avatar} ${styles.avatarImage}`}
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <div className={`${styles.avatar} ${avatarClass}`}>
+            {getInitials(comment.created_by.name)}
+          </div>
+        )}
         <div className={styles.commentBody}>
           <div className={styles.commentHeader}>
             <div className={styles.authorWrapper}>

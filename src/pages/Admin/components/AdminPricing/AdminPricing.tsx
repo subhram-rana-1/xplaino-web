@@ -5,11 +5,9 @@ import styles from './AdminPricing.module.css';
 import { getAllPricings, getLivePricings } from '@/shared/services/pricing.service';
 import type { PricingResponse } from '@/shared/types/pricing.types';
 import { Toast } from '@/shared/components/Toast';
-import { DropdownIcon } from '@/shared/components/DropdownIcon';
 import { CreatePricingModal } from './CreatePricingModal';
 
-type FilterOption = 'all' | 'live';
-type StatusTab = 'all' | 'active' | 'inactive';
+type StatusTab = 'live' | 'all' | 'active' | 'inactive';
 
 interface AdminPricingProps {
   accessToken: string | null;
@@ -22,69 +20,78 @@ interface AdminPricingProps {
  */
 export const AdminPricing: React.FC<AdminPricingProps> = ({ accessToken }) => {
   const navigate = useNavigate();
-  const [pricings, setPricings] = useState<PricingResponse[]>([]);
+  const [livePricings, setLivePricings] = useState<PricingResponse[]>([]);
+  const [allPricings, setAllPricings] = useState<PricingResponse[]>([]);
   const [filteredPricings, setFilteredPricings] = useState<PricingResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState<FilterOption>('all');
-  const [statusTab, setStatusTab] = useState<StatusTab>('all');
-  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
+  const [statusTab, setStatusTab] = useState<StatusTab>('live');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' } | null>(null);
 
-  const fetchPricings = async () => {
+  const fetchLivePricings = async () => {
+    try {
+      const response = await getLivePricings();
+      setLivePricings(response.pricings);
+    } catch (error) {
+      console.error('Error fetching live pricings:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load live pricing plans';
+      setToast({ message: errorMessage, type: 'error' });
+    }
+  };
+
+  const fetchAllPricings = async () => {
     if (!accessToken) {
-      setIsLoading(false);
       return;
     }
 
     try {
-      setIsLoading(true);
-      let response;
-      
-      if (filter === 'live') {
-        response = await getLivePricings();
-      } else {
-        response = await getAllPricings(accessToken);
-      }
-      
-      setPricings(response.pricings);
+      const response = await getAllPricings(accessToken);
+      setAllPricings(response.pricings);
     } catch (error) {
-      console.error('Error fetching pricings:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load pricing plans';
+      console.error('Error fetching all pricings:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load all pricing plans';
       setToast({ message: errorMessage, type: 'error' });
+    }
+  };
+
+  const fetchBothPricings = async () => {
+    setIsLoading(true);
+    try {
+      await Promise.all([fetchLivePricings(), fetchAllPricings()]);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // On mount, if Live tab is selected, fetch both APIs
   useEffect(() => {
-    fetchPricings();
-  }, [filter, accessToken]);
-
-  // Filter pricings based on status tab when filter is 'all'
-  useEffect(() => {
-    if (filter === 'live') {
-      setFilteredPricings(pricings);
-      return;
+    if (statusTab === 'live' && accessToken) {
+      fetchBothPricings();
     }
+  }, [accessToken]);
 
+  // Filter pricings based on status tab
+  useEffect(() => {
     const currentTime = new Date().getTime();
 
     let filtered: PricingResponse[] = [];
 
     switch (statusTab) {
+      case 'live':
+        filtered = livePricings;
+        break;
       case 'all':
-        filtered = pricings;
+        filtered = allPricings;
         break;
       case 'active':
-        filtered = pricings.filter((pricing) => {
+        filtered = allPricings.filter((pricing) => {
           const activation = new Date(pricing.activation).getTime();
           const expiry = new Date(pricing.expiry).getTime();
           return activation < currentTime && currentTime < expiry;
         });
         break;
       case 'inactive':
-        filtered = pricings.filter((pricing) => {
+        filtered = allPricings.filter((pricing) => {
           const expiry = new Date(pricing.expiry).getTime();
           return expiry < currentTime;
         });
@@ -92,7 +99,7 @@ export const AdminPricing: React.FC<AdminPricingProps> = ({ accessToken }) => {
     }
 
     setFilteredPricings(filtered);
-  }, [pricings, statusTab, filter]);
+  }, [livePricings, allPricings, statusTab]);
 
   const formatDate = (dateString: string): string => {
     try {
@@ -133,36 +140,22 @@ export const AdminPricing: React.FC<AdminPricingProps> = ({ accessToken }) => {
     return `${currencySymbol}${amount} per month/user`;
   };
 
-  const filterOptions: { value: FilterOption; label: string }[] = [
-    { value: 'all', label: 'All' },
-    { value: 'live', label: 'Live' },
-  ];
-
   const statusTabs: { value: StatusTab; label: string }[] = [
+    { value: 'live', label: 'Live' },
     { value: 'all', label: 'All' },
     { value: 'active', label: 'Active' },
     { value: 'inactive', label: 'Inactive' },
   ];
 
-  const selectedFilterLabel = filterOptions.find(opt => opt.value === filter)?.label || 'All';
+  const handleTabClick = (tab: StatusTab) => {
+    setStatusTab(tab);
+    // No API calls - just switch tabs to show filtered data from existing state
+  };
 
-  // Close dropdown when clicking outside
-  React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (!target.closest(`.${styles.filterContainer}`)) {
-        setIsFilterDropdownOpen(false);
-      }
-    };
-
-    if (isFilterDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isFilterDropdownOpen]);
+  const handleRefresh = () => {
+    // Always refresh both APIs to keep all state variables updated
+    fetchBothPricings();
+  };
 
   if (isLoading) {
     return (
@@ -175,74 +168,41 @@ export const AdminPricing: React.FC<AdminPricingProps> = ({ accessToken }) => {
   return (
     <div className={styles.adminPricing}>
       <div className={styles.header}>
-        <button
-          className={styles.refreshButton}
-          onClick={() => fetchPricings()}
-          disabled={isLoading}
-          title="Refresh pricing plans"
-        >
-          <FiRefreshCw className={isLoading ? styles.spin : ''} />
-        </button>
-        <div className={styles.filterContainer}>
+        <div className={styles.headerActions}>
           <button
-            className={styles.filterButton}
-            onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-            aria-haspopup="listbox"
-            aria-expanded={isFilterDropdownOpen}
+            className={styles.refreshButton}
+            onClick={handleRefresh}
+            disabled={isLoading}
+            title="Refresh pricing plans"
           >
-            <span>{selectedFilterLabel}</span>
-            <DropdownIcon isOpen={isFilterDropdownOpen} />
+            <FiRefreshCw className={isLoading ? styles.spin : ''} />
           </button>
-          {isFilterDropdownOpen && (
-            <div className={styles.filterDropdown} role="listbox">
-              {filterOptions.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  className={`${styles.filterOption} ${filter === option.value ? styles.filterOptionSelected : ''}`}
-                  onClick={() => {
-                    setFilter(option.value);
-                    setIsFilterDropdownOpen(false);
-                    if (option.value === 'live') {
-                      setStatusTab('all');
-                    }
-                  }}
-                  role="option"
-                  aria-selected={filter === option.value}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          )}
+          <button
+            className={styles.addButton}
+            onClick={() => setIsModalOpen(true)}
+          >
+            Add pricing
+          </button>
         </div>
-        <button
-          className={styles.addButton}
-          onClick={() => setIsModalOpen(true)}
-        >
-          Add pricing
-        </button>
       </div>
 
-      {filter === 'all' && (
-        <div className={styles.tabs}>
-          {statusTabs.map((tab) => (
-            <button
-              key={tab.value}
-              className={`${styles.tab} ${statusTab === tab.value ? styles.tabActive : ''}`}
-              onClick={() => setStatusTab(tab.value)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      )}
+      <div className={styles.tabs}>
+        {statusTabs.map((tab) => (
+          <button
+            key={tab.value}
+            className={`${styles.tab} ${statusTab === tab.value ? styles.tabActive : ''}`}
+            onClick={() => handleTabClick(tab.value)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
       {filteredPricings.length === 0 ? (
         <div className={styles.emptyState}>
           <h2 className={styles.emptyHeading}>No pricing plans found</h2>
           <p className={styles.emptyMessage}>
-            {filter === 'live' 
+            {statusTab === 'live' 
               ? 'No live pricing plans available.'
               : `No ${statusTab === 'all' ? '' : statusTab} pricing plans found.`}
           </p>
@@ -335,7 +295,7 @@ export const AdminPricing: React.FC<AdminPricingProps> = ({ accessToken }) => {
         onClose={() => setIsModalOpen(false)}
         onSuccess={() => {
           // Refresh pricings after successful creation
-          fetchPricings();
+          fetchBothPricings();
           setToast({ message: 'Pricing created successfully', type: 'success' });
         }}
         accessToken={accessToken}

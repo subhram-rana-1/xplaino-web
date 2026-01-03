@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiCopy, FiCheck, FiRefreshCw, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiCopy, FiCheck, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import styles from './AdminTickets.module.css';
 import { getAllIssues } from '@/shared/services/issues.service';
 import type { IssueResponse, GetAllIssuesFilters } from '@/shared/types/issues.types';
@@ -172,6 +172,14 @@ export const AdminTickets: React.FC<AdminTicketsProps> = ({ accessToken }) => {
   const selectedStatusLabel = statusOptions.find(opt => opt.value === statusFilter)?.label || 'All Statuses';
   const selectedTypeLabel = typeOptions.find(opt => opt.value === typeFilter)?.label || 'All Types';
 
+  // Auto-fetch on mount with no filters (offset=0, limit=20, no filters)
+  useEffect(() => {
+    if (accessToken && !hasFetched) {
+      fetchIssues(0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accessToken]);
+
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -194,14 +202,6 @@ export const AdminTickets: React.FC<AdminTicketsProps> = ({ accessToken }) => {
   return (
     <div className={styles.adminTickets}>
       <div className={styles.header}>
-        <button
-          className={styles.refreshButton}
-          onClick={() => fetchIssues(currentOffset)}
-          disabled={isLoading}
-          title="Refresh issues"
-        >
-          <FiRefreshCw className={isLoading ? styles.spin : ''} />
-        </button>
         <div className={styles.filters}>
           {/* Ticket ID Input */}
           <div className={styles.filterGroup}>
@@ -298,7 +298,6 @@ export const AdminTickets: React.FC<AdminTicketsProps> = ({ accessToken }) => {
           onClick={handleFetch}
           disabled={isLoading}
         >
-          <FiRefreshCw className={isLoading ? 'spin' : ''} />
           <span>{isLoading ? 'Fetching...' : 'Fetch'}</span>
         </button>
       </div>

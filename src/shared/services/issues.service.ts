@@ -5,7 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
-import type { GetMyIssuesResponse, GetAllIssuesResponse, GetAllIssuesFilters, IssueResponse, ReportIssueRequest, UpdateIssueRequest } from '@/shared/types/issues.types';
+import type { GetMyIssuesResponse, GetAllIssuesResponse, GetAllIssuesFilters, IssueResponse, ReportIssueRequest, UpdateIssueRequest, GetIssueByTicketIdResponse } from '@/shared/types/issues.types';
 
 /**
  * Get all issues for the authenticated user
@@ -86,6 +86,35 @@ export async function reportIssue(
   }
 
   const data: IssueResponse = await response.json();
+  return data;
+}
+
+/**
+ * Get issue by ticket ID
+ * Returns issue with CreatedByUser objects for created_by and closed_by
+ */
+export async function getIssueByTicketId(
+  accessToken: string,
+  ticketId: string
+): Promise<GetIssueByTicketIdResponse> {
+  const response = await fetch(
+    `${authConfig.catenBaseUrl}/api/issue/ticket/${ticketId}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+        'X-Source': 'XPLAINO_WEB',
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ detail: 'Failed to fetch issue' }));
+    throw new Error(errorData.detail?.error_message || errorData.detail || `Failed to fetch issue with status ${response.status}`);
+  }
+
+  const data: GetIssueByTicketIdResponse = await response.json();
   return data;
 }
 

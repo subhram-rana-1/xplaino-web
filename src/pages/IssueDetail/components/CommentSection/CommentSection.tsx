@@ -12,6 +12,7 @@ interface CommentSectionProps {
   comments: CommentResponse[];
   onCommentsChange: (comments: CommentResponse[]) => void;
   issueCreatedBy: string;
+  canAddComment?: boolean;
 }
 
 /**
@@ -23,6 +24,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
   comments,
   onCommentsChange,
   issueCreatedBy,
+  canAddComment = true,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +71,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
     <div className={styles.commentSection}>
       <div className={styles.header}>
         <h3 className={styles.sectionTitle}>Comments</h3>
-        {!showInput && (
+        {canAddComment && !showInput && (
           <button
             className={styles.addCommentButton}
             onClick={() => setShowInput(true)}
@@ -79,7 +81,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
         )}
       </div>
       
-      {showInput && (
+      {canAddComment && showInput && (
         <div className={styles.inputContainer}>
           <CommentInput
             onSubmit={handleSubmitComment}

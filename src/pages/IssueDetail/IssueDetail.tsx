@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { FiArrowLeft, FiCopy, FiCheck } from 'react-icons/fi';
+import { useNavigate, useParams } from 'react-router-dom';
+import { FiArrowLeft } from 'react-icons/fi';
 import styles from './IssueDetail.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { LoginModal } from '@/shared/components/LoginModal';
-import { IssueType } from '@/shared/types/issues.types';
-import type { IssueResponse } from '@/shared/types/issues.types';
-import { CommentSection } from './components/CommentSection';
+import type { IssueResponse, GetIssueByTicketIdResponse } from '@/shared/types/issues.types';
+import { getIssueByTicketId } from '@/shared/services/issues.service';
 import { getCommentsByEntity } from '@/shared/services/comments.service';
 import { EntityType } from '@/shared/types/comments.types';
 import type { CommentResponse } from '@/shared/types/comments.types';
+import { IssueDetails } from '@/shared/components/IssueDetails';
+import { IssueStatus } from '@/shared/types/issues.types';
 
 /**
  * IssueDetail - Issue detail page component displaying a single issue
@@ -17,43 +18,67 @@ import type { CommentResponse } from '@/shared/types/comments.types';
  * @returns JSX element
  */
 export const IssueDetail: React.FC = () => {
-  const { isLoggedIn, accessToken } = useAuth();
+  const { isLoggedIn, accessToken, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [copiedTicketId, setCopiedTicketId] = useState(false);
+  const { ticketId } = useParams<{ ticketId: string }>();
+  const [issue, setIssue] = useState<IssueResponse | GetIssueByTicketIdResponse | undefined>(undefined);
   const [comments, setComments] = useState<CommentResponse[]>([]);
-  const [lastFetchedIssueId, setLastFetchedIssueId] = useState<string | null>(null);
+  const [isLoadingIssue, setIsLoadingIssue] = useState(false);
+  const [isLoadingComments, setIsLoadingComments] = useState(false);
 
-  const issue = (location.state as { issue?: IssueResponse } | null)?.issue;
+  // Always fetch issue by ticketId from API (like admin route)
+  // Wait for auth to finish loading before attempting to fetch
+  useEffect(() => {
+    const fetchIssue = async () => {
+      // Don't fetch if:
+      // - Auth is still loading
+      // - Not logged in
+      // - No access token
+      // - No ticketId
+      if (authLoading || !isLoggedIn || !accessToken || !ticketId) {
+        return;
+      }
+
+      try {
+        setIsLoadingIssue(true);
+        const fetchedIssue = await getIssueByTicketId(accessToken, ticketId);
+        setIssue(fetchedIssue);
+      } catch (error) {
+        console.error('Error fetching issue:', error);
+        // Issue will remain undefined, error state will be shown
+      } finally {
+        setIsLoadingIssue(false);
+      }
+    };
+
+    fetchIssue();
+  }, [accessToken, ticketId, isLoggedIn, authLoading]);
 
   // Fetch comments when issue is loaded
   useEffect(() => {
-    if (!issue?.id || !isLoggedIn || !accessToken) {
-      return;
-    }
-
-    // Only fetch if we haven't fetched for this issue yet
-    if (lastFetchedIssueId === issue.id) {
-      return;
-    }
-
     const fetchComments = async () => {
+      if (!issue?.id || !isLoggedIn || !accessToken) {
+        return;
+      }
+
       try {
+        setIsLoadingComments(true);
         const response = await getCommentsByEntity(
           accessToken,
           EntityType.ISSUE,
           issue.id
         );
         setComments(response.comments);
-        setLastFetchedIssueId(issue.id);
       } catch (error) {
         console.error('Failed to fetch comments:', error);
         // Comments will remain empty on error
+      } finally {
+        setIsLoadingComments(false);
       }
     };
 
     fetchComments();
-  }, [issue?.id, isLoggedIn, accessToken, lastFetchedIssueId]);
+  }, [issue?.id, isLoggedIn, accessToken]);
 
   if (!isLoggedIn) {
     return (
@@ -63,7 +88,21 @@ export const IssueDetail: React.FC = () => {
     );
   }
 
-  if (!issue) {
+  // Helper to get created_by ID (handles both string and CreatedByUser object)
+  const getCreatedById = (issue: IssueResponse | GetIssueByTicketIdResponse): string => {
+    if (typeof issue.created_by === 'string') {
+      return issue.created_by;
+    }
+    return issue.created_by.id;
+  };
+
+  // Determine if user can add comments (hide for RESOLVED/DISCARDED)
+  const issueStatus = issue?.status || '';
+  const shouldHideCommentButton = issueStatus === IssueStatus.RESOLVED || issueStatus === IssueStatus.DISCARDED;
+  const canAddComment = isLoggedIn && !shouldHideCommentButton;
+
+  // Show error state only if auth has finished loading, we're logged in, and issue still doesn't exist
+  if (!issue && !isLoadingIssue && !authLoading && isLoggedIn) {
     return (
       <div className={styles.issueDetail}>
         <div className={styles.container}>
@@ -85,55 +124,6 @@ export const IssueDetail: React.FC = () => {
     );
   }
 
-  const getIssueTypeLabel = (type: string): string => {
-    const typeMap: Record<string, string> = {
-      [IssueType.GLITCH]: 'Glitch',
-      [IssueType.SUBSCRIPTION]: 'Subscription',
-      [IssueType.AUTHENTICATION]: 'Authentication',
-      [IssueType.FEATURE_REQUEST]: 'Feature Request',
-      [IssueType.OTHERS]: 'Others',
-    };
-    return typeMap[type] || type;
-  };
-
-  const getStatusLabel = (status: string): string => {
-    const statusMap: Record<string, string> = {
-      'OPEN': 'Open',
-      'WORK_IN_PROGRESS': 'Work in Progress',
-      'DISCARDED': 'Discarded',
-      'RESOLVED': 'Resolved',
-    };
-    return statusMap[status] || status;
-  };
-
-  const formatDate = (dateString: string | null): string => {
-    if (!dateString) return 'N/A';
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    } catch {
-      return dateString;
-    }
-  };
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(issue.ticket_id);
-      setCopiedTicketId(true);
-      setTimeout(() => {
-        setCopiedTicketId(false);
-      }, 2000);
-    } catch (error) {
-      console.error('Failed to copy ticket ID:', error);
-    }
-  };
-
   return (
     <div className={styles.issueDetail}>
       <div className={styles.container}>
@@ -149,141 +139,18 @@ export const IssueDetail: React.FC = () => {
           <h1 className={styles.heading}>Issue Details</h1>
         </div>
 
-        <div className={styles.content}>
-          <div className={styles.details}>
-            <div className={styles.detailRow}>
-              <div className={styles.ticketIdRow}>
-                <div className={styles.valueRow}>
-                  <span className={styles.ticketIdLabel}>Ticket Id: </span>
-                  <span className={styles.ticketIdValue}>{issue.ticket_id}</span>
-                  <div className={styles.copyButtonWrapper}>
-                    <button
-                      className={styles.copyButton}
-                      onClick={handleCopy}
-                      aria-label={`Copy ${issue.ticket_id}`}
-                      title="Copy ticket ID"
-                    >
-                      {copiedTicketId ? (
-                        <FiCheck className={styles.checkIcon} />
-                      ) : (
-                        <FiCopy />
-                      )}
-                    </button>
-                    {copiedTicketId && (
-                      <div className={styles.copiedTooltip}>Copied</div>
-                    )}
-                  </div>
-                </div>
-                <span className={`${styles.status} ${styles[`status${issue.status}`]}`}>
-                  {getStatusLabel(issue.status)}
-                </span>
-              </div>
-            </div>
-
-            <div className={styles.detailRow}>
-              <div className={styles.issueTypeRow}>
-                <span className={styles.issueTypeLabel}>Issue Type: </span>
-                <span className={`${styles.issueTypeBadge} ${styles[`issueType${issue.type}`]}`}>
-                  {getIssueTypeLabel(issue.type)}
-                </span>
-              </div>
-            </div>
-
-            <div className={styles.detailRow}>
-              <div className={styles.raisedOnRow}>
-                <span className={styles.raisedOnLabel}>Raised on: </span>
-                <span className={styles.raisedOnValue}>{formatDate(issue.created_at)}</span>
-              </div>
-            </div>
-
-            {issue.heading && (
-              <div className={`${styles.detailRow} ${styles.headingRow}`}>
-                <h2 className={styles.headingText}>{issue.heading}</h2>
-              </div>
-            )}
-
-            <div className={styles.detailRow}>
-              <p className={styles.descriptionText}>{issue.description}</p>
-            </div>
-
-            {issue.webpage_url && (
-              <div className={styles.detailRow}>
-                <span className={styles.value}>
-                  Webpage URL:{' '}
-                  <a
-                    href={issue.webpage_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.urlValue}
-                  >
-                    {issue.webpage_url}
-                  </a>
-                </span>
-              </div>
-            )}
-
-            {issue.file_uploads && issue.file_uploads.length > 0 && (
-              <div className={styles.detailRow}>
-                <label className={styles.label}>Attachments</label>
-                <div className={styles.filesContainer}>
-                  {issue.file_uploads.map((file) => (
-                    <div key={file.id} className={styles.fileItem}>
-                      {file.file_type === 'IMAGE' && file.s3_url ? (
-                        <div className={styles.imagePreview}>
-                          <img
-                            src={file.s3_url}
-                            alt={file.file_name}
-                            className={styles.previewImage}
-                            loading="lazy"
-                          />
-                          <a
-                            href={file.s3_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={styles.fileLink}
-                            title={file.file_name}
-                          >
-                            <span className={styles.fileName}>{file.file_name}</span>
-                            <span className={styles.fileOpenIcon}>↗</span>
-                          </a>
-                        </div>
-                      ) : (
-                        <a
-                          href={file.s3_url || '#'}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={styles.fileLink}
-                          title={file.file_name}
-                        >
-                          <span className={styles.fileIcon}>📄</span>
-                          <span className={styles.fileName}>{file.file_name}</span>
-                          <span className={styles.fileOpenIcon}>↗</span>
-                        </a>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {issue.closed_at && (
-              <div className={styles.detailRow}>
-                <label className={styles.label}>Closed At</label>
-                <span className={styles.value}>{formatDate(issue.closed_at)}</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {isLoggedIn && accessToken && issue?.id && (
-          <CommentSection
-            issueId={issue.id}
-            accessToken={accessToken}
-            comments={comments}
-            onCommentsChange={setComments}
-            issueCreatedBy={issue.created_by}
-          />
-        )}
+        <IssueDetails
+          issue={issue}
+          isAdmin={false}
+          isLoading={isLoadingIssue}
+          accessToken={accessToken}
+          user={null}
+          onBack={() => navigate('/user/issues')}
+          comments={comments}
+          onCommentsChange={setComments}
+          issueCreatedBy={issue ? getCreatedById(issue) : ''}
+          canAddComment={canAddComment}
+        />
       </div>
     </div>
   );

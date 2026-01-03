@@ -16,8 +16,6 @@ import { Pricing } from '@/pages/Pricing';
 import { AdminPricingPage } from '@/pages/Admin/AdminPricingPage';
 import { AdminTicketsPage } from '@/pages/Admin/AdminTicketsPage';
 import { AdminDomainsPage } from '@/pages/Admin/AdminDomainsPage';
-import { AdminUsersPage } from '@/pages/Admin/AdminUsersPage';
-import { AdminSubscriptionPage } from '@/pages/Admin/AdminSubscriptionPage';
 import { UserDashboard } from '@/pages/UserDashboard';
 import { FolderBookmark } from '@/pages/UserDashboard/FolderBookmark';
 import { UserAccount } from '@/pages/UserAccount';
@@ -145,7 +143,7 @@ export const App: React.FC = () => {
               <Route 
                 path="/admin" 
                 element={
-                  <Navigate to="/admin/pricing" replace />
+                  <Navigate to="/admin/ticket" replace />
                 } 
               />
               <Route 
@@ -177,22 +175,6 @@ export const App: React.FC = () => {
                 element={
                   <AdminProtectedRoute>
                     <AdminDomainsPage />
-                  </AdminProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/all-users" 
-                element={
-                  <AdminProtectedRoute>
-                    <AdminUsersPage />
-                  </AdminProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/subscription" 
-                element={
-                  <AdminProtectedRoute>
-                    <AdminSubscriptionPage />
                   </AdminProtectedRoute>
                 } 
               />

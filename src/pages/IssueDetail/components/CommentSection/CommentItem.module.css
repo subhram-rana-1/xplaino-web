@@ -36,6 +36,11 @@
   background: #10b981;
 }
 
+.avatarImage {
+  object-fit: cover;
+  background: none;
+}
+
 .commentBody {
   flex: 1;
   min-width: 0;
