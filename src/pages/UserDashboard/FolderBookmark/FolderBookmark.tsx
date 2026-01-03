@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { FiArrowLeft, FiRefreshCw, FiExternalLink, FiCopy, FiCheck, FiInfo, FiX, FiGlobe, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiArrowLeft, FiRefreshCw, FiExternalLink, FiCopy, FiCheck, FiInfo, FiX, FiGlobe, FiEye, FiEyeOff, FiBook } from 'react-icons/fi';
+import ReactMarkdown from 'react-markdown';
 import { SiYoutube, SiLinkedin, SiX, SiReddit, SiFacebook, SiInstagram } from 'react-icons/si';
 import styles from './FolderBookmark.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
@@ -78,6 +79,9 @@ export const FolderBookmark: React.FC = () => {
   const [isAddLinkModalOpen, setIsAddLinkModalOpen] = useState(false);
   const [isAddLinkModalClosing, setIsAddLinkModalClosing] = useState(false);
   const [addLinkForm, setAddLinkForm] = useState({ name: '', url: '' });
+  const [selectedLinkSummary, setSelectedLinkSummary] = useState<{ summary: string; url: string; name: string | null } | null>(null);
+  const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
+  const [isSummaryModalClosing, setIsSummaryModalClosing] = useState(false);
   const [isSavingLink, setIsSavingLink] = useState(false);
   const [isNameColumnVisible, setIsNameColumnVisible] = useState(true);
   const [hoveredRowId, setHoveredRowId] = useState<string | null>(null);
@@ -410,6 +414,24 @@ export const FolderBookmark: React.FC = () => {
       setIsParagraphModalOpen(false);
       setIsParagraphModalClosing(false);
       setSelectedParagraph(null);
+    }, 300);
+  }, []);
+
+  // Handle opening summary modal
+  const handleOpenSummaryModal = (link: SavedLink) => {
+    if (link.summary) {
+      setSelectedLinkSummary({ summary: link.summary, url: link.url, name: link.name });
+      setIsSummaryModalOpen(true);
+    }
+  };
+
+  // Handle closing summary modal with animation
+  const handleCloseSummaryModal = useCallback(() => {
+    setIsSummaryModalClosing(true);
+    setTimeout(() => {
+      setIsSummaryModalOpen(false);
+      setIsSummaryModalClosing(false);
+      setSelectedLinkSummary(null);
     }, 300);
   }, []);
 
@@ -805,25 +827,73 @@ export const FolderBookmark: React.FC = () => {
     }
   };
 
-  const getFirst7Words = (content: string): string => {
+  const getFirst10Words = (content: string): string => {
     const words = content.trim().split(/\s+/);
-    return words.slice(0, 7).join(' ');
+    return words.slice(0, 10).join(' ');
   };
 
-  const handleSourceLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, sourceUrl: string, content: string) => {
+  const handleParagraphSourceClick = (e: React.MouseEvent<HTMLAnchorElement>, sourceUrl: string, content: string) => {
     e.preventDefault();
-    const first7Words = getFirst7Words(content);
-    const encodedContent = encodeURIComponent(first7Words);
+    e.stopPropagation();
+    const first10Words = getFirst10Words(content);
     
+    let finalUrl: string;
     try {
       const url = new URL(sourceUrl);
-      url.searchParams.set('xlpaino_content', encodedContent);
-      window.open(url.toString(), '_blank', 'noopener,noreferrer');
+      // searchParams.set() automatically encodes, so don't encode manually
+      url.searchParams.set('xplaino_text', first10Words);
+      finalUrl = url.toString();
     } catch {
-      const separator = sourceUrl.includes('?') ? '&' : '?';
-      const urlWithParam = `${sourceUrl}${separator}xlpaino_content=${encodedContent}`;
-      window.open(urlWithParam, '_blank', 'noopener,noreferrer');
+      // If relative URL, make it absolute
+      try {
+        const url = new URL(sourceUrl, window.location.origin);
+        // searchParams.set() automatically encodes, so don't encode manually
+        url.searchParams.set('xplaino_text', first10Words);
+        finalUrl = url.toString();
+      } catch {
+        // Fallback: manually construct URL with query param (need to encode here)
+        const separator = sourceUrl.includes('?') ? '&' : '?';
+        const encodedContent = encodeURIComponent(first10Words);
+        finalUrl = `${sourceUrl}${separator}xplaino_text=${encodedContent}`;
+      }
     }
+    
+    window.open(finalUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleWordSourceClick = (e: React.MouseEvent<HTMLAnchorElement>, sourceUrl: string, word: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!word || !word.trim()) {
+      console.error('Word value is empty');
+      return;
+    }
+    
+    const trimmedWord = word.trim();
+    
+    let finalUrl: string;
+    try {
+      const url = new URL(sourceUrl);
+      // searchParams.set() automatically encodes, so don't encode manually
+      url.searchParams.set('xplaino_text', trimmedWord);
+      finalUrl = url.toString();
+    } catch {
+      // If relative URL, make it absolute
+      try {
+        const url = new URL(sourceUrl, window.location.origin);
+        // searchParams.set() automatically encodes, so don't encode manually
+        url.searchParams.set('xplaino_text', trimmedWord);
+        finalUrl = url.toString();
+      } catch {
+        // Fallback: manually construct URL with query param (need to encode here)
+        const separator = sourceUrl.includes('?') ? '&' : '?';
+        const encodedWord = encodeURIComponent(trimmedWord);
+        finalUrl = `${sourceUrl}${separator}xplaino_text=${encodedWord}`;
+      }
+    }
+    
+    window.open(finalUrl, '_blank', 'noopener,noreferrer');
   };
 
 
@@ -905,11 +975,11 @@ export const FolderBookmark: React.FC = () => {
                             {para.source_url ? (
                         <a
                           href={para.source_url}
-                          onClick={(e) => handleSourceLinkClick(e, para.source_url, para.content)}
-                                className={styles.iconLink}
+                          onClick={(e) => handleParagraphSourceClick(e, para.source_url, para.content)}
                           target="_blank"
                           rel="noopener noreferrer"
-                                title={para.source_url}
+                          className={styles.iconLink}
+                          title={para.source_url}
                               >
                                 <FiExternalLink />
                               </a>
@@ -1070,6 +1140,19 @@ export const FolderBookmark: React.FC = () => {
                   >
                     {link.url}
                   </a>
+                  {link.summary && (
+                    <button
+                      className={styles.summaryIconButton}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenSummaryModal(link);
+                      }}
+                      title="View summary"
+                      aria-label="View summary"
+                    >
+                      <FiBook />
+                    </button>
+                  )}
                 </div>
               );
             },
@@ -1194,9 +1277,10 @@ export const FolderBookmark: React.FC = () => {
                 <div className={styles.sourceCell}>
                   {word.sourceUrl ? (
                     <a 
-                      href={word.sourceUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
+                      href={word.sourceUrl}
+                      onClick={(e) => handleWordSourceClick(e, word.sourceUrl, word.word)}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className={styles.iconLink}
                       title={word.sourceUrl}
                     >
@@ -1605,11 +1689,14 @@ export const FolderBookmark: React.FC = () => {
                 {selectedParagraph.source_url && (
                   <a
                     href={selectedParagraph.source_url}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleParagraphSourceClick(e, selectedParagraph.source_url, selectedParagraph.content);
+                    }}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={styles.paragraphModalSource}
                     title={selectedParagraph.source_url}
-                    onClick={(e) => e.stopPropagation()}
                   >
                     <FiExternalLink />
                   </a>
@@ -1636,6 +1723,53 @@ export const FolderBookmark: React.FC = () => {
             <div className={styles.paragraphModalContent}>
               <div className={styles.paragraphModalText}>
                 {selectedParagraph.content}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Link Summary Modal */}
+      {isSummaryModalOpen && selectedLinkSummary && (
+        <div 
+          className={`${styles.summaryModalOverlay} ${isSummaryModalClosing ? styles.summaryModalOverlayClosing : ''}`}
+          onClick={handleCloseSummaryModal}
+        >
+          <div 
+            className={`${styles.summaryModal} ${isSummaryModalClosing ? styles.summaryModalClosing : ''}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles.summaryModalHeader}>
+              <div className={styles.summaryModalHeaderContent}>
+                {selectedLinkSummary.name && (
+                  <div className={styles.summaryModalName}>
+                    {selectedLinkSummary.name}
+                  </div>
+                )}
+                <div className={styles.summaryModalSubtitle}>
+                  Summary of{' '}
+                  <a
+                    href={selectedLinkSummary.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.summaryModalUrl}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {selectedLinkSummary.url}
+                  </a>
+                </div>
+              </div>
+              <button
+                className={styles.summaryModalClose}
+                onClick={handleCloseSummaryModal}
+                aria-label="Close"
+              >
+                <FiX />
+              </button>
+            </div>
+            <div className={styles.summaryModalContent}>
+              <div className={styles.summaryModalText}>
+                <ReactMarkdown>{selectedLinkSummary.summary}</ReactMarkdown>
               </div>
             </div>
           </div>

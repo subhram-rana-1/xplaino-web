@@ -229,7 +229,7 @@
 .typeCell {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 0.5rem;
   position: relative;
 }
@@ -1117,6 +1117,257 @@
   line-height: 1.6;
   white-space: pre-wrap;
   word-wrap: break-word;
+}
+
+/* Summary Icon Button */
+.summaryIconButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #22c55e;
+  padding: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  margin-left: 0.5rem;
+  flex-shrink: 0;
+}
+
+.summaryIconButton:hover {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.summaryIconButton svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Summary Modal */
+.summaryModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeInOverlay 0.3s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.summaryModalOverlayClosing {
+  animation: fadeOutOverlay 0.3s ease forwards;
+}
+
+.summaryModal {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  width: 800px;
+  background: white;
+  border-radius: 30px;
+  overflow: hidden;
+  animation: scaleIn 0.3s ease;
+  box-shadow: 0 8px 24px rgba(149, 39, 245, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.summaryModalClosing {
+  animation: scaleOut 0.3s ease forwards;
+}
+
+.summaryModalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: white;
+  border-bottom: 1px solid var(--very-light-purple);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.summaryModalHeaderContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  text-align: center;
+}
+
+.summaryModalName {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.summaryModalSubtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.summaryModalUrl {
+  color: var(--purple);
+  text-decoration: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  word-break: break-all;
+  max-width: 100%;
+}
+
+.summaryModalUrl:hover {
+  color: #6b46c1;
+  text-decoration: underline;
+}
+
+.summaryModalClose {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.summaryModalClose:hover {
+  background: #f5f0ff;
+  color: var(--purple);
+}
+
+.summaryModalClose svg {
+  width: 20px;
+  height: 20px;
+}
+
+.summaryModalContent {
+  padding: 1.5rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+  min-height: 0;
+  max-height: calc(90vh - 120px);
+}
+
+.summaryModalText {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: #333;
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.summaryModalText h1,
+.summaryModalText h2,
+.summaryModalText h3,
+.summaryModalText h4,
+.summaryModalText h5,
+.summaryModalText h6 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: #333;
+}
+
+.summaryModalText h1 {
+  font-size: 1.75rem;
+}
+
+.summaryModalText h2 {
+  font-size: 1.5rem;
+}
+
+.summaryModalText h3 {
+  font-size: 1.25rem;
+}
+
+.summaryModalText p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.summaryModalText ul,
+.summaryModalText ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.summaryModalText li {
+  margin-bottom: 0.5rem;
+}
+
+.summaryModalText code {
+  background: #f5f0ff;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: var(--purple);
+}
+
+.summaryModalText pre {
+  background: #f5f0ff;
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.summaryModalText pre code {
+  background: none;
+  padding: 0;
+  color: #333;
+}
+
+.summaryModalText a {
+  color: var(--purple);
+  text-decoration: none;
+}
+
+.summaryModalText a:hover {
+  text-decoration: underline;
+}
+
+.summaryModalText blockquote {
+  border-left: 4px solid var(--purple);
+  padding-left: 1rem;
+  margin-left: 0;
+  margin-bottom: 1rem;
+  color: #666;
+  font-style: italic;
+}
+
+.summaryModalText strong {
+  font-weight: 600;
+}
+
+.summaryModalText em {
+  font-style: italic;
 }
 
 /* Add Link Modal */

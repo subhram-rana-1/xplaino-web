@@ -108,17 +108,12 @@ export const DomainEdit: React.FC = () => {
 
   /**
    * Validate domain URL format
-   * Accepts: example.com, sub.example.com, example.co.uk, my-domain.com
-   * Rejects: http://, https://, www., paths
+   * Accepts: example.com, sub.example.com, www.example.com, example.co.uk, my-domain.com
+   * Rejects: http://, https://, paths
    */
   const validateDomainUrl = (url: string): boolean => {
     // Check for http/https
     if (url.startsWith('http://') || url.startsWith('https://')) {
-      return false;
-    }
-
-    // Check for www prefix
-    if (url.startsWith('www.')) {
       return false;
     }
 
@@ -149,7 +144,7 @@ export const DomainEdit: React.FC = () => {
 
     // Validate URL if changed
     if (formData.url !== originalFormData.url && !validateDomainUrl(formData.url.trim())) {
-      setToast({ message: 'Invalid domain format. Domain must not include www, http/https, or paths.', type: 'error' });
+      setToast({ message: 'Invalid domain format. Domain must not include http/https or paths. Examples: example.com, www.example.com, sub.example.com', type: 'error' });
       return;
     }
 

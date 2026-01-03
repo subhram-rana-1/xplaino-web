@@ -39,8 +39,8 @@ export const IssueDetails: React.FC<IssueDetailsProps> = ({
   isAdmin = false,
   isLoading = false,
   accessToken,
-  user,
-  onBack,
+  user: _user,
+  onBack: _onBack,
   onStatusUpdate,
   canEditStatus = false,
   selectedStatus,
@@ -51,8 +51,8 @@ export const IssueDetails: React.FC<IssueDetailsProps> = ({
   onCommentsChange,
   issueCreatedBy,
   canAddComment = true,
-  toast,
-  onToastClose,
+  toast: _toast,
+  onToastClose: _onToastClose,
   isStatusDropdownOpen = false,
   onStatusDropdownToggle,
   hasStatusChanged = false,
@@ -81,14 +81,6 @@ export const IssueDetails: React.FC<IssueDetailsProps> = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isStatusDropdownOpen, isAdmin, canEditStatus, onStatusDropdownToggle]);
-
-  // Helper function to get created_by ID (handles both string and CreatedByUser object)
-  const getCreatedById = (issue: IssueResponse | GetIssueByTicketIdResponse): string => {
-    if (typeof issue.created_by === 'string') {
-      return issue.created_by;
-    }
-    return issue.created_by.id;
-  };
 
   // Helper function to get issue status
   const getIssueStatus = (issue: IssueResponse | GetIssueByTicketIdResponse): string => {

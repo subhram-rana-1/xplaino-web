@@ -139,6 +139,19 @@ export const Navbar: React.FC = () => {
     }
   }, [isLoggedIn, showLoginModal, user, navigate]);
 
+  // Check if a route is active
+  const isActiveRoute = (path: string): boolean => {
+    return location.pathname === path || location.pathname.startsWith(path + '/');
+  };
+
+  // Check if dashboard is active
+  const isDashboardActive = (): boolean => {
+    if (user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') {
+      return isActiveRoute('/admin/dashboard');
+    }
+    return isActiveRoute('/user/dashboard');
+  };
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.container}>
@@ -167,17 +180,21 @@ export const Navbar: React.FC = () => {
         <div className={styles.navCenter}>
           <div className={`${styles.navLinks} ${isMenuOpen ? styles.navLinksOpen : ''}`}>
             <button 
-              className={styles.navLink} 
+              className={`${styles.navLink} ${isDashboardActive() ? styles.navLinkActive : ''}`} 
               onClick={handleMyDashboardClick}
             >
               {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') ? 'Admin Dashboard' : 'My Dashboard'}
             </button>
-            <Link to="/pricing" className={styles.navLink} onClick={closeMenu}>
+            <Link 
+              to="/pricing" 
+              className={`${styles.navLink} ${isActiveRoute('/pricing') ? styles.navLinkActive : ''}`} 
+              onClick={closeMenu}
+            >
               Pricing
             </Link>
             <Link 
               to="/report-issue" 
-              className={styles.navLink} 
+              className={`${styles.navLink} ${isActiveRoute('/report-issue') ? styles.navLinkActive : ''}`} 
               onClick={handleReportIssueClick}
             >
               Report Issue

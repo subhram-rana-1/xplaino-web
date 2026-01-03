@@ -9,7 +9,7 @@ import { FolderIcon } from '@/shared/components/FolderIcon';
 import { Toast } from '@/shared/components/Toast';
 import { CreateFolderModal } from '@/shared/components/CreateFolderModal';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
-import { DataTable, type Column } from '@/shared/components/DataTable';
+import { DataTable } from '@/shared/components/DataTable';
 import { ActionIcons } from '@/shared/components/ActionIcons';
 
 /**

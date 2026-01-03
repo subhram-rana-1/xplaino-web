@@ -54,17 +54,12 @@ export const CreateDomainModal: React.FC<CreateDomainModalProps> = ({
 
   /**
    * Validate domain URL format
-   * Accepts: example.com, sub.example.com, example.co.uk, my-domain.com
-   * Rejects: http://, https://, www., paths
+   * Accepts: example.com, sub.example.com, www.example.com, example.co.uk, my-domain.com
+   * Rejects: http://, https://, paths
    */
   const validateDomainUrl = (url: string): boolean => {
     // Check for http/https
     if (url.startsWith('http://') || url.startsWith('https://')) {
-      return false;
-    }
-
-    // Check for www prefix
-    if (url.startsWith('www.')) {
       return false;
     }
 
@@ -95,7 +90,7 @@ export const CreateDomainModal: React.FC<CreateDomainModalProps> = ({
     if (!formData.url.trim()) {
       newErrors.url = 'Domain URL is required';
     } else if (!validateDomainUrl(formData.url.trim())) {
-      newErrors.url = 'Invalid domain format. Domain must not include www, http/https, or paths. Examples: example.com, sub.example.com, example.co.uk';
+      newErrors.url = 'Invalid domain format. Domain must not include http/https or paths. Examples: example.com, www.example.com, sub.example.com, example.co.uk';
     }
 
     setErrors(newErrors);

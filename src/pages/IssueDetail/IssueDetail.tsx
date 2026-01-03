@@ -24,7 +24,6 @@ export const IssueDetail: React.FC = () => {
   const [issue, setIssue] = useState<IssueResponse | GetIssueByTicketIdResponse | undefined>(undefined);
   const [comments, setComments] = useState<CommentResponse[]>([]);
   const [isLoadingIssue, setIsLoadingIssue] = useState(false);
-  const [isLoadingComments, setIsLoadingComments] = useState(false);
 
   // Always fetch issue by ticketId from API (like admin route)
   // Wait for auth to finish loading before attempting to fetch
@@ -62,7 +61,6 @@ export const IssueDetail: React.FC = () => {
       }
 
       try {
-        setIsLoadingComments(true);
         const response = await getCommentsByEntity(
           accessToken,
           EntityType.ISSUE,
@@ -72,8 +70,6 @@ export const IssueDetail: React.FC = () => {
       } catch (error) {
         console.error('Failed to fetch comments:', error);
         // Comments will remain empty on error
-      } finally {
-        setIsLoadingComments(false);
       }
     };
 

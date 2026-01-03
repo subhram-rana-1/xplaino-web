@@ -24,7 +24,6 @@ export const AdminIssueDetail: React.FC = () => {
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isLoadingIssue, setIsLoadingIssue] = useState(false);
-  const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' } | null>(null);
 
   const [issue, setIssue] = useState<GetIssueByTicketIdResponse | undefined>(undefined);
@@ -69,7 +68,6 @@ export const AdminIssueDetail: React.FC = () => {
       }
 
       try {
-        setIsLoadingComments(true);
         const response = await getCommentsByEntity(
           accessToken,
           EntityType.ISSUE,
@@ -79,8 +77,6 @@ export const AdminIssueDetail: React.FC = () => {
       } catch (error) {
         console.error('Error fetching comments:', error);
         // Don't show error toast for comments, just log it
-      } finally {
-        setIsLoadingComments(false);
       }
     };
 
