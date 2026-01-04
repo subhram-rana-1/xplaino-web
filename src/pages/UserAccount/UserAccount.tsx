@@ -1,101 +1,66 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FiLogOut } from 'react-icons/fi';
+import React from 'react';
+import { useLocation, Link } from 'react-router-dom';
+import { FiUser, FiSettings } from 'react-icons/fi';
 import styles from './UserAccount.module.css';
-import { useAuth } from '@/shared/hooks/useAuth';
-import { Toast } from '@/shared/components/Toast';
+import { ProfileTab, SettingsTab } from './components';
+
+type TabType = 'profile' | 'settings';
 
 /**
- * UserAccount - User account details page
+ * UserAccount - User account page with sidebar and tabs
  * 
  * @returns JSX element
  */
 export const UserAccount: React.FC = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const location = useLocation();
 
-  if (!user) {
-    return null;
-  }
+  // Determine active tab from current route
+  const getActiveTab = (): TabType => {
+    if (location.pathname === '/user/account/profile') return 'profile';
+    return 'settings'; // default to settings
+  };
 
-  const displayName = user.firstName && user.lastName
-    ? `${user.firstName} ${user.lastName}`
-    : user.name || 'User';
+  const activeTab = getActiveTab();
 
-  const initials = (user.firstName?.[0] || user.name?.[0] || 'U').toUpperCase();
-
-  const handleLogout = async () => {
-    try {
-      setIsLoggingOut(true);
-      await logout();
-      setToast({ message: 'Logged out successfully', type: 'success' });
-      navigate('/');
-    } catch (error) {
-      console.error('Logout error:', error);
-      setToast({ message: 'Failed to logout', type: 'error' });
-    } finally {
-      setIsLoggingOut(false);
-    }
+  const getHeading = () => {
+    return activeTab === 'profile' ? 'Profile' : 'Settings';
   };
 
   return (
     <div className={styles.account}>
       <div className={styles.container}>
         <div className={styles.titleContainer}>
-          <h1 className={styles.heading}>Account Details</h1>
+          <h1 className={styles.heading}>{getHeading()}</h1>
         </div>
 
-        <div className={styles.content}>
-          <div className={styles.profileInfoRow}>
-            <div className={styles.profileIconContainer}>
-              {user.picture ? (
-                <img 
-                  src={user.picture} 
-                  alt={displayName} 
-                  className={styles.profileIcon}
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <div className={styles.profileIconPlaceholder}>
-                  {initials}
-                </div>
-              )}
-            </div>
-            <div className={styles.infoSection}>
-              <div className={styles.infoRow}>
-                <span className={styles.fieldName}>Name:</span>
-                <span className={styles.fieldValue}>{displayName}</span>
-              </div>
-              <div className={styles.infoRow}>
-                <span className={styles.fieldName}>Email:</span>
-                <span className={styles.fieldValue}>{user.email}</span>
-              </div>
-            </div>
+        <div className={styles.layout}>
+          {/* Sidebar */}
+          <div className={styles.sidebar}>
+            <Link
+              to="/user/account/profile"
+              className={`${styles.tab} ${activeTab === 'profile' ? styles.tabActive : ''}`}
+            >
+              <FiUser className={styles.tabIcon} size={20} />
+              <span>Profile</span>
+            </Link>
+            <Link
+              to="/user/account/settings"
+              className={`${styles.tab} ${activeTab === 'settings' ? styles.tabActive : ''}`}
+            >
+              <FiSettings className={styles.tabIcon} size={20} />
+              <span>Settings</span>
+            </Link>
           </div>
 
-          <button 
-            className={styles.logoutButton}
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-          >
-            <FiLogOut className={styles.logoutIcon} size={18} />
-            {isLoggingOut ? 'Logging out...' : 'Logout'}
-          </button>
+          {/* Content Area */}
+          <div className={styles.contentArea}>
+            {activeTab === 'profile' && <ProfileTab />}
+            {activeTab === 'settings' && <SettingsTab />}
+          </div>
         </div>
-
-        {toast && (
-          <Toast
-            message={toast.message}
-            type={toast.type}
-            onClose={() => setToast(null)}
-          />
-        )}
       </div>
     </div>
   );
 };
 
 UserAccount.displayName = 'UserAccount';
-

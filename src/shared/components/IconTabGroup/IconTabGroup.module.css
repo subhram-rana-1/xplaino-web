@@ -1,0 +1,93 @@
+.tabGroup {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: 2px;
+  border-radius: 11px;
+  background: transparent;
+  gap: 0;
+  border: 1px solid #E2E8F0;
+}
+
+.tabSlider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  background: var(--purple);
+  border-radius: 9px;
+  transition: none;
+  z-index: 0;
+  pointer-events: none;
+  box-sizing: border-box;
+  height: calc(100% - 4px);
+}
+
+.tab {
+  position: relative;
+  z-index: 1;
+  border-radius: 9px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 8px 12px;
+  margin: 0;
+  outline: none;
+  transition: background 0.2s ease, color 0.2s ease;
+  box-sizing: border-box;
+  line-height: 1;
+  color: var(--medium-purple);
+  white-space: nowrap;
+}
+
+.tab:hover {
+  background: rgba(149, 39, 245, 0.1);
+}
+
+.tab.active {
+  background: var(--purple);
+  color: white;
+}
+
+.tab.active:hover {
+  background: var(--purple);
+}
+
+.tabIcon {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  max-width: 16px;
+  max-height: 16px;
+  flex-shrink: 0;
+  color: inherit;
+  transition: color 0.2s ease;
+}
+
+.tabLabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: inherit;
+  transition: color 0.2s ease;
+}
+
+.tab:hover .tabIcon,
+.tab:hover .tabLabel {
+  color: var(--purple);
+}
+
+.tab.active .tabIcon,
+.tab.active .tabLabel {
+  color: white;
+}
+
+.tab.active:hover .tabIcon,
+.tab.active:hover .tabLabel {
+  color: white;
+}
+

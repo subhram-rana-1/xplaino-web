@@ -1,107 +1,8 @@
-.account {
-  min-height: calc(100vh - 200px);
-  padding: 2rem 1rem;
-  display: flex;
-  justify-content: center;
-  background-color: white;
+.profileTab {
   width: 100%;
-  animation: none !important;
-}
-
-.container {
-  max-width: 1200px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
-  animation: none !important;
-}
-
-.titleContainer {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 2rem;
-}
-
-.heading {
-  font-family: 'Inter', sans-serif;
-  font-size: 2rem;
-  font-weight: 500;
-  color: var(--purple);
-  margin: 0;
-}
-
-.layout {
-  display: flex;
-  gap: 2rem;
-  align-items: flex-start;
-  flex: 1;
-  min-height: calc(100vh - 400px);
-  position: relative;
-  animation: none !important;
-}
-
-/* Sidebar */
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  min-width: 250px;
-  border-right: 1px solid #e0e0e0;
-  padding-right: 1.5rem;
-  padding-top: 0.5rem;
-  align-self: stretch;
   height: 100%;
-  position: relative;
-  animation: none !important;
-  transition: none !important;
-  transform: none !important;
 }
 
-/* Tab Styling */
-.tab {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1rem;
-  border: none;
-  border-radius: 10px;
-  background: transparent;
-  color: #333;
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  text-align: left;
-  width: 100%;
-  text-decoration: none;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.tab:hover {
-  background-color: #f5f5f5;
-}
-
-.tabActive {
-  background-color: #f3f0ff;
-}
-
-.tabIcon {
-  flex-shrink: 0;
-  color: #666;
-}
-
-.tabActive .tabIcon {
-  color: var(--purple);
-}
-
-/* Content Area */
-.contentArea {
-  flex: 1;
-  min-width: 0;
-}
-
-/* Legacy styles kept for backward compatibility if needed */
 .content {
   background: white;
   border-radius: 20px;
@@ -209,34 +110,6 @@
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .account {
-    padding: 1.5rem 1rem;
-  }
-
-  .heading {
-    font-size: 1.75rem;
-  }
-
-  .layout {
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid #e0e0e0;
-    padding-right: 0;
-    padding-bottom: 1rem;
-    flex-direction: row;
-    overflow-x: auto;
-  }
-
-  .tab {
-    white-space: nowrap;
-    min-width: fit-content;
-  }
-
   .content {
     padding: 1.5rem;
   }
@@ -263,3 +136,4 @@
     min-width: auto;
   }
 }
+

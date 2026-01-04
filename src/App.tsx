@@ -120,6 +120,22 @@ export const App: React.FC = () => {
                 path="/user/account" 
                 element={
                   <UserProtectedRoute>
+                    <Navigate to="/user/account/settings" replace />
+                  </UserProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/user/account/settings" 
+                element={
+                  <UserProtectedRoute>
+                    <UserAccount />
+                  </UserProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/user/account/profile" 
+                element={
+                  <UserProtectedRoute>
                     <UserAccount />
                   </UserProtectedRoute>
                 } 
