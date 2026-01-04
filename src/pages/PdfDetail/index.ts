@@ -1,0 +1,2 @@
+export { PdfDetail } from './PdfDetail';
+

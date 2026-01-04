@@ -1,0 +1,150 @@
+.container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: calc(100vh - 80px);
+  background: white;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #f5f0ff;
+  border: 1px solid #e0d0ff;
+  border-radius: 6px;
+  color: #6b21a8;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.backButton:hover {
+  background: #ede9fe;
+  border-color: #c4b5fd;
+  color: #5b21b6;
+}
+
+.backButton svg {
+  width: 18px;
+  height: 18px;
+}
+
+.pageInfo {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.pageContainer {
+  background: white;
+  border: none;
+  border-radius: 0;
+  padding: 1rem;
+  box-shadow: none;
+  overflow-x: auto;
+}
+
+/* Style the rendered HTML content */
+.pageContainer :global(body) {
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+}
+
+.pageContainer :global(.page-container) {
+  max-width: 100%;
+  margin: 0 auto;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pageContainer :global(img) {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Ensure proper rendering of HTML content */
+.pageContainer :global(*) {
+  box-sizing: border-box;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: #666;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.emptyHeading {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 1rem 0;
+}
+
+.emptyMessage {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+}
+
+.loadMoreTrigger {
+  min-height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.loadingMore {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  color: #666;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pageInfo {
+    align-self: flex-end;
+  }
+}
+

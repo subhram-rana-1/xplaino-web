@@ -20,6 +20,7 @@ import { UserDashboardLayout } from '@/pages/UserDashboard/UserDashboardLayout';
 import { MyBookmarksPage } from '@/pages/UserDashboard/MyBookmarksPage';
 import { PdfPage } from '@/pages/UserDashboard/PdfPage';
 import { FolderBookmarkPage } from '@/pages/UserDashboard/FolderBookmarkPage';
+import { PdfDetail } from '@/pages/PdfDetail';
 import { UserAccount } from '@/pages/UserAccount';
 import { AdminDashboard } from '@/pages/AdminDashboard';
 import { PricingEdit } from '@/pages/Admin/components/PricingEdit';
@@ -131,6 +132,14 @@ export const App: React.FC = () => {
                   element={<PdfPage />} 
                 />
               </Route>
+              <Route 
+                path="/pdf/:pdfId" 
+                element={
+                  <UserProtectedRoute>
+                    <PdfDetail />
+                  </UserProtectedRoute>
+                } 
+              />
               <Route 
                 path="/user/account" 
                 element={
