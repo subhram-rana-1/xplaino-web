@@ -20,6 +20,8 @@ import { DataTable, type Column } from '@/shared/components/DataTable';
 import { ActionIcons } from '@/shared/components/ActionIcons';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { FolderSelectionModal } from '@/shared/components/FolderSelectionModal';
+import { AskAIButton } from '@/shared/components/AskAIButton';
+import { AskAISidePanel } from '@/shared/components/AskAISidePanel';
 import type { SavedParagraph } from '@/shared/types/paragraphs.types';
 import type { SavedLink } from '@/shared/types/links.types';
 import type { SavedWord } from '@/shared/types/words.types';
@@ -98,6 +100,13 @@ export const FolderBookmark: React.FC = () => {
   const infoIconRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const tooltipTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tooltipShowTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  
+  // Ask AI Panel state
+  const [isAskAIPanelOpen, setIsAskAIPanelOpen] = useState(false);
+  const [selectedAskAIOption, setSelectedAskAIOption] = useState<string | null>(null);
+  const [askAIChatMessages, setAskAIChatMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
+  const [askAIStreamingText, setAskAIStreamingText] = useState('');
+  const [isAskAIRequesting, setIsAskAIRequesting] = useState(false);
 
   const handleInfoIconClick = useCallback((id: string, bookmarkTime: string, source: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -861,6 +870,39 @@ export const FolderBookmark: React.FC = () => {
     window.open(finalUrl, '_blank', 'noopener,noreferrer');
   };
 
+  // Ask AI handlers
+  const handleAskAIOptionSelect = useCallback((option: string) => {
+    setSelectedAskAIOption(option);
+    setIsAskAIPanelOpen(true);
+    // Reset chat when opening with a new option
+    setAskAIChatMessages([]);
+    setAskAIStreamingText('');
+    setIsAskAIRequesting(false);
+  }, []);
+
+  const handleAskAIClose = useCallback(() => {
+    setIsAskAIPanelOpen(false);
+    setSelectedAskAIOption(null);
+  }, []);
+
+  const handleAskAIInputSubmit = useCallback((text: string) => {
+    // Add user message to chat
+    setAskAIChatMessages((prev) => [...prev, { role: 'user' as const, content: text }]);
+    setIsAskAIRequesting(true);
+    setAskAIStreamingText('');
+    // TODO: API call will be implemented separately
+    // For now, just simulate a response
+    setTimeout(() => {
+      setIsAskAIRequesting(false);
+      setAskAIStreamingText('This is a placeholder response. API integration will be added separately.');
+    }, 1000);
+  }, []);
+
+  const handleAskAIStopRequest = useCallback(() => {
+    setIsAskAIRequesting(false);
+    // TODO: Implement actual stop logic when API is integrated
+  }, []);
+
   const handleWordSourceClick = (e: React.MouseEvent<HTMLAnchorElement>, sourceUrl: string, word: string) => {
     e.preventDefault();
     e.stopPropagation();
@@ -1050,6 +1092,10 @@ export const FolderBookmark: React.FC = () => {
                     </button>
                   </div>
                 )}
+                {/* Ask AI Button */}
+                <div className={styles.askAIButtonContainer}>
+                  <AskAIButton onOptionSelect={handleAskAIOptionSelect} />
+                </div>
                 <DataTable
                   columns={paragraphColumns}
                   data={paragraphsData.saved_paragraphs}
@@ -1541,7 +1587,7 @@ export const FolderBookmark: React.FC = () => {
 
   return (
     <div className={styles.folderBookmark}>
-      <div className={styles.container}>
+      <div className={`${styles.container} ${isAskAIPanelOpen ? styles.containerWithPanel : ''}`}>
         <div className={styles.headerRow}>
           <button 
             className={styles.backButton}
@@ -1877,6 +1923,18 @@ export const FolderBookmark: React.FC = () => {
           currentFolderId={moveItem.currentFolderId}
         />
       )}
+
+      {/* Ask AI Side Panel */}
+      <AskAISidePanel
+        isOpen={isAskAIPanelOpen}
+        onClose={handleAskAIClose}
+        selectedPrompt={selectedAskAIOption || undefined}
+        onInputSubmit={handleAskAIInputSubmit}
+        onStopRequest={handleAskAIStopRequest}
+        isRequesting={isAskAIRequesting}
+        chatMessages={askAIChatMessages}
+        streamingText={askAIStreamingText}
+      />
     </div>
   );
 };

@@ -1,0 +1,93 @@
+.sidePanel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--panel-width, 560px);
+  min-width: 300px;
+  max-width: 800px;
+  background: white;
+  border-left: 3px solid var(--very-light-purple, #eaddf8);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.resizeHandle {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 50px;
+  background: var(--medium-purple, #BF7EFA);
+  border-radius: 0 3px 3px 0;
+  cursor: ew-resize;
+  pointer-events: auto;
+  z-index: 10000;
+  transition: background 0.2s ease, height 0.2s ease, width 0.2s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.resizeHandle:hover,
+.resizeHandle:active {
+  background: var(--purple, #9527F5);
+  width: 6px;
+  height: 70px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  padding-right: 0;
+  border-bottom: 1px solid var(--very-light-purple, #eaddf8);
+  flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.headerTitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--purple, #9527F5);
+  margin: 0;
+}
+
+.closeButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--purple, #9527F5);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.closeButton:hover {
+  background: var(--very-light-purple, #eaddf8);
+}
+
+.closeButton:active {
+  transform: scale(0.95);
+}
+
+.content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+}
+

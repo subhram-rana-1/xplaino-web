@@ -9,6 +9,11 @@
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
+  position: relative;
+}
+
+.containerWithPanel {
+  padding-right: calc(var(--panel-width, 560px) + 1rem);
 }
 
 .headerRow {
@@ -284,6 +289,13 @@
   align-items: center;
   gap: 0.5rem;
   width: 100%;
+}
+
+.askAIButtonContainer {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+  padding: 0 0.5rem;
 }
 
 .tableControls {
