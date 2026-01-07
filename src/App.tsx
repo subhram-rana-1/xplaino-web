@@ -16,6 +16,7 @@ import { Pricing } from '@/pages/Pricing';
 import { AdminPricingPage } from '@/pages/Admin/AdminPricingPage';
 import { AdminTicketsPage } from '@/pages/Admin/AdminTicketsPage';
 import { AdminDomainsPage } from '@/pages/Admin/AdminDomainsPage';
+import { AdminCouponPage } from '@/pages/Admin/AdminCouponPage';
 import { UserDashboardLayout } from '@/pages/UserDashboard/UserDashboardLayout';
 import { MyBookmarksPage } from '@/pages/UserDashboard/MyBookmarksPage';
 import { PdfPage } from '@/pages/UserDashboard/PdfPage';
@@ -26,6 +27,7 @@ import { AdminDashboard } from '@/pages/AdminDashboard';
 import { PricingEdit } from '@/pages/Admin/components/PricingEdit';
 import { AdminIssueDetail } from '@/pages/Admin/components/AdminIssueDetail';
 import { DomainEdit } from '@/pages/Admin/components/AdminDomains';
+import { CouponEdit } from '@/pages/Admin/components/AdminCoupons';
 import { authConfig } from '@/config/auth.config';
 import { AuthProvider } from '@/shared/hooks/AuthContext';
 import { ProtectedRoute } from '@/shared/components/ProtectedRoute';
@@ -231,6 +233,22 @@ export const App: React.FC = () => {
                 element={
                   <AdminProtectedRoute>
                     <DomainEdit />
+                  </AdminProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/coupon" 
+                element={
+                  <AdminProtectedRoute>
+                    <AdminCouponPage />
+                  </AdminProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/coupon/:couponId" 
+                element={
+                  <AdminProtectedRoute>
+                    <CouponEdit />
                   </AdminProtectedRoute>
                 } 
               />

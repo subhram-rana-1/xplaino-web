@@ -1,0 +1,274 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  background: white;
+  border-radius: 30px;
+  padding: 1.5rem;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: 0 8px 24px rgba(149, 39, 245, 0.3);
+  animation: scaleIn 0.2s ease-out;
+  position: relative;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.title {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 1rem 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.dateRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+}
+
+.required {
+  color: var(--red);
+}
+
+.input,
+.textarea,
+.dropdownButton {
+  padding: 0.625rem 0.75rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  color: #333;
+  background: white;
+  border: 2px solid #ddd;
+  border-radius: var(--button-border-radius);
+  transition: border-color 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--purple);
+}
+
+.inputError,
+.dropdownButton.inputError {
+  border-color: var(--red);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+.dropdownContainer {
+  position: relative;
+}
+
+.dropdownButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dropdownButton:hover {
+  border-color: var(--purple);
+}
+
+.dropdownButtonOpen {
+  border-color: var(--purple);
+}
+
+.dropdownList {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.5rem;
+  background: white;
+  border: 2px solid #ddd;
+  border-radius: var(--button-border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10001;
+  overflow: hidden;
+}
+
+.dropdownOption {
+  display: block;
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #333;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dropdownOption:hover {
+  background-color: var(--very-light-purple);
+  color: var(--purple);
+}
+
+.dropdownOptionSelected {
+  background-color: var(--purple);
+  color: white;
+}
+
+.dropdownOptionSelected:hover {
+  background-color: var(--darker-purple);
+  color: white;
+}
+
+.errorMessage {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  color: var(--red);
+}
+
+.submitError {
+  padding: 0.625rem 0.875rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  color: var(--red);
+  background-color: var(--light-red);
+  border-radius: var(--button-border-radius);
+  border: 1px solid var(--red);
+}
+
+.buttons {
+  display: flex;
+  gap: 0.625rem;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+}
+
+.cancelButton,
+.submitButton {
+  padding: 0.625rem 1.25rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: var(--button-border-radius);
+  border: 2px solid;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton {
+  background: white;
+  color: #333;
+  border-color: #ddd;
+}
+
+.cancelButton:hover {
+  background: #f9f9f9;
+  border-color: #ccc;
+}
+
+.cancelButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.submitButton {
+  background: var(--purple);
+  color: white;
+  border-color: var(--purple);
+}
+
+.submitButton:hover {
+  background: var(--darker-purple);
+  border-color: var(--darker-purple);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .modal {
+    padding: 1.5rem;
+    max-width: 95%;
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .dateRow {
+    grid-template-columns: 1fr;
+  }
+
+  .buttons {
+    flex-direction: column;
+  }
+
+  .cancelButton,
+  .submitButton {
+    width: 100%;
+  }
+}
+

@@ -1,0 +1,2 @@
+export { AdminCouponPage } from './AdminCouponPage';
+
