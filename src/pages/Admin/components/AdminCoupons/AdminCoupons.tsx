@@ -23,7 +23,6 @@ interface AdminCouponsProps {
 export const AdminCoupons: React.FC<AdminCouponsProps> = ({ accessToken }) => {
   const navigate = useNavigate();
   const [coupons, setCoupons] = useState<CouponResponse[]>([]);
-  const [allCoupons, setAllCoupons] = useState<CouponResponse[]>([]); // For client-side filtering
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' } | null>(null);
@@ -90,14 +89,12 @@ export const AdminCoupons: React.FC<AdminCouponsProps> = ({ accessToken }) => {
       if (statusFilter === 'HIGHLIGHTED') {
         const highlightedCoupons = response.coupons.filter(coupon => coupon.is_highlighted);
         setCoupons(highlightedCoupons);
-        setAllCoupons(response.coupons);
         // For highlighted filter, we need to get total count of all highlighted coupons
         // Since we're doing client-side filtering, we'll use the filtered count
         setTotalCount(highlightedCoupons.length);
         setHasNext(false); // Disable pagination for client-side filtered results
       } else {
         setCoupons(response.coupons);
-        setAllCoupons(response.coupons);
         setTotalCount(response.total);
         setHasNext(response.has_next);
       }
@@ -195,15 +192,6 @@ export const AdminCoupons: React.FC<AdminCouponsProps> = ({ accessToken }) => {
     } catch {
       return dateString;
     }
-  };
-
-  const getCouponStatus = (coupon: CouponResponse): { isActive: boolean; isExpired: boolean } => {
-    const activation = new Date(coupon.activation).getTime();
-    const expiry = new Date(coupon.expiry).getTime();
-    const currentTime = new Date().getTime();
-    const isActive = activation < currentTime && currentTime < expiry;
-    const isExpired = expiry < currentTime;
-    return { isActive, isExpired };
   };
 
   const statusOptions: { value: string; label: string }[] = [
@@ -320,7 +308,6 @@ export const AdminCoupons: React.FC<AdminCouponsProps> = ({ accessToken }) => {
         <>
           <div className={styles.couponGrid}>
             {coupons.map((coupon) => {
-              const { isActive, isExpired } = getCouponStatus(coupon);
               const isHighlighted = coupon.is_highlighted;
 
               let cardClass = styles.couponCard;

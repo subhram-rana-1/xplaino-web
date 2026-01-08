@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import { FiX } from 'react-icons/fi';
 import styles from './AskAISidePanel.module.css';
 import { AskAISidePanelView } from './AskAISidePanelView';

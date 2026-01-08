@@ -28,7 +28,6 @@ const DEFAULT_PROMPTS = ['Short summary', 'Descriptive note'];
  * @returns JSX element
  */
 export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
-  selectedPrompt,
   onInputSubmit,
   onStopRequest,
   onClearChat,
@@ -82,8 +81,6 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
     onInputSubmitRef.current?.(prompt);
   }, []);
 
-  // Check if there's content
-  const hasContent = chatMessages.length > 0 || !!streamingText || (streamingText && streamingText.trim().length > 0);
   const hasChatHistory = chatMessages.length > 0;
   // Always show default prompts above input bar
   const showDefaultPrompts = true;

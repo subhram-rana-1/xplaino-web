@@ -23,7 +23,8 @@ import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { FolderSelectionModal } from '@/shared/components/FolderSelectionModal';
 import { AskAIButton } from '@/shared/components/AskAIButton';
 import { AskAISidePanel } from '@/shared/components/AskAISidePanel';
-import type { SavedParagraph, UserQuestionType, ChatMessage } from '@/shared/types/paragraphs.types';
+import type { SavedParagraph } from '@/shared/types/paragraphs.types';
+import { UserQuestionType } from '@/shared/types/paragraphs.types';
 import type { SavedLink } from '@/shared/types/links.types';
 import type { SavedWord } from '@/shared/types/words.types';
 import type { FolderWithSubFolders } from '@/shared/types/folders.types';
@@ -1077,9 +1078,9 @@ export const FolderBookmark: React.FC = () => {
 
     // Map option to question type and start streaming immediately for SHORT_SUMMARY and DESCRIPTIVE_NOTE
     if (option === 'Short summary') {
-      handleAIStream('SHORT_SUMMARY');
+      handleAIStream(UserQuestionType.SHORT_SUMMARY);
     } else if (option === 'Descriptive note') {
-      handleAIStream('DESCRIPTIVE_NOTE');
+      handleAIStream(UserQuestionType.DESCRIPTIVE_NOTE);
     }
     // For 'Ask AI' option, wait for user input (handled in handleAskAIInputSubmit)
   }, [selectedParagraphIds, initialContext, buildInitialContext, handleAIStream]);
@@ -1096,15 +1097,15 @@ export const FolderBookmark: React.FC = () => {
     let userQuestion: string | undefined;
     
     if (text === 'Short summary') {
-      questionType = 'SHORT_SUMMARY';
+      questionType = UserQuestionType.SHORT_SUMMARY;
       userQuestion = undefined;
       // Don't add to chat, but will show response
     } else if (text === 'Descriptive note') {
-      questionType = 'DESCRIPTIVE_NOTE';
+      questionType = UserQuestionType.DESCRIPTIVE_NOTE;
       userQuestion = undefined;
       // Don't add to chat, but will show response
     } else {
-      questionType = 'CUSTOM';
+      questionType = UserQuestionType.CUSTOM;
       userQuestion = text;
       // Add user message to chat for custom questions
       setAskAIChatMessages((prev) => [...prev, { role: 'user' as const, content: text }]);
@@ -1147,24 +1148,19 @@ export const FolderBookmark: React.FC = () => {
     setIsAskAIRequesting(false);
   }, [askAIAbortController]);
 
-  // Reset/Delete handler - clears all chat state and selections
+  // Reset/Delete handler - just hides the component
   const handleResetAskAI = useCallback(() => {
-    // Clear chat history and context
-    setAskAIChatMessages([]);
-    setAskAIStreamingText('');
-    setInitialContext([]);
-    setSelectedAskAIOption(null);
+    // Just hide the panel
     setIsAskAIPanelOpen(false);
     
-    // Clear selections and hide checkboxes
-    setSelectedParagraphIds(new Set());
+    // Hide checkboxes
     setIsCheckboxColumnVisible(false);
     
     // Hide message if showing
     setShowSelectParagraphMessage(false);
     setIsMessageFadingOut(false);
     
-    // Clear any ongoing request
+    // Abort any ongoing request
     if (askAIAbortController) {
       askAIAbortController.abort();
       setAskAIAbortController(null);
@@ -1419,13 +1415,13 @@ export const FolderBookmark: React.FC = () => {
                       onOptionSelect={handleAskAIOptionSelect}
                       onButtonClick={handleAskAIButtonClick}
                     />
-                    {/* Reset/Delete button - shown when initial context exists */}
+                    {/* Hide button - shown when initial context exists */}
                     {initialContext.length > 0 && (
                       <button
                         className={styles.resetButton}
                         onClick={handleResetAskAI}
-                        title="Clear chat and reset selections"
-                        aria-label="Clear chat and reset selections"
+                        title="Hide Ask AI panel"
+                        aria-label="Hide Ask AI panel"
                       >
                         <FiX size={20} />
                       </button>
