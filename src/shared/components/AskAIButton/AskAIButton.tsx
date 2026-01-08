@@ -6,6 +6,8 @@ export interface AskAIButtonProps {
   onOptionSelect: (option: string) => void;
   /** Optional className for the button container */
   className?: string;
+  /** Optional callback when button is clicked, return false to prevent dropdown from opening */
+  onButtonClick?: () => boolean;
 }
 
 const OPTIONS = ['Short summary', 'Descriptive note', 'Ask AI'];
@@ -18,6 +20,7 @@ const OPTIONS = ['Short summary', 'Descriptive note', 'Ask AI'];
 export const AskAIButton: React.FC<AskAIButtonProps> = ({
   onOptionSelect,
   className = '',
+  onButtonClick,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -54,12 +57,23 @@ export const AskAIButton: React.FC<AskAIButtonProps> = ({
     onOptionSelect(option);
   };
 
+  const handleButtonClick = () => {
+    // Call onButtonClick callback if provided
+    if (onButtonClick) {
+      const shouldOpenDropdown = onButtonClick();
+      if (!shouldOpenDropdown) {
+        return; // Don't open dropdown
+      }
+    }
+    setIsOpen(!isOpen);
+  };
+
   return (
     <div className={`${styles.container} ${className}`} ref={dropdownRef}>
       <button
         type="button"
         className={styles.button}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleButtonClick}
         aria-expanded={isOpen}
         aria-haspopup="true"
       >

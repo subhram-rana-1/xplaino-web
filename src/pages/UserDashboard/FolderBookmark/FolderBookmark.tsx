@@ -5,11 +5,12 @@ import ReactMarkdown from 'react-markdown';
 import { SiYoutube, SiLinkedin, SiX, SiReddit, SiFacebook, SiInstagram } from 'react-icons/si';
 import styles from './FolderBookmark.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
-import { getAllSavedParagraphs, deleteSavedParagraph, moveSavedParagraphToFolder } from '@/shared/services/paragraphs.service';
+import { getAllSavedParagraphs, deleteSavedParagraph, moveSavedParagraphToFolder, askAISavedParagraphs } from '@/shared/services/paragraphs.service';
 import { getAllSavedLinksByFolderId, saveLink, deleteSavedLink, moveSavedLinkToFolder } from '@/shared/services/links.service';
 import { getSavedWordsByFolderId, deleteSavedWord, moveSavedWordToFolder } from '@/shared/services/words.service';
 import { getAllSavedImagesByFolderId, deleteSavedImage, moveSavedImageToFolder } from '@/shared/services/images.service';
 import { getAllFolders } from '@/shared/services/folders.service';
+import { getUserSettings } from '@/shared/services/user-settings.service';
 import type { GetAllSavedParagraphsResponse } from '@/shared/types/paragraphs.types';
 import type { GetAllSavedLinksResponse } from '@/shared/types/links.types';
 import type { GetSavedWordsResponse } from '@/shared/types/words.types';
@@ -22,7 +23,7 @@ import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { FolderSelectionModal } from '@/shared/components/FolderSelectionModal';
 import { AskAIButton } from '@/shared/components/AskAIButton';
 import { AskAISidePanel } from '@/shared/components/AskAISidePanel';
-import type { SavedParagraph } from '@/shared/types/paragraphs.types';
+import type { SavedParagraph, UserQuestionType, ChatMessage } from '@/shared/types/paragraphs.types';
 import type { SavedLink } from '@/shared/types/links.types';
 import type { SavedWord } from '@/shared/types/words.types';
 import type { FolderWithSubFolders } from '@/shared/types/folders.types';
@@ -101,12 +102,25 @@ export const FolderBookmark: React.FC = () => {
   const tooltipTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tooltipShowTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
-  // Ask AI Panel state
+  // Ask AI Panel state (persisted across panel close/route changes)
   const [isAskAIPanelOpen, setIsAskAIPanelOpen] = useState(false);
   const [selectedAskAIOption, setSelectedAskAIOption] = useState<string | null>(null);
   const [askAIChatMessages, setAskAIChatMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
   const [askAIStreamingText, setAskAIStreamingText] = useState('');
   const [isAskAIRequesting, setIsAskAIRequesting] = useState(false);
+  const [askAIAbortController, setAskAIAbortController] = useState<AbortController | null>(null);
+  const [initialContext, setInitialContext] = useState<string[]>([]);
+  
+  // Checkbox selection state
+  const [isCheckboxColumnVisible, setIsCheckboxColumnVisible] = useState(false);
+  const [selectedParagraphIds, setSelectedParagraphIds] = useState<Set<string>>(new Set());
+  const [showSelectParagraphMessage, setShowSelectParagraphMessage] = useState(false);
+  const [isMessageFadingOut, setIsMessageFadingOut] = useState(false);
+  const messageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const messageFadeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  
+  // User language preference
+  const [userNativeLanguage, setUserNativeLanguage] = useState<string | null>(null);
 
   const handleInfoIconClick = useCallback((id: string, bookmarkTime: string, source: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -355,6 +369,23 @@ export const FolderBookmark: React.FC = () => {
     }
   }, [activeTab, accessToken, folderId, loadedTabs, fetchParagraphs, fetchLinks, fetchWords, fetchImages]);
 
+  // Fetch user settings on mount to get native language preference
+  useEffect(() => {
+    const fetchUserSettings = async () => {
+      if (!accessToken) return;
+      
+      try {
+        const settingsResponse = await getUserSettings(accessToken);
+        setUserNativeLanguage(settingsResponse.settings.language.nativeLanguage);
+      } catch (error) {
+        console.error('Error fetching user settings:', error);
+        // Don't show error to user, just continue with null language
+      }
+    };
+
+    fetchUserSettings();
+  }, [accessToken]);
+
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
@@ -363,6 +394,12 @@ export const FolderBookmark: React.FC = () => {
       }
       if (tooltipShowTimeoutRef.current) {
         clearTimeout(tooltipShowTimeoutRef.current);
+      }
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+      }
+      if (messageFadeTimeoutRef.current) {
+        clearTimeout(messageFadeTimeoutRef.current);
       }
     };
   }, []);
@@ -870,38 +907,281 @@ export const FolderBookmark: React.FC = () => {
     window.open(finalUrl, '_blank', 'noopener,noreferrer');
   };
 
+  // Helper to show select paragraph message with auto-hide
+  const showMessageWithAutoHide = useCallback(() => {
+    // Clear any existing timeouts
+    if (messageTimeoutRef.current) {
+      clearTimeout(messageTimeoutRef.current);
+      messageTimeoutRef.current = null;
+    }
+    if (messageFadeTimeoutRef.current) {
+      clearTimeout(messageFadeTimeoutRef.current);
+      messageFadeTimeoutRef.current = null;
+    }
+    
+    setShowSelectParagraphMessage(true);
+    setIsMessageFadingOut(false);
+    
+    // Start fade out after 2.5 seconds
+    messageTimeoutRef.current = setTimeout(() => {
+      setIsMessageFadingOut(true);
+      // Remove from DOM after fade out animation (0.5s)
+      messageFadeTimeoutRef.current = setTimeout(() => {
+        setShowSelectParagraphMessage(false);
+        setIsMessageFadingOut(false);
+      }, 500);
+    }, 2500);
+  }, []);
+
+  // Hide message immediately when user selects a paragraph
+  useEffect(() => {
+    if (selectedParagraphIds.size > 0 && showSelectParagraphMessage) {
+      // Clear timeouts
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+        messageTimeoutRef.current = null;
+      }
+      if (messageFadeTimeoutRef.current) {
+        clearTimeout(messageFadeTimeoutRef.current);
+        messageFadeTimeoutRef.current = null;
+      }
+      // Hide message
+      setShowSelectParagraphMessage(false);
+      setIsMessageFadingOut(false);
+    }
+  }, [selectedParagraphIds, showSelectParagraphMessage]);
+
   // Ask AI handlers
+  const handleAskAIButtonClick = useCallback(() => {
+    // If there's existing initial context, reopen panel with chat history
+    if (initialContext.length > 0) {
+      setIsAskAIPanelOpen(true);
+      return false; // Don't open dropdown
+    }
+    
+    // If checkboxes are not visible, show them on first click
+    if (!isCheckboxColumnVisible) {
+      setIsCheckboxColumnVisible(true);
+      showMessageWithAutoHide();
+      return false; // Don't open dropdown yet
+    }
+    
+    // If checkboxes are visible but no paragraphs selected
+    if (selectedParagraphIds.size === 0) {
+      showMessageWithAutoHide();
+      return false; // Don't open dropdown
+    }
+    
+    // If checkboxes are visible and paragraphs selected, allow dropdown to open
+    return true;
+  }, [initialContext, isCheckboxColumnVisible, selectedParagraphIds, showMessageWithAutoHide]);
+
+  // Helper function to build initial context from selected paragraphs
+  const buildInitialContext = useCallback((): string[] => {
+    if (!paragraphsData) return [];
+    
+    const context: string[] = [];
+    for (const paraId of selectedParagraphIds) {
+      const para = paragraphsData.saved_paragraphs.find(p => p.id === paraId);
+      if (para) {
+        // Format with name if available
+        if (para.name) {
+          context.push(`**${para.name}**\n\n${para.content}`);
+        } else {
+          context.push(para.content);
+        }
+      }
+    }
+    return context;
+  }, [paragraphsData, selectedParagraphIds]);
+
+  // Helper function to handle streaming AI response
+  const handleAIStream = useCallback(async (
+    userQuestionType: UserQuestionType,
+    userQuestion?: string
+  ) => {
+    if (!accessToken) {
+      setToast({ message: 'Authentication required', type: 'error' });
+      return;
+    }
+
+    // Use stored initial context or build from selected paragraphs
+    let contextToUse = initialContext;
+    if (contextToUse.length === 0) {
+      contextToUse = buildInitialContext();
+      if (contextToUse.length === 0) {
+        setToast({ message: 'Please select at least one paragraph', type: 'error' });
+        return;
+      }
+      setInitialContext(contextToUse);
+    }
+
+    // Create abort controller
+    const controller = new AbortController();
+    setAskAIAbortController(controller);
+    setIsAskAIRequesting(true);
+    setAskAIStreamingText('');
+
+    try {
+      let accumulatedText = '';
+      
+      for await (const response of askAISavedParagraphs(
+        accessToken,
+        contextToUse,
+        userQuestionType,
+        askAIChatMessages,
+        userQuestion,
+        userNativeLanguage,
+        controller.signal
+      )) {
+        if ('chunk' in response) {
+          // Stream chunk
+          accumulatedText = response.accumulated;
+          setAskAIStreamingText(accumulatedText);
+        } else if (response.type === 'complete') {
+          // Completion - use the accumulated text to ensure we have the full response
+          const finalContent = accumulatedText || response.answer;
+          setAskAIStreamingText('');
+          // Only add to chat if we have content
+          if (finalContent && finalContent.trim().length > 0) {
+            setAskAIChatMessages(prev => [
+              ...prev,
+              { role: 'assistant' as const, content: finalContent }
+            ]);
+          }
+        } else if (response.type === 'error') {
+          // Error
+          setToast({ 
+            message: response.error_message || 'An error occurred', 
+            type: 'error' 
+          });
+        }
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.name !== 'AbortError') {
+          console.error('Error in AI stream:', error);
+          setToast({ message: error.message, type: 'error' });
+        }
+      }
+    } finally {
+      setIsAskAIRequesting(false);
+      setAskAIAbortController(null);
+    }
+  }, [accessToken, initialContext, buildInitialContext, askAIChatMessages, userNativeLanguage]);
+
   const handleAskAIOptionSelect = useCallback((option: string) => {
+    // This should not be called if no paragraphs are selected (prevented by handleAskAIButtonClick)
+    // But adding validation as safety check
+    if (selectedParagraphIds.size === 0) {
+      return;
+    }
+
+    // Build and store initial context from selected paragraphs (only if not already set)
+    if (initialContext.length === 0) {
+      const context = buildInitialContext();
+      setInitialContext(context);
+    }
+
     setSelectedAskAIOption(option);
     setIsAskAIPanelOpen(true);
-    // Reset chat when opening with a new option
-    setAskAIChatMessages([]);
-    setAskAIStreamingText('');
-    setIsAskAIRequesting(false);
-  }, []);
+
+    // Map option to question type and start streaming immediately for SHORT_SUMMARY and DESCRIPTIVE_NOTE
+    if (option === 'Short summary') {
+      handleAIStream('SHORT_SUMMARY');
+    } else if (option === 'Descriptive note') {
+      handleAIStream('DESCRIPTIVE_NOTE');
+    }
+    // For 'Ask AI' option, wait for user input (handled in handleAskAIInputSubmit)
+  }, [selectedParagraphIds, initialContext, buildInitialContext, handleAIStream]);
 
   const handleAskAIClose = useCallback(() => {
     setIsAskAIPanelOpen(false);
-    setSelectedAskAIOption(null);
+    // Don't clear chat messages, initial context, or selected option
+    // Chat persists across panel close and route changes
   }, []);
 
   const handleAskAIInputSubmit = useCallback((text: string) => {
-    // Add user message to chat
-    setAskAIChatMessages((prev) => [...prev, { role: 'user' as const, content: text }]);
-    setIsAskAIRequesting(true);
-    setAskAIStreamingText('');
-    // TODO: API call will be implemented separately
-    // For now, just simulate a response
-    setTimeout(() => {
-      setIsAskAIRequesting(false);
-      setAskAIStreamingText('This is a placeholder response. API integration will be added separately.');
-    }, 1000);
-  }, []);
+    // Map text to question type
+    let questionType: UserQuestionType;
+    let userQuestion: string | undefined;
+    
+    if (text === 'Short summary') {
+      questionType = 'SHORT_SUMMARY';
+      userQuestion = undefined;
+      // Don't add to chat, but will show response
+    } else if (text === 'Descriptive note') {
+      questionType = 'DESCRIPTIVE_NOTE';
+      userQuestion = undefined;
+      // Don't add to chat, but will show response
+    } else {
+      questionType = 'CUSTOM';
+      userQuestion = text;
+      // Add user message to chat for custom questions
+      setAskAIChatMessages((prev) => [...prev, { role: 'user' as const, content: text }]);
+    }
+    
+    // Call API with appropriate question type
+    handleAIStream(questionType, userQuestion);
+  }, [handleAIStream]);
 
   const handleAskAIStopRequest = useCallback(() => {
+    // Save the partially received content before stopping
+    if (askAIStreamingText && askAIStreamingText.trim().length > 0) {
+      setAskAIChatMessages(prev => [
+        ...prev,
+        { role: 'assistant' as const, content: askAIStreamingText }
+      ]);
+    }
+    
+    // Clear streaming text
+    setAskAIStreamingText('');
+    
+    // Abort the ongoing streaming request
+    if (askAIAbortController) {
+      askAIAbortController.abort();
+      setAskAIAbortController(null);
+    }
     setIsAskAIRequesting(false);
-    // TODO: Implement actual stop logic when API is integrated
-  }, []);
+  }, [askAIAbortController, askAIStreamingText]);
+
+  // Clear chat history handler - only clears chat, keeps initial context
+  const handleClearChatHistory = useCallback(() => {
+    setAskAIChatMessages([]);
+    setAskAIStreamingText('');
+    
+    // Abort any ongoing request
+    if (askAIAbortController) {
+      askAIAbortController.abort();
+      setAskAIAbortController(null);
+    }
+    setIsAskAIRequesting(false);
+  }, [askAIAbortController]);
+
+  // Reset/Delete handler - clears all chat state and selections
+  const handleResetAskAI = useCallback(() => {
+    // Clear chat history and context
+    setAskAIChatMessages([]);
+    setAskAIStreamingText('');
+    setInitialContext([]);
+    setSelectedAskAIOption(null);
+    setIsAskAIPanelOpen(false);
+    
+    // Clear selections and hide checkboxes
+    setSelectedParagraphIds(new Set());
+    setIsCheckboxColumnVisible(false);
+    
+    // Hide message if showing
+    setShowSelectParagraphMessage(false);
+    setIsMessageFadingOut(false);
+    
+    // Clear any ongoing request
+    if (askAIAbortController) {
+      askAIAbortController.abort();
+      setAskAIAbortController(null);
+    }
+    setIsAskAIRequesting(false);
+  }, [askAIAbortController]);
 
   const handleWordSourceClick = (e: React.MouseEvent<HTMLAnchorElement>, sourceUrl: string, word: string) => {
     e.preventDefault();
@@ -954,6 +1234,57 @@ export const FolderBookmark: React.FC = () => {
         }
         // Paragraph table columns
         const paragraphColumns: Column<SavedParagraph>[] = [
+          // Checkbox column for selection
+          {
+            key: 'checkbox',
+            header: 'Select all',
+            align: 'center',
+            width: '60px',
+            hidden: !isCheckboxColumnVisible,
+            headerRender: () => (
+              <input
+                type="checkbox"
+                className={styles.selectAllCheckbox}
+                checked={paragraphsData.saved_paragraphs.length > 0 && selectedParagraphIds.size === paragraphsData.saved_paragraphs.length}
+                disabled={initialContext.length > 0}
+                ref={(el) => {
+                  if (el) {
+                    el.indeterminate = selectedParagraphIds.size > 0 && selectedParagraphIds.size < paragraphsData.saved_paragraphs.length;
+                  }
+                }}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    // Select all paragraphs
+                    const allIds = new Set(paragraphsData.saved_paragraphs.map(p => p.id));
+                    setSelectedParagraphIds(allIds);
+                  } else {
+                    // Deselect all
+                    setSelectedParagraphIds(new Set());
+                  }
+                }}
+                aria-label="Select all paragraphs"
+              />
+            ),
+            render: (para) => (
+              <input
+                type="checkbox"
+                className={styles.rowCheckbox}
+                checked={selectedParagraphIds.has(para.id)}
+                disabled={initialContext.length > 0}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  const newSelected = new Set(selectedParagraphIds);
+                  if (e.target.checked) {
+                    newSelected.add(para.id);
+                  } else {
+                    newSelected.delete(para.id);
+                  }
+                  setSelectedParagraphIds(newSelected);
+                }}
+                aria-label={`Select paragraph ${para.name || para.id}`}
+              />
+            ),
+          },
           {
             key: 'name',
             header: 'Name',
@@ -1092,10 +1423,32 @@ export const FolderBookmark: React.FC = () => {
                     </button>
                   </div>
                 )}
-                {/* Ask AI Button */}
-                <div className={styles.askAIButtonContainer}>
-                  <AskAIButton onOptionSelect={handleAskAIOptionSelect} />
-                </div>
+                {/* Ask AI Button and Reset Button - hidden when side panel is open */}
+                {!isAskAIPanelOpen && (
+                  <div className={styles.askAIButtonContainer}>
+                    <AskAIButton 
+                      onOptionSelect={handleAskAIOptionSelect}
+                      onButtonClick={handleAskAIButtonClick}
+                    />
+                    {/* Reset/Delete button - shown when initial context exists */}
+                    {initialContext.length > 0 && (
+                      <button
+                        className={styles.resetButton}
+                        onClick={handleResetAskAI}
+                        title="Clear chat and reset selections"
+                        aria-label="Clear chat and reset selections"
+                      >
+                        <FiX size={20} />
+                      </button>
+                    )}
+                  </div>
+                )}
+                {/* Select Paragraph Message - shown when checkboxes are visible but no selection */}
+                {showSelectParagraphMessage && (
+                  <div className={`${styles.selectParagraphMessage} ${isMessageFadingOut ? styles.selectParagraphMessageFadeOut : ''}`}>
+                    <span>Select paragraph</span>
+                  </div>
+                )}
                 <DataTable
                   columns={paragraphColumns}
                   data={paragraphsData.saved_paragraphs}
@@ -1931,6 +2284,7 @@ export const FolderBookmark: React.FC = () => {
         selectedPrompt={selectedAskAIOption || undefined}
         onInputSubmit={handleAskAIInputSubmit}
         onStopRequest={handleAskAIStopRequest}
+        onClearChat={handleClearChatHistory}
         isRequesting={isAskAIRequesting}
         chatMessages={askAIChatMessages}
         streamingText={askAIStreamingText}

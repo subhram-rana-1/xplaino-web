@@ -14,6 +14,8 @@ export interface AskAISidePanelProps {
   onInputSubmit?: (text: string) => void;
   /** Handler for stop request */
   onStopRequest?: () => void;
+  /** Handler for clearing chat history */
+  onClearChat?: () => void;
   /** Whether a request is currently in progress */
   isRequesting?: boolean;
   /** Chat messages */
@@ -37,6 +39,7 @@ export const AskAISidePanel: React.FC<AskAISidePanelProps> = ({
   selectedPrompt,
   onInputSubmit,
   onStopRequest,
+  onClearChat,
   isRequesting = false,
   chatMessages = [],
   streamingText = '',
@@ -112,6 +115,7 @@ export const AskAISidePanel: React.FC<AskAISidePanelProps> = ({
           selectedPrompt={selectedPrompt}
           onInputSubmit={onInputSubmit}
           onStopRequest={onStopRequest}
+          onClearChat={onClearChat}
           isRequesting={isRequesting}
           chatMessages={chatMessages}
           streamingText={streamingText}

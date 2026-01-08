@@ -50,3 +50,61 @@ export interface SavedParagraphsState {
   currentFolderPath: Array<{ id: string; name: string }>;
 }
 
+/**
+ * Chat message for Ask AI conversations
+ */
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+/**
+ * User question type enum for Ask AI endpoint
+ */
+export enum UserQuestionType {
+  SHORT_SUMMARY = 'SHORT_SUMMARY',
+  DESCRIPTIVE_NOTE = 'DESCRIPTIVE_NOTE',
+  CUSTOM = 'CUSTOM',
+}
+
+/**
+ * Request model for asking AI about saved paragraphs
+ */
+export interface AskSavedParagraphsRequest {
+  initialContext: string[];  // Array of content strings (required, min 1 item)
+  chatHistory: ChatMessage[];  // Previous chat history for context (can be empty)
+  userQuestionType: UserQuestionType;  // Type of question
+  userQuestion?: string;  // Custom user question (required when userQuestionType is CUSTOM, must have length > 0)
+  languageCode?: string | null;  // Optional language code (max 10 chars, e.g., 'EN', 'FR', 'ES', 'DE', 'HI')
+}
+
+/**
+ * Streaming response chunk from Ask AI endpoint
+ */
+export interface AskAIStreamChunk {
+  chunk: string;
+  accumulated: string;
+}
+
+/**
+ * Final completion response from Ask AI endpoint
+ */
+export interface AskAICompleteResponse {
+  type: 'complete';
+  answer: string;
+}
+
+/**
+ * Error response from Ask AI endpoint
+ */
+export interface AskAIErrorResponse {
+  type: 'error';
+  error_code: string;
+  error_message: string;
+}
+
+/**
+ * Union type for all possible SSE response types
+ */
+export type AskAISSEResponse = AskAIStreamChunk | AskAICompleteResponse | AskAIErrorResponse;
+

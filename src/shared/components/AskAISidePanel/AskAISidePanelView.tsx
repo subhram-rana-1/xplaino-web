@@ -10,6 +10,8 @@ export interface AskAISidePanelViewProps {
   onInputSubmit?: (text: string) => void;
   /** Handler for stop request */
   onStopRequest?: () => void;
+  /** Handler for clearing chat history */
+  onClearChat?: () => void;
   /** Whether a request is currently in progress */
   isRequesting?: boolean;
   /** Chat messages */
@@ -18,7 +20,7 @@ export interface AskAISidePanelViewProps {
   streamingText?: string;
 }
 
-const DEFAULT_PROMPTS = ['Short summary', 'Descriptive note', 'Ask AI'];
+const DEFAULT_PROMPTS = ['Short summary', 'Descriptive note'];
 
 /**
  * AskAISidePanelView - Content view with chat interface and input bar
@@ -29,6 +31,7 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
   selectedPrompt,
   onInputSubmit,
   onStopRequest,
+  onClearChat,
   isRequesting = false,
   chatMessages = [],
   streamingText = '',
@@ -82,7 +85,8 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
   // Check if there's content
   const hasContent = chatMessages.length > 0 || !!streamingText || (streamingText && streamingText.trim().length > 0);
   const hasChatHistory = chatMessages.length > 0;
-  const showDefaultPrompts = !hasChatHistory && !streamingText;
+  // Always show default prompts above input bar
+  const showDefaultPrompts = true;
 
   // Memoize ReactMarkdown components
   const markdownComponents = React.useMemo(() => ({
@@ -139,25 +143,25 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
             </ReactMarkdown>
           </div>
         )}
-
-        {/* Default Prompts */}
-        {showDefaultPrompts && (
-          <div className={styles.defaultPrompts}>
-            <span className={styles.promptsContainer}>
-              {DEFAULT_PROMPTS.map((prompt) => (
-                <button
-                  key={prompt}
-                  type="button"
-                  className={styles.promptButton}
-                  onClick={() => handlePromptClick(prompt)}
-                >
-                  {prompt}
-                </button>
-              ))}
-            </span>
-          </div>
-        )}
       </div>
+
+      {/* Default Prompts - positioned above input bar */}
+      {showDefaultPrompts && (
+        <div className={styles.defaultPrompts}>
+          <span className={styles.promptsContainer}>
+            {DEFAULT_PROMPTS.map((prompt) => (
+              <button
+                key={prompt}
+                type="button"
+                className={styles.promptButton}
+                onClick={() => handlePromptClick(prompt)}
+              >
+                {prompt}
+              </button>
+            ))}
+          </span>
+        </div>
+      )}
 
       {/* User Input Bar */}
       <div className={styles.inputBar}>
@@ -169,7 +173,6 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
-            disabled={isSubmitting || isRequesting}
           />
         </div>
         
@@ -196,20 +199,13 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
           </button>
         )}
 
-        {/* Delete/Clear Button - Show when there is chat history or content */}
-        {hasContent && (
+        {/* Delete/Clear Button - Show when there is chat history */}
+        {hasChatHistory && onClearChat && (
           <button
             type="button"
             className={styles.deleteButton}
-            onClick={() => {
-              if (hasChatHistory) {
-                // Clear chat - this would need to be handled by parent
-                setInputValue('');
-              } else {
-                setInputValue('');
-              }
-            }}
-            aria-label={hasChatHistory ? "Clear chat" : "Clear input"}
+            onClick={onClearChat}
+            aria-label="Clear chat history"
           >
             <FiTrash2 size={18} />
           </button>

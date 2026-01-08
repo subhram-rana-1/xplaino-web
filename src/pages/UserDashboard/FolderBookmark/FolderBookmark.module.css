@@ -293,9 +293,114 @@
 
 .askAIButtonContainer {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: 0.5rem;
   margin-bottom: 1rem;
   padding: 0 0.5rem;
+}
+
+/* Reset button */
+.resetButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid var(--medium-purple, #BF7EFA);
+  color: var(--purple, #9527F5);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.resetButton:hover {
+  background: var(--very-light-purple, #eaddf8);
+  transform: scale(1.05);
+}
+
+.resetButton:active {
+  transform: scale(0.95);
+}
+
+.resetButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Checkbox styles for row selection */
+.selectAllCheckbox,
+.rowCheckbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--purple, #9527F5);
+}
+
+.selectAllCheckbox {
+  margin: 0;
+}
+
+.rowCheckbox {
+  margin: 0;
+}
+
+.selectAllCheckbox:hover,
+.rowCheckbox:hover {
+  opacity: 0.8;
+}
+
+.selectAllCheckbox:disabled,
+.rowCheckbox:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Select Paragraph Message */
+.selectParagraphMessage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  margin: 0 0.5rem 0.75rem 0.5rem;
+  background: var(--very-light-purple, #eaddf8);
+  border: 1px solid var(--medium-purple, #BF7EFA);
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--purple, #9527F5);
+  animation: slideInDown 0.3s ease-out;
+}
+
+.selectParagraphMessageFadeOut {
+  animation: fadeOut 0.5s ease-out forwards;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.selectParagraphMessage span {
+  display: inline-block;
 }
 
 .tableControls {
