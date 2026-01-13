@@ -1,3 +1,35 @@
+/* Modal-specific wrapper to override Login page styles */
+.modalWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  min-height: auto;
+}
+
+.modalContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.modalContainer {
+  position: relative;
+  background-color: var(--bg-white);
+  border-radius: 30px;
+  box-shadow: 0 4px 20px var(--shadow-black-15), 0 8px 32px var(--shadow-black-20);
+  padding: 3rem;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+}
+
 .actionText {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
@@ -9,38 +41,39 @@
 
 .closeButton {
   position: absolute;
-  top: 3rem;
-  right: 3rem;
-  background: white;
-  border: 2px solid var(--purple);
-  color: var(--purple);
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--gray-500);
   cursor: pointer;
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background-color 0.2s ease, transform 0.1s ease, color 0.2s ease;
+  transition: color 0.2s ease;
   width: 36px;
   height: 36px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   z-index: 1;
 }
 
 .closeButton:hover {
-  background-color: var(--purple);
-  color: white;
-  transform: scale(1.1);
+  background: none;
+  color: var(--teal);
 }
 
 .closeButton:active {
-  transform: scale(0.95);
-  background-color: var(--darker-purple);
+  color: var(--teal-dark);
 }
 
 @media (max-width: 768px) {
+  .modalContainer {
+    padding: 2rem 1.5rem;
+  }
+
   .closeButton {
-    top: 2rem;
-    right: 1.5rem;
+    top: 0.75rem;
+    right: 0.75rem;
   }
 }

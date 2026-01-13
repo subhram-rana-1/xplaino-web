@@ -49,9 +49,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({ actionText, onClose }) =
   };
 
   return (
-    <div className={loginStyles.login}>
-      <div className={loginStyles.content}>
-        <div className={loginStyles.loginContainer}>
+    <div className={styles.modalWrapper}>
+      <div className={styles.modalContent}>
+        <div className={styles.modalContainer}>
           {onClose && (
             <button
               className={styles.closeButton}

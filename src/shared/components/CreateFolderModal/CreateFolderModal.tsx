@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { FiX, FiArrowRight } from 'react-icons/fi';
 import styles from './CreateFolderModal.module.css';
 
 interface CreateFolderModalProps {
@@ -27,21 +28,6 @@ export const CreateFolderModal: React.FC<CreateFolderModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [isOpening, setIsOpening] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      setIsClosing(false);
-      // Start with opening state, then animate to open
-      setIsOpening(true);
-      const timer = setTimeout(() => {
-        setIsOpening(false);
-      }, 10); // Small delay to ensure opening class is applied first
-      return () => clearTimeout(timer);
-    } else {
-      setIsOpening(false);
-    }
-  }, [isOpen]);
 
   if (!isOpen && !isClosing) return null;
 
@@ -90,18 +76,28 @@ export const CreateFolderModal: React.FC<CreateFolderModalProps> = ({
 
   return (
     <div 
-      className={`${styles.overlay} ${isClosing ? styles.closing : ''} ${isOpening ? styles.opening : ''}`} 
+      className={`${styles.overlay} ${isClosing ? styles.closing : ''}`} 
       onClick={handleClose}
     >
       <div 
-        className={`${styles.modal} ${isClosing ? styles.closing : ''} ${isOpening ? styles.opening : ''}`} 
+        className={`${styles.modal} ${isClosing ? styles.closing : ''}`} 
         onClick={(e) => e.stopPropagation()}
       >
+        <div className={styles.header}>
+          <h2 className={styles.title}>Create new folder</h2>
+          <button
+            type="button"
+            onClick={handleClose}
+            className={styles.closeButton}
+            disabled={isLoading}
+            aria-label="Close"
+          >
+            <FiX />
+          </button>
+        </div>
+
         <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.formGroup}>
-            <label htmlFor="folderName" className={styles.label}>
-              Folder Name
-            </label>
+          <div className={styles.inputWrapper}>
             <input
               id="folderName"
               type="text"
@@ -113,32 +109,23 @@ export const CreateFolderModal: React.FC<CreateFolderModalProps> = ({
               disabled={isLoading}
               autoFocus
             />
-            {currentFolderName && (
-              <p className={styles.hint}>
-                This folder will be created in: {currentFolderName}
-              </p>
-            )}
-          </div>
-
-          {error && <div className={styles.errorMessage}>{error}</div>}
-
-          <div className={styles.actions}>
-            <button
-              type="button"
-              onClick={handleClose}
-              className={styles.cancelButton}
-              disabled={isLoading}
-            >
-              Cancel
-            </button>
             <button
               type="submit"
-              className={styles.createButton}
+              className={styles.submitButton}
               disabled={isLoading || !folderName.trim()}
+              aria-label="Create folder"
             >
-              {isLoading ? 'Creating...' : 'Create'}
+              <FiArrowRight />
             </button>
           </div>
+
+          {currentFolderName && (
+            <p className={styles.hint}>
+              This folder will be created in: {currentFolderName}
+            </p>
+          )}
+
+          {error && <div className={styles.errorMessage}>{error}</div>}
         </form>
       </div>
     </div>

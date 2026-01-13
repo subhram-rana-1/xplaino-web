@@ -5,6 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
+import { fetchWithAuth } from './api-client';
 import type { GetAllPdfsResponse, PdfResponse, GetPdfHtmlPagesResponse } from '@/shared/types/pdf.types';
 
 /**
@@ -13,14 +14,12 @@ import type { GetAllPdfsResponse, PdfResponse, GetPdfHtmlPagesResponse } from '@
 export async function getAllPdfs(
   accessToken: string
 ): Promise<GetAllPdfsResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/pdf`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -47,14 +46,12 @@ export async function convertPdfToHtml(
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/pdf/to-html`,
     {
       method: 'POST',
       headers: {
         // Don't set Content-Type header - let browser set it with boundary for multipart/form-data
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
       body: formData,
     }
@@ -80,14 +77,12 @@ export async function getHtmlPagesByPdfId(
   offset: number = 0,
   limit: number = 20
 ): Promise<GetPdfHtmlPagesResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/pdf/${pdfId}/html?offset=${offset}&limit=${limit}`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -110,14 +105,12 @@ export async function deletePdf(
   accessToken: string,
   pdfId: string
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/pdf/${pdfId}`,
     {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );

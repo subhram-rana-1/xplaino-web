@@ -1,0 +1,144 @@
+.featureContainer {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  margin-bottom: 4rem;
+  padding: 2rem;
+  border-radius: 20px;
+}
+
+.featureContainer.reversed {
+  flex-direction: row-reverse;
+}
+
+.contentSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.heading {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+  color: #000;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.2;
+}
+
+.bulletList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bulletItem {
+  font-size: 1.125rem;
+  font-weight: 400;
+  color: #333;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.bulletItem::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--purple);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.videoSection {
+  flex: 0.7;
+  max-width: 70%;
+  position: relative;
+  border-radius: 15px;
+  overflow: hidden;
+  background-color: #000;
+  cursor: pointer;
+  outline: none;
+  border: none;
+}
+
+.video {
+  width: 100%;
+  height: auto;
+  display: block;
+  outline: none;
+  border: none;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .featureContainer {
+    gap: 2rem;
+    padding: 1.5rem;
+  }
+
+  .heading {
+    font-size: 1.75rem;
+  }
+
+  .bulletItem {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .featureContainer {
+    flex-direction: column !important;
+    gap: 2rem;
+    padding: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .featureContainer.reversed {
+    flex-direction: column !important;
+  }
+
+  .contentSection {
+    width: 100%;
+  }
+
+  .videoSection {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .heading {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  .bulletList {
+    align-items: flex-start;
+  }
+
+  .bulletItem {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .featureContainer {
+    padding: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .heading {
+    font-size: 1.25rem;
+  }
+
+  .bulletItem {
+    font-size: 0.875rem;
+    padding-left: 1.25rem;
+  }
+}

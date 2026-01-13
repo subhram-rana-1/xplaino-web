@@ -44,12 +44,12 @@
 }
 
 .bookButton {
-  color: #22c55e;
+  color: var(--teal);
 }
 
 .bookButton:hover {
-  background: rgba(34, 197, 94, 0.1);
-  color: #16a34a;
+  background: var(--teal-rgba-10);
+  color: var(--teal-dark);
 }
 
 .deleteButton svg,

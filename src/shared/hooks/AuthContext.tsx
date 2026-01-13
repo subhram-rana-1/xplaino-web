@@ -43,9 +43,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const storedAuth = await getAuthFromStorage();
         if (storedAuth) {
           const now = Math.floor(Date.now() / 1000);
-          if (storedAuth.accessTokenExpiresAt > now) {
+          
+          // Check if refresh token is still valid
+          // Access token expiration is handled by the API interceptor
+          if (storedAuth.refreshTokenExpiresAt > now) {
             setAuthState(storedAuth);
           } else {
+            // Refresh token expired - clear auth and require re-login
             await clearAuthFromStorage();
           }
         }
@@ -58,6 +62,58 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     loadAuthState();
+  }, []);
+
+  // Listen for auth updates (e.g., token refresh by interceptor)
+  useEffect(() => {
+    const handleStorageChange = async () => {
+      const storedAuth = await getAuthFromStorage();
+      if (storedAuth) {
+        const now = Math.floor(Date.now() / 1000);
+        if (storedAuth.refreshTokenExpiresAt > now) {
+          setAuthState(storedAuth);
+        } else {
+          setAuthState(null);
+        }
+      } else {
+        setAuthState(null);
+      }
+    };
+
+    const handleAuthStateChanged = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const authData = customEvent.detail as AuthState | null;
+      
+      if (authData) {
+        const now = Math.floor(Date.now() / 1000);
+        if (authData.refreshTokenExpiresAt > now) {
+          setAuthState(authData);
+        } else {
+          setAuthState(null);
+        }
+      } else {
+        setAuthState(null);
+      }
+    };
+
+    // Listen for custom auth state changes (same tab, immediate updates)
+    window.addEventListener('authStateChanged', handleAuthStateChanged);
+    
+    // Listen for storage events (works across tabs for localStorage)
+    window.addEventListener('storage', handleStorageChange);
+    
+    // For chrome.storage changes
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
+      chrome.storage.onChanged.addListener(handleStorageChange);
+    }
+
+    return () => {
+      window.removeEventListener('authStateChanged', handleAuthStateChanged);
+      window.removeEventListener('storage', handleStorageChange);
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
+        chrome.storage.onChanged.removeListener(handleStorageChange);
+      }
+    };
   }, []);
 
   const login = useCallback(

@@ -48,10 +48,11 @@ export const IconTabGroup: React.FC<IconTabGroupProps> = ({
     const offsetX = activeTab.offsetLeft;
     const tabWidth = activeTab.offsetWidth;
 
-    if (animate) {
-      sliderRef.current.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+    // Remove transition class for instant positioning, add it back for animation
+    if (!animate) {
+      sliderRef.current.classList.add(styles.noTransition);
     } else {
-      sliderRef.current.style.transition = 'none';
+      sliderRef.current.classList.remove(styles.noTransition);
     }
 
     sliderRef.current.style.transform = `translateX(${offsetX}px)`;
@@ -70,6 +71,9 @@ export const IconTabGroup: React.FC<IconTabGroupProps> = ({
       if (!success && retryCount < maxRetries) {
         retryCount++;
         setTimeout(tryUpdate, 20 * retryCount); // Exponential backoff
+      } else if (success && sliderRef.current) {
+        // Force a reflow to ensure initial position is set without animation
+        sliderRef.current.offsetHeight;
       }
     };
 
@@ -92,12 +96,8 @@ export const IconTabGroup: React.FC<IconTabGroupProps> = ({
       }
     };
 
-    // Use requestAnimationFrame to ensure DOM has updated
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        setTimeout(tryUpdate, 10);
-      });
-    });
+    // Immediate update with animation
+    setTimeout(tryUpdate, 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTabId]);
 

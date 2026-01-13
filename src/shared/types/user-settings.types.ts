@@ -79,13 +79,9 @@ export enum Theme {
   DARK = 'DARK',
 }
 
-export interface LanguageSettings {
+export interface SettingsResponse {
   nativeLanguage: NativeLanguage | null;
   pageTranslationView: PageTranslationView;
-}
-
-export interface SettingsResponse {
-  language: LanguageSettings;
   theme: Theme;
 }
 
@@ -95,7 +91,8 @@ export interface UserSettingsResponse {
 }
 
 export interface UpdateSettingsRequest {
-  language: LanguageSettings;
+  nativeLanguage: NativeLanguage | null;
+  pageTranslationView: PageTranslationView;
   theme: Theme;
 }
 

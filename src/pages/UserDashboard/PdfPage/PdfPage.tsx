@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FiRefreshCw, FiPlus } from 'react-icons/fi';
+import { FiRefreshCw, FiPlus, FiCheck } from 'react-icons/fi';
 import styles from './PdfPage.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { getAllPdfs, convertPdfToHtml, deletePdf } from '@/shared/services/pdf.service';
@@ -25,6 +25,7 @@ export const PdfPage: React.FC = () => {
   const [hoveredRowId, setHoveredRowId] = useState<string | null>(null);
   const [deleteConfirmPdfId, setDeleteConfirmPdfId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showFetchSuccess, setShowFetchSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchPdfs = async () => {
@@ -34,6 +35,12 @@ export const PdfPage: React.FC = () => {
       setIsLoading(true);
       const response = await getAllPdfs(accessToken);
       setPdfs(response.pdfs);
+      
+      // Show success feedback for 1 second
+      setShowFetchSuccess(true);
+      setTimeout(() => {
+        setShowFetchSuccess(false);
+      }, 1000);
     } catch (error) {
       console.error('Error fetching PDFs:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to load PDFs';
@@ -184,8 +191,8 @@ export const PdfPage: React.FC = () => {
     },
     {
       key: 'actions',
-      header: '',
-      align: 'right',
+      header: 'ASK AI',
+      align: 'left',
       render: (pdf) => {
         const isHovered = hoveredRowId === pdf.id;
         return (
@@ -207,12 +214,22 @@ export const PdfPage: React.FC = () => {
         <div className={styles.header}>
           <div className={styles.headerRight}>
             <button
-              className={styles.refreshButton}
+              className={`${styles.refreshButton} ${showFetchSuccess ? styles.refreshButtonSuccess : ''}`}
               onClick={handleRefresh}
               disabled={isLoading}
               title="Refresh PDFs"
             >
-              <FiRefreshCw className={isLoading ? styles.spin : ''} />
+              {showFetchSuccess ? (
+                <>
+                  <FiCheck />
+                  <span>Pdfs fetched</span>
+                </>
+              ) : (
+                <>
+                  <FiRefreshCw className={isLoading ? styles.spin : ''} />
+                  <span>Fetch pdfs</span>
+                </>
+              )}
             </button>
             <button
               className={styles.uploadButton}

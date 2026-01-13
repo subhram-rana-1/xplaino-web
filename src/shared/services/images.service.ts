@@ -5,6 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
+import { fetchWithAuth } from './api-client';
 import type { GetAllSavedImagesResponse } from '@/shared/types/images.types';
 
 /**
@@ -16,14 +17,12 @@ export async function getAllSavedImagesByFolderId(
   offset: number = 0,
   limit: number = 20
 ): Promise<GetAllSavedImagesResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-image?folder-id=${folderId}&offset=${offset}&limit=${limit}`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -44,14 +43,12 @@ export async function deleteSavedImage(
   accessToken: string,
   imageId: string
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-image/${imageId}`,
     {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -70,14 +67,12 @@ export async function moveSavedImageToFolder(
   imageId: string,
   folderId: string | null
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-image/${imageId}/move-to-folder`,
     {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
       body: JSON.stringify({ newFolderId: folderId }),
     }

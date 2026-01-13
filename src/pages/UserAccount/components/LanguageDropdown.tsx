@@ -23,6 +23,7 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
   placeholder = 'Select language',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const selectedOption = options.find((opt) => opt.value === value);
@@ -60,6 +61,29 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
     setIsOpen(false);
   };
 
+  const toggleDropdown = () => {
+    if (!isOpen) {
+      setIsAnimating(true);
+      // Small delay to ensure the element is rendered before animation starts
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsOpen(true);
+        });
+      });
+    } else {
+      setIsOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!isOpen && isAnimating) {
+      const timer = setTimeout(() => {
+        setIsAnimating(false);
+      }, 300); // Match animation duration
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, isAnimating]);
+
   return (
     <div className={styles.dropdownContainer} ref={dropdownRef}>
       <div className={styles.dropdown}>
@@ -71,7 +95,7 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
           }}
           onClick={(e) => {
             e.stopPropagation();
-            setIsOpen(!isOpen);
+            toggleDropdown();
           }}
         >
           <span className={styles.dropdownValue}>
@@ -90,8 +114,8 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
             <polyline points="6 9 12 15 18 9" />
           </svg>
         </button>
-        {isOpen && (
-          <div className={styles.dropdownMenu}>
+        {(isOpen || isAnimating) && (
+          <div className={`${styles.dropdownMenu} ${isOpen ? styles.dropdownMenuOpen : styles.dropdownMenuClosed}`}>
             {options.map((option) => {
               const isSelected = value === option.value;
               return (

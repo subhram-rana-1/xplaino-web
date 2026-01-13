@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './VideoModal.module.css';
 
 interface VideoModalProps {
@@ -21,6 +22,7 @@ export const VideoModal: React.FC<VideoModalProps> = ({ isOpen, videoUrl, title,
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isClosing, setIsClosing] = useState(false);
+  const scrollPositionRef = useRef<number>(0);
 
   const handleClose = useCallback(() => {
     setIsClosing(true);
@@ -40,11 +42,44 @@ export const VideoModal: React.FC<VideoModalProps> = ({ isOpen, videoUrl, title,
   useEffect(() => {
     if (isOpen) {
       setIsClosing(false);
+      // Store current scroll position
+      scrollPositionRef.current = window.scrollY;
+      // Prevent body scroll
       document.body.style.overflow = 'hidden';
-    } else {
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollPositionRef.current}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.width = '100%';
+    } else if (!isOpen && scrollPositionRef.current !== 0) {
       setIsClosing(false);
-      document.body.style.overflow = 'unset';
+      // Restore scroll position
+      const scrollY = scrollPositionRef.current;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      window.scrollTo(0, scrollY);
+      scrollPositionRef.current = 0;
     }
+    
+    return () => {
+      // Cleanup on unmount
+      if (document.body.style.position === 'fixed') {
+        const scrollY = scrollPositionRef.current;
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.width = '';
+        document.body.style.overflow = '';
+        if (scrollY !== 0) {
+          window.scrollTo(0, scrollY);
+        }
+      }
+    };
   }, [isOpen]);
 
   useEffect(() => {
@@ -102,7 +137,7 @@ export const VideoModal: React.FC<VideoModalProps> = ({ isOpen, videoUrl, title,
 
   if (!isOpen && !isClosing) return null;
 
-  return (
+  const modalContent = (
     <div className={styles.modalOverlay} onClick={handleClose}>
       <div 
         className={`${styles.modalContent} ${isClosing ? styles.modalClosing : isOpen ? styles.modalOpening : ''}`} 
@@ -143,7 +178,8 @@ export const VideoModal: React.FC<VideoModalProps> = ({ isOpen, videoUrl, title,
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 VideoModal.displayName = 'VideoModal';
-

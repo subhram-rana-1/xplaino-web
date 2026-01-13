@@ -30,7 +30,7 @@ export const UserDashboardLayout: React.FC = () => {
   return (
     <div className={styles.userDashboard}>
       <div className={styles.sidebar}>
-        <h2 className={styles.sidebarTitle}>User panel</h2>
+        <h2 className={styles.sidebarTitle}>My dashboard</h2>
         <nav className={styles.sidebarNav}>
           {sidebarItems.map((item) => (
             <Link

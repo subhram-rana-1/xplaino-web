@@ -5,6 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
+import { fetchWithAuth, fetchPublic } from './api-client';
 import type {
   UserSettingsResponse,
   SettingsResponse,
@@ -18,14 +19,12 @@ import type {
 export async function getUserSettings(
   accessToken: string
 ): Promise<UserSettingsResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/user-settings`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -46,14 +45,12 @@ export async function updateUserSettings(
   accessToken: string,
   body: UpdateSettingsRequest
 ): Promise<SettingsResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/user-settings`,
     {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
       body: JSON.stringify(body),
     }
@@ -73,13 +70,12 @@ export async function updateUserSettings(
  * This is an unauthenticated endpoint
  */
 export async function getAllLanguages(): Promise<GetAllLanguagesResponse> {
-  const response = await fetch(
+  const response = await fetchPublic(
     `${authConfig.catenBaseUrl}/api/user-settings/languages`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );

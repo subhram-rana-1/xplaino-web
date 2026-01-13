@@ -5,6 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
+import { fetchWithAuth } from './api-client';
 import type { GetAllSavedPagesResponse, Folder } from '@/shared/types/pages.types';
 
 /**
@@ -17,14 +18,12 @@ export async function getAllSavedPages(
   limit: number = 20
 ): Promise<GetAllSavedPagesResponse> {
   const folderIdParam = folderId ? `&folder_id=${folderId}` : '';
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-page/?offset=${offset}&limit=${limit}${folderIdParam}`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -45,14 +44,12 @@ export async function deleteSavedPage(
   accessToken: string,
   pageId: string
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-page/${pageId}`,
     {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -71,14 +68,12 @@ export async function createPageFolder(
   name: string,
   parentFolderId: string | null = null
 ): Promise<Folder> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-page/folder`,
     {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
       body: JSON.stringify({
         name,
@@ -103,14 +98,12 @@ export async function deleteFolder(
   accessToken: string,
   folderId: string
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-page/folder/${folderId}`,
     {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );

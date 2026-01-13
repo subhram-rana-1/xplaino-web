@@ -5,6 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
+import { fetchWithAuth } from './api-client';
 import type { 
   GetAllSavedParagraphsResponse, 
   Folder,
@@ -23,14 +24,12 @@ export async function getAllSavedParagraphs(
   limit: number = 20
 ): Promise<GetAllSavedParagraphsResponse> {
   const folderIdParam = folderId ? `&folder_id=${folderId}` : '';
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-paragraph/?offset=${offset}&limit=${limit}${folderIdParam}`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -51,14 +50,12 @@ export async function deleteSavedParagraph(
   accessToken: string,
   paragraphId: string
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-paragraph/${paragraphId}`,
     {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -77,14 +74,12 @@ export async function createParagraphFolder(
   name: string,
   parentFolderId: string | null = null
 ): Promise<Folder> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-paragraph/folder`,
     {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
       body: JSON.stringify({
         name,
@@ -109,14 +104,12 @@ export async function deleteFolder(
   accessToken: string,
   folderId: string
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-paragraph/folder/${folderId}`,
     {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -138,14 +131,12 @@ export async function moveSavedParagraphToFolder(
   paragraphId: string,
   folderId: string | null
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-paragraph/${paragraphId}/move-to-folder`,
     {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
       body: JSON.stringify({ targetFolderId: folderId }),
     }
@@ -188,14 +179,12 @@ export async function* askAISavedParagraphs(
     throw new Error('userQuestion is required and must have length > 0 when userQuestionType is CUSTOM');
   }
 
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-paragraph/ask-ai`,
     {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
       body: JSON.stringify({
         initialContext,

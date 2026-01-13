@@ -5,6 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
+import { fetchWithAuth } from './api-client';
 import type { GetAllFoldersResponse, CreateFolderRequest, CreateFolderResponse } from '@/shared/types/folders.types';
 
 /**
@@ -13,14 +14,12 @@ import type { GetAllFoldersResponse, CreateFolderRequest, CreateFolderResponse }
 export async function getAllFolders(
   accessToken: string
 ): Promise<GetAllFoldersResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/folders`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -47,14 +46,12 @@ export async function createFolder(
     ...(parentId && { parentId }),
   };
 
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/folders`,
     {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
       body: JSON.stringify(requestBody),
     }
@@ -77,14 +74,12 @@ export async function deleteFolder(
   accessToken: string,
   folderId: string
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/folders/${folderId}`,
     {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );

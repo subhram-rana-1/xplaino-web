@@ -1,16 +1,22 @@
 .modalOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw;
+  height: 100vh;
   background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 999999;
   padding: 2rem;
   animation: overlayFadeIn 0.3s ease-out;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 0 !important;
+  transform: none !important;
 }
 
 @keyframes overlayFadeIn {
@@ -27,12 +33,14 @@
   border-radius: 30px;
   max-width: 90vw;
   max-height: 90vh;
-  width: 100%;
+  width: auto;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  transform-origin: center;
+  transform-origin: center center;
+  margin: auto;
+  flex-shrink: 0;
 }
 
 .modalOpening {

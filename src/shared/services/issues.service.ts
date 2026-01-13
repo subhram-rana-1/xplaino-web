@@ -5,6 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
+import { fetchWithAuth } from './api-client';
 import type { GetMyIssuesResponse, GetAllIssuesResponse, GetAllIssuesFilters, IssueResponse, ReportIssueRequest, UpdateIssueRequest, GetIssueByTicketIdResponse } from '@/shared/types/issues.types';
 
 /**
@@ -18,14 +19,12 @@ export async function getMyIssues(
     ? `?${statuses.map(s => `statuses=${encodeURIComponent(s)}`).join('&')}`
     : '';
   
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/issue${statusesParam}`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -67,14 +66,12 @@ export async function reportIssue(
     });
   }
 
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/issue/`,
     {
       method: 'POST',
       headers: {
         // Don't set Content-Type header - let browser set it with boundary for multipart/form-data
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
       body: formData,
     }
@@ -97,14 +94,12 @@ export async function getIssueByTicketId(
   accessToken: string,
   ticketId: string
 ): Promise<GetIssueByTicketIdResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/issue/ticket/${ticketId}`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -150,12 +145,10 @@ export async function getAllIssues(
   const queryString = params.toString();
   const url = `${authConfig.catenBaseUrl}/api/issue/all${queryString ? `?${queryString}` : ''}`;
   
-  const response = await fetch(url, {
+  const response = await fetchWithAuth(url, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${accessToken}`,
-      'X-Source': 'XPLAINO_WEB',
     },
   });
 
@@ -177,14 +170,12 @@ export async function updateIssue(
   issueId: string,
   body: UpdateIssueRequest
 ): Promise<IssueResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/issue/${issueId}`,
     {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
       body: JSON.stringify(body),
     }

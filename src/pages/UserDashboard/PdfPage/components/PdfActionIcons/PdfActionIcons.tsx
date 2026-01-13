@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiTrash2, FiBook } from 'react-icons/fi';
+import { FiTrash2, FiBookOpen } from 'react-icons/fi';
 import styles from './PdfActionIcons.module.css';
 
 export interface PdfActionIconsProps {
@@ -28,6 +28,17 @@ export const PdfActionIcons: React.FC<PdfActionIconsProps> = ({
   return (
     <div className={`${styles.actionIcons} ${className}`}>
       <button
+        className={styles.bookButton}
+        onClick={(e) => {
+          e.stopPropagation();
+          onBook();
+        }}
+        title="View PDF"
+        aria-label="View PDF"
+      >
+        <FiBookOpen />
+      </button>
+      <button
         className={`${styles.deleteButton} ${isVisible ? styles.visible : styles.hidden}`}
         onClick={(e) => {
           e.stopPropagation();
@@ -37,17 +48,6 @@ export const PdfActionIcons: React.FC<PdfActionIconsProps> = ({
         aria-label="Delete"
       >
         <FiTrash2 />
-      </button>
-      <button
-        className={styles.bookButton}
-        onClick={(e) => {
-          e.stopPropagation();
-          onBook();
-        }}
-        title="View PDF"
-        aria-label="View PDF"
-      >
-        <FiBook />
       </button>
     </div>
   );

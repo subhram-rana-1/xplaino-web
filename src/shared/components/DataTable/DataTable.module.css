@@ -13,7 +13,8 @@
 
 /* Header Styles */
 .table thead {
-  background: var(--teal-lighter);
+  background: none;
+  border-bottom: 2px solid var(--teal);
 }
 
 .table thead tr th {
@@ -50,7 +51,7 @@
 }
 
 .table tbody tr:hover {
-  background: #faf5ff;
+  background: var(--teal-lighter);
 }
 
 .table tbody tr:last-child {

@@ -5,6 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
+import { fetchWithAuth, fetchPublic } from './api-client';
 import type { GetLivePricingsResponse, GetAllPricingsResponse, PricingResponse, CreatePricingRequest, UpdatePricingRequest } from '@/shared/types/pricing.types';
 
 /**
@@ -12,13 +13,12 @@ import type { GetLivePricingsResponse, GetAllPricingsResponse, PricingResponse, 
  * No authentication required
  */
 export async function getLivePricings(): Promise<GetLivePricingsResponse> {
-  const response = await fetch(
+  const response = await fetchPublic(
     `${authConfig.catenBaseUrl}/api/pricing/live`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -39,14 +39,12 @@ export async function getLivePricings(): Promise<GetLivePricingsResponse> {
 export async function getAllPricings(
   accessToken: string
 ): Promise<GetAllPricingsResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/pricing/all`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -68,14 +66,12 @@ export async function createPricing(
   accessToken: string,
   body: CreatePricingRequest
 ): Promise<PricingResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/pricing/`,
     {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
       body: JSON.stringify(body),
     }
@@ -98,14 +94,12 @@ export async function getPricingById(
   accessToken: string,
   pricingId: string
 ): Promise<PricingResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/pricing/${pricingId}`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -128,14 +122,12 @@ export async function updatePricing(
   pricingId: string,
   body: UpdatePricingRequest
 ): Promise<PricingResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/pricing/${pricingId}`,
     {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
       body: JSON.stringify(body),
     }
@@ -158,14 +150,12 @@ export async function deletePricing(
   accessToken: string,
   pricingId: string
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/pricing/${pricingId}`,
     {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );

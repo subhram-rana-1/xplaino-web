@@ -47,9 +47,9 @@ export const App: React.FC = () => {
     <GoogleOAuthProvider clientId={authConfig.googleClientId}>
       <BrowserRouter>
         <AuthProvider>
+          <HighlightedCoupon onDismiss={() => setShowMiniCoupon(true)} />
           <Navbar showMiniCoupon={showMiniCoupon} />
           <PageContent>
-            <HighlightedCoupon onDismiss={() => setShowMiniCoupon(true)} />
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/pricing" element={<Pricing />} />

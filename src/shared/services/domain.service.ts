@@ -5,6 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
+import { fetchWithAuth } from './api-client';
 import type { GetAllDomainsResponse, DomainResponse, CreateDomainRequest, UpdateDomainRequest } from '@/shared/types/domain.types';
 
 /**
@@ -16,14 +17,12 @@ export async function getAllDomains(
   offset: number = 0,
   limit: number = 20
 ): Promise<GetAllDomainsResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/domain/?offset=${offset}&limit=${limit}`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -45,14 +44,12 @@ export async function getDomainById(
   accessToken: string,
   domainId: string
 ): Promise<DomainResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/domain/${domainId}`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -74,14 +71,12 @@ export async function createDomain(
   accessToken: string,
   body: CreateDomainRequest
 ): Promise<DomainResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/domain/`,
     {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
       body: JSON.stringify(body),
     }
@@ -105,14 +100,12 @@ export async function updateDomain(
   domainId: string,
   body: UpdateDomainRequest
 ): Promise<DomainResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/domain/${domainId}`,
     {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
       body: JSON.stringify(body),
     }
@@ -135,14 +128,12 @@ export async function deleteDomain(
   accessToken: string,
   domainId: string
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/domain/${domainId}`,
     {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiRefreshCw, FiList, FiGrid, FiArrowUp, FiArrowDown, FiPlus } from 'react-icons/fi';
+import { FiRefreshCw, FiList, FiGrid, FiArrowUp, FiArrowDown, FiPlus, FiCheck } from 'react-icons/fi';
 import styles from './UserDashboard.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { getAllFolders, createFolder, deleteFolder } from '@/shared/services/folders.service';
@@ -29,6 +29,7 @@ export const UserDashboard: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [deleteConfirmFolderId, setDeleteConfirmFolderId] = useState<string | null>(null);
   const [hoveredRowId, setHoveredRowId] = useState<string | null>(null);
+  const [showRefreshSuccess, setShowRefreshSuccess] = useState(false);
 
   // Flatten hierarchical folder structure
   const flattenFolders = (folderList: FolderWithSubFolders[]): FolderWithSubFolders[] => {
@@ -43,13 +44,20 @@ export const UserDashboard: React.FC = () => {
     return result;
   };
 
-  const fetchFolders = async () => {
+  const fetchFolders = async (showSuccessFeedback = false) => {
     if (!accessToken) return;
 
     try {
       setIsLoading(true);
       const response = await getAllFolders(accessToken);
       setFolders(response.folders);
+      
+      if (showSuccessFeedback) {
+        setShowRefreshSuccess(true);
+        setTimeout(() => {
+          setShowRefreshSuccess(false);
+        }, 2000);
+      }
     } catch (error) {
       console.error('Error fetching folders:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to load folders';
@@ -67,7 +75,7 @@ export const UserDashboard: React.FC = () => {
   }, [accessToken]);
 
   const handleRefresh = () => {
-    fetchFolders();
+    fetchFolders(true);
   };
 
   const handleSort = (field: 'created_at' | 'updated_at') => {
@@ -184,12 +192,22 @@ export const UserDashboard: React.FC = () => {
           </div>
           <div className={styles.headerRight}>
             <button
-              className={styles.refreshButton}
+              className={`${styles.refreshButton} ${showRefreshSuccess ? styles.refreshButtonSuccess : ''}`}
               onClick={handleRefresh}
               disabled={isLoading}
               title="Refresh folders"
             >
-              <FiRefreshCw className={isLoading ? styles.spin : ''} />
+              {showRefreshSuccess ? (
+                <>
+                  <FiCheck />
+                  <span>Data fetched</span>
+                </>
+              ) : (
+                <>
+                  <FiRefreshCw className={isLoading ? styles.spin : ''} />
+                  <span>Refresh</span>
+                </>
+              )}
             </button>
             <button
               className={styles.createFolderButton}

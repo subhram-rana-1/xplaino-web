@@ -7,6 +7,7 @@
 .dropdown {
   position: relative;
   width: 100%;
+  z-index: 100;
 }
 
 .dropdownButton {
@@ -59,10 +60,23 @@
   background: #FFFFFF;
   border: 1px solid #E2E8F0;
   border-radius: 10px;
-  z-index: 10000;
+  z-index: 999999;
+  margin-top: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-in-out;
+  will-change: max-height;
+}
+
+.dropdownMenuOpen {
   max-height: 200px;
   overflow-y: auto;
-  margin-top: 4px;
+}
+
+.dropdownMenuClosed {
+  max-height: 0;
+  overflow: hidden;
 }
 
 .dropdownItem {

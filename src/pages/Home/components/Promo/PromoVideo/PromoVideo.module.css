@@ -3,14 +3,13 @@
   position: relative;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 8px 24px var(--shadow-black-20);
+  cursor: pointer;
 }
 
 .video {
   width: 100%;
   height: auto;
   display: block;
-  pointer-events: none;
   user-select: none;
 }
 

@@ -9,7 +9,7 @@ interface HighlightedCouponProps {
 }
 
 /**
- * HighlightedCoupon - Displays active highlighted coupon banner in main content
+ * HighlightedCoupon - Displays active highlighted coupon banner above navbar in header
  * 
  * @returns JSX element or null if no active coupon
  */
@@ -118,14 +118,6 @@ export const HighlightedCoupon: React.FC<HighlightedCouponProps> = ({ onDismiss 
             </button>
           </div>
         </div>
-        <button
-          type="button"
-          className={styles.closeButton}
-          onClick={handleClose}
-          aria-label="Close highlighted coupon"
-        >
-          ×
-        </button>
         <div className={styles.shimmer}></div>
       </div>
     </div>

@@ -121,6 +121,11 @@ export async function logout(accessToken: string): Promise<LogoutResponse> {
  */
 export async function saveAuthToStorage(authData: LoginResponse): Promise<void> {
   await storage.set(STORAGE_KEY, authData);
+  
+  // Dispatch custom event for same-tab updates (localStorage storage event only fires for other tabs)
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('authStateChanged', { detail: authData }));
+  }
 }
 
 /**
@@ -136,5 +141,10 @@ export async function getAuthFromStorage(): Promise<AuthState | null> {
  */
 export async function clearAuthFromStorage(): Promise<void> {
   await storage.remove(STORAGE_KEY);
+  
+  // Dispatch custom event for same-tab updates
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('authStateChanged', { detail: null }));
+  }
 }
 

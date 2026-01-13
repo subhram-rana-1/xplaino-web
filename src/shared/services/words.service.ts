@@ -5,6 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
+import { fetchWithAuth } from './api-client';
 import type { GetSavedWordsResponse } from '@/shared/types/words.types';
 
 /**
@@ -15,14 +16,12 @@ export async function getSavedWords(
   offset: number = 0,
   limit: number = 20
 ): Promise<GetSavedWordsResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-words/?offset=${offset}&limit=${limit}`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -45,14 +44,12 @@ export async function getSavedWordsByFolderId(
   offset: number = 0,
   limit: number = 20
 ): Promise<GetSavedWordsResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-words?folder_id=${folderId}&offset=${offset}&limit=${limit}`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -73,14 +70,12 @@ export async function deleteSavedWord(
   accessToken: string,
   wordId: string
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-words/${wordId}`,
     {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -99,14 +94,12 @@ export async function moveSavedWordToFolder(
   wordId: string,
   folderId: string | null
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-words/${wordId}/move-to-folder`,
     {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
       body: JSON.stringify({ targetFolderId: folderId }),
     }

@@ -5,6 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
+import { fetchWithAuth } from './api-client';
 import type { GetAllSavedLinksResponse, SavedLink } from '@/shared/types/links.types';
 
 export interface SaveLinkRequest {
@@ -25,14 +26,12 @@ export async function getAllSavedLinksByFolderId(
   limit: number = 20
 ): Promise<GetAllSavedLinksResponse> {
   const folderIdParam = folderId ? `&folder_id=${folderId}` : '';
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-link/?offset=${offset}&limit=${limit}${folderIdParam}`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -53,14 +52,12 @@ export async function saveLink(
   accessToken: string,
   body: SaveLinkRequest
 ): Promise<SavedLink> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-link/`,
     {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
       body: JSON.stringify(body),
     }
@@ -83,14 +80,12 @@ export async function deleteSavedLink(
   accessToken: string,
   linkId: string
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-link/${linkId}`,
     {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -109,14 +104,12 @@ export async function moveSavedLinkToFolder(
   linkId: string,
   folderId: string | null
 ): Promise<SavedLink> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/saved-link/${linkId}/move-to-folder`,
     {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
       body: JSON.stringify({ targetFolderId: folderId }),
     }

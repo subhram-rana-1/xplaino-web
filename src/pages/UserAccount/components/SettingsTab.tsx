@@ -4,7 +4,6 @@ import styles from './SettingsTab.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { getUserSettings, updateUserSettings, getAllLanguages } from '@/shared/services/user-settings.service';
 import { PageTranslationView, Theme, NativeLanguage } from '@/shared/types/user-settings.types';
-import type { LanguageSettings } from '@/shared/types/user-settings.types';
 import { Toast } from '@/shared/components/Toast';
 import { LanguageDropdown, type LanguageDropdownOption } from './LanguageDropdown';
 import { IconTabGroup } from '@/shared/components/IconTabGroup';
@@ -49,16 +48,26 @@ export const SettingsTab: React.FC = () => {
           getAllLanguages(),
         ]);
 
-        const settings = settingsResponse.settings;
-        setNativeLanguage(settings.language.nativeLanguage);
-        setPageTranslationView(settings.language.pageTranslationView);
-        setTheme(settings.theme);
+        // Check if settings exist and have the expected structure
+        const settings = settingsResponse?.settings;
+        if (!settings) {
+          throw new Error('Settings data not found');
+        }
+
+        // Safely access settings with fallback values
+        const nativeLang = settings.nativeLanguage || null;
+        const pageView = settings.pageTranslationView || PageTranslationView.REPLACE;
+        const themeValue = settings.theme || Theme.LIGHT;
+
+        setNativeLanguage(nativeLang);
+        setPageTranslationView(pageView);
+        setTheme(themeValue);
         
         // Store original values
         setOriginalSettings({
-          nativeLanguage: settings.language.nativeLanguage,
-          pageTranslationView: settings.language.pageTranslationView,
-          theme: settings.theme,
+          nativeLanguage: nativeLang,
+          pageTranslationView: pageView,
+          theme: themeValue,
         });
         
         // Sort languages by English name and create dropdown options
@@ -100,14 +109,10 @@ export const SettingsTab: React.FC = () => {
 
     try {
       setUpdating(true);
-      
-      const languageSettings: LanguageSettings = {
-        nativeLanguage,
-        pageTranslationView,
-      };
 
       await updateUserSettings(accessToken, {
-        language: languageSettings,
+        nativeLanguage,
+        pageTranslationView,
         theme,
       });
 

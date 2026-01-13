@@ -5,40 +5,31 @@
 }
 
 .heading {
-  font-size: 2.5rem;
-  font-weight: 400;
+  font-size: 3rem;
+  font-weight: 500;
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
   color: #000;
   font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+.containerList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 /* Responsive design */
-@media (max-width: 1024px) {
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
 @media (max-width: 768px) {
   .featureSet {
     padding: 2rem 2rem;
   }
 
   .heading {
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    font-size: 2.25rem;
+    margin-bottom: 2rem;
   }
 }
 
@@ -48,8 +39,8 @@
   }
 
   .heading {
-    font-size: 1.75rem;
-    margin-bottom: 1rem;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
   }
 }
 

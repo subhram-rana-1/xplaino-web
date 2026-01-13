@@ -69,6 +69,7 @@ export const FolderBookmark: React.FC = () => {
   // Track which tabs have loaded data
   const [loadedTabs, setLoadedTabs] = useState<Set<string>>(new Set());
   const [isRefreshingAll, setIsRefreshingAll] = useState(false);
+  const [showRefreshSuccess, setShowRefreshSuccess] = useState(false);
   
   const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' } | null>(null);
   const [copiedWordId, setCopiedWordId] = useState<string | null>(null);
@@ -377,7 +378,7 @@ export const FolderBookmark: React.FC = () => {
       
       try {
         const settingsResponse = await getUserSettings(accessToken);
-        setUserNativeLanguage(settingsResponse.settings.language.nativeLanguage);
+        setUserNativeLanguage(settingsResponse.settings.nativeLanguage);
       } catch (error) {
         console.error('Error fetching user settings:', error);
         // Don't show error to user, just continue with null language
@@ -604,10 +605,11 @@ export const FolderBookmark: React.FC = () => {
           type: 'error',
         });
       } else {
-        setToast({
-          message: 'All tabs refreshed successfully',
-          type: 'success',
-        });
+        // Show success state for 1 second
+        setShowRefreshSuccess(true);
+        setTimeout(() => {
+          setShowRefreshSuccess(false);
+        }, 1000);
       }
     } finally {
       setIsRefreshingAll(false);
@@ -1227,28 +1229,35 @@ export const FolderBookmark: React.FC = () => {
             width: '60px',
             hidden: !isCheckboxColumnVisible,
             headerRender: () => (
-              <input
-                type="checkbox"
-                className={styles.selectAllCheckbox}
-                checked={paragraphsData.saved_paragraphs.length > 0 && selectedParagraphIds.size === paragraphsData.saved_paragraphs.length}
-                disabled={initialContext.length > 0}
-                ref={(el) => {
-                  if (el) {
-                    el.indeterminate = selectedParagraphIds.size > 0 && selectedParagraphIds.size < paragraphsData.saved_paragraphs.length;
-                  }
-                }}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    // Select all paragraphs
-                    const allIds = new Set(paragraphsData.saved_paragraphs.map(p => p.id));
-                    setSelectedParagraphIds(allIds);
-                  } else {
-                    // Deselect all
-                    setSelectedParagraphIds(new Set());
-                  }
-                }}
-                aria-label="Select all paragraphs"
-              />
+              <div style={{ position: 'relative' }}>
+                {showSelectParagraphMessage && (
+                  <div className={`${styles.selectParagraphMessage} ${isMessageFadingOut ? styles.selectParagraphMessageFadeOut : ''}`}>
+                    <span>Select paragraph</span>
+                  </div>
+                )}
+                <input
+                  type="checkbox"
+                  className={styles.selectAllCheckbox}
+                  checked={paragraphsData.saved_paragraphs.length > 0 && selectedParagraphIds.size === paragraphsData.saved_paragraphs.length}
+                  disabled={initialContext.length > 0}
+                  ref={(el) => {
+                    if (el) {
+                      el.indeterminate = selectedParagraphIds.size > 0 && selectedParagraphIds.size < paragraphsData.saved_paragraphs.length;
+                    }
+                  }}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      // Select all paragraphs
+                      const allIds = new Set(paragraphsData.saved_paragraphs.map(p => p.id));
+                      setSelectedParagraphIds(allIds);
+                    } else {
+                      // Deselect all
+                      setSelectedParagraphIds(new Set());
+                    }
+                  }}
+                  aria-label="Select all paragraphs"
+                />
+              </div>
             ),
             render: (para) => (
               <input
@@ -1395,45 +1404,42 @@ export const FolderBookmark: React.FC = () => {
             {/* Paragraphs Table */}
             {paragraphsData.saved_paragraphs.length > 0 ? (
               <>
-                {!isNameColumnVisible && (
-                  <div className={styles.tableControls}>
-                    <button
-                      className={styles.eyeToggleButton}
-                      onClick={() => setIsNameColumnVisible(true)}
-                      title="Show name column"
-                      aria-label="Show name column"
-                    >
-                      <FiEye />
-                      <span>Show Name</span>
-                    </button>
-                  </div>
-                )}
-                {/* Ask AI Button and Reset Button - hidden when side panel is open */}
-                {!isAskAIPanelOpen && (
-                  <div className={styles.askAIButtonContainer}>
-                    <AskAIButton 
-                      onOptionSelect={handleAskAIOptionSelect}
-                      onButtonClick={handleAskAIButtonClick}
-                    />
-                    {/* Hide button - shown when initial context exists */}
-                    {initialContext.length > 0 && (
+                <div className={styles.tableControls}>
+                  {/* Show names button on left */}
+                  <div>
+                    {!isNameColumnVisible && (
                       <button
-                        className={styles.resetButton}
-                        onClick={handleResetAskAI}
-                        title="Hide Ask AI panel"
-                        aria-label="Hide Ask AI panel"
+                        className={styles.eyeToggleButton}
+                        onClick={() => setIsNameColumnVisible(true)}
+                        title="Show name column"
+                        aria-label="Show name column"
                       >
-                        <FiX size={20} />
+                        <FiEye />
+                        <span>Show Name</span>
                       </button>
                     )}
                   </div>
-                )}
-                {/* Select Paragraph Message - shown when checkboxes are visible but no selection */}
-                {showSelectParagraphMessage && (
-                  <div className={`${styles.selectParagraphMessage} ${isMessageFadingOut ? styles.selectParagraphMessageFadeOut : ''}`}>
-                    <span>Select paragraph</span>
-                  </div>
-                )}
+                  {/* Ask AI Button and Reset Button on right - hidden when side panel is open */}
+                  {!isAskAIPanelOpen && (
+                    <div className={styles.askAIButtonContainer}>
+                      <AskAIButton 
+                        onOptionSelect={handleAskAIOptionSelect}
+                        onButtonClick={handleAskAIButtonClick}
+                      />
+                      {/* Hide button - shown when initial context exists */}
+                      {initialContext.length > 0 && (
+                        <button
+                          className={styles.resetButton}
+                          onClick={handleResetAskAI}
+                          title="Hide Ask AI panel"
+                          aria-label="Hide Ask AI panel"
+                        >
+                          <FiX size={20} />
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
                 <DataTable
                   columns={paragraphColumns}
                   data={paragraphsData.saved_paragraphs}
@@ -1920,15 +1926,24 @@ export const FolderBookmark: React.FC = () => {
           <h1 className={styles.heading}>{folderName}</h1>
           <div className={styles.headerActions}>
             <button
-              className={styles.refreshAllButton}
+              className={`${styles.refreshAllButton} ${showRefreshSuccess ? styles.refreshAllButtonSuccess : ''}`}
               onClick={handleRefreshAll}
               disabled={isRefreshingAll || anyTabLoading}
               title="Refresh all tabs"
             >
-              <FiRefreshCw
-                className={isRefreshingAll ? styles.spin : ''}
-              />
-              <span>Refresh all</span>
+              {showRefreshSuccess ? (
+                <>
+                  <FiCheck />
+                  <span>Data fetched</span>
+                </>
+              ) : (
+                <>
+                  <FiRefreshCw
+                    className={isRefreshingAll ? styles.spin : ''}
+                  />
+                  <span>Refresh all</span>
+                </>
+              )}
             </button>
           </div>
         </div>

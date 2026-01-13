@@ -5,6 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
+import { fetchWithAuth, fetchPublic } from './api-client';
 import type {
   GetAllCouponsResponse,
   CouponResponse,
@@ -47,14 +48,12 @@ export async function getAllCoupons(
     params.append('is_active', filters.is_active.toString());
   }
 
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/coupon/?${params.toString()}`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -76,14 +75,12 @@ export async function getCouponById(
   accessToken: string,
   couponId: string
 ): Promise<CouponResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/coupon/${couponId}`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -105,14 +102,12 @@ export async function createCoupon(
   accessToken: string,
   body: CreateCouponRequest
 ): Promise<CouponResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/coupon/`,
     {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
       body: JSON.stringify(body),
     }
@@ -136,14 +131,12 @@ export async function updateCoupon(
   couponId: string,
   body: UpdateCouponRequest
 ): Promise<CouponResponse> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/coupon/${couponId}`,
     {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
       body: JSON.stringify(body),
     }
@@ -166,14 +159,12 @@ export async function deleteCoupon(
   accessToken: string,
   couponId: string
 ): Promise<void> {
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/coupon/${couponId}`,
     {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );
@@ -189,13 +180,12 @@ export async function deleteCoupon(
  * No authentication required (public endpoint)
  */
 export async function getActiveHighlightedCoupon(): Promise<GetActiveHighlightedCouponResponse> {
-  const response = await fetch(
+  const response = await fetchPublic(
     `${authConfig.catenBaseUrl}/api/coupon/active-highlighted`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-Source': 'XPLAINO_WEB',
       },
     }
   );

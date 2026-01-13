@@ -44,6 +44,31 @@ export interface LogoutResponse {
 }
 
 /**
+ * Refresh token request
+ */
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
+/**
+ * Refresh token response (identical to LoginResponse)
+ */
+export interface RefreshTokenResponse extends LoginResponse {}
+
+/**
+ * Error response from API
+ */
+export interface ApiErrorDetail {
+  errorCode?: string;
+  reason?: string;
+  error_message?: string;
+}
+
+export interface ApiErrorResponse {
+  detail: string | ApiErrorDetail;
+}
+
+/**
  * Auth state stored in chrome.storage.local
  */
 export interface AuthState extends LoginResponse {}
