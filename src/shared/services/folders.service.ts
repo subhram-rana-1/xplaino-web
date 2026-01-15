@@ -6,7 +6,7 @@
 
 import { authConfig } from '@/config/auth.config';
 import { fetchWithAuth } from './api-client';
-import type { GetAllFoldersResponse, CreateFolderRequest, CreateFolderResponse } from '@/shared/types/folders.types';
+import type { GetAllFoldersResponse, CreateFolderRequest, CreateFolderResponse, RenameFolderRequest, RenameFolderResponse } from '@/shared/types/folders.types';
 
 /**
  * Get all folders for the authenticated user
@@ -88,5 +88,38 @@ export async function deleteFolder(
     const errorData = await response.json().catch(() => ({ detail: 'Failed to delete folder' }));
     throw new Error(errorData.detail || `Failed to delete folder with status ${response.status}`);
   }
+}
+
+/**
+ * Rename a folder by ID
+ */
+export async function renameFolder(
+  accessToken: string,
+  folderId: string,
+  name: string
+): Promise<RenameFolderResponse> {
+  const requestBody: RenameFolderRequest = {
+    name,
+  };
+
+  const response = await fetchWithAuth(
+    `${authConfig.catenBaseUrl}/api/folders/${folderId}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ detail: 'Failed to rename folder' }));
+    const errorMessage = errorData.detail || errorData.error_message || `Failed to rename folder with status ${response.status}`;
+    throw new Error(errorMessage);
+  }
+
+  const data: RenameFolderResponse = await response.json();
+  return data;
 }
 

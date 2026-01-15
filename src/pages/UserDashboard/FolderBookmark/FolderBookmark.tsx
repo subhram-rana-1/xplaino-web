@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { FiArrowLeft, FiRefreshCw, FiExternalLink, FiCopy, FiCheck, FiInfo, FiX, FiGlobe, FiEye, FiEyeOff, FiBook } from 'react-icons/fi';
+import { FiArrowLeft, FiRefreshCw, FiExternalLink, FiCopy, FiCheck, FiInfo, FiX, FiGlobe, FiEye, FiEyeOff, FiBook, FiPlus } from 'react-icons/fi';
 import ReactMarkdown from 'react-markdown';
 import { SiYoutube, SiLinkedin, SiX, SiReddit, SiFacebook, SiInstagram } from 'react-icons/si';
 import styles from './FolderBookmark.module.css';
@@ -18,7 +18,7 @@ import type { GetAllSavedImagesResponse } from '@/shared/types/images.types';
 import { FolderIcon } from '@/shared/components/FolderIcon';
 import { Toast } from '@/shared/components/Toast';
 import { DataTable, type Column } from '@/shared/components/DataTable';
-import { ActionIcons } from '@/shared/components/ActionIcons';
+import { ActionMenu } from '@/shared/components/ActionMenu';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { FolderSelectionModal } from '@/shared/components/FolderSelectionModal';
 import { AskAIButton } from '@/shared/components/AskAIButton';
@@ -88,7 +88,7 @@ export const FolderBookmark: React.FC = () => {
   const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
   const [isSummaryModalClosing, setIsSummaryModalClosing] = useState(false);
   const [isSavingLink, setIsSavingLink] = useState(false);
-  const [isNameColumnVisible, setIsNameColumnVisible] = useState(true);
+  const [isNameColumnVisible, setIsNameColumnVisible] = useState(false);
   const [hoveredRowId, setHoveredRowId] = useState<string | null>(null);
   
   // Delete and move state
@@ -1229,26 +1229,26 @@ export const FolderBookmark: React.FC = () => {
             width: '60px',
             hidden: !isCheckboxColumnVisible,
             headerRender: () => (
-              <div style={{ position: 'relative' }}>
-                {showSelectParagraphMessage && (
-                  <div className={`${styles.selectParagraphMessage} ${isMessageFadingOut ? styles.selectParagraphMessageFadeOut : ''}`}>
-                    <span>Select paragraph</span>
-                  </div>
-                )}
+              <div>
                 <input
                   type="checkbox"
                   className={styles.selectAllCheckbox}
-                  checked={paragraphsData.saved_paragraphs.length > 0 && selectedParagraphIds.size === paragraphsData.saved_paragraphs.length}
+                  checked={
+                    paragraphsData.saved_paragraphs.length > 0 &&
+                    selectedParagraphIds.size === paragraphsData.saved_paragraphs.length
+                  }
                   disabled={initialContext.length > 0}
                   ref={(el) => {
                     if (el) {
-                      el.indeterminate = selectedParagraphIds.size > 0 && selectedParagraphIds.size < paragraphsData.saved_paragraphs.length;
+                      el.indeterminate =
+                        selectedParagraphIds.size > 0 &&
+                        selectedParagraphIds.size < paragraphsData.saved_paragraphs.length;
                     }
                   }}
                   onChange={(e) => {
                     if (e.target.checked) {
                       // Select all paragraphs
-                      const allIds = new Set(paragraphsData.saved_paragraphs.map(p => p.id));
+                      const allIds = new Set(paragraphsData.saved_paragraphs.map((p) => p.id));
                       setSelectedParagraphIds(allIds);
                     } else {
                       // Deselect all
@@ -1367,11 +1367,12 @@ export const FolderBookmark: React.FC = () => {
                               >
                                 <FiInfo className={styles.infoIcon} />
                               </div>
-                  <ActionIcons
+                  <ActionMenu
                     onDelete={() => handleDeleteClick('paragraph', para.id, para.name || undefined)}
                     onMove={() => handleMoveClick('paragraph', para.id, para.folder_id)}
                     isVisible={isHovered}
                     className={styles.actionIconsInCell}
+                    showMove={true}
                   />
                     </div>
               );
@@ -1405,8 +1406,8 @@ export const FolderBookmark: React.FC = () => {
             {paragraphsData.saved_paragraphs.length > 0 ? (
               <>
                 <div className={styles.tableControls}>
-                  {/* Show names button on left */}
-                  <div>
+                  {/* Show names button and helper message on left */}
+                  <div className={styles.tableControlsLeft}>
                     {!isNameColumnVisible && (
                       <button
                         className={styles.eyeToggleButton}
@@ -1417,6 +1418,15 @@ export const FolderBookmark: React.FC = () => {
                         <FiEye />
                         <span>Show Name</span>
                       </button>
+                    )}
+                    {showSelectParagraphMessage && (
+                      <div
+                        className={`${styles.selectParagraphMessage} ${
+                          isMessageFadingOut ? styles.selectParagraphMessageFadeOut : ''
+                        }`}
+                      >
+                        <span>Select paragraphs</span>
+                      </div>
                     )}
                   </div>
                   {/* Ask AI Button and Reset Button on right - hidden when side panel is open */}
@@ -1573,11 +1583,12 @@ export const FolderBookmark: React.FC = () => {
                           >
                             <FiInfo className={styles.infoIcon} />
                           </div>
-                  <ActionIcons
+                  <ActionMenu
                     onDelete={() => handleDeleteClick('link', link.id, link.name || undefined)}
                     onMove={() => handleMoveClick('link', link.id, link.folder_id)}
                     isVisible={isHovered}
                     className={styles.actionIconsInCell}
+                    showMove={true}
                   />
                         </div>
               );
@@ -1593,27 +1604,30 @@ export const FolderBookmark: React.FC = () => {
                 onClick={() => setIsAddLinkModalOpen(true)}
                 title="Add new link"
               >
-                Add link
+                <FiPlus />
+                <span>Add link</span>
               </button>
             </div>
-            <DataTable
-              columns={linkColumns}
-              data={linksData.saved_links}
-              emptyMessage="No links found"
-              rowKey={(link) => link.id}
-              onRowHover={(link) => {
-                if (link) {
-                  setHoveredRowId(link.id);
-                } else {
-                  setHoveredRowId(null);
-                  if (hoveredInfoId && !infoIconRefs.current[hoveredInfoId]) {
-                    setHoveredInfoId(null);
-                    setTooltipPosition(null);
-                    setTooltipData(null);
+            <div className={styles.linkTableWrapper}>
+              <DataTable
+                columns={linkColumns}
+                data={linksData.saved_links}
+                emptyMessage="No links found"
+                rowKey={(link) => link.id}
+                onRowHover={(link) => {
+                  if (link) {
+                    setHoveredRowId(link.id);
+                  } else {
+                    setHoveredRowId(null);
+                    if (hoveredInfoId && !infoIconRefs.current[hoveredInfoId]) {
+                      setHoveredInfoId(null);
+                      setTooltipPosition(null);
+                      setTooltipData(null);
+                    }
                   }
-                }
-              }}
-            />
+                }}
+              />
+            </div>
             {linksLoadingMore && (
               <div className={styles.loadingMore}>Loading more...</div>
             )}
@@ -1693,11 +1707,12 @@ export const FolderBookmark: React.FC = () => {
                   >
                     <FiInfo className={styles.infoIcon} />
                   </div>
-                  <ActionIcons
+                  <ActionMenu
                     onDelete={() => handleDeleteClick('word', word.id)}
                     onMove={() => handleMoveClick('word', word.id, word.folderId)}
                     isVisible={isHovered}
                     className={styles.actionIconsInCell}
+                    showMove={true}
                   />
                 </div>
               );
@@ -1809,13 +1824,14 @@ export const FolderBookmark: React.FC = () => {
                         >
                           <FiInfo className={styles.infoIcon} />
                         </div>
-                        {/* Action icons on bottom right (shown on hover) */}
+                        {/* Action menu on bottom right (shown on hover) */}
                         <div className={styles.imageCardActions}>
-                          <ActionIcons
+                          <ActionMenu
                             onDelete={() => handleDeleteClick('image', image.id, image.name || undefined)}
                             onMove={() => handleMoveClick('image', image.id, image.folderId)}
                             isVisible={hoveredRowId === image.id}
                             className={styles.actionIconsOnImage}
+                            showMove={true}
                           />
                         </div>
                       </div>
@@ -1924,28 +1940,28 @@ export const FolderBookmark: React.FC = () => {
             <span>Back to Dashboard</span>
           </button>
           <h1 className={styles.heading}>{folderName}</h1>
-          <div className={styles.headerActions}>
-            <button
-              className={`${styles.refreshAllButton} ${showRefreshSuccess ? styles.refreshAllButtonSuccess : ''}`}
-              onClick={handleRefreshAll}
-              disabled={isRefreshingAll || anyTabLoading}
-              title="Refresh all tabs"
-            >
-              {showRefreshSuccess ? (
-                <>
-                  <FiCheck />
-                  <span>Data fetched</span>
-                </>
-              ) : (
-                <>
-                  <FiRefreshCw
-                    className={isRefreshingAll ? styles.spin : ''}
-                  />
-                  <span>Refresh all</span>
-                </>
-              )}
-            </button>
-          </div>
+        </div>
+        <div className={styles.refreshButtonContainer}>
+          <button
+            className={`${styles.refreshAllButton} ${showRefreshSuccess ? styles.refreshAllButtonSuccess : ''}`}
+            onClick={handleRefreshAll}
+            disabled={isRefreshingAll || anyTabLoading}
+            title="Refresh all tabs"
+          >
+            {showRefreshSuccess ? (
+              <>
+                <FiCheck />
+                <span>Data fetched</span>
+              </>
+            ) : (
+              <>
+                <FiRefreshCw
+                  className={isRefreshingAll ? styles.spin : ''}
+                />
+                <span>Refresh all</span>
+              </>
+            )}
+          </button>
         </div>
 
         <div className={styles.tabContainer}>
@@ -2140,20 +2156,6 @@ export const FolderBookmark: React.FC = () => {
             </div>
             <div className={styles.addLinkModalBody}>
               <div className={styles.addLinkFormGroup}>
-                <label htmlFor="link-name" className={styles.addLinkLabel}>
-                  Name
-                </label>
-                <input
-                  id="link-name"
-                  type="text"
-                  className={styles.addLinkInput}
-                  placeholder="Enter link name"
-                  value={addLinkForm.name}
-                  onChange={(e) => setAddLinkForm({ ...addLinkForm, name: e.target.value })}
-                  maxLength={100}
-                />
-              </div>
-              <div className={styles.addLinkFormGroup}>
                 <label htmlFor="link-url" className={styles.addLinkLabel}>
                   URL <span className={styles.required}>*</span>
                 </label>
@@ -2166,6 +2168,21 @@ export const FolderBookmark: React.FC = () => {
                   onChange={(e) => setAddLinkForm({ ...addLinkForm, url: e.target.value })}
                   maxLength={1024}
                   required
+                  autoFocus
+                />
+              </div>
+              <div className={styles.addLinkFormGroup}>
+                <label htmlFor="link-name" className={styles.addLinkLabel}>
+                  Name
+                </label>
+                <input
+                  id="link-name"
+                  type="text"
+                  className={styles.addLinkInput}
+                  placeholder="Enter link name"
+                  value={addLinkForm.name}
+                  onChange={(e) => setAddLinkForm({ ...addLinkForm, name: e.target.value })}
+                  maxLength={100}
                 />
               </div>
             </div>

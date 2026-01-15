@@ -41,3 +41,16 @@ export interface CreateFolderResponse {
   user: UserInfo;
 }
 
+export interface RenameFolderRequest {
+  name: string;
+}
+
+export interface RenameFolderResponse {
+  id: string;
+  name: string;
+  parent_id: string | null;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+}
+

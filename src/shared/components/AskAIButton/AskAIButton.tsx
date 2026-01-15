@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import styles from './AskAIButton.module.css';
 
 export interface AskAIButtonProps {
@@ -10,7 +10,7 @@ export interface AskAIButtonProps {
   onButtonClick?: () => boolean;
 }
 
-const OPTIONS = ['Short summary', 'Descriptive note', 'Ask AI'];
+const OPTIONS = ['Short summary', 'Descriptive note', 'I will ask'];
 
 /**
  * AskAIButton - Pill-shaped button with dropdown menu
@@ -23,7 +23,18 @@ export const AskAIButton: React.FC<AskAIButtonProps> = ({
   onButtonClick,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const handleClose = useCallback(() => {
+    if (isOpen && !isClosing) {
+      setIsClosing(true);
+      setTimeout(() => {
+        setIsOpen(false);
+        setIsClosing(false);
+      }, 200); // Match animation duration
+    }
+  }, [isOpen, isClosing]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -34,7 +45,7 @@ export const AskAIButton: React.FC<AskAIButtonProps> = ({
       
       const target = event.target as Node;
       if (!dropdownRef.current.contains(target)) {
-        setIsOpen(false);
+        handleClose();
       }
     };
 
@@ -50,10 +61,10 @@ export const AskAIButton: React.FC<AskAIButtonProps> = ({
     }
 
     return undefined;
-  }, [isOpen]);
+  }, [isOpen, isClosing, handleClose]);
 
   const handleOptionClick = (option: string) => {
-    setIsOpen(false);
+    handleClose();
     onOptionSelect(option);
   };
 
@@ -65,7 +76,12 @@ export const AskAIButton: React.FC<AskAIButtonProps> = ({
         return; // Don't open dropdown
       }
     }
-    setIsOpen(!isOpen);
+    if (isOpen) {
+      handleClose();
+    } else {
+      setIsOpen(true);
+      setIsClosing(false);
+    }
   };
 
   return (
@@ -79,8 +95,8 @@ export const AskAIButton: React.FC<AskAIButtonProps> = ({
       >
         Ask AI
       </button>
-      {isOpen && (
-        <div className={styles.dropdown}>
+      {(isOpen || isClosing) && (
+        <div className={`${styles.dropdown} ${isClosing ? styles.dropdownClosing : ''}`}>
           {OPTIONS.map((option) => (
             <button
               key={option}

@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiRefreshCw, FiList, FiGrid, FiArrowUp, FiArrowDown, FiPlus, FiCheck } from 'react-icons/fi';
 import styles from './UserDashboard.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
-import { getAllFolders, createFolder, deleteFolder } from '@/shared/services/folders.service';
+import { getAllFolders, createFolder, deleteFolder, renameFolder } from '@/shared/services/folders.service';
 import type { FolderWithSubFolders } from '@/shared/types/folders.types';
 import { FolderIcon } from '@/shared/components/FolderIcon';
 import { Toast } from '@/shared/components/Toast';
 import { CreateFolderModal } from '@/shared/components/CreateFolderModal';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { DataTable } from '@/shared/components/DataTable';
+import { FolderMenu } from '@/shared/components/FolderMenu';
 import { ActionIcons } from '@/shared/components/ActionIcons';
 
 /**
@@ -22,14 +23,17 @@ export const UserDashboard: React.FC = () => {
   const [folders, setFolders] = useState<FolderWithSubFolders[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
-  const [sortBy, setSortBy] = useState<'created_at' | 'updated_at' | null>(null);
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
+  const [sortBy, setSortBy] = useState<'created_at' | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' } | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [deleteConfirmFolderId, setDeleteConfirmFolderId] = useState<string | null>(null);
   const [hoveredRowId, setHoveredRowId] = useState<string | null>(null);
   const [showRefreshSuccess, setShowRefreshSuccess] = useState(false);
+  const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
+  const [editingFolderName, setEditingFolderName] = useState<string>('');
+  const editInputRef = useRef<HTMLInputElement>(null);
 
   // Flatten hierarchical folder structure
   const flattenFolders = (folderList: FolderWithSubFolders[]): FolderWithSubFolders[] => {
@@ -78,7 +82,7 @@ export const UserDashboard: React.FC = () => {
     fetchFolders(true);
   };
 
-  const handleSort = (field: 'created_at' | 'updated_at') => {
+  const handleSort = (field: 'created_at') => {
     if (sortBy === field) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
@@ -144,6 +148,64 @@ export const UserDashboard: React.FC = () => {
     }
   };
 
+  const handleRenameClick = (folderId: string, currentName: string) => {
+    setEditingFolderId(folderId);
+    setEditingFolderName(currentName);
+  };
+
+  const handleRenameSubmit = async (folderId: string) => {
+    if (!accessToken || !editingFolderName.trim()) {
+      setEditingFolderId(null);
+      setEditingFolderName('');
+      return;
+    }
+
+    try {
+      const updatedFolder = await renameFolder(accessToken, folderId, editingFolderName.trim());
+      
+      // Update folder name in state (handle nested structure)
+      const updateFolderName = (folderList: FolderWithSubFolders[], id: string, newName: string): FolderWithSubFolders[] => {
+        return folderList.map(folder => {
+          if (folder.id === id) {
+            return {
+              ...folder,
+              name: newName,
+            };
+          }
+          if (folder.subFolders && folder.subFolders.length > 0) {
+            return {
+              ...folder,
+              subFolders: updateFolderName(folder.subFolders, id, newName),
+            };
+          }
+          return folder;
+        });
+      };
+      
+      setFolders(prevFolders => updateFolderName(prevFolders, folderId, updatedFolder.name));
+      setToast({ message: 'Folder renamed successfully', type: 'success' });
+      setEditingFolderId(null);
+      setEditingFolderName('');
+    } catch (error) {
+      console.error('Error renaming folder:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to rename folder';
+      setToast({ message: errorMessage, type: 'error' });
+    }
+  };
+
+  const handleRenameCancel = () => {
+    setEditingFolderId(null);
+    setEditingFolderName('');
+  };
+
+  // Auto-focus and select text when editing starts
+  useEffect(() => {
+    if (editingFolderId && editInputRef.current) {
+      editInputRef.current.focus();
+      editInputRef.current.select();
+    }
+  }, [editingFolderId]);
+
   const formatDate = (dateString: string): string => {
     try {
       const date = new Date(dateString);
@@ -168,6 +230,14 @@ export const UserDashboard: React.FC = () => {
     return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
   });
 
+  const handleFolderNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, folderId: string) => {
+    if (e.key === 'Enter') {
+      handleRenameSubmit(folderId);
+    } else if (e.key === 'Escape') {
+      handleRenameCancel();
+    }
+  };
+
   return (
     <div className={styles.container}>
       <h2 className={styles.heading}>My bookmarks</h2>
@@ -175,18 +245,18 @@ export const UserDashboard: React.FC = () => {
           <div className={styles.headerLeft}>
             <div className={styles.viewToggle}>
               <button
-                className={`${styles.viewButton} ${viewMode === 'list' ? styles.viewButtonActive : ''}`}
-                onClick={() => setViewMode('list')}
-                title="List view"
-              >
-                <FiList />
-              </button>
-              <button
                 className={`${styles.viewButton} ${viewMode === 'grid' ? styles.viewButtonActive : ''}`}
                 onClick={() => setViewMode('grid')}
                 title="Grid view"
               >
                 <FiGrid />
+              </button>
+              <button
+                className={`${styles.viewButton} ${viewMode === 'list' ? styles.viewButtonActive : ''}`}
+                onClick={() => setViewMode('list')}
+                title="List view"
+              >
+                <FiList />
               </button>
             </div>
           </div>
@@ -230,23 +300,41 @@ export const UserDashboard: React.FC = () => {
         ) : (
           <>
             {viewMode === 'list' ? (
-              <div className={styles.listView}>
-                <DataTable
+              <div className={styles.listViewWrapper}>
+                <div className={styles.listView}>
+                  <DataTable
                   columns={[
                     {
                       key: 'name',
                       header: 'Folder Name',
                       align: 'left',
-                      render: (folder) => (
-                        <div 
-                          className={styles.folderNameCell}
-                          onClick={() => handleFolderClick(folder)}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          <FolderIcon size={20} />
-                          <span>{folder.name}</span>
-                        </div>
-                      ),
+                      render: (folder) => {
+                        const isEditing = editingFolderId === folder.id;
+                        return (
+                          <div 
+                            className={styles.folderNameCell}
+                            onClick={!isEditing ? () => handleFolderClick(folder) : undefined}
+                            style={!isEditing ? { cursor: 'pointer' } : undefined}
+                          >
+                            <FolderIcon size={20} />
+                            {isEditing ? (
+                              <input
+                                ref={editInputRef}
+                                type="text"
+                                value={editingFolderName}
+                                onChange={(e) => setEditingFolderName(e.target.value)}
+                                onKeyDown={(e) => handleFolderNameKeyDown(e, folder.id)}
+                                onBlur={() => handleRenameSubmit(folder.id)}
+                                onClick={(e) => e.stopPropagation()}
+                                className={styles.folderNameInput}
+                                maxLength={50}
+                              />
+                            ) : (
+                              <span>{folder.name}</span>
+                            )}
+                          </div>
+                        );
+                      },
                     },
                     {
                       key: 'created_at',
@@ -267,36 +355,17 @@ export const UserDashboard: React.FC = () => {
                       render: (folder) => formatDate(folder.created_at),
                     },
                     {
-                      key: 'updated_at',
-                      header: 'Updated At',
-                      align: 'left',
-                      headerRender: () => (
-                        <button
-                          className={`${styles.sortButton} ${sortBy === 'updated_at' ? styles.sortButtonActive : ''}`}
-                          onClick={() => handleSort('updated_at')}
-                        >
-                          Updated At
-                          <span className={styles.sortIcons}>
-                            <FiArrowUp className={sortBy === 'updated_at' && sortOrder === 'asc' ? styles.sortIconActive : styles.sortIconInactive} />
-                            <FiArrowDown className={sortBy === 'updated_at' && sortOrder === 'desc' ? styles.sortIconActive : styles.sortIconInactive} />
-                          </span>
-                        </button>
-                      ),
-                      render: (folder) => formatDate(folder.updated_at),
-                    },
-                    {
                       key: 'actions',
                       header: '',
                       align: 'right',
                       render: (folder) => {
                         const isHovered = hoveredRowId === folder.id;
                         return (
-                          <ActionIcons
+                          <FolderMenu
+                            onRename={() => handleRenameClick(folder.id, folder.name)}
                             onDelete={() => handleDeleteClick(folder.id)}
-                            onMove={() => {}}
                             isVisible={isHovered}
                             className={styles.actionIconsInCell}
-                            showMove={false}
                           />
                         );
                       },
@@ -313,6 +382,7 @@ export const UserDashboard: React.FC = () => {
                     }
                   }}
                 />
+                </div>
               </div>
             ) : (
               <div className={styles.gridView}>

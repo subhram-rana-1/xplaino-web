@@ -178,11 +178,26 @@
 }
 
 /* List View */
+.listViewWrapper {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 2rem auto;
+  width: 100%;
+}
+
 .listView {
   background: var(--bg-white);
   border-radius: 0;
   overflow: hidden;
-  margin-bottom: 2rem;
+  width: fit-content;
+  min-width: fit-content;
+}
+
+/* Increase table cell padding by 40% to make table wider */
+.listView table tbody td,
+.listView table thead th {
+  padding-left: 1.4rem;
+  padding-right: 1.4rem;
 }
 
 .table {
@@ -286,6 +301,23 @@
 .folderNameCell svg {
   color: var(--purple);
   flex-shrink: 0;
+}
+
+.folderNameInput {
+  flex: 1;
+  padding: 0.25rem 0.5rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  color: #333;
+  border: 2px solid var(--teal);
+  border-radius: 4px;
+  outline: none;
+  background: var(--bg-white);
+  min-width: 150px;
+}
+
+.folderNameInput:focus {
+  border-color: var(--purple);
 }
 
 /* Grid View */
