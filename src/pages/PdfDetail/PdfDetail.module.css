@@ -1,18 +1,24 @@
 .wrapper {
   background: white;
   min-height: calc(100vh - 80px);
-  margin-left: -4.5rem;
-  margin-right: -4.5rem;
-  padding-left: 4.5rem;
-  padding-right: 4.5rem;
 }
 
 .container {
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0 2rem 2rem 2rem;
   min-height: calc(100vh - 80px);
+}
+
+.pdfTitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #666;
+  margin: 2rem 0 1rem 0;
+  padding: 0;
+  text-align: left;
 }
 
 .header {
@@ -157,15 +163,13 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .wrapper {
-    margin-left: -3rem;
-    margin-right: -3rem;
-    padding-left: 3rem;
-    padding-right: 3rem;
+  .container {
+    padding: 0 1rem 1rem 1rem;
   }
 
-  .container {
-    padding: 1rem;
+  .pdfTitle {
+    font-size: 1.25rem;
+    margin: 1.5rem 0 0.75rem 0;
   }
 
   .header {
@@ -175,15 +179,6 @@
 
   .pageInfo {
     align-self: flex-end;
-  }
-}
-
-@media (max-width: 480px) {
-  .wrapper {
-    margin-left: -2.25rem;
-    margin-right: -2.25rem;
-    padding-left: 2.25rem;
-    padding-right: 2.25rem;
   }
 }
 

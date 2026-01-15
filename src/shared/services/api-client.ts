@@ -97,6 +97,11 @@ export async function fetchWithAuth(
   const headers = new Headers(options.headers);
   headers.set('Authorization', `Bearer ${auth.accessToken}`);
   headers.set('X-Source', 'XPLAINO_WEB');
+  
+  // For FormData, ensure Content-Type is NOT set so browser auto-sets it with boundary
+  if (options.body instanceof FormData) {
+    headers.delete('Content-Type');
+  }
 
   // Make the request
   const requestOptions: RequestInit = {

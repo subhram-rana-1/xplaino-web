@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Navbar } from '@/shared/components/Navbar';
 import { HighlightedCoupon } from '@/shared/components/HighlightedCoupon';
@@ -36,20 +36,17 @@ import { AdminProtectedRoute } from '@/shared/components/AdminProtectedRoute';
 import { UserProtectedRoute } from '@/shared/components/UserProtectedRoute';
 
 /**
- * App - Main application component with routing
- * 
- * @returns JSX element
+ * AppContent - Inner component that uses useLocation for conditional rendering
  */
-export const App: React.FC = () => {
-  const [showMiniCoupon, setShowMiniCoupon] = useState(false);
+const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: boolean) => void }> = ({ showMiniCoupon, setShowMiniCoupon }) => {
+  const location = useLocation();
+  const isPdfDetailPage = location.pathname.startsWith('/pdf/');
 
   return (
-    <GoogleOAuthProvider clientId={authConfig.googleClientId}>
-      <BrowserRouter>
-        <AuthProvider>
-          <HighlightedCoupon onDismiss={() => setShowMiniCoupon(true)} />
-          <Navbar showMiniCoupon={showMiniCoupon} />
-          <PageContent>
+    <>
+      <HighlightedCoupon onDismiss={() => setShowMiniCoupon(true)} />
+      <Navbar showMiniCoupon={showMiniCoupon} hideNavButtons={isPdfDetailPage} />
+      <PageContent>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/pricing" element={<Pricing />} />
@@ -259,7 +256,24 @@ export const App: React.FC = () => {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </PageContent>
-          <Footer />
+          {!isPdfDetailPage && <Footer />}
+        </>
+      );
+    };
+
+/**
+ * App - Main application component with routing
+ * 
+ * @returns JSX element
+ */
+export const App: React.FC = () => {
+  const [showMiniCoupon, setShowMiniCoupon] = useState(false);
+
+  return (
+    <GoogleOAuthProvider clientId={authConfig.googleClientId}>
+      <BrowserRouter>
+        <AuthProvider>
+          <AppContent showMiniCoupon={showMiniCoupon} setShowMiniCoupon={setShowMiniCoupon} />
         </AuthProvider>
       </BrowserRouter>
     </GoogleOAuthProvider>

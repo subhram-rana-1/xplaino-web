@@ -15,6 +15,7 @@ interface PageContentProps {
 export const PageContent: React.FC<PageContentProps> = ({ children }) => {
   const location = useLocation();
   const isHomePage = location.pathname === '/';
+  const isPdfDetailPage = location.pathname.startsWith('/pdf/');
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isUserAccountRoute = location.pathname.startsWith('/user/account');
   const isUserDashboardRoute = location.pathname.startsWith('/user/dashboard');
@@ -22,7 +23,7 @@ export const PageContent: React.FC<PageContentProps> = ({ children }) => {
   return (
     <main 
       key={location.pathname}
-      className={`${isHomePage ? styles.pageContentFullWidth : styles.pageContent} ${!isAdminRoute && !isUserAccountRoute && !isUserDashboardRoute ? styles.fadeIn : ''}`}
+      className={`${isHomePage || isPdfDetailPage ? styles.pageContentFullWidth : styles.pageContent} ${!isAdminRoute && !isUserAccountRoute && !isUserDashboardRoute ? styles.fadeIn : ''}`}
     >
       {children}
     </main>

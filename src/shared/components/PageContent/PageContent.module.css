@@ -2,11 +2,14 @@
   padding-left: 4.5rem;
   padding-right: 4.5rem;
   padding-bottom: 4rem;
+  margin: 0;
   min-height: calc(100vh - 80px);
 }
 
 .pageContentFullWidth {
+  padding: 0;
   padding-bottom: 4rem;
+  margin: 0;
   min-height: calc(100vh - 80px);
 }
 

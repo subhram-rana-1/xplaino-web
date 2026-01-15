@@ -9,6 +9,7 @@ import { Toast } from '@/shared/components/Toast';
 
 interface NavbarProps {
   showMiniCoupon?: boolean;
+  hideNavButtons?: boolean;
 }
 
 /**
@@ -16,7 +17,7 @@ interface NavbarProps {
  * 
  * @returns JSX element
  */
-export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon }) => {
+export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfilePopoverOpen, setIsProfilePopoverOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -197,30 +198,32 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon }) => {
           </span>
         </button>
         
-        <div className={styles.navCenter}>
-          <div className={`${styles.navLinks} ${isMenuOpen ? styles.navLinksOpen : ''}`}>
-            <button 
-              className={`${styles.navLink} ${isDashboardActive() ? styles.navLinkActive : ''}`} 
-              onClick={handleMyDashboardClick}
-            >
-              {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') ? 'Admin Dashboard' : 'My Dashboard'}
-            </button>
-            <Link 
-              to="/pricing" 
-              className={`${styles.navLink} ${isActiveRoute('/pricing') ? styles.navLinkActive : ''}`} 
-              onClick={closeMenu}
-            >
-              Pricing
-            </Link>
-            <Link 
-              to="/report-issue" 
-              className={`${styles.navLink} ${isActiveRoute('/report-issue') ? styles.navLinkActive : ''}`} 
-              onClick={handleReportIssueClick}
-            >
-              Report Issue
-            </Link>
+        {!hideNavButtons && (
+          <div className={styles.navCenter}>
+            <div className={`${styles.navLinks} ${isMenuOpen ? styles.navLinksOpen : ''}`}>
+              <button 
+                className={`${styles.navLink} ${isDashboardActive() ? styles.navLinkActive : ''}`} 
+                onClick={handleMyDashboardClick}
+              >
+                {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') ? 'Admin Dashboard' : 'My Dashboard'}
+              </button>
+              <Link 
+                to="/pricing" 
+                className={`${styles.navLink} ${isActiveRoute('/pricing') ? styles.navLinkActive : ''}`} 
+                onClick={closeMenu}
+              >
+                Pricing
+              </Link>
+              <Link 
+                to="/report-issue" 
+                className={`${styles.navLink} ${isActiveRoute('/report-issue') ? styles.navLinkActive : ''}`} 
+                onClick={handleReportIssueClick}
+              >
+                Report Issue
+              </Link>
+            </div>
           </div>
-        </div>
+        )}
         
         <div className={styles.navRight}>
           {isLoggedIn ? (

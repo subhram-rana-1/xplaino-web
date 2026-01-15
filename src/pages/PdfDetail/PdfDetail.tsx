@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import styles from './PdfDetail.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
-import { getHtmlPagesByPdfId } from '@/shared/services/pdf.service';
-import type { PdfHtmlPageResponse } from '@/shared/types/pdf.types';
+import { getHtmlPagesByPdfId, getAllPdfs } from '@/shared/services/pdf.service';
+import type { PdfHtmlPageResponse, PdfResponse } from '@/shared/types/pdf.types';
 import { Toast } from '@/shared/components/Toast';
 
 /**
@@ -15,6 +15,7 @@ import { Toast } from '@/shared/components/Toast';
 export const PdfDetail: React.FC = () => {
   const { pdfId } = useParams<{ pdfId: string }>();
   const { accessToken } = useAuth();
+  const [pdfDetails, setPdfDetails] = useState<PdfResponse | null>(null);
   const [pages, setPages] = useState<PdfHtmlPageResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -26,6 +27,26 @@ export const PdfDetail: React.FC = () => {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreTriggerRef = useRef<HTMLDivElement>(null);
   const limit = 20;
+
+  // Fetch PDF details from the list of all PDFs
+  useEffect(() => {
+    if (!accessToken || !pdfId) return;
+
+    const fetchPdfDetails = async () => {
+      try {
+        const response = await getAllPdfs(accessToken);
+        const pdf = response.pdfs.find(p => p.id === pdfId);
+        if (pdf) {
+          setPdfDetails(pdf);
+        }
+      } catch (error) {
+        console.error('Error fetching PDF details:', error);
+        // Don't show error toast for PDF details - it's not critical
+      }
+    };
+
+    fetchPdfDetails();
+  }, [accessToken, pdfId]);
 
   // Initial load
   useEffect(() => {
@@ -136,6 +157,10 @@ export const PdfDetail: React.FC = () => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.container} ref={containerRef}>
+        {pdfDetails && (
+          <h3 className={styles.pdfTitle}>{pdfDetails.file_name}</h3>
+        )}
+        
         <div className={styles.header}>
           {total > 0 && (
             <div className={styles.pageInfo}>
