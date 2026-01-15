@@ -181,7 +181,7 @@
   transition: all 0.2s ease;
   font-family: 'Inter', sans-serif;
   font-size: 13px;
-  color: var(--text-dark);
+  color: var(--text-medium);
   width: auto;
   white-space: nowrap;
 }

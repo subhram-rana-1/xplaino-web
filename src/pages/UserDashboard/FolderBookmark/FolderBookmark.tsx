@@ -1173,8 +1173,12 @@ export const FolderBookmark: React.FC = () => {
 
     // Map option to question type and start streaming immediately for SHORT_SUMMARY and DESCRIPTIVE_NOTE
     if (option === 'Short summary') {
+      // Add user question to chat first
+      setAskAIChatMessages((prev) => [...prev, { role: 'user' as const, content: 'Generate a short summary about the selected paragraphs' }]);
       handleAIStream(UserQuestionType.SHORT_SUMMARY);
     } else if (option === 'Descriptive note') {
+      // Add user question to chat first
+      setAskAIChatMessages((prev) => [...prev, { role: 'user' as const, content: 'Generate a descriptive note on the selected paragraphs' }]);
       handleAIStream(UserQuestionType.DESCRIPTIVE_NOTE);
     }
     // For 'Ask AI' option, wait for user input (handled in handleAskAIInputSubmit)
@@ -1191,14 +1195,16 @@ export const FolderBookmark: React.FC = () => {
     let questionType: UserQuestionType;
     let userQuestion: string | undefined;
     
-    if (text === 'Short summary') {
+    if (text === 'Generate a short summary about the selected paragraphs') {
       questionType = UserQuestionType.SHORT_SUMMARY;
       userQuestion = undefined;
-      // Don't add to chat, but will show response
-    } else if (text === 'Descriptive note') {
+      // Add user question to chat first
+      setAskAIChatMessages((prev) => [...prev, { role: 'user' as const, content: text }]);
+    } else if (text === 'Generate a descriptive note on the selected paragraphs') {
       questionType = UserQuestionType.DESCRIPTIVE_NOTE;
       userQuestion = undefined;
-      // Don't add to chat, but will show response
+      // Add user question to chat first
+      setAskAIChatMessages((prev) => [...prev, { role: 'user' as const, content: text }]);
     } else {
       questionType = UserQuestionType.CUSTOM;
       userQuestion = text;
