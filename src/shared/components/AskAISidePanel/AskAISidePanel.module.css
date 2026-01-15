@@ -1,13 +1,13 @@
 .sidePanel {
-  position: absolute;
-  top: 0;
+  position: fixed;
+  top: var(--panel-top, 80px);
   right: 0;
-  bottom: 0;
+  bottom: var(--panel-bottom, 0);
   width: var(--panel-width, 560px);
   min-width: 300px;
   max-width: 800px;
   background: var(--bg-white);
-  border-left: 3px solid var(--teal-lighter);
+  border-left: 3px solid #e0e0e0;
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -44,11 +44,35 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.5rem;
-  padding-right: 0;
-  border-bottom: 1px solid var(--teal-lighter);
+  border-bottom: 1px solid #e0e0e0;
   flex-shrink: 0;
   width: 100%;
   box-sizing: border-box;
+}
+
+.slideOutButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.slideOutButton:hover {
+  background: #f5f5f5;
+  color: var(--teal);
+}
+
+.slideOutButton:active {
+  transform: scale(0.95);
 }
 
 .headerTitle {
@@ -57,29 +81,14 @@
   font-weight: 600;
   color: var(--teal);
   margin: 0;
+  flex: 1;
+  text-align: center;
 }
 
-.closeButton {
+.headerSpacer {
   width: 32px;
   height: 32px;
-  border-radius: 50%;
-  background: transparent;
-  border: none;
-  color: var(--teal);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  padding: 0;
-}
-
-.closeButton:hover {
-  background: var(--teal-lighter);
-}
-
-.closeButton:active {
-  transform: scale(0.95);
+  flex-shrink: 0;
 }
 
 .content {
@@ -89,5 +98,36 @@
   flex-direction: column;
   width: 100%;
   box-sizing: border-box;
+}
+
+/* Slide animations */
+.sidePanel.open {
+  animation: slideIn 0.3s ease forwards;
+}
+
+.sidePanel.slidingOut {
+  animation: slideOut 0.3s ease forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
 }
 

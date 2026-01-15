@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { FiArrowUp, FiTrash2, FiSquare } from 'react-icons/fi';
+import { LoadingDots } from '@/shared/components/LoadingDots';
 import styles from './AskAISidePanelView.module.css';
 
 export interface AskAISidePanelViewProps {
@@ -22,6 +23,11 @@ export interface AskAISidePanelViewProps {
 
 const DEFAULT_PROMPTS = ['Short summary', 'Descriptive note'];
 
+const PROMPT_TEXT_MAP: Record<string, string> = {
+  'Short summary': 'Generate a short summary about the selected paragraphs',
+  'Descriptive note': 'Generate a descriptive note on the selected paragraphs',
+};
+
 /**
  * AskAISidePanelView - Content view with chat interface and input bar
  * 
@@ -38,13 +44,44 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [inputValue, setInputValue] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
 
-  // Auto-scroll to bottom when new content arrives
+  // Scroll detection logic
+  const SCROLL_THRESHOLD = 5; // pixels from bottom to consider "at bottom"
+  
+  const checkIfAtBottom = useCallback((element: HTMLDivElement): boolean => {
+    const { scrollTop, scrollHeight, clientHeight } = element;
+    return scrollTop >= scrollHeight - clientHeight - SCROLL_THRESHOLD;
+  }, []);
+
+  // Handle scroll events to detect user scrolling
   useEffect(() => {
-    if (chatContainerRef.current && (streamingText || chatMessages.length > 0)) {
+    const container = chatContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      if (checkIfAtBottom(container)) {
+        // User scrolled to bottom - re-enable auto-scroll
+        setShouldAutoScroll(true);
+      } else {
+        // User scrolled up - disable auto-scroll
+        setShouldAutoScroll(false);
+      }
+    };
+
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+    };
+  }, [checkIfAtBottom]);
+
+  // Auto-scroll to bottom when new content arrives (only if shouldAutoScroll is true)
+  useEffect(() => {
+    if (chatContainerRef.current && shouldAutoScroll && (streamingText || chatMessages.length > 0)) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
-  }, [streamingText, chatMessages]);
+  }, [streamingText, chatMessages, shouldAutoScroll]);
 
   // Handle input submission
   const onInputSubmitRef = React.useRef(onInputSubmit);
@@ -78,7 +115,8 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
 
   // Handle default prompt click
   const handlePromptClick = useCallback((prompt: string) => {
-    onInputSubmitRef.current?.(prompt);
+    const questionText = PROMPT_TEXT_MAP[prompt] || prompt;
+    onInputSubmitRef.current?.(questionText);
   }, []);
 
   const hasChatHistory = chatMessages.length > 0;
@@ -120,6 +158,14 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
                 )}
               </div>
             ))}
+            
+            {/* Show loading dots when requesting and no streaming text yet */}
+            {isRequesting && !streamingText && (
+              <div className={`${styles.message} ${styles.assistantMessage} ${styles.loadingMessage}`}>
+                <LoadingDots size="medium" />
+              </div>
+            )}
+            
             {/* Show streaming assistant response */}
             {streamingText && streamingText.trim().length > 0 && (
               <div className={`${styles.message} ${styles.assistantMessage}`}>
@@ -132,13 +178,22 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
           </div>
         )}
 
-        {/* Show initial streaming response when no chat history */}
-        {!hasChatHistory && streamingText && streamingText.trim().length > 0 && (
-          <div className={styles.explanationContent}>
-            <ReactMarkdown components={markdownComponents}>
-              {streamingText}
-            </ReactMarkdown>
-          </div>
+        {/* Show initial streaming response or loading when no chat history */}
+        {!hasChatHistory && (
+          <>
+            {isRequesting && !streamingText && (
+              <div className={styles.loadingContainer}>
+                <LoadingDots size="medium" />
+              </div>
+            )}
+            {streamingText && streamingText.trim().length > 0 && (
+              <div className={styles.explanationContent}>
+                <ReactMarkdown components={markdownComponents}>
+                  {streamingText}
+                </ReactMarkdown>
+              </div>
+            )}
+          </>
         )}
       </div>
 

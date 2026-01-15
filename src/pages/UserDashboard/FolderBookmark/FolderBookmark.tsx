@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { FiArrowLeft, FiRefreshCw, FiExternalLink, FiCopy, FiCheck, FiInfo, FiX, FiGlobe, FiEye, FiEyeOff, FiBook, FiBookOpen, FiPlus, FiChevronDown } from 'react-icons/fi';
+import { FiArrowLeft, FiRefreshCw, FiExternalLink, FiCopy, FiCheck, FiInfo, FiX, FiGlobe, FiEye, FiEyeOff, FiBookOpen, FiPlus, FiChevronDown, FiTrash2 } from 'react-icons/fi';
 import ReactMarkdown from 'react-markdown';
 import { SiYoutube, SiLinkedin, SiX, SiReddit, SiFacebook, SiInstagram } from 'react-icons/si';
 import styles from './FolderBookmark.module.css';
@@ -23,6 +23,7 @@ import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { FolderSelectionModal } from '@/shared/components/FolderSelectionModal';
 import { AskAIButton } from '@/shared/components/AskAIButton';
 import { AskAISidePanel } from '@/shared/components/AskAISidePanel';
+import { OnHoverMessage } from '@/shared/components/OnHoverMessage';
 import type { SavedParagraph } from '@/shared/types/paragraphs.types';
 import { UserQuestionType } from '@/shared/types/paragraphs.types';
 import type { SavedLink } from '@/shared/types/links.types';
@@ -103,9 +104,11 @@ export const FolderBookmark: React.FC = () => {
   const infoIconRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const tooltipTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tooltipShowTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const resetButtonRef = useRef<HTMLButtonElement>(null);
   
   // Ask AI Panel state (persisted across panel close/route changes)
   const [isAskAIPanelOpen, setIsAskAIPanelOpen] = useState(false);
+  const [scrollContainerHeight, setScrollContainerHeight] = useState<number | undefined>(undefined);
   const [selectedAskAIOption, setSelectedAskAIOption] = useState<string | null>(null);
   const [askAIChatMessages, setAskAIChatMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
   const [askAIStreamingText, setAskAIStreamingText] = useState('');
@@ -182,6 +185,55 @@ export const FolderBookmark: React.FC = () => {
         return <FiGlobe {...iconProps} />;
     }
   };
+
+  // Auto-close Ask AI panel when switching away from paragraph tab
+  useEffect(() => {
+    if (activeTab !== 'paragraph' && isAskAIPanelOpen) {
+      setIsAskAIPanelOpen(false);
+    }
+  }, [activeTab, isAskAIPanelOpen]);
+
+  // Calculate scroll container height when panel is open
+  useEffect(() => {
+    if (!isAskAIPanelOpen) {
+      setScrollContainerHeight(undefined);
+      return;
+    }
+
+    const calculateScrollHeight = () => {
+      const viewportHeight = window.innerHeight;
+      const footer = document.querySelector('footer');
+      
+      // Get container's top position
+      const containerElement = document.querySelector(`.${styles.container}`);
+      if (!containerElement) return;
+      
+      const containerTop = containerElement.getBoundingClientRect().top;
+      
+      if (!footer) {
+        // No footer, use viewport bottom
+        const height = viewportHeight - containerTop;
+        setScrollContainerHeight(height);
+        return;
+      }
+      
+      const footerTop = footer.getBoundingClientRect().top;
+      
+      // Height is minimum of (viewport bottom, footer top) minus container top
+      const maxBottom = Math.min(viewportHeight, footerTop);
+      const height = maxBottom - containerTop;
+      setScrollContainerHeight(Math.max(100, height)); // Minimum 100px
+    };
+
+    calculateScrollHeight();
+    window.addEventListener('resize', calculateScrollHeight);
+    window.addEventListener('scroll', calculateScrollHeight, { passive: true });
+
+    return () => {
+      window.removeEventListener('resize', calculateScrollHeight);
+      window.removeEventListener('scroll', calculateScrollHeight);
+    };
+  }, [isAskAIPanelOpen, styles.container]);
 
   // Get folder data from navigation state if available
   const folder = (location.state as { folder?: { id: string; name: string } })?.folder;
@@ -999,9 +1051,9 @@ export const FolderBookmark: React.FC = () => {
       return false; // Don't open dropdown yet
     }
     
-    // If checkboxes are visible but no paragraphs selected
+    // If checkboxes are visible but no paragraphs selected, hide checkboxes
     if (selectedParagraphIds.size === 0) {
-      showMessageWithAutoHide();
+      setIsCheckboxColumnVisible(false);
       return false; // Don't open dropdown
     }
     
@@ -1191,9 +1243,9 @@ export const FolderBookmark: React.FC = () => {
     setIsAskAIRequesting(false);
   }, [askAIAbortController]);
 
-  // Reset/Delete handler - just hides the component
+  // Reset/Delete handler - clears all Ask AI state
   const handleResetAskAI = useCallback(() => {
-    // Just hide the panel
+    // Close the panel
     setIsAskAIPanelOpen(false);
     
     // Hide checkboxes
@@ -1202,6 +1254,15 @@ export const FolderBookmark: React.FC = () => {
     // Hide message if showing
     setShowSelectParagraphMessage(false);
     setIsMessageFadingOut(false);
+    
+    // Clear all Ask AI state variables
+    setInitialContext([]);
+    setSelectedAskAIOption(null);
+    setAskAIChatMessages([]);
+    setAskAIStreamingText('');
+    
+    // Clear selected paragraphs
+    setSelectedParagraphIds(new Set());
     
     // Abort any ongoing request
     if (askAIAbortController) {
@@ -1348,28 +1409,31 @@ export const FolderBookmark: React.FC = () => {
             header: 'Content',
             align: 'left',
             className: styles.contentColumn,
-            render: (para) => (
-              <div className={styles.contentCellWithCopy}>
-                <button
-                  className={styles.copyButton}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCopyParagraph(para.content, para.id);
-                  }}
-                  title="Copy content"
-                >
-                  {copiedParagraphId === para.id ? <FiCheck /> : <FiCopy />}
-                </button>
-                <div 
-                  className={styles.contentCellClickable}
-                  onClick={() => handleOpenParagraphModal(para)}
-                >
-                            {para.content.length > 150
-                              ? `${para.content.substring(0, 150)}...`
-                              : para.content}
-                      </div>
-              </div>
-            ),
+            render: (para) => {
+              const isHovered = hoveredRowId === para.id;
+              return (
+                <div className={styles.contentCellWithCopy}>
+                  <button
+                    className={`${styles.copyButton} ${isHovered ? styles.visible : ''}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCopyParagraph(para.content, para.id);
+                    }}
+                    title="Copy content"
+                  >
+                    {copiedParagraphId === para.id ? <FiCheck /> : <FiCopy />}
+                  </button>
+                  <div 
+                    className={styles.contentCellClickable}
+                    onClick={() => handleOpenParagraphModal(para)}
+                  >
+                    {para.content.length > 150
+                      ? `${para.content.substring(0, 150)}...`
+                      : para.content}
+                  </div>
+                </div>
+              );
+            },
           },
           {
             key: 'source',
@@ -1476,17 +1540,28 @@ export const FolderBookmark: React.FC = () => {
                       <AskAIButton 
                         onOptionSelect={handleAskAIOptionSelect}
                         onButtonClick={handleAskAIButtonClick}
+                        isPanelOpen={initialContext.length > 0}
                       />
-                      {/* Hide button - shown when initial context exists */}
+                      {/* Remove chat button - shown when initial context exists */}
                       {initialContext.length > 0 && (
-                        <button
-                          className={styles.resetButton}
-                          onClick={handleResetAskAI}
-                          title="Hide Ask AI panel"
-                          aria-label="Hide Ask AI panel"
-                        >
-                          <FiX size={20} />
-                        </button>
+                        <>
+                          <button
+                            ref={resetButtonRef}
+                            className={styles.resetButton}
+                            onClick={handleResetAskAI}
+                            aria-label="Remove chat"
+                          >
+                            <FiTrash2 size={18} />
+                          </button>
+                          {resetButtonRef.current && (
+                            <OnHoverMessage
+                              message="Remove chat"
+                              targetRef={resetButtonRef}
+                              position="bottom"
+                              offset={8}
+                            />
+                          )}
+                        </>
                       )}
                     </div>
                   )}
@@ -1547,6 +1622,8 @@ export const FolderBookmark: React.FC = () => {
             width: '400px',
             className: styles.urlColumn,
             render: (link) => {
+              const isHovered = hoveredRowId === link.id;
+              
               // Ensure URL has protocol for proper external navigation
               const getFullUrl = (url: string): string => {
                 if (!url) return '#';
@@ -1561,7 +1638,7 @@ export const FolderBookmark: React.FC = () => {
               return (
                 <div className={styles.urlCellWithCopy}>
                   <button
-                    className={styles.copyButton}
+                    className={`${styles.copyButton} ${isHovered ? styles.visible : ''}`}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleCopyLink(link.url, link.id);
@@ -1751,18 +1828,21 @@ export const FolderBookmark: React.FC = () => {
             key: 'word',
             header: 'Word',
             align: 'left',
-            render: (word) => (
-                        <div className={styles.wordCell}>
-                          <button
-                            className={styles.copyButton}
-                            onClick={() => handleCopyWord(word.word, word.id)}
-                            title="Copy word"
-                          >
-                            {copiedWordId === word.id ? <FiCheck /> : <FiCopy />}
-                          </button>
-                          <span>{word.word}</span>
-                        </div>
-            ),
+            render: (word) => {
+              const isHovered = hoveredRowId === word.id;
+              return (
+                <div className={styles.wordCell}>
+                  <button
+                    className={`${styles.copyButton} ${isHovered ? styles.visible : ''}`}
+                    onClick={() => handleCopyWord(word.word, word.id)}
+                    title="Copy word"
+                  >
+                    {copiedWordId === word.id ? <FiCheck /> : <FiCopy />}
+                  </button>
+                  <span>{word.word}</span>
+                </div>
+              );
+            },
           },
           {
             key: 'meaning',
@@ -2030,7 +2110,15 @@ export const FolderBookmark: React.FC = () => {
 
   return (
     <div className={styles.folderBookmark}>
-      <div className={`${styles.container} ${isAskAIPanelOpen ? styles.containerWithPanel : ''}`}>
+      <div 
+        className={`${styles.container} ${isAskAIPanelOpen ? styles.containerWithPanel : ''}`}
+        style={isAskAIPanelOpen ? {
+          maxWidth: 'calc(100vw - 560px)',
+          maxHeight: scrollContainerHeight ? `${scrollContainerHeight}px` : undefined,
+          overflowX: 'auto',
+          overflowY: 'visible',
+        } : undefined}
+      >
         <div className={styles.headerRow}>
           <button 
             className={styles.backButton}

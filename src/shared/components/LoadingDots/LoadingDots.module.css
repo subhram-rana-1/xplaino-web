@@ -1,0 +1,54 @@
+.loadingDots {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.dot {
+  border-radius: 50%;
+  background-color: var(--teal);
+  animation: dotFlashing 1.4s infinite linear;
+}
+
+/* Size variants */
+.small .dot {
+  width: 4px;
+  height: 4px;
+  gap: 4px;
+}
+
+.medium .dot {
+  width: 8px;
+  height: 8px;
+}
+
+.large .dot {
+  width: 12px;
+  height: 12px;
+  gap: 8px;
+}
+
+/* Stagger the animation for each dot */
+.dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dotFlashing {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

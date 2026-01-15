@@ -8,6 +8,8 @@ export interface AskAIButtonProps {
   className?: string;
   /** Optional callback when button is clicked, return false to prevent dropdown from opening */
   onButtonClick?: () => boolean;
+  /** Whether the Ask AI panel is currently open */
+  isPanelOpen?: boolean;
 }
 
 const OPTIONS = ['Short summary', 'Descriptive note', 'I will ask'];
@@ -21,6 +23,7 @@ export const AskAIButton: React.FC<AskAIButtonProps> = ({
   onOptionSelect,
   className = '',
   onButtonClick,
+  isPanelOpen = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -93,7 +96,7 @@ export const AskAIButton: React.FC<AskAIButtonProps> = ({
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        Ask AI
+        {isPanelOpen ? 'View chat' : 'Ask AI'}
       </button>
       {(isOpen || isClosing) && (
         <div className={`${styles.dropdown} ${isClosing ? styles.dropdownClosing : ''}`}>

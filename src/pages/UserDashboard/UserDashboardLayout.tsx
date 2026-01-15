@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { useLocation, Link, Outlet } from 'react-router-dom';
+import { FiBookmark, FiBookOpen } from 'react-icons/fi';
 import styles from './UserDashboardLayout.module.css';
 
 type UserDashboardSection = 'bookmarks' | 'pdf';
@@ -13,9 +14,9 @@ type UserDashboardSection = 'bookmarks' | 'pdf';
 export const UserDashboardLayout: React.FC = () => {
   const location = useLocation();
 
-  const sidebarItems: { key: UserDashboardSection; label: string; path: string }[] = useMemo(() => [
-    { key: 'bookmarks', label: 'My Bookmarks', path: '/user/dashboard/bookmark' },
-    { key: 'pdf', label: 'Pdf', path: '/user/dashboard/pdf' },
+  const sidebarItems: { key: UserDashboardSection; label: string; path: string; icon: React.ReactNode }[] = useMemo(() => [
+    { key: 'bookmarks', label: 'Bookmarks', path: '/user/dashboard/bookmark', icon: <FiBookmark /> },
+    { key: 'pdf', label: 'Pdf', path: '/user/dashboard/pdf', icon: <FiBookOpen /> },
   ], []);
 
   // Determine active section from current route
@@ -38,6 +39,7 @@ export const UserDashboardLayout: React.FC = () => {
               to={item.path}
               className={`${styles.sidebarButton} ${activeSection === item.key ? styles.sidebarButtonActive : ''}`}
             >
+              <span className={styles.sidebarButtonIcon}>{item.icon}</span>
               {item.label}
             </Link>
           ))}

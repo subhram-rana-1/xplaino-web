@@ -1,0 +1,69 @@
+.onHoverMessage {
+  position: fixed;
+  background: var(--teal-lighter);
+  border: none;
+  border-radius: 6px;
+  color: var(--teal);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  padding: 4px 12px;
+  white-space: nowrap;
+  z-index: 2147483647;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  box-shadow: none;
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.onHoverMessage.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Position variants */
+.onHoverMessage.top {
+  transform: translateX(-50%) translateY(4px);
+}
+
+.onHoverMessage.top.visible {
+  transform: translateX(-50%) translateY(0);
+}
+
+.onHoverMessage.bottom {
+  transform: translateX(-50%) translateY(-4px);
+}
+
+.onHoverMessage.bottom.visible {
+  transform: translateX(-50%) translateY(0);
+}
+
+.onHoverMessage.left {
+  transform: translateY(-50%) translateX(4px);
+}
+
+.onHoverMessage.left.visible {
+  transform: translateY(-50%) translateX(0);
+}
+
+.onHoverMessage.right {
+  transform: translateY(-50%) translateX(-4px);
+}
+
+.onHoverMessage.right.visible {
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Arrow pointing down for tooltips positioned above (top) */
+.onHoverMessage.top::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--teal-lighter);
+}

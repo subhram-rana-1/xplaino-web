@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FiCopy, FiCheck, FiPlus, FiRefreshCw } from 'react-icons/fi';
 import styles from './Issues.module.css';
@@ -23,10 +23,7 @@ export const Issues: React.FC = () => {
   const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' } | null>(null);
   const [activeTab, setActiveTab] = useState<TabFilter>('OPEN');
   const [copiedTicketId, setCopiedTicketId] = useState<string | null>(null);
-  const [sliderStyle, setSliderStyle] = useState<{ left: number; width: number }>({ left: 0, width: 0 });
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const tabsRef = useRef<HTMLDivElement>(null);
-  const tabRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
   const location = useLocation();
 
   useEffect(() => {
@@ -135,33 +132,6 @@ export const Issues: React.FC = () => {
     { value: 'RESOLVED', label: 'Resolved' },
   ];
 
-  const updateSliderPosition = () => {
-    const activeTabElement = tabRefs.current[activeTab];
-    const tabsContainer = tabsRef.current;
-    
-    if (activeTabElement && tabsContainer) {
-      const containerRect = tabsContainer.getBoundingClientRect();
-      const tabRect = activeTabElement.getBoundingClientRect();
-      
-      setSliderStyle({
-        left: tabRect.left - containerRect.left,
-        width: tabRect.width,
-      });
-    }
-  };
-
-  useEffect(() => {
-    // Small delay to ensure DOM is ready
-    const timer = setTimeout(() => {
-      updateSliderPosition();
-    }, 50);
-    window.addEventListener('resize', updateSliderPosition);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('resize', updateSliderPosition);
-    };
-  }, [activeTab]);
-
   const handleTabClick = (tabValue: TabFilter) => {
     setActiveTab(tabValue);
   };
@@ -208,28 +178,17 @@ export const Issues: React.FC = () => {
               <FiRefreshCw className={state.isLoading ? styles.spin : ''} />
             </button>
           </div>
-          <Link to="/report-issue" className={styles.reportButton}>
+          <Link to="/report-issue" className={styles.reportButton} title="Report an issue">
             <FiPlus />
-            <span>Report an issue</span>
           </Link>
         </div>
 
         {/* Status Tabs */}
-        <div className={styles.tabs} ref={tabsRef}>
-          <div 
-            className={`${styles.tabSlider} ${styles[`tabSlider${activeTab}`]}`}
-            style={{
-              transform: `translateX(${sliderStyle.left}px)`,
-              width: `${sliderStyle.width}px`,
-            }}
-          />
+        <div className={styles.tabs}>
           {tabs.map((tab) => (
             <button
               key={tab.value}
-              ref={(el) => {
-                tabRefs.current[tab.value] = el;
-              }}
-              className={`${styles.tab} ${activeTab === tab.value ? styles.tabActive : ''} ${styles[`tab${tab.value}`]}`}
+              className={`${styles.tab} ${activeTab === tab.value ? styles.tabActive : ''}`}
               onClick={() => handleTabClick(tab.value)}
             >
               {tab.label}

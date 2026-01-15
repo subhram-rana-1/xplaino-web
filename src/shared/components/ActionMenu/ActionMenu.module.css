@@ -126,6 +126,22 @@
   color: var(--teal);
 }
 
+.popoverButtonMove {
+  color: var(--text-tertiary);
+}
+
+.popoverButtonMove:hover {
+  background-color: var(--teal-lighter);
+  color: var(--teal);
+}
+
+.folderArrowIcon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: inherit;
+}
+
 .popoverButtonDelete {
   color: var(--red);
 }

@@ -13,7 +13,11 @@
 }
 
 .containerWithPanel {
-  padding-right: calc(var(--panel-width, 560px) + 1rem);
+  position: relative;
+}
+
+.container {
+  min-width: fit-content;
 }
 
 .headerRow {
@@ -356,29 +360,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #fff;
-  border: 1px solid var(--teal-light);
-  color: var(--teal);
+  min-width: 44px;
+  height: 44px;
+  border-radius: var(--button-border-radius);
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
   cursor: pointer;
   transition: all 0.2s ease;
   padding: 0;
 }
 
 .resetButton:hover {
-  background: var(--teal-lighter);
-  transform: scale(1.05);
-}
-
-.resetButton:active {
-  transform: scale(0.95);
+  background-color: #fee;
+  color: var(--red);
 }
 
 .resetButton svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 }
 
 /* Checkbox styles for row selection */
@@ -560,8 +560,13 @@
   align-items: center;
   justify-content: center;
   border-radius: 4px;
-  transition: all 0.2s ease;
+  transition: opacity 0.3s ease, background 0.2s ease;
   flex-shrink: 0;
+  opacity: 0;
+}
+
+.copyButton.visible {
+  opacity: 1;
 }
 
 .copyButton:hover {
@@ -593,7 +598,7 @@
 }
 
 .imageCard:hover {
-  box-shadow: 0 4px 20px var(--teal-rgba-25);
+  box-shadow: 0 4px 20px var(--shadow-black-20);
 }
 
 .imageCardWrapper {
