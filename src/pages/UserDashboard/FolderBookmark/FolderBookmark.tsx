@@ -109,6 +109,7 @@ export const FolderBookmark: React.FC = () => {
   // Ask AI Panel state (persisted across panel close/route changes)
   const [isAskAIPanelOpen, setIsAskAIPanelOpen] = useState(false);
   const [scrollContainerHeight, setScrollContainerHeight] = useState<number | undefined>(undefined);
+  const [containerWidth, setContainerWidth] = useState<number | undefined>(undefined);
   const [selectedAskAIOption, setSelectedAskAIOption] = useState<string | null>(null);
   const [askAIChatMessages, setAskAIChatMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
   const [askAIStreamingText, setAskAIStreamingText] = useState('');
@@ -227,13 +228,36 @@ export const FolderBookmark: React.FC = () => {
 
     calculateScrollHeight();
     window.addEventListener('resize', calculateScrollHeight);
-    window.addEventListener('scroll', calculateScrollHeight, { passive: true });
 
     return () => {
       window.removeEventListener('resize', calculateScrollHeight);
-      window.removeEventListener('scroll', calculateScrollHeight);
     };
   }, [isAskAIPanelOpen, styles.container]);
+
+  // Calculate available width when panel is open
+  useEffect(() => {
+    if (!isAskAIPanelOpen) {
+      setContainerWidth(undefined);
+      return;
+    }
+
+    const calculateWidth = () => {
+      const viewportWidth = window.innerWidth;
+      const leftSidebar = document.querySelector('[class*="sidebar"]') || document.querySelector('aside');
+      const leftSidebarWidth = leftSidebar ? leftSidebar.getBoundingClientRect().width : 0;
+      
+      // Available width = viewport - left sidebar - Ask AI panel (560px) - some padding
+      const availableWidth = viewportWidth - leftSidebarWidth - 560 - 32; // 32px for padding
+      setContainerWidth(Math.max(400, availableWidth)); // Minimum 400px
+    };
+
+    calculateWidth();
+    window.addEventListener('resize', calculateWidth);
+
+    return () => {
+      window.removeEventListener('resize', calculateWidth);
+    };
+  }, [isAskAIPanelOpen]);
 
   // Get folder data from navigation state if available
   const folder = (location.state as { folder?: { id: string; name: string } })?.folder;
@@ -2119,10 +2143,11 @@ export const FolderBookmark: React.FC = () => {
       <div 
         className={`${styles.container} ${isAskAIPanelOpen ? styles.containerWithPanel : ''}`}
         style={isAskAIPanelOpen ? {
-          maxWidth: 'calc(100vw - 560px)',
+          width: containerWidth ? `${containerWidth}px` : 'calc(100vw - 560px)',
+          maxWidth: 'none',
           maxHeight: scrollContainerHeight ? `${scrollContainerHeight}px` : undefined,
           overflowX: 'auto',
-          overflowY: 'visible',
+          overflowY: 'auto',
         } : undefined}
       >
         <div className={styles.headerRow}>

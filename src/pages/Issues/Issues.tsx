@@ -169,18 +169,22 @@ export const Issues: React.FC = () => {
         <div className={styles.header}>
           <div className={styles.headingContainer}>
             <h1 className={styles.heading}>My Issues</h1>
+          </div>
+          <div className={styles.headerRight}>
             <button
               className={styles.refreshButton}
               onClick={handleRefresh}
               disabled={state.isLoading}
-              title="Refresh issues"
+              title="Refresh tickets"
             >
               <FiRefreshCw className={state.isLoading ? styles.spin : ''} />
+              <span>Refresh tickets</span>
             </button>
+            <Link to="/report-issue" className={styles.reportButton} title="Report an issue">
+              <FiPlus />
+              <span>Report issue</span>
+            </Link>
           </div>
-          <Link to="/report-issue" className={styles.reportButton} title="Report an issue">
-            <FiPlus />
-          </Link>
         </div>
 
         {/* Status Tabs */}

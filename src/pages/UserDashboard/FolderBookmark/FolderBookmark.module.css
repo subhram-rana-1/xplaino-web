@@ -16,10 +16,6 @@
   position: relative;
 }
 
-.container {
-  min-width: fit-content;
-}
-
 .headerRow {
   display: flex;
   align-items: center;
