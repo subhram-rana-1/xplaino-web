@@ -12,8 +12,8 @@
 
 .sidebar {
   width: 250px;
-  background-color: white;
-  border-right: 1px solid #e0e0e0;
+  background-color: var(--bg-white);
+  border-right: 1px solid var(--border-light);
   padding: 2rem 0;
   flex-shrink: 0;
   min-height: calc(100vh - 80px);
@@ -57,7 +57,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
   font-weight: 500;
-  color: #333;
+  color: var(--text-secondary);
   background: transparent;
   border: none;
   border-radius: 0;
@@ -77,23 +77,23 @@
 }
 
 .sidebarButton:hover {
-  background-color: #f5f5f5;
+  background-color: var(--bg-light);
 }
 
 .sidebarButtonActive {
   background-color: var(--teal-lighter);
-  color: #333;
+  color: var(--text-secondary);
 }
 
 .sidebarButtonActive:hover {
   background-color: var(--teal-lighter);
-  color: #333;
+  color: var(--text-secondary);
 }
 
 .content {
   flex: 1;
   padding: 2rem;
-  background: white;
+  background: var(--bg-white);
   position: relative;
   min-height: calc(100vh - 80px);
 }
@@ -110,7 +110,7 @@
   .sidebar {
     width: 100%;
     border-right: none;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--border-light);
     padding: 1rem 0;
     min-height: auto;
   }

@@ -13,8 +13,8 @@
 .dropdownButton {
   width: 100%;
   padding: 10px 12px;
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  background: var(--bg-white);
+  border: 1px solid var(--border-default);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -22,7 +22,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 14px;
-  color: #1A202C;
+  color: var(--gray-900);
   font-family: 'Inter', sans-serif;
 }
 
@@ -37,13 +37,13 @@
 .dropdownValue {
   flex: 1;
   text-align: left;
-  color: #1A202C;
+  color: var(--gray-900);
 }
 
 .chevron {
   width: 16px;
   height: 16px;
-  color: #718096;
+  color: var(--gray-500);
   transition: transform 0.2s ease;
   flex-shrink: 0;
 }
@@ -57,12 +57,12 @@
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  background: var(--bg-white);
+  border: 1px solid var(--border-default);
   border-radius: 10px;
   z-index: 999999;
   margin-top: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px var(--shadow-black-15);
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.2s ease-in-out;
@@ -84,7 +84,7 @@
   cursor: pointer;
   transition: background-color 0.2s ease;
   font-size: 14px;
-  color: #1A202C;
+  color: var(--gray-900);
   font-family: 'Inter', sans-serif;
 }
 

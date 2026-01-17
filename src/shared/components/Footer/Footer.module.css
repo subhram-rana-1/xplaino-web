@@ -1,6 +1,6 @@
 .footer {
   background-color: var(--purple);
-  color: white;
+  color: var(--white);
   padding: 2rem 0;
   margin-top: auto;
 }
@@ -23,7 +23,7 @@
 }
 
 .link {
-  color: white;
+  color: var(--white);
   text-decoration: none;
   font-size: 0.95rem;
   transition: opacity 0.2s ease;
@@ -40,7 +40,7 @@
   font-size: 0.9rem;
   margin: 0;
   font-family: 'Inter', sans-serif;
-  color: white;
+  color: var(--white);
 }
 
 /* Responsive design */

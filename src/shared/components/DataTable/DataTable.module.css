@@ -1,6 +1,6 @@
 /* Table Container */
 .tableContainer {
-  background: white;
+  background: var(--bg-white);
   border-radius: 0;
   overflow: hidden;
   margin-top: 1rem;
@@ -23,7 +23,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #333;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -63,7 +63,7 @@
   padding: 1rem;
   font-family: 'Inter', sans-serif;
   font-size: 0.9375rem;
-  color: #333;
+  color: var(--text-secondary);
   vertical-align: middle;
 }
 
@@ -84,7 +84,7 @@
 .noData {
   text-align: center;
   padding: 2rem;
-  color: #666;
+  color: var(--text-tertiary);
   font-style: italic;
 }
 

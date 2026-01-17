@@ -4,7 +4,7 @@
 }
 
 .content {
-  background: white;
+  background: var(--bg-white);
   border-radius: 20px;
   padding: 2rem;
 }
@@ -33,7 +33,7 @@
   height: 60px;
   border-radius: 50%;
   background: var(--purple);
-  color: white;
+  color: var(--white);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -60,14 +60,14 @@
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
   font-weight: 600;
-  color: #333;
+  color: var(--text-secondary);
   min-width: 60px;
 }
 
 .fieldValue {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: #000;
+  color: var(--text-primary);
   word-break: break-word;
 }
 
@@ -80,8 +80,8 @@
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
   font-weight: 600;
-  color: #dc2626;
-  background: white;
+  color: var(--red-dark);
+  background: var(--bg-white);
   border: none;
   border-radius: var(--button-border-radius);
   cursor: pointer;
@@ -90,7 +90,7 @@
 }
 
 .logoutButton:hover:not(:disabled) {
-  background: #fee2e2;
+  background: var(--light-red);
 }
 
 .logoutButton:active:not(:disabled) {
@@ -105,7 +105,7 @@
 .logoutIcon {
   width: 18px;
   height: 18px;
-  color: #dc2626;
+  color: var(--red-dark);
 }
 
 /* Responsive design */

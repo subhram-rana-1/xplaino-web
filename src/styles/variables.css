@@ -143,5 +143,147 @@
   --button-border-radius: 10px;
 }
 
+/* ============================================
+   DARK THEME
+   ============================================ */
+[data-theme="dark"] {
+  /* ============================================
+     PRIMARY COLORS - TEAL THEME (DARK MODE)
+     ============================================ */
+  --teal: #14d9c7;
+  --teal-light: #1de9d6;
+  --teal-lighter: #0d3a35;
+  --teal-dark: #10b8a6;
+  
+  /* Legacy purple names (mapped to teal for backward compatibility) */
+  --purple: #14d9c7;
+  --very-light-purple: #0d3a35;
+  --medium-purple: #1de9d6;
+  --darker-purple: #10b8a6;
+
+  /* ============================================
+     GRAY SCALE (DARK MODE)
+     ============================================ */
+  --gray-900: #e8eaed;
+  --gray-800: #c9cdd3;
+  --gray-700: #a8adb7;
+  --gray-600: #8a8f98;
+  --gray-500: #6b7280;
+  --gray-400: #4b5563;
+  --gray-300: #374151;
+  --gray-200: #2d3748;
+  --gray-100: #1f2937;
+  --gray-50: #1a1f2e;
+
+  /* ============================================
+     BASE COLORS (DARK MODE)
+     ============================================ */
+  --white: #0f1419;
+  --black: #e8eaed;
+
+  /* ============================================
+     SEMANTIC COLORS - SUCCESS (GREEN) (DARK MODE)
+     ============================================ */
+  --light-green: #064e3b;
+  --medium-green: #34d399;
+  --green: #10b981;
+  --green-dark: #059669;
+  --green-light-bg: #064e3b;
+  --green-success: #10b981;
+
+  /* ============================================
+     SEMANTIC COLORS - ERROR (RED) (DARK MODE)
+     ============================================ */
+  --light-red: #7f1d1d;
+  --medium-red: #f87171;
+  --red: #ef4444;
+  --red-dark: #dc2626;
+  --red-darker: #b91c1c;
+  --red-error: #ef4444;
+
+  /* ============================================
+     SEMANTIC COLORS - WARNING (YELLOW/AMBER) (DARK MODE)
+     ============================================ */
+  --yellow-light: #78350f;
+  --yellow: #fbbf24;
+  --yellow-dark: #d97706;
+  --yellow-border: #92400e;
+
+  /* ============================================
+     SEMANTIC COLORS - INFO (BLUE) (DARK MODE)
+     ============================================ */
+  --blue-light: #1e3a8a;
+  --blue: #3b82f6;
+  --blue-border: #1e40af;
+  --blue-indigo: #6366f1;
+  --blue-indigo-light: #818cf8;
+
+  /* ============================================
+     TEXT COLORS (DARK MODE)
+     ============================================ */
+  --text-primary: #e8eaed;
+  --text-secondary: #c9cdd3;
+  --text-tertiary: #8a8f98;
+  --text-quaternary: #6b7280;
+  --text-dark: #e8eaed;
+  --text-dark-gray: #c9cdd3;
+  --text-medium: #a8adb7;
+  --text-light: #6b7280;
+
+  /* ============================================
+     BACKGROUND COLORS (DARK MODE)
+     ============================================ */
+  --bg-white: #0f1419;
+  --bg-light: #1a1f2e;
+  --bg-lighter: #242933;
+  --bg-gray: #1f2937;
+  --bg-overlay: rgba(0, 0, 0, 0.7);
+  --bg-overlay-light: rgba(255, 255, 255, 0.05);
+
+  /* ============================================
+     BORDER COLORS (DARK MODE)
+     ============================================ */
+  --border-light: #2d3748;
+  --border-medium: #3a4556;
+  --border-dark: #4b5563;
+  --border-gray: #374151;
+  --border-default: #2d3748;
+
+  /* ============================================
+     SHADOW COLORS (RGBA) (DARK MODE)
+     ============================================ */
+  --teal-rgba-10: rgba(20, 217, 199, 0.1);
+  --teal-rgba-15: rgba(20, 217, 199, 0.15);
+  --teal-rgba-20: rgba(20, 217, 199, 0.2);
+  --teal-rgba-25: rgba(20, 217, 199, 0.25);
+  --teal-rgba-30: rgba(20, 217, 199, 0.3);
+  --teal-rgba-40: rgba(20, 217, 199, 0.4);
+  --teal-rgba-50: rgba(20, 217, 199, 0.5);
+  --teal-rgba-60: rgba(20, 217, 199, 0.6);
+  
+  --shadow-black-10: rgba(0, 0, 0, 0.3);
+  --shadow-black-15: rgba(0, 0, 0, 0.4);
+  --shadow-black-18: rgba(0, 0, 0, 0.45);
+  --shadow-black-20: rgba(0, 0, 0, 0.5);
+  --shadow-black-25: rgba(0, 0, 0, 0.6);
+  --shadow-black-30: rgba(0, 0, 0, 0.7);
+  --shadow-black-50: rgba(0, 0, 0, 0.8);
+
+  --white-rgba-10: rgba(255, 255, 255, 0.05);
+  --white-rgba-20: rgba(255, 255, 255, 0.1);
+  --white-rgba-32: rgba(255, 255, 255, 0.15);
+  --white-rgba-35: rgba(255, 255, 255, 0.18);
+  --white-rgba-40: rgba(255, 255, 255, 0.2);
+  --white-rgba-50: rgba(255, 255, 255, 0.25);
+  --white-rgba-95: rgba(255, 255, 255, 0.05);
+
+  /* ============================================
+     OTHER COLORS (DARK MODE)
+     ============================================ */
+  --purple-alt: #a78bfa;
+  --purple-light-bg: #1e1b4b;
+  --purple-others: #5b21b6;
+  --purple-others-text: #c4b5fd;
+}
 
 

@@ -4,7 +4,7 @@
 }
 
 .content {
-  background: white;
+  background: var(--bg-white);
   border-radius: 20px;
   padding: 2rem;
 }
@@ -16,7 +16,7 @@
   padding: 2rem;
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: #666;
+  color: var(--text-tertiary);
 }
 
 .form {
@@ -43,7 +43,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 400;
-  color: #4A5568;
+  color: var(--gray-700);
   flex-shrink: 0;
   white-space: nowrap;
 }
@@ -57,8 +57,8 @@
   font-family: 'Inter', sans-serif;
   outline: none;
   transition: border-color 0.2s ease;
-  background-color: white;
-  color: #000;
+  background-color: var(--bg-white);
+  color: var(--text-primary);
   cursor: pointer;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239527F5' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
@@ -81,7 +81,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
   font-weight: 600;
-  color: white;
+  color: var(--white);
   background: var(--purple);
   border: none;
   border-radius: var(--button-border-radius);
@@ -103,7 +103,7 @@
 .updateButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  background: #ccc;
+  background: var(--border-dark);
 }
 
 /* Responsive design */

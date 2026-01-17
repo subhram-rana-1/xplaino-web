@@ -1,5 +1,5 @@
 .wrapper {
-  background: white;
+  background: var(--bg-white);
   min-height: calc(100vh - 80px);
 }
 
@@ -15,7 +15,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 1.5rem;
   font-weight: 600;
-  color: #666;
+  color: var(--text-tertiary);
   margin: 2rem 0 1rem 0;
   padding: 0;
   text-align: left;
@@ -35,9 +35,9 @@
   gap: 0.5rem;
   padding: 0.5rem 1rem;
   background: var(--teal-lighter);
-  border: 1px solid #e0d0ff;
+  border: 1px solid var(--border-light);
   border-radius: 6px;
-  color: #6b21a8;
+  color: var(--purple-others-text);
   font-family: 'Inter', sans-serif;
   font-size: 0.9375rem;
   font-weight: 500;
@@ -46,9 +46,9 @@
 }
 
 .backButton:hover {
-  background: #ede9fe;
-  border-color: #c4b5fd;
-  color: #5b21b6;
+  background: var(--purple-light-bg);
+  border-color: var(--purple-others);
+  color: var(--purple-alt);
 }
 
 .backButton svg {
@@ -59,7 +59,7 @@
 .pageInfo {
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
-  color: #666;
+  color: var(--text-tertiary);
 }
 
 .content {
@@ -78,12 +78,12 @@
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #666;
+  color: var(--text-tertiary);
   padding: 0.5rem 0;
 }
 
 .pageContainer {
-  background: white;
+  background: var(--bg-white);
   border: none;
   border-radius: 0;
   padding: 1rem;
@@ -95,13 +95,13 @@
 .pageContainer :global(body) {
   margin: 0;
   padding: 0;
-  background-color: #f5f5f5;
+  background-color: var(--bg-light);
 }
 
 .pageContainer :global(.page-container) {
   max-width: 100%;
   margin: 0 auto;
-  background-color: white;
+  background-color: var(--bg-white);
   box-shadow: none;
   border: none;
 }
@@ -124,7 +124,7 @@
   min-height: 400px;
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: #666;
+  color: var(--text-tertiary);
 }
 
 .emptyState {
@@ -136,14 +136,14 @@
   font-family: 'Inter', sans-serif;
   font-size: 1.5rem;
   font-weight: 600;
-  color: #333;
+  color: var(--text-secondary);
   margin: 0 0 1rem 0;
 }
 
 .emptyMessage {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: #666;
+  color: var(--text-tertiary);
   margin: 0;
 }
 
@@ -158,7 +158,7 @@
 .loadingMore {
   font-family: 'Inter', sans-serif;
   font-size: 0.9375rem;
-  color: #666;
+  color: var(--text-tertiary);
 }
 
 /* Responsive adjustments */

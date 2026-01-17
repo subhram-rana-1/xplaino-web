@@ -31,6 +31,7 @@ import { DomainEdit } from '@/pages/Admin/components/AdminDomains';
 import { CouponEdit } from '@/pages/Admin/components/AdminCoupons';
 import { authConfig } from '@/config/auth.config';
 import { AuthProvider } from '@/shared/hooks/AuthContext';
+import { ThemeProvider } from '@/shared/hooks/ThemeContext';
 import { ProtectedRoute } from '@/shared/components/ProtectedRoute';
 import { AdminProtectedRoute } from '@/shared/components/AdminProtectedRoute';
 import { UserProtectedRoute } from '@/shared/components/UserProtectedRoute';
@@ -273,7 +274,9 @@ export const App: React.FC = () => {
     <GoogleOAuthProvider clientId={authConfig.googleClientId}>
       <BrowserRouter>
         <AuthProvider>
-          <AppContent showMiniCoupon={showMiniCoupon} setShowMiniCoupon={setShowMiniCoupon} />
+          <ThemeProvider>
+            <AppContent showMiniCoupon={showMiniCoupon} setShowMiniCoupon={setShowMiniCoupon} />
+          </ThemeProvider>
         </AuthProvider>
       </BrowserRouter>
     </GoogleOAuthProvider>

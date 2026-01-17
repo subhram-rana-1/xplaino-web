@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FiRefreshCw, FiLayers, FiSun, FiMoon } from 'react-icons/fi';
 import styles from './SettingsTab.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
+import { useTheme } from '@/shared/hooks/useTheme';
 import { getUserSettings, updateUserSettings, getAllLanguages } from '@/shared/services/user-settings.service';
 import { PageTranslationView, Theme, NativeLanguage } from '@/shared/types/user-settings.types';
 import { Toast } from '@/shared/components/Toast';
@@ -15,6 +16,7 @@ import { IconTabGroup } from '@/shared/components/IconTabGroup';
  */
 export const SettingsTab: React.FC = () => {
   const { accessToken } = useAuth();
+  const { theme: globalTheme, setTheme: setGlobalTheme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -62,6 +64,7 @@ export const SettingsTab: React.FC = () => {
         setNativeLanguage(nativeLang);
         setPageTranslationView(pageView);
         setTheme(themeValue);
+        setGlobalTheme(themeValue);
         
         // Store original values
         setOriginalSettings({
@@ -193,7 +196,12 @@ export const SettingsTab: React.FC = () => {
                   { id: Theme.DARK, icon: FiMoon, label: 'Dark' },
                 ]}
                 activeTabId={theme}
-                onTabChange={(tabId) => setTheme(tabId as Theme)}
+                onTabChange={(tabId) => {
+                  const newTheme = tabId as Theme;
+                  setTheme(newTheme);
+                  // Immediately apply theme change
+                  setGlobalTheme(newTheme);
+                }}
                 iconSize={16}
                 tabSize={32}
               />
