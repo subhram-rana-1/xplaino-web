@@ -1,5 +1,5 @@
 import React from 'react';
-import chromeLogo from '../../../assets/svg/chrome-logo.svg';
+import chromeIcon from '../../../assets/images/google-chrome-icon.png';
 import styles from './ChromeButton.module.css';
 
 /**
@@ -18,7 +18,7 @@ export const ChromeButton: React.FC = () => {
 
   return (
     <button className={styles.chromeButton} onClick={handleButtonClick}>
-      <img src={chromeLogo} alt="Chrome Logo" className={styles.chromeLogo} />
+      <img src={chromeIcon} alt="Chrome Logo" className={styles.chromeLogo} />
       <span className={styles.buttonText}>Install Chrome Extension</span>
     </button>
   );

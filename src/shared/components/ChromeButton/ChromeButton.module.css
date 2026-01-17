@@ -5,7 +5,7 @@
   padding: 0.875rem 1.5rem;
   padding-left: 0.875rem;
   background-color: var(--purple);
-  color: white;
+  color: var(--white);
   border: none;
   border-radius: 9999px;
   font-size: 1rem;
