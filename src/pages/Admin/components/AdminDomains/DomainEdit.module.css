@@ -166,11 +166,16 @@
   text-align: left;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
+  border-bottom: 1px solid var(--very-light-purple);
 }
 
 .dropdownOption:hover {
   background-color: var(--button-hover-bg);
   color: var(--purple);
+}
+
+.dropdownOption:last-child {
+  border-bottom: none;
 }
 
 .dropdownOptionSelected {
