@@ -173,15 +173,15 @@
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  border: none;
-  background: #f5f5f5;
+  border: 2px solid var(--border-dark);
+  background: var(--bg-white);
   cursor: pointer;
   text-align: left;
   border-radius: 9999px; /* Pill shape */
   transition: all 0.2s ease;
   font-family: 'Inter', sans-serif;
   font-size: 13px;
-  color: var(--text-medium);
+  color: var(--text-secondary);
   width: auto;
   white-space: nowrap;
 }
@@ -189,6 +189,7 @@
 .promptButton:hover {
   background: var(--button-hover-bg);
   color: var(--teal);
+  border-color: var(--teal);
 }
 
 /* User Input Bar */

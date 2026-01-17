@@ -373,6 +373,31 @@
   height: 18px;
   cursor: pointer;
   accent-color: var(--teal);
+  border: 2px solid var(--border-dark);
+  border-radius: 3px;
+  background-color: var(--bg-white);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  position: relative;
+}
+
+.selectAllCheckbox:checked,
+.rowCheckbox:checked {
+  background-color: var(--teal);
+  border-color: var(--teal);
+}
+
+.selectAllCheckbox:checked::after,
+.rowCheckbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: bold;
 }
 
 .selectAllCheckbox {
@@ -386,12 +411,14 @@
 .selectAllCheckbox:hover,
 .rowCheckbox:hover {
   opacity: 0.8;
+  border-color: var(--teal);
 }
 
 .selectAllCheckbox:disabled,
 .rowCheckbox:disabled {
   cursor: not-allowed;
   opacity: 0.5;
+  background-color: var(--bg-light);
 }
 
 /* Select Paragraph Message */

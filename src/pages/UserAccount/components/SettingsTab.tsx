@@ -119,6 +119,9 @@ export const SettingsTab: React.FC = () => {
         theme,
       });
 
+      // Apply theme change after successful update
+      setGlobalTheme(theme);
+
       // Update original settings after successful update
       setOriginalSettings({
         nativeLanguage,
@@ -199,8 +202,7 @@ export const SettingsTab: React.FC = () => {
                 onTabChange={(tabId) => {
                   const newTheme = tabId as Theme;
                   setTheme(newTheme);
-                  // Immediately apply theme change
-                  setGlobalTheme(newTheme);
+                  // Theme will be applied when Update Settings button is clicked
                 }}
                 iconSize={16}
                 tabSize={32}
