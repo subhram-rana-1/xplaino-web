@@ -29,7 +29,7 @@
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 8px 24px var(--shadow-black-20);
+  border: 2px solid var(--border-medium);
   animation: scaleIn 0.2s ease-out;
 }
 
@@ -112,7 +112,7 @@
 .input:focus,
 .textarea:focus {
   outline: none;
-  border-color: var(--purple);
+  border-color: var(--teal);
 }
 
 .inputError,
@@ -140,11 +140,11 @@
 }
 
 .dropdownButton:hover {
-  border-color: var(--purple);
+  border-color: var(--teal);
 }
 
 .dropdownButtonOpen {
-  border-color: var(--purple);
+  border-color: var(--teal);
 }
 
 .dropdownList {
@@ -156,7 +156,6 @@
   background: white;
   border: 2px solid #ddd;
   border-radius: var(--button-border-radius);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 100;
   overflow: hidden;
 }
@@ -174,12 +173,12 @@
   text-align: left;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
-  border-bottom: 1px solid var(--very-light-purple);
+  border-bottom: 1px solid var(--teal-lighter);
 }
 
 .dropdownOption:hover {
   background-color: var(--button-hover-bg);
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .dropdownOption:last-child {
@@ -187,12 +186,12 @@
 }
 
 .dropdownOptionSelected {
-  background-color: var(--purple);
+  background-color: var(--teal);
   color: white;
 }
 
 .dropdownOptionSelected:hover {
-  background-color: var(--darker-purple);
+  background-color: var(--teal-dark);
   color: white;
 }
 
@@ -248,14 +247,14 @@
 }
 
 .submitButton {
-  background: var(--purple);
+  background: var(--teal);
   color: white;
-  border-color: var(--purple);
+  border-color: var(--teal);
 }
 
 .submitButton:hover {
-  background: var(--darker-purple);
-  border-color: var(--darker-purple);
+  background: var(--teal-dark);
+  border-color: var(--teal-dark);
 }
 
 .submitButton:disabled {

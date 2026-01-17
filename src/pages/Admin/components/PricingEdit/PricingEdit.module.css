@@ -25,7 +25,7 @@
 }
 
 .backButton:hover {
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .title {
@@ -102,7 +102,7 @@
 
 .input:focus {
   outline: none;
-  border-color: var(--purple);
+  border-color: var(--teal);
 }
 
 .dateTimeInputs {
@@ -136,11 +136,11 @@
 }
 
 .dropdownButton:hover {
-  border-color: var(--purple);
+  border-color: var(--teal);
 }
 
 .dropdownButtonOpen {
-  border-color: var(--purple);
+  border-color: var(--teal);
 }
 
 .dropdownList {
@@ -170,12 +170,12 @@
   text-align: left;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
-  border-bottom: 1px solid var(--very-light-purple);
+  border-bottom: 1px solid var(--teal-lighter);
 }
 
 .dropdownOption:hover {
   background-color: var(--button-hover-bg);
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .dropdownOption:last-child {
@@ -183,12 +183,12 @@
 }
 
 .dropdownOptionSelected {
-  background-color: var(--purple);
+  background-color: var(--teal);
   color: white;
 }
 
 .dropdownOptionSelected:hover {
-  background-color: var(--darker-purple);
+  background-color: var(--teal-dark);
   color: white;
 }
 
@@ -256,8 +256,8 @@
   font-size: 1rem;
   font-weight: 600;
   color: white;
-  background: var(--purple);
-  border: 2px solid var(--purple);
+  background: var(--teal);
+  border: 2px solid var(--teal);
   border-radius: var(--button-border-radius);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -266,8 +266,8 @@
 .editButton:hover,
 .updateButton:hover {
   background: var(--button-hover-bg);
-  border-color: var(--purple);
-  color: var(--purple);
+  border-color: var(--teal);
+  color: var(--teal);
 }
 
 .updateButton:disabled {
@@ -290,8 +290,8 @@
 
 .cancelButton:hover {
   background: var(--button-hover-bg);
-  border-color: var(--purple);
-  color: var(--purple);
+  border-color: var(--teal);
+  color: var(--teal);
 }
 
 .cancelButton:disabled {

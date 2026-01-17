@@ -37,7 +37,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--purple);
+  color: var(--teal);
   padding: 0.5rem 1rem;
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
@@ -115,7 +115,7 @@
 .tabs {
   display: flex;
   width: 100%;
-  border-bottom: 2px solid var(--very-light-purple);
+  border-bottom: 2px solid var(--teal-lighter);
   gap: 0;
 }
 
@@ -148,12 +148,12 @@
 }
 
 .tab:hover {
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .tabActive {
-  color: var(--purple);
-  border-bottom-color: var(--purple);
+  color: var(--teal);
+  border-bottom-color: var(--teal);
 }
 
 .refreshButton {
@@ -246,7 +246,7 @@
 /* Base table styles are now in DataTable.module.css */
 
 .urlLink {
-  color: var(--purple);
+  color: var(--teal);
   text-decoration: none;
   word-break: break-all;
   transition: color 0.2s ease;
@@ -286,7 +286,7 @@
 }
 
 .typeIcon {
-  color: var(--purple);
+  color: var(--teal);
   flex-shrink: 0;
 }
 
@@ -321,7 +321,7 @@
 }
 
 .contentCellClickable:hover {
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .urlCellWithCopy {
@@ -511,7 +511,7 @@
 
 .eyeToggleButtonHeader:hover {
   background: var(--button-hover-bg);
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .eyeToggleButtonHeader svg {
@@ -556,7 +556,7 @@
 
 .copyButton:hover {
   background: var(--button-hover-bg);
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .copyButton svg {
@@ -577,7 +577,7 @@
   flex-direction: column;
   background: white;
   border-radius: 12px;
-  border: 1px solid var(--very-light-purple);
+  border: 1px solid var(--teal-lighter);
   overflow: hidden;
   transition: box-shadow 0.2s ease;
 }
@@ -613,7 +613,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--purple);
+  color: var(--teal);
   text-decoration: none;
   transition: all 0.2s ease;
   z-index: 10;
@@ -655,7 +655,7 @@
 .imageCardInfoIcon .infoIcon {
   width: 18px;
   height: 18px;
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .imageCardName {
@@ -665,7 +665,7 @@
   color: var(--text-secondary);
   text-align: center;
   word-wrap: break-word;
-  border-top: 1px solid var(--very-light-purple);
+  border-top: 1px solid var(--teal-lighter);
 }
 
 .imageCardActions {
@@ -683,7 +683,7 @@
 }
 
 .iconLink {
-  color: var(--purple);
+  color: var(--teal);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -748,7 +748,7 @@
 .infoIcon {
   width: 20px;
   height: 20px;
-  color: var(--purple);
+  color: var(--teal);
   border: none;
   border-radius: 50%;
   padding: 0;
@@ -890,7 +890,7 @@
   justify-content: space-between;
   padding: 1rem 1.5rem;
   background: white;
-  border-bottom: 1px solid var(--very-light-purple);
+  border-bottom: 1px solid var(--teal-lighter);
 }
 
 .imageModalTitle {
@@ -911,7 +911,7 @@
 }
 
 .imageModalSource {
-  color: var(--purple);
+  color: var(--teal);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -950,7 +950,7 @@
 .imageModalInfoIcon .infoIcon {
   width: 18px;
   height: 18px;
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .imageModalClose {
@@ -969,7 +969,7 @@
 
 .imageModalClose:hover {
   background: var(--button-hover-bg);
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .imageModalClose svg {
@@ -1027,7 +1027,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 1.5rem 1rem;
-  background: var(--very-light-purple);
+  background: var(--teal-lighter);
   border: 2px solid transparent;
   border-radius: 20px;
   cursor: pointer;
@@ -1035,13 +1035,13 @@
 }
 
 .folderCard:hover {
-  border-color: var(--purple);
+  border-color: var(--teal);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px var(--teal-rgba-15);
 }
 
 .folderCard svg {
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .folderCardName {
@@ -1062,7 +1062,7 @@
 .paragraphItem {
   padding: 1.5rem;
   background: white;
-  border: 1px solid var(--very-light-purple);
+  border: 1px solid var(--teal-lighter);
   border-radius: 15px;
   transition: all 0.2s ease;
 }
@@ -1079,7 +1079,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--purple);
+  color: var(--teal);
   margin: 0;
 }
 
@@ -1097,7 +1097,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--purple);
+  color: var(--teal);
   text-decoration: none;
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
@@ -1206,7 +1206,7 @@
   justify-content: space-between;
   padding: 1rem 1.5rem;
   background: white;
-  border-bottom: 1px solid var(--very-light-purple);
+  border-bottom: 1px solid var(--teal-lighter);
   flex-shrink: 0;
 }
 
@@ -1228,7 +1228,7 @@
 }
 
 .paragraphModalSource {
-  color: var(--purple);
+  color: var(--teal);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -1265,7 +1265,7 @@
 
 .paragraphModalCopy:hover {
   background: var(--button-hover-bg);
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .paragraphModalCopy svg {
@@ -1289,7 +1289,7 @@
 
 .paragraphModalClose:hover {
   background: var(--button-hover-bg);
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .paragraphModalClose svg {
@@ -1505,7 +1505,7 @@
   justify-content: space-between;
   padding: 1rem 1.5rem;
   background: white;
-  border-bottom: 1px solid var(--very-light-purple);
+  border-bottom: 1px solid var(--teal-lighter);
   flex-shrink: 0;
   position: relative;
 }
@@ -1540,7 +1540,7 @@
 }
 
 .summaryModalUrl {
-  color: var(--purple);
+  color: var(--teal);
   text-decoration: none;
   font-family: 'Inter', sans-serif;
   font-size: 0.9375rem;
@@ -1571,7 +1571,7 @@
 
 .summaryModalClose:hover {
   background: var(--button-hover-bg);
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .summaryModalClose svg {
@@ -1642,7 +1642,7 @@
   border-radius: 4px;
   font-family: 'Courier New', monospace;
   font-size: 0.875rem;
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .summaryModalText pre {
@@ -1660,7 +1660,7 @@
 }
 
 .summaryModalText a {
-  color: var(--purple);
+  color: var(--teal);
   text-decoration: none;
 }
 
@@ -1669,7 +1669,7 @@
 }
 
 .summaryModalText blockquote {
-  border-left: 4px solid var(--purple);
+  border-left: 4px solid var(--teal);
   padding-left: 1rem;
   margin-left: 0;
   margin-bottom: 1rem;
@@ -1753,7 +1753,7 @@
 
 .addLinkModalClose:hover {
   background: var(--button-hover-bg);
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .addLinkModalClose svg {
@@ -1789,7 +1789,7 @@
 .addLinkInput {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid var(--very-light-purple);
+  border: 1px solid var(--teal-lighter);
   border-radius: 8px;
   font-family: 'Inter', sans-serif;
   font-size: 0.9375rem;
@@ -1800,7 +1800,7 @@
 
 .addLinkInput:focus {
   outline: none;
-  border-color: var(--purple);
+  border-color: var(--teal);
 }
 
 .addLinkInput::placeholder {
@@ -1817,7 +1817,7 @@
 
 .addLinkCancelButton {
   background: white;
-  border: 1px solid var(--very-light-purple);
+  border: 1px solid var(--teal-lighter);
   color: var(--text-tertiary);
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
@@ -1830,12 +1830,12 @@
 
 .addLinkCancelButton:hover {
   background: var(--button-hover-bg);
-  border-color: var(--purple);
-  color: var(--purple);
+  border-color: var(--teal);
+  color: var(--teal);
 }
 
 .addLinkSaveButton {
-  background: var(--purple);
+  background: var(--teal);
   border: none;
   color: white;
   padding: 0.75rem 1.5rem;

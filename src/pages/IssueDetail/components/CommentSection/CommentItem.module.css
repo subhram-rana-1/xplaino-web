@@ -5,7 +5,7 @@
 .commentItem.reply {
   margin-left: 2.5rem;
   padding-left: 1rem;
-  border-left: 2px solid var(--very-light-purple);
+  border-left: 2px solid var(--teal-lighter);
   margin-bottom: 0.75rem;
 }
 

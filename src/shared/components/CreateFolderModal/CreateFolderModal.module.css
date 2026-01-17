@@ -22,7 +22,7 @@
   border-radius: 30px;
   width: 100%;
   max-width: 500px;
-  box-shadow: 0 4px 20px var(--shadow-black-15);
+  border: 2px solid var(--border-medium);
   animation: modalSlideIn 0.3s ease-out;
 }
 
@@ -127,6 +127,8 @@
   padding: 0.875rem 3rem 0.875rem 1rem;
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
+  background: var(--bg-white);
+  color: var(--text-secondary);
   border: 1px solid var(--border-medium);
   border-radius: 12px;
   transition: border-color 0.2s;
@@ -135,7 +137,7 @@
 
 .input:focus {
   outline: none;
-  border-color: var(--purple);
+  border-color: var(--teal);
 }
 
 .input:disabled {
@@ -152,8 +154,8 @@
   width: 36px;
   height: 36px;
   border: none;
-  background: var(--purple);
-  color: var(--white);
+  background: var(--teal);
+  color: #ffffff;
   cursor: pointer;
   border-radius: 8px;
   transition: all 0.2s;
@@ -162,7 +164,13 @@
 
 .submitButton:hover:not(:disabled) {
   background: var(--button-hover-bg);
-  color: var(--purple);
+  color: var(--teal);
+  transform: translateX(2px);
+}
+
+.submitButton:active:not(:disabled) {
+  background: var(--teal);
+  color: #ffffff;
   transform: translateX(2px);
 }
 

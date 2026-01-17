@@ -51,7 +51,7 @@
 .select {
   width: 100%;
   padding: 1rem;
-  border: 1px solid var(--very-light-purple);
+  border: 1px solid var(--teal-lighter);
   border-radius: 20px;
   font-size: 1rem;
   font-family: 'Inter', sans-serif;
@@ -68,11 +68,11 @@
 }
 
 .select:focus {
-  border-color: var(--medium-purple);
+  border-color: var(--teal-light);
 }
 
 .select:hover {
-  border-color: var(--medium-purple);
+  border-color: var(--teal-light);
 }
 
 
@@ -82,7 +82,7 @@
   font-size: 1rem;
   font-weight: 600;
   color: var(--white);
-  background: var(--purple);
+  background: var(--teal);
   border: none;
   border-radius: var(--button-border-radius);
   cursor: pointer;
@@ -93,7 +93,7 @@
 }
 
 .updateButton:hover:not(:disabled) {
-  background: var(--darker-purple);
+  background: var(--teal-dark);
 }
 
 .updateButton:active:not(:disabled) {

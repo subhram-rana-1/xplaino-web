@@ -113,15 +113,15 @@
 }
 
 .buttonPrimary {
-  background-color: var(--purple);
+  background-color: var(--teal);
   color: white;
-  border-color: var(--purple);
+  border-color: var(--teal);
 }
 
 .buttonPrimary:hover {
   background-color: var(--button-hover-bg);
-  border-color: var(--purple);
-  color: var(--purple);
+  border-color: var(--teal);
+  color: var(--teal);
 }
 
 .buttonSecondary {
@@ -132,8 +132,8 @@
 
 .buttonSecondary:hover {
   background-color: var(--button-hover-bg);
-  border-color: var(--purple);
-  color: var(--purple);
+  border-color: var(--teal);
+  color: var(--teal);
 }
 
 .buttonPrimary:active,

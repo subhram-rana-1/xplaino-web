@@ -1,5 +1,5 @@
 .commentSection {
-  background: white;
+  background: var(--bg-white);
   border-radius: 0;
   padding: 1.5rem;
   margin-top: 2rem;
@@ -16,12 +16,12 @@
   font-family: 'Inter', sans-serif;
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--purple);
+  color: var(--teal);
   margin: 0;
 }
 
 .addCommentButton {
-  background: var(--purple);
+  background: var(--teal);
   color: white;
   border: none;
   border-radius: 8px;
@@ -34,7 +34,7 @@
 }
 
 .addCommentButton:hover {
-  background: #7c3aed;
+  background: var(--teal-dark);
   transform: translateY(-1px);
 }
 
@@ -72,7 +72,7 @@
 .emptyText {
   font-family: 'Inter', sans-serif;
   font-size: 0.9375rem;
-  color: #999;
+  color: var(--text-tertiary);
   margin: 0;
 }
 

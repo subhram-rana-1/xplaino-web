@@ -26,7 +26,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 2rem;
   font-weight: 500;
-  color: var(--purple);
+  color: var(--teal);
   margin: 0;
 }
 
@@ -160,7 +160,7 @@
   font-size: 1rem;
   font-weight: 600;
   color: #ffffff;
-  background: var(--purple);
+  background: var(--teal);
   border: none;
   border-radius: var(--button-border-radius);
   cursor: pointer;
@@ -170,7 +170,7 @@
 }
 
 .reportButtonEmpty:hover {
-  background: var(--darker-purple);
+  background: var(--teal-dark);
 }
 
 .reportButtonEmpty:active {
@@ -210,7 +210,7 @@
 .tabs {
   display: flex;
   width: 100%;
-  border-bottom: 2px solid var(--very-light-purple);
+  border-bottom: 2px solid var(--teal-lighter);
   gap: 0;
   margin-bottom: 2rem;
 }
@@ -236,12 +236,12 @@
 }
 
 .tab:hover {
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .tabActive {
-  color: var(--purple);
-  border-bottom-color: var(--purple);
+  color: var(--teal);
+  border-bottom-color: var(--teal);
 }
 
 /* Issue Card */
@@ -284,7 +284,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .copyButtonWrapper {
@@ -297,7 +297,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--purple);
+  color: var(--teal);
   padding: 0.5rem;
   display: flex;
   align-items: center;
@@ -311,7 +311,7 @@
 }
 
 .copyButton:active {
-  background: var(--purple-others);
+  background: var(--teal-lighter);
 }
 
 .copyButton svg {
@@ -392,7 +392,7 @@
 
 .issueType {
   font-weight: 500;
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .issueDate {
@@ -428,7 +428,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
   padding-top: 0.75rem;
-  border-top: 1px solid var(--very-light-purple);
+  border-top: 1px solid var(--teal-lighter);
   margin-top: 0.5rem;
 }
 
@@ -438,7 +438,7 @@
 }
 
 .urlLink {
-  color: var(--purple);
+  color: var(--teal);
   text-decoration: none;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -457,7 +457,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
   padding-top: 0.75rem;
-  border-top: 1px solid var(--very-light-purple);
+  border-top: 1px solid var(--teal-lighter);
   margin-top: 0.5rem;
 }
 
@@ -478,11 +478,11 @@
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  color: var(--purple);
+  color: var(--teal);
   text-decoration: none;
   padding: 0.25rem 0.5rem;
   background-color: var(--button-hover-bg);
-  border: 1px solid var(--very-light-purple);
+  border: 1px solid var(--teal-lighter);
   border-radius: 8px;
   transition: background-color 0.2s ease;
   max-width: 200px;

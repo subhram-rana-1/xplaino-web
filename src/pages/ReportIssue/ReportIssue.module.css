@@ -88,7 +88,7 @@
 .input {
   width: 100%;
   padding: 1rem;
-  border: 1px solid var(--very-light-purple);
+  border: 1px solid var(--teal-lighter);
   border-radius: 20px;
   font-size: 1rem;
   font-family: 'Inter', sans-serif;
@@ -115,7 +115,7 @@
 .dropdownButton {
   width: 100%;
   padding: 1rem;
-  border: 1px solid var(--purple);
+  border: 1px solid var(--teal);
   border-radius: 20px;
   font-size: 1rem;
   font-family: 'Inter', sans-serif;
@@ -130,16 +130,16 @@
 }
 
 .dropdownButton:hover {
-  border-color: var(--darker-purple);
+  border-color: var(--teal-dark);
 }
 
 .dropdownButton:active {
-  border-color: var(--darker-purple);
+  border-color: var(--teal-dark);
   transform: scale(0.98);
 }
 
 .dropdownButtonOpen {
-  border-color: var(--purple);
+  border-color: var(--teal);
 }
 
 .dropdownButtonText {
@@ -153,7 +153,7 @@
   left: 0;
   right: 0;
   background-color: var(--bg-white);
-  border: 1px solid var(--very-light-purple);
+  border: 1px solid var(--teal-lighter);
   border-radius: 20px;
   overflow: hidden;
   z-index: 1000;
@@ -174,7 +174,7 @@
   cursor: pointer;
   transition: background-color 0.2s ease;
   display: block;
-  border-bottom: 1px solid var(--very-light-purple);
+  border-bottom: 1px solid var(--teal-lighter);
 }
 
 .dropdownOption:hover {
@@ -199,12 +199,12 @@
 
 .select:focus,
 .input:focus {
-  border-color: var(--medium-purple);
+  border-color: var(--teal-light);
 }
 
 .select:hover,
 .input:hover {
-  border-color: var(--medium-purple);
+  border-color: var(--teal-light);
 }
 
 .input::placeholder {
@@ -235,7 +235,7 @@
 .textarea {
   width: 100%;
   padding: 1rem;
-  border: 1px solid var(--very-light-purple);
+  border: 1px solid var(--teal-lighter);
   border-radius: 20px;
   font-size: 1rem;
   font-family: 'Inter', sans-serif;
@@ -248,7 +248,7 @@
 }
 
 .textarea:focus {
-  border-color: var(--medium-purple);
+  border-color: var(--teal-light);
 }
 
 .textarea::placeholder {
@@ -276,7 +276,7 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 2rem 1rem;
-  border: 2px dashed var(--very-light-purple);
+  border: 2px dashed var(--teal-lighter);
   border-radius: 20px;
   background-color: var(--bg-lighter);
   cursor: pointer;
@@ -285,7 +285,7 @@
 }
 
 .fileInputLabel:hover {
-  border-color: var(--medium-purple);
+  border-color: var(--teal-light);
   background-color: var(--button-hover-bg);
 }
 
@@ -296,14 +296,14 @@
 }
 
 .fileInputLabelDisabled:hover {
-  border-color: var(--very-light-purple);
+  border-color: var(--teal-lighter);
   background-color: var(--bg-gray);
 }
 
 .fileInputText {
   font-size: 1rem;
   font-weight: 500;
-  color: var(--purple);
+  color: var(--teal);
   font-family: 'Inter', sans-serif;
 }
 
@@ -327,7 +327,7 @@
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
   background-color: var(--button-hover-bg);
-  border: 1px solid var(--very-light-purple);
+  border: 1px solid var(--teal-lighter);
   border-radius: 12px;
   transition: background-color 0.2s ease;
 }
@@ -383,7 +383,7 @@
 
 .submitButton {
   padding: 0.875rem 2rem;
-  background-color: var(--purple);
+  background-color: var(--teal);
   color: #ffffff;
   border: none;
   border-radius: var(--button-border-radius);
@@ -397,11 +397,11 @@
 }
 
 .submitButton:hover {
-  background-color: var(--darker-purple);
+  background-color: var(--teal-dark);
 }
 
 .submitButton:active {
-  background-color: var(--darker-purple);
+  background-color: var(--teal-dark);
   transform: scale(0.98);
 }
 
@@ -440,7 +440,7 @@
 
 .reportAnotherButton {
   padding: 0.875rem 2rem;
-  background-color: var(--purple);
+  background-color: var(--teal);
   color: #ffffff;
   border: none;
   border-radius: var(--button-border-radius);
@@ -453,11 +453,11 @@
 }
 
 .reportAnotherButton:hover {
-  background-color: var(--darker-purple);
+  background-color: var(--teal-dark);
 }
 
 .reportAnotherButton:active {
-  background-color: var(--darker-purple);
+  background-color: var(--teal-dark);
   transform: scale(0.98);
 }
 

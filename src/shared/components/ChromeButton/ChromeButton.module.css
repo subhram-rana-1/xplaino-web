@@ -4,7 +4,7 @@
   position: relative;
   padding: 0.875rem 1.5rem;
   padding-left: 0.875rem;
-  background-color: var(--purple);
+  background-color: var(--teal);
   color: var(--white);
   border: none;
   border-radius: 9999px;
@@ -19,12 +19,12 @@
 }
 
 .chromeButton:hover {
-  background-color: var(--darker-purple);
+  background-color: var(--teal-dark);
   animation: none;
 }
 
 .chromeButton:active {
-  background-color: var(--darker-purple);
+  background-color: var(--teal-dark);
   transform: scale(0.98);
 }
 

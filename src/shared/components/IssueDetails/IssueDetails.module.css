@@ -14,7 +14,7 @@
   background: var(--bg-white);
   border-radius: 0;
   padding: 1.5rem;
-  border-bottom: 1px solid var(--very-light-purple);
+  border-bottom: 1px solid var(--teal-lighter);
 }
 
 .ticketIdRow {
@@ -124,7 +124,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   background: none;
   border: none;
   text-align: left;
@@ -137,8 +137,8 @@
 }
 
 .statusOptionSelected {
-  background-color: var(--very-light-purple);
-  color: var(--purple);
+  background-color: var(--teal-lighter);
+  color: var(--teal);
 }
 
 .details {
@@ -157,7 +157,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #666;
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -165,21 +165,21 @@
 .value {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: #333;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
 .ticketIdLabel {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: var(--purple);
+  color: var(--teal);
   font-weight: 700;
 }
 
 .ticketIdValue {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: #333;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
@@ -200,7 +200,7 @@
 .issueTypeLabel {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: var(--purple);
+  color: var(--teal);
   font-weight: 700;
 }
 
@@ -214,14 +214,14 @@
 .raisedOnLabel {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: var(--purple);
+  color: var(--teal);
   font-weight: 700;
 }
 
 .raisedOnValue {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: #333;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
@@ -233,7 +233,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 1.5rem;
   font-weight: 400;
-  color: #333;
+  color: var(--text-primary);
   margin: 0;
   line-height: 1.4;
 }
@@ -247,7 +247,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--purple);
+  color: var(--teal);
   padding: 0.5rem;
   display: flex;
   align-items: center;
@@ -293,7 +293,7 @@
 .descriptionText {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: #333;
+  color: var(--text-primary);
   line-height: 1.6;
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -303,7 +303,7 @@
 .urlValue {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: var(--purple);
+  color: var(--teal);
   text-decoration: none;
   word-break: break-all;
 }
@@ -339,7 +339,7 @@
   height: auto;
   object-fit: contain;
   border-radius: 8px;
-  border: 1px solid var(--very-light-purple);
+  border: 1px solid var(--teal-lighter);
   background: #fafafa;
 }
 
@@ -347,11 +347,11 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--purple);
+  color: var(--teal);
   text-decoration: none;
   padding: 0.5rem 0.75rem;
   background-color: var(--button-hover-bg);
-  border: 1px solid var(--very-light-purple);
+  border: 1px solid var(--teal-lighter);
   border-radius: 8px;
   transition: background-color 0.2s ease;
   font-family: 'Inter', sans-serif;
@@ -414,8 +414,8 @@
 }
 
 .issueTypeOTHERS {
-  background: #e9d5ff;
-  color: #6b21a8;
+  background: var(--blue-light);
+  color: var(--blue);
 }
 
 .loading {
@@ -423,7 +423,7 @@
   padding: 4rem 2rem;
   font-family: 'Inter', sans-serif;
   font-size: 1.125rem;
-  color: #666;
+  color: var(--text-tertiary);
 }
 
 /* Update Button Section - Admin only */
@@ -440,8 +440,8 @@
   font-size: 1rem;
   font-weight: 600;
   color: white;
-  background: var(--purple);
-  border: 2px solid var(--purple);
+  background: var(--teal);
+  border: 2px solid var(--teal);
   border-radius: var(--button-border-radius);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -451,8 +451,8 @@
 }
 
 .updateButton:hover:not(:disabled) {
-  background: var(--darker-purple);
-  border-color: var(--darker-purple);
+  background: var(--teal-dark);
+  border-color: var(--teal-dark);
 }
 
 .updateButton:active:not(:disabled) {

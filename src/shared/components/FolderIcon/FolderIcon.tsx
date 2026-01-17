@@ -7,7 +7,7 @@ interface FolderIconProps {
 }
 
 /**
- * FolderIcon - Reusable purple-filled folder icon component
+ * FolderIcon - Reusable teal-filled folder icon component
  * 
  * @param className - Additional CSS classes
  * @param size - Icon size in pixels

@@ -24,12 +24,12 @@
 }
 
 .tab:hover {
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .tabActive {
-  color: var(--purple);
-  border-bottom-color: var(--purple);
+  color: var(--teal);
+  border-bottom-color: var(--teal);
 }
 
 .header {
@@ -64,7 +64,7 @@
 
 .filterInput:focus {
   outline: none;
-  border-color: var(--purple);
+  border-color: var(--teal);
 }
 
 .filterInput::placeholder {
@@ -96,7 +96,7 @@
 }
 
 .filterButton:hover {
-  border-color: var(--purple);
+  border-color: var(--teal);
   background-color: var(--button-hover-bg);
 }
 
@@ -130,17 +130,17 @@
 }
 
 .filterOption:hover {
-  background-color: var(--very-light-purple);
-  color: var(--purple);
+  background-color: var(--teal-lighter);
+  color: var(--teal);
 }
 
 .filterOptionSelected {
-  background-color: var(--purple);
+  background-color: var(--teal);
   color: white;
 }
 
 .filterOptionSelected:hover {
-  background-color: var(--darker-purple);
+  background-color: var(--teal-dark);
   color: white;
 }
 
@@ -154,9 +154,9 @@
   padding: 0.625rem;
   font-family: 'Inter', sans-serif;
   font-size: 1.125rem;
-  color: var(--purple);
+  color: var(--teal);
   background: white;
-  border: 2px solid var(--purple);
+  border: 2px solid var(--teal);
   border-radius: var(--button-border-radius);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -168,7 +168,7 @@
 }
 
 .refreshButton:hover:not(:disabled) {
-  background: var(--purple);
+  background: var(--teal);
   color: white;
 }
 
@@ -196,16 +196,16 @@
   font-size: 1rem;
   font-weight: 600;
   color: white;
-  background: var(--purple);
-  border: 2px solid var(--purple);
+  background: var(--teal);
+  border: 2px solid var(--teal);
   border-radius: var(--button-border-radius);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .addButton:hover {
-  background: var(--darker-purple);
-  border-color: var(--darker-purple);
+  background: var(--teal-dark);
+  border-color: var(--teal-dark);
 }
 
 .addButton:active {
@@ -248,7 +248,7 @@
 
 .couponCard {
   background: white;
-  border: 2px solid var(--medium-purple);
+  border: 2px solid var(--teal-light);
   border-radius: 20px;
   padding: 1.5rem;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
@@ -259,7 +259,7 @@
 .couponCard:hover {
   transform: scale(1.005);
   box-shadow: 0 4px 16px rgba(234, 221, 248, 0.6);
-  border-color: var(--medium-purple);
+  border-color: var(--teal-light);
 }
 
 .cardHighlighted {
@@ -297,7 +297,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--purple);
+  color: var(--teal);
   margin: 0 0 0.5rem 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -334,7 +334,7 @@
 }
 
 .editButton:hover {
-  color: var(--purple);
+  color: var(--teal);
   background: rgba(255, 255, 255, 0.95);
   transform: scale(1.1);
 }
@@ -400,8 +400,8 @@
 }
 
 .statusHighlighted {
-  background-color: var(--very-light-purple);
-  color: var(--purple);
+  background-color: var(--teal-lighter);
+  color: var(--teal);
 }
 
 .description {
@@ -438,16 +438,16 @@
   font-family: 'Inter', sans-serif;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--purple);
+  color: var(--teal);
   background: white;
-  border: 2px solid var(--purple);
+  border: 2px solid var(--teal);
   border-radius: var(--button-border-radius);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .paginationButton:hover:not(:disabled) {
-  background: var(--purple);
+  background: var(--teal);
   color: white;
 }
 

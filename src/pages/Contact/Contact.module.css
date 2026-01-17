@@ -32,7 +32,7 @@
 .email {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--purple);
+  color: var(--teal);
   font-family: 'Inter', sans-serif;
 }
 
@@ -47,7 +47,7 @@
   justify-content: center;
   background: none;
   border: none;
-  color: var(--purple);
+  color: var(--teal);
   padding: 0.5rem;
   width: 40px;
   height: 40px;
@@ -58,11 +58,11 @@
 }
 
 .copyButton:hover {
-  background-color: var(--very-light-purple);
+  background-color: var(--teal-lighter);
 }
 
 .copyButton:active {
-  background-color: var(--very-light-purple);
+  background-color: var(--teal-lighter);
   transform: scale(0.98);
 }
 
@@ -73,7 +73,7 @@
 .copyIcon {
   width: 20px;
   height: 20px;
-  stroke: var(--purple);
+  stroke: var(--teal);
   stroke-width: 2;
   flex-shrink: 0;
 }
@@ -90,7 +90,7 @@
   position: absolute;
   top: -35px;
   right: 0;
-  background-color: var(--purple);
+  background-color: var(--teal);
   color: white;
   padding: 0.375rem 0.75rem;
   border-radius: 6px;
@@ -112,7 +112,7 @@
   height: 0;
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
-  border-top: 6px solid var(--purple);
+  border-top: 6px solid var(--teal);
 }
 
 @keyframes fadeInUp {

@@ -9,7 +9,7 @@
 
 .header {
   margin-bottom: 3rem;
-  border-bottom: 2px solid var(--very-light-purple);
+  border-bottom: 2px solid var(--teal-lighter);
   padding-bottom: 1.5rem;
 }
 
@@ -41,7 +41,7 @@
 .section h2 {
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--purple);
+  color: var(--teal);
   margin: 0 0 1rem 0;
   font-family: 'Inter', sans-serif;
   line-height: 1.4;
@@ -79,7 +79,7 @@
   background-color: #f9f9f9;
   padding: 1.5rem;
   border-radius: 12px;
-  border-left: 4px solid var(--purple);
+  border-left: 4px solid var(--teal);
   margin-top: 1rem;
 }
 
@@ -96,14 +96,14 @@
 }
 
 .link {
-  color: var(--purple);
+  color: var(--teal);
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s ease;
 }
 
 .link:hover {
-  color: var(--darker-purple);
+  color: var(--teal-dark);
   text-decoration: underline;
 }
 

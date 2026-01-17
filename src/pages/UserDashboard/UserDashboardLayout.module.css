@@ -81,13 +81,13 @@
 }
 
 .sidebarButtonActive {
-  background-color: var(--teal-lighter);
-  color: var(--purple);
+  background-color: var(--teal);
+  color: #ffffff;
 }
 
 .sidebarButtonActive:hover {
-  background-color: var(--teal-lighter);
-  color: var(--purple);
+  background-color: var(--teal);
+  color: #ffffff;
 }
 
 .content {

@@ -17,7 +17,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--purple);
+  color: var(--teal);
   padding: 0.75rem 1rem;
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
@@ -46,7 +46,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 2rem;
   font-weight: 500;
-  color: var(--purple);
+  color: var(--teal);
   margin: 0;
 }
 
@@ -54,7 +54,7 @@
   background: white;
   border-radius: 0;
   padding: 1.5rem;
-  border-bottom: 1px solid var(--very-light-purple);
+  border-bottom: 1px solid var(--teal-lighter);
 }
 
 .ticketIdRow {
@@ -148,8 +148,8 @@
 }
 
 .statusOptionSelected {
-  background-color: var(--very-light-purple);
-  color: var(--purple);
+  background-color: var(--teal-lighter);
+  color: var(--teal);
 }
 
 .details {
@@ -183,7 +183,7 @@
 .ticketIdLabel {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: var(--purple);
+  color: var(--teal);
   font-weight: 700;
 }
 
@@ -211,7 +211,7 @@
 .issueTypeLabel {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: var(--purple);
+  color: var(--teal);
   font-weight: 700;
 }
 
@@ -225,7 +225,7 @@
 .raisedOnLabel {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: var(--purple);
+  color: var(--teal);
   font-weight: 700;
 }
 
@@ -258,7 +258,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--purple);
+  color: var(--teal);
   padding: 0.5rem;
   display: flex;
   align-items: center;
@@ -314,7 +314,7 @@
 .urlValue {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: var(--purple);
+  color: var(--teal);
   text-decoration: none;
   word-break: break-all;
 }
@@ -350,7 +350,7 @@
   height: auto;
   object-fit: contain;
   border-radius: 8px;
-  border: 1px solid var(--very-light-purple);
+  border: 1px solid var(--teal-lighter);
   background: #fafafa;
 }
 
@@ -358,11 +358,11 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--purple);
+  color: var(--teal);
   text-decoration: none;
   padding: 0.5rem 0.75rem;
   background-color: var(--button-hover-bg);
-  border: 1px solid var(--very-light-purple);
+  border: 1px solid var(--teal-lighter);
   border-radius: 8px;
   transition: background-color 0.2s ease;
   font-family: 'Inter', sans-serif;
@@ -425,8 +425,8 @@
 }
 
 .issueTypeOTHERS {
-  background: #e9d5ff;
-  color: #6b21a8;
+  background: var(--blue-light);
+  color: var(--blue);
 }
 
 .loading {
@@ -471,8 +471,8 @@
   font-size: 1rem;
   font-weight: 600;
   color: white;
-  background: var(--purple);
-  border: 2px solid var(--purple);
+  background: var(--teal);
+  border: 2px solid var(--teal);
   border-radius: var(--button-border-radius);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -482,8 +482,8 @@
 }
 
 .updateButton:hover:not(:disabled) {
-  background: var(--darker-purple);
-  border-color: var(--darker-purple);
+  background: var(--teal-dark);
+  border-color: var(--teal-dark);
 }
 
 .updateButton:active:not(:disabled) {

@@ -37,7 +37,7 @@
   background: var(--button-hover-bg);
   border: 1px solid var(--border-light);
   border-radius: 6px;
-  color: var(--purple-others-text);
+  color: var(--text-primary);
   font-family: 'Inter', sans-serif;
   font-size: 0.9375rem;
   font-weight: 500;
@@ -46,9 +46,9 @@
 }
 
 .backButton:hover {
-  background: var(--purple-light-bg);
-  border-color: var(--purple-others);
-  color: var(--purple-alt);
+  background: var(--teal-lighter);
+  border-color: var(--teal-light);
+  color: var(--teal);
 }
 
 .backButton svg {

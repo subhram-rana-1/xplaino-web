@@ -20,7 +20,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--purple);
+  color: var(--teal);
   margin: 0 0 2rem 0;
   padding: 0 1.5rem;
 }
@@ -50,16 +50,16 @@
 
 .sidebarButton:hover {
   background-color: #e9ecef;
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .sidebarButtonActive {
-  background-color: var(--purple);
+  background-color: var(--teal);
   color: white;
 }
 
 .sidebarButtonActive:hover {
-  background-color: var(--darker-purple);
+  background-color: var(--teal-dark);
   color: white;
 }
 

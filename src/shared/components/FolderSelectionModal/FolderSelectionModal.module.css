@@ -26,7 +26,7 @@
   background: var(--bg-white);
   border-radius: 30px;
   overflow: hidden;
-  box-shadow: 0 8px 24px var(--shadow-black-20);
+  border: 2px solid var(--border-medium);
   display: flex;
   flex-direction: column;
   animation: scaleIn 0.3s ease;
@@ -66,7 +66,7 @@
 
 .closeButton:hover {
   background: var(--button-hover-bg);
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .closeButton svg {
@@ -114,13 +114,13 @@
 
 .folderItem.selected {
   background: var(--teal-lighter);
-  border-color: var(--purple);
+  border-color: var(--teal);
 }
 
 .folderIcon {
   width: 20px;
   height: 20px;
-  color: var(--purple);
+  color: var(--teal);
   flex-shrink: 0;
 }
 
@@ -132,7 +132,7 @@
 }
 
 .folderItem.selected .folderName {
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .footer {
@@ -145,7 +145,7 @@
 
 .cancelButton {
   background: white;
-  border: 1px solid var(--very-light-purple);
+  border: 1px solid var(--teal-lighter);
   color: #666;
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
@@ -158,12 +158,12 @@
 
 .cancelButton:hover {
   background: var(--button-hover-bg);
-  border-color: var(--purple);
-  color: var(--purple);
+  border-color: var(--teal);
+  color: var(--teal);
 }
 
 .saveButton {
-  background: var(--purple);
+  background: var(--teal);
   border: none;
   color: white;
   padding: 0.75rem 1.5rem;
@@ -177,7 +177,7 @@
 
 .saveButton:hover:not(:disabled) {
   background: var(--button-hover-bg);
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .saveButton:disabled {

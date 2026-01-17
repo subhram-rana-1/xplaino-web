@@ -238,11 +238,11 @@
 }
 
 .sortButton:hover {
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .sortButtonActive {
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .sortIcons {
@@ -259,7 +259,7 @@
 }
 
 .sortIconActive {
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .sortIconInactive {
@@ -268,7 +268,7 @@
 }
 
 .tableRow {
-  border-bottom: 1px solid var(--very-light-purple);
+  border-bottom: 1px solid var(--teal-lighter);
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
@@ -299,7 +299,7 @@
 }
 
 .folderNameCell svg {
-  color: var(--purple);
+  color: var(--teal);
   flex-shrink: 0;
 }
 
@@ -317,7 +317,7 @@
 }
 
 .folderNameInput:focus {
-  border-color: var(--purple);
+  border-color: var(--teal);
 }
 
 /* Grid View */
@@ -334,7 +334,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 1.5rem 1rem;
-  background: var(--very-light-purple);
+  background: var(--teal-lighter);
   border: 2px solid transparent;
   border-radius: 20px;
   cursor: pointer;
@@ -347,17 +347,17 @@
 }
 
 .folderCardSelected {
-  border-color: var(--purple);
+  border-color: var(--teal);
   background: var(--button-hover-bg);
 }
 
 .folderCard svg {
-  color: var(--purple);
+  color: var(--teal);
   transition: none;
 }
 
 .folderCard:hover svg {
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .folderCardName {
@@ -392,7 +392,7 @@
 .tabs {
   display: flex;
   width: 100%;
-  border-bottom: 2px solid var(--very-light-purple);
+  border-bottom: 2px solid var(--teal-lighter);
   gap: 0;
 }
 
@@ -412,12 +412,12 @@
 }
 
 .tab:hover {
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .tabActive {
-  color: var(--purple);
-  border-bottom-color: var(--purple);
+  color: var(--teal);
+  border-bottom-color: var(--teal);
 }
 
 .tabContent {

@@ -21,9 +21,9 @@
   padding: 0.625rem;
   font-family: 'Inter', sans-serif;
   font-size: 1.125rem;
-  color: var(--purple);
+  color: var(--teal);
   background: white;
-  border: 2px solid var(--purple);
+  border: 2px solid var(--teal);
   border-radius: var(--button-border-radius);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -35,7 +35,7 @@
 }
 
 .refreshButton:hover:not(:disabled) {
-  background: var(--purple);
+  background: var(--teal);
   color: white;
 }
 
@@ -63,16 +63,16 @@
   font-size: 1rem;
   font-weight: 600;
   color: white;
-  background: var(--purple);
-  border: 2px solid var(--purple);
+  background: var(--teal);
+  border: 2px solid var(--teal);
   border-radius: var(--button-border-radius);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .addButton:hover {
-  background: var(--darker-purple);
-  border-color: var(--darker-purple);
+  background: var(--teal-dark);
+  border-color: var(--teal-dark);
 }
 
 .addButton:active {
@@ -103,7 +103,7 @@
 }
 
 .filterButton:hover {
-  border-color: var(--purple);
+  border-color: var(--teal);
   background-color: var(--button-hover-bg);
 }
 
@@ -137,17 +137,17 @@
 }
 
 .filterOption:hover {
-  background-color: var(--very-light-purple);
-  color: var(--purple);
+  background-color: var(--teal-lighter);
+  color: var(--teal);
 }
 
 .filterOptionSelected {
-  background-color: var(--purple);
+  background-color: var(--teal);
   color: white;
 }
 
 .filterOptionSelected:hover {
-  background-color: var(--darker-purple);
+  background-color: var(--teal-dark);
   color: white;
 }
 
@@ -173,12 +173,12 @@
 }
 
 .tab:hover {
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .tabActive {
-  color: var(--purple);
-  border-bottom-color: var(--purple);
+  color: var(--teal);
+  border-bottom-color: var(--teal);
 }
 
 .loading {
@@ -268,7 +268,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--purple);
+  color: var(--teal);
   margin: 0;
 }
 
@@ -298,8 +298,8 @@
 }
 
 .statusActive {
-  background-color: var(--very-light-purple);
-  color: var(--purple);
+  background-color: var(--teal-lighter);
+  color: var(--teal);
 }
 
 .statusExpired {

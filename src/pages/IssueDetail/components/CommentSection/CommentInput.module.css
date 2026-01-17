@@ -3,15 +3,15 @@
 }
 
 .inputWrapper {
-  background: white;
-  border: 1px solid var(--very-light-purple);
+  background: var(--bg-white);
+  border: 1px solid var(--teal-lighter);
   border-radius: 30px;
   padding: 1rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .inputWrapper:focus-within {
-  border-color: var(--purple);
+  border-color: var(--teal);
   box-shadow: 0 8px 24px var(--shadow-black-20);
 }
 
@@ -22,7 +22,8 @@
   resize: vertical;
   font-family: 'Inter', sans-serif;
   font-size: 0.9375rem;
-  color: #333;
+  color: var(--text-primary);
+  background: transparent;
   line-height: 1.5;
   min-height: 60px;
   max-height: 120px;
@@ -31,7 +32,7 @@
 }
 
 .textarea::placeholder {
-  color: #999;
+  color: var(--text-quaternary);
 }
 
 .textarea:disabled {
@@ -54,7 +55,7 @@
 .charCount {
   font-family: 'Inter', sans-serif;
   font-size: 0.75rem;
-  color: #999;
+  color: var(--text-tertiary);
 }
 
 .charCountWarning {
@@ -63,8 +64,8 @@
 
 .cancelButton {
   background: transparent;
-  color: #666;
-  border: 1px solid #ddd;
+  color: var(--text-tertiary);
+  border: 1px solid var(--teal-lighter);
   border-radius: 6px;
   padding: 0.5rem 1rem;
   font-family: 'Inter', sans-serif;
@@ -75,9 +76,9 @@
 }
 
 .cancelButton:hover:not(:disabled) {
-  background: #f5f5f5;
-  border-color: #bbb;
-  color: #333;
+  background: var(--button-hover-bg);
+  border-color: var(--teal);
+  color: var(--text-primary);
 }
 
 .cancelButton:disabled {
@@ -86,7 +87,7 @@
 }
 
 .submitButton {
-  background: var(--purple);
+  background: var(--teal);
   color: white;
   border: none;
   border-radius: 6px;
@@ -99,7 +100,7 @@
 }
 
 .submitButton:hover:not(:disabled) {
-  background: #7c3aed;
+  background: var(--teal-dark);
 }
 
 .submitButton:disabled {

@@ -43,7 +43,7 @@
 
 /* Body Styles */
 .table tbody tr {
-  border-bottom: 1px solid var(--very-light-purple);
+  border-bottom: 1px solid var(--teal-lighter);
   transition: background-color 0.2s ease;
 }
 

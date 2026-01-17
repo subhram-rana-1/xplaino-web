@@ -1,5 +1,5 @@
 .navbar {
-  background-color: var(--purple);
+  background-color: var(--teal);
   padding: 0.5rem 0;
   margin: 0;
   box-shadow: 0 2px 4px var(--shadow-black-10);
@@ -34,7 +34,7 @@
 .loginButton {
   padding: 0.5rem 1.5rem;
   background-color: var(--bg-white);
-  color: var(--purple);
+  color: var(--teal);
   text-decoration: none;
   font-size: 1rem;
   font-weight: 600;
@@ -50,12 +50,12 @@
 
 .loginButton:hover {
   background-color: var(--button-hover-bg);
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .loginButton:active {
   background-color: var(--button-hover-bg);
-  color: var(--purple);
+  color: var(--teal);
   transform: scale(0.98);
 }
 
@@ -106,7 +106,7 @@
   align-items: center;
   justify-content: center;
   background-color: var(--teal-lighter);
-  color: var(--purple);
+  color: var(--teal);
   font-family: 'Inter', sans-serif;
   font-size: 1.125rem;
   font-weight: 600;
@@ -154,12 +154,12 @@
 
 .logoutButton:hover {
   background-color: var(--button-hover-bg);
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .logoutButton:active {
   background-color: var(--button-hover-bg);
-  color: var(--purple);
+  color: var(--teal);
   transform: scale(0.98);
 }
 
@@ -203,13 +203,13 @@
 .popoverItem {
   display: block;
   padding: 0.75rem 1.25rem;
-  color: var(--purple);
+  color: var(--teal);
   font-size: 0.95rem;
   font-weight: 500;
   font-family: 'Inter', sans-serif;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  border-bottom: 1px solid var(--very-light-purple);
+  border-bottom: 1px solid var(--teal-lighter);
 }
 
 .popoverItem:first-child {
@@ -239,7 +239,7 @@
   font-family: 'Inter', sans-serif;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  border-top: 1px solid var(--very-light-purple);
+  border-top: 1px solid var(--teal-lighter);
   margin-top: 0;
   border-bottom-left-radius: 15px;
   border-bottom-right-radius: 15px;
@@ -348,14 +348,14 @@
 }
 
 .modalCloseButton:hover {
-  background-color: var(--purple);
+  background-color: var(--teal);
   color: var(--white);
   transform: scale(1.1);
 }
 
 .modalCloseButton:active {
   transform: scale(0.95);
-  background-color: var(--darker-purple);
+  background-color: var(--teal-dark);
 }
 
 .brand {
@@ -486,7 +486,7 @@
   transform: translateX(-50%);
   background-color: var(--bg-white);
   border-radius: 8px;
-  box-shadow: 0 4px 12px var(--shadow-black-15);
+  border: 2px solid var(--border-dark);
   min-width: 180px;
   margin-top: 0.5rem;
   opacity: 0;
@@ -520,7 +520,7 @@
 .dropdownItem {
   display: block;
   padding: 0.75rem 1.25rem;
-  color: var(--purple);
+  color: var(--teal);
   text-decoration: none;
   font-size: 0.95rem;
   font-weight: 500;
@@ -530,7 +530,7 @@
 
 .dropdownItem:hover {
   background-color: var(--button-hover-bg);
-  color: var(--purple);
+  color: var(--teal);
 }
 
 .dropdownItem:first-child {
@@ -619,7 +619,7 @@
     top: 100%;
     left: 0;
     right: 0;
-    background-color: var(--purple);
+    background-color: var(--teal);
     flex-direction: column;
     gap: 0;
     padding: 1rem 0;

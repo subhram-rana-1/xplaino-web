@@ -6,12 +6,6 @@
   --teal-light: #14b8a6;
   --teal-lighter: #e0f7f4;
   --teal-dark: #0a5d52;
-  
-  /* Legacy purple names (mapped to teal for backward compatibility) */
-  --purple: #0d8070;
-  --very-light-purple: #e0f7f4;
-  --medium-purple: #14b8a6;
-  --darker-purple: #0a5d52;
 
   /* ============================================
      GRAY SCALE
@@ -130,14 +124,6 @@
   --white-rgba-95: rgba(255, 255, 255, 0.95);
 
   /* ============================================
-     OTHER COLORS
-     ============================================ */
-  --purple-alt: #6b46c1; /* Used in some places, mapped to teal */
-  --purple-light-bg: #f5f0ff; /* Light purple background, mapped to light teal */
-  --purple-others: #e9d5ff; /* For issue type badge */
-  --purple-others-text: #6b21a8; /* For issue type badge text */
-
-  /* ============================================
      UTILITIES
      ============================================ */
   --button-border-radius: 10px;
@@ -155,12 +141,6 @@
   --teal-light: #14b8a6;
   --teal-lighter: rgba(20, 184, 166, 0.15);
   --teal-dark: #0a5d52;
-  
-  /* Legacy purple names (mapped to teal for backward compatibility) */
-  --purple: #0d8070;
-  --very-light-purple: rgba(20, 184, 166, 0.15);
-  --medium-purple: #14b8a6;
-  --darker-purple: #0a5d52;
 
   /* ============================================
      GRAY SCALE (DARK MODE)
@@ -277,14 +257,6 @@
   --white-rgba-40: rgba(255, 255, 255, 0.2);
   --white-rgba-50: rgba(255, 255, 255, 0.25);
   --white-rgba-95: rgba(255, 255, 255, 0.05);
-
-  /* ============================================
-     OTHER COLORS (DARK MODE)
-     ============================================ */
-  --purple-alt: #a78bfa;
-  --purple-light-bg: #1e1b4b;
-  --purple-others: #5b21b6;
-  --purple-others-text: #c4b5fd;
 
   /* ============================================
      UTILITIES (DARK MODE)
