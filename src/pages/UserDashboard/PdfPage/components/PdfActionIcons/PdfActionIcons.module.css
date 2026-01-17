@@ -19,11 +19,11 @@
 }
 
 .deleteButton {
-  color: #ef4444;
+  color: var(--text-tertiary);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
+  transition: opacity 0.2s ease, visibility 0.2s ease, all 0.2s ease;
 }
 
 .deleteButton.visible {
@@ -39,22 +39,27 @@
 }
 
 .deleteButton:hover {
-  background: rgba(239, 68, 68, 0.1);
-  color: #dc2626;
+  background: var(--button-hover-bg);
+  color: var(--red);
+}
+
+.deleteButton svg {
+  transition: color 0.2s ease;
 }
 
 .bookButton {
-  color: var(--teal);
+  color: var(--text-tertiary);
 }
 
 .bookButton:hover {
-  background: var(--teal-rgba-10);
-  color: var(--teal-dark);
+  background: var(--button-hover-bg);
+  color: var(--teal);
 }
 
 .deleteButton svg,
 .bookButton svg {
   width: 18px;
   height: 18px;
+  transition: color 0.2s ease;
 }
 

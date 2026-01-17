@@ -102,8 +102,8 @@
 }
 
 .closeButton:hover:not(:disabled) {
-  background: var(--bg-light);
-  color: var(--text-secondary);
+  background: var(--button-hover-bg);
+  color: var(--teal);
 }
 
 .closeButton:disabled {
@@ -161,7 +161,8 @@
 }
 
 .submitButton:hover:not(:disabled) {
-  background: var(--darker-purple);
+  background: var(--button-hover-bg);
+  color: var(--purple);
   transform: translateX(2px);
 }
 

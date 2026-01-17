@@ -5,13 +5,13 @@
   border: none;
   border-radius: 20px;
   padding: 2px;
-  background-color: var(--teal-lighter);
+  background-color: var(--button-hover-bg);
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
 }
 
 .featureItem:hover {
-  background-color: #d0ede8;
+  background-color: var(--button-hover-bg);
   box-shadow: 0 8px 24px var(--shadow-black-20);
 }
 
@@ -19,7 +19,7 @@
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0;
-  color: #000;
+  color: var(--text-primary);
   font-family: 'Inter', sans-serif;
   text-align: center;
   background-color: transparent;
@@ -32,7 +32,7 @@
   position: relative;
   border-radius: 20px 20px 5px 5px;
   overflow: hidden;
-  background-color: #000;
+  background-color: var(--black);
   cursor: pointer;
   outline: none;
   border: none;

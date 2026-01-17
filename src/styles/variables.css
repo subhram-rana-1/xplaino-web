@@ -141,6 +141,7 @@
      UTILITIES
      ============================================ */
   --button-border-radius: 10px;
+  --button-hover-bg: #f5f5f5;
 }
 
 /* ============================================
@@ -150,16 +151,16 @@
   /* ============================================
      PRIMARY COLORS - TEAL THEME (DARK MODE)
      ============================================ */
-  --teal: #14d9c7;
-  --teal-light: #1de9d6;
-  --teal-lighter: #0d3a35;
-  --teal-dark: #10b8a6;
+  --teal: #0d8070;
+  --teal-light: #14b8a6;
+  --teal-lighter: rgba(20, 184, 166, 0.15);
+  --teal-dark: #0a5d52;
   
   /* Legacy purple names (mapped to teal for backward compatibility) */
-  --purple: #14d9c7;
-  --very-light-purple: #0d3a35;
-  --medium-purple: #1de9d6;
-  --darker-purple: #10b8a6;
+  --purple: #0d8070;
+  --very-light-purple: rgba(20, 184, 166, 0.15);
+  --medium-purple: #14b8a6;
+  --darker-purple: #0a5d52;
 
   /* ============================================
      GRAY SCALE (DARK MODE)
@@ -184,39 +185,39 @@
   /* ============================================
      SEMANTIC COLORS - SUCCESS (GREEN) (DARK MODE)
      ============================================ */
-  --light-green: #064e3b;
-  --medium-green: #34d399;
-  --green: #10b981;
-  --green-dark: #059669;
-  --green-light-bg: #064e3b;
-  --green-success: #10b981;
+  --light-green: #D1FAE5;
+  --medium-green: #34D399;
+  --green: #10B981;
+  --green-dark: #16a34a;
+  --green-light-bg: #dcfce7;
+  --green-success: #22c55e;
 
   /* ============================================
      SEMANTIC COLORS - ERROR (RED) (DARK MODE)
      ============================================ */
-  --light-red: #7f1d1d;
-  --medium-red: #f87171;
-  --red: #ef4444;
-  --red-dark: #dc2626;
-  --red-darker: #b91c1c;
-  --red-error: #ef4444;
+  --light-red: #FEE2E2;
+  --medium-red: #F87171;
+  --red: #EF4444;
+  --red-dark: #DC2626;
+  --red-darker: #991b1b;
+  --red-error: #dc2626;
 
   /* ============================================
      SEMANTIC COLORS - WARNING (YELLOW/AMBER) (DARK MODE)
      ============================================ */
-  --yellow-light: #78350f;
+  --yellow-light: #fef3c7;
   --yellow: #fbbf24;
-  --yellow-dark: #d97706;
-  --yellow-border: #92400e;
+  --yellow-dark: #92400e;
+  --yellow-border: #fde68a;
 
   /* ============================================
      SEMANTIC COLORS - INFO (BLUE) (DARK MODE)
      ============================================ */
-  --blue-light: #1e3a8a;
-  --blue: #3b82f6;
-  --blue-border: #1e40af;
-  --blue-indigo: #6366f1;
-  --blue-indigo-light: #818cf8;
+  --blue-light: #dbeafe;
+  --blue: #1e40af;
+  --blue-border: #bfdbfe;
+  --blue-indigo: #4f46e5;
+  --blue-indigo-light: #6366f1;
 
   /* ============================================
      TEXT COLORS (DARK MODE)
@@ -252,22 +253,22 @@
   /* ============================================
      SHADOW COLORS (RGBA) (DARK MODE)
      ============================================ */
-  --teal-rgba-10: rgba(20, 217, 199, 0.1);
-  --teal-rgba-15: rgba(20, 217, 199, 0.15);
-  --teal-rgba-20: rgba(20, 217, 199, 0.2);
-  --teal-rgba-25: rgba(20, 217, 199, 0.25);
-  --teal-rgba-30: rgba(20, 217, 199, 0.3);
-  --teal-rgba-40: rgba(20, 217, 199, 0.4);
-  --teal-rgba-50: rgba(20, 217, 199, 0.5);
-  --teal-rgba-60: rgba(20, 217, 199, 0.6);
+  --teal-rgba-10: rgba(13, 128, 112, 0.1);
+  --teal-rgba-15: rgba(13, 128, 112, 0.15);
+  --teal-rgba-20: rgba(13, 128, 112, 0.2);
+  --teal-rgba-25: rgba(13, 128, 112, 0.25);
+  --teal-rgba-30: rgba(13, 128, 112, 0.3);
+  --teal-rgba-40: rgba(13, 128, 112, 0.4);
+  --teal-rgba-50: rgba(13, 128, 112, 0.5);
+  --teal-rgba-60: rgba(13, 128, 112, 0.6);
   
-  --shadow-black-10: rgba(0, 0, 0, 0.3);
-  --shadow-black-15: rgba(0, 0, 0, 0.4);
-  --shadow-black-18: rgba(0, 0, 0, 0.45);
-  --shadow-black-20: rgba(0, 0, 0, 0.5);
-  --shadow-black-25: rgba(0, 0, 0, 0.6);
-  --shadow-black-30: rgba(0, 0, 0, 0.7);
-  --shadow-black-50: rgba(0, 0, 0, 0.8);
+  --shadow-black-10: rgba(255, 255, 255, 0.05);
+  --shadow-black-15: rgba(255, 255, 255, 0.08);
+  --shadow-black-18: rgba(255, 255, 255, 0.1);
+  --shadow-black-20: rgba(255, 255, 255, 0.12);
+  --shadow-black-25: rgba(255, 255, 255, 0.15);
+  --shadow-black-30: rgba(255, 255, 255, 0.18);
+  --shadow-black-50: rgba(255, 255, 255, 0.25);
 
   --white-rgba-10: rgba(255, 255, 255, 0.05);
   --white-rgba-20: rgba(255, 255, 255, 0.1);
@@ -284,6 +285,11 @@
   --purple-light-bg: #1e1b4b;
   --purple-others: #5b21b6;
   --purple-others-text: #c4b5fd;
+
+  /* ============================================
+     UTILITIES (DARK MODE)
+     ============================================ */
+  --button-hover-bg: rgba(255, 255, 255, 0.1);
 }
 
 

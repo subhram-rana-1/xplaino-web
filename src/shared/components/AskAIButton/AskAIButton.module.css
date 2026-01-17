@@ -82,10 +82,11 @@
   text-align: center;
   transition: background-color 0.2s ease, color 0.2s ease;
   width: 100%;
+  border-bottom: 1px solid var(--very-light-purple);
 }
 
 .dropdownItem:hover {
-  background: var(--teal-lighter);
+  background: var(--button-hover-bg);
   color: var(--teal);
 }
 
@@ -97,5 +98,6 @@
 .dropdownItem:last-child {
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
+  border-bottom: none;
 }
 

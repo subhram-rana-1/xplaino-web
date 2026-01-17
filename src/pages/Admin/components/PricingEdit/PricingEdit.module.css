@@ -173,7 +173,7 @@
 }
 
 .dropdownOption:hover {
-  background-color: var(--teal-lighter);
+  background-color: var(--button-hover-bg);
   color: var(--purple);
 }
 
@@ -235,8 +235,8 @@
 }
 
 .deleteButton:hover {
-  background: var(--red);
-  color: white;
+  background: var(--button-hover-bg);
+  color: var(--red);
 }
 
 .deleteButton:disabled {
@@ -260,8 +260,9 @@
 
 .editButton:hover,
 .updateButton:hover {
-  background: var(--darker-purple);
-  border-color: var(--darker-purple);
+  background: var(--button-hover-bg);
+  border-color: var(--purple);
+  color: var(--purple);
 }
 
 .updateButton:disabled {
@@ -283,8 +284,9 @@
 }
 
 .cancelButton:hover {
-  background: #f9f9f9;
-  border-color: #ccc;
+  background: var(--button-hover-bg);
+  border-color: var(--purple);
+  color: var(--purple);
 }
 
 .cancelButton:disabled {

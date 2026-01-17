@@ -1,6 +1,6 @@
 .navbar {
   background-color: var(--purple);
-  padding: 1rem 0;
+  padding: 0.5rem 0;
   margin: 0;
   box-shadow: 0 2px 4px var(--shadow-black-10);
   position: relative;
@@ -15,7 +15,7 @@
   justify-content: space-between;
   align-items: center;
   position: relative;
-  min-height: 56px;
+  min-height: 44px;
 }
 
 .navCenter {
@@ -43,15 +43,18 @@
   transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
   border: 2px solid var(--white);
   cursor: pointer;
+  width: auto;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .loginButton:hover {
-  background-color: var(--teal-lighter);
+  background-color: var(--button-hover-bg);
   color: var(--purple);
 }
 
 .loginButton:active {
-  background-color: var(--teal-lighter);
+  background-color: var(--button-hover-bg);
   color: var(--purple);
   transform: scale(0.98);
 }
@@ -73,7 +76,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 1.05rem;
   font-weight: 600;
-  color: var(--white);
+  color: #ffffff;
 }
 
 .profilePicture {
@@ -142,7 +145,7 @@
   align-items: center;
   justify-content: center;
   background-color: transparent;
-  color: var(--white);
+  color: #ffffff;
   border-radius: 50%;
   transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease,
     border-color 0.2s ease;
@@ -150,12 +153,12 @@
 }
 
 .logoutButton:hover {
-  background-color: var(--teal-lighter);
+  background-color: var(--button-hover-bg);
   color: var(--purple);
 }
 
 .logoutButton:active {
-  background-color: var(--teal-lighter);
+  background-color: var(--button-hover-bg);
   color: var(--purple);
   transform: scale(0.98);
 }
@@ -206,6 +209,7 @@
   font-family: 'Inter', sans-serif;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  border-bottom: 1px solid var(--very-light-purple);
 }
 
 .popoverItem:first-child {
@@ -213,8 +217,12 @@
   border-top-right-radius: 15px;
 }
 
+.popoverItem:last-of-type {
+  border-bottom: none;
+}
+
 .popoverItem:hover {
-  background-color: var(--teal-lighter);
+  background-color: var(--button-hover-bg);
 }
 
 .popoverLogoutButton {
@@ -231,18 +239,18 @@
   font-family: 'Inter', sans-serif;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  border-top: 1px solid var(--shadow-black-10);
+  border-top: 1px solid var(--very-light-purple);
   margin-top: 0;
   border-bottom-left-radius: 15px;
   border-bottom-right-radius: 15px;
 }
 
 .popoverLogoutButton:hover {
-  background-color: var(--light-red);
+  background-color: var(--button-hover-bg);
 }
 
 .popoverLogoutButton:active {
-  background-color: var(--light-red);
+  background-color: var(--button-hover-bg);
 }
 
 .popoverLogoutButton:disabled {
@@ -355,7 +363,7 @@
   align-items: center;
   gap: 0.75rem;
   text-decoration: none;
-  color: var(--white);
+  color: #ffffff;
   transition: opacity 0.2s ease;
 }
 
@@ -373,7 +381,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 2rem;
   font-weight: 900;
-  color: var(--white);
+  color: #ffffff;
   letter-spacing: 0.02em;
 }
 
@@ -425,7 +433,7 @@
 }
 
 .navLink {
-  color: var(--white);
+  color: #ffffff;
   text-decoration: none;
   font-size: 1rem;
   font-weight: 500;
@@ -438,7 +446,7 @@
 }
 
 .navLink:hover {
-  color: var(--very-light-purple);
+  color: #ffffff;
 }
 
 .navLinkActive {
@@ -521,7 +529,7 @@
 }
 
 .dropdownItem:hover {
-  background-color: var(--teal-lighter);
+  background-color: var(--button-hover-bg);
   color: var(--purple);
 }
 
@@ -651,10 +659,12 @@
     width: 100%;
     padding: 1rem 1.5rem;
     border-top: 1px solid var(--white-rgba-10);
+    justify-content: flex-end;
   }
 
   .loginButton {
-    width: 100%;
+    width: auto;
+    min-width: 100px;
     text-align: center;
     justify-content: center;
     padding: 0.875rem 1.5rem;

@@ -89,11 +89,11 @@
 }
 
 .dropdownItem:hover {
-  background: var(--teal-lighter);
+  background: var(--button-hover-bg);
 }
 
 .dropdownItem.selected {
-  background: var(--teal-lighter);
+  background: var(--button-hover-bg);
   color: var(--teal);
   font-weight: 500;
 }

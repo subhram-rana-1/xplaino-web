@@ -65,7 +65,7 @@
 }
 
 .closeButton:hover {
-  background: var(--teal-lighter);
+  background: var(--button-hover-bg);
   color: var(--purple);
 }
 
@@ -109,7 +109,7 @@
 }
 
 .folderItem:hover {
-  background: var(--teal-lighter);
+  background: var(--button-hover-bg);
 }
 
 .folderItem.selected {
@@ -157,7 +157,7 @@
 }
 
 .cancelButton:hover {
-  background: var(--teal-lighter);
+  background: var(--button-hover-bg);
   border-color: var(--purple);
   color: var(--purple);
 }
@@ -176,7 +176,8 @@
 }
 
 .saveButton:hover:not(:disabled) {
-  background: var(--teal);
+  background: var(--button-hover-bg);
+  color: var(--purple);
 }
 
 .saveButton:disabled {

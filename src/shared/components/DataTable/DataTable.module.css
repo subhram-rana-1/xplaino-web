@@ -52,7 +52,7 @@
 }
 
 .table tbody tr:hover {
-  background: var(--teal-lighter);
+  background: var(--button-hover-bg);
 }
 
 .table tbody tr:last-child {

@@ -187,7 +187,7 @@
 }
 
 .promptButton:hover {
-  background: var(--teal-lighter);
+  background: var(--button-hover-bg);
   color: var(--teal);
 }
 

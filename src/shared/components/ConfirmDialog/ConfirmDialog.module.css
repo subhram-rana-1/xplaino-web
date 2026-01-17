@@ -110,7 +110,8 @@
 }
 
 .cancelButton:hover {
-  background: var(--gray-300);
+  background: var(--button-hover-bg);
+  color: var(--teal);
 }
 
 .confirmButton {
@@ -119,6 +120,7 @@
 }
 
 .confirmButton:hover {
-  background: var(--red-darker);
+  background: var(--button-hover-bg);
+  color: var(--red);
 }
 

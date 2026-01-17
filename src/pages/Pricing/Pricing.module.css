@@ -119,19 +119,21 @@
 }
 
 .buttonPrimary:hover {
-  background-color: var(--darker-purple);
-  border-color: var(--darker-purple);
+  background-color: var(--button-hover-bg);
+  border-color: var(--purple);
+  color: var(--purple);
 }
 
 .buttonSecondary {
-  background-color: white;
+  background-color: var(--bg-white);
   color: var(--text-secondary);
   border-color: var(--border-medium);
 }
 
 .buttonSecondary:hover {
-  background-color: var(--gray-50);
-  border-color: var(--border-dark);
+  background-color: var(--button-hover-bg);
+  border-color: var(--purple);
+  color: var(--purple);
 }
 
 .buttonPrimary:active,

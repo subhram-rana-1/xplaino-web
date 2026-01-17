@@ -177,7 +177,7 @@
 }
 
 .dropdownOption:hover {
-  background-color: var(--teal-lighter);
+  background-color: var(--button-hover-bg);
   color: var(--purple);
 }
 

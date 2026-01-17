@@ -32,20 +32,24 @@
 }
 
 .deleteButton {
-  color: var(--red);
+  color: var(--text-tertiary);
 }
 
 .deleteButton:hover {
-  background: var(--light-red);
-  color: var(--red-dark);
+  background: var(--button-hover-bg);
+  color: var(--red);
+}
+
+.deleteButton svg {
+  transition: color 0.2s ease;
 }
 
 .moveButton {
-  color: var(--purple);
+  color: var(--text-tertiary);
 }
 
 .moveButton:hover {
-  background: var(--teal-lighter);
+  background: var(--button-hover-bg);
   color: var(--teal);
 }
 
@@ -53,6 +57,7 @@
 .moveButton svg {
   width: 18px;
   height: 18px;
+  transition: color 0.2s ease;
 }
 
 

@@ -18,6 +18,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-y: scroll; /* Prevent layout shift when scrollbar appears/disappears */
+  background-color: var(--bg-white);
+  color: var(--text-primary);
 }
 
 #root {
@@ -26,5 +28,6 @@ body {
   flex-direction: column;
   margin: 0;
   padding: 0;
+  background-color: var(--bg-white);
 }
 

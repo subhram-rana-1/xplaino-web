@@ -150,7 +150,7 @@
 }
 
 .dropdownOption:hover {
-  background-color: var(--teal-lighter);
+  background-color: var(--button-hover-bg);
   color: var(--purple);
 }
 
@@ -206,8 +206,9 @@
 }
 
 .cancelButton:hover {
-  background: #f9f9f9;
-  border-color: #ccc;
+  background: var(--button-hover-bg);
+  border-color: var(--purple);
+  color: var(--purple);
 }
 
 .cancelButton:disabled {
@@ -222,8 +223,9 @@
 }
 
 .submitButton:hover {
-  background: var(--darker-purple);
-  border-color: var(--darker-purple);
+  background: var(--button-hover-bg);
+  border-color: var(--purple);
+  color: var(--purple);
 }
 
 .submitButton:disabled {

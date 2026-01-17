@@ -103,7 +103,7 @@
 }
 
 .viewButtonActive {
-  background: var(--teal-lighter);
+  background: var(--button-hover-bg);
   color: var(--teal);
   border: none;
 }
@@ -206,7 +206,7 @@
 }
 
 .table thead {
-  background: var(--teal-lighter);
+  background: var(--button-hover-bg);
 }
 
 .table thead tr th {
@@ -274,11 +274,11 @@
 }
 
 .tableRow:hover {
-  background: var(--teal-lighter);
+  background: var(--button-hover-bg);
 }
 
 .tableRowSelected {
-  background: var(--teal-lighter);
+  background: var(--button-hover-bg);
 }
 
 .tableRow:last-child {
@@ -348,7 +348,7 @@
 
 .folderCardSelected {
   border-color: var(--purple);
-  background: var(--teal-lighter);
+  background: var(--button-hover-bg);
 }
 
 .folderCard svg {

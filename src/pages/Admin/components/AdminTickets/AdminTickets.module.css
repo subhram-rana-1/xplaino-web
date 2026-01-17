@@ -388,7 +388,7 @@
 }
 
 .copyButton:hover {
-  background: var(--teal-lighter);
+  background: var(--button-hover-bg);
 }
 
 .copyButton:active {
@@ -554,7 +554,7 @@
   color: var(--purple);
   text-decoration: none;
   padding: 0.25rem 0.5rem;
-  background-color: var(--teal-lighter);
+  background-color: var(--button-hover-bg);
   border: 1px solid var(--very-light-purple);
   border-radius: 8px;
   transition: background-color 0.2s ease;

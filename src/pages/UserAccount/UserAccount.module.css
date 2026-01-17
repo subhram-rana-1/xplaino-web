@@ -79,11 +79,11 @@
 }
 
 .tab:hover {
-  background-color: var(--bg-light);
+  background-color: var(--button-hover-bg);
 }
 
 .tabActive {
-  background-color: var(--teal-lighter);
+  background-color: var(--button-hover-bg);
 }
 
 .tabIcon {

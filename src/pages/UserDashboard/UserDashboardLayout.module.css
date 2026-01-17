@@ -3,8 +3,8 @@
   min-height: calc(100vh - 80px);
   width: 100%;
   margin-left: -4.5rem;
-  margin-right: -4.5rem;
-  margin-bottom: -4rem;
+  margin-right: 0;
+  margin-bottom: 0;
   /* Prevent any animations on the container */
   transition: none;
   animation: none;
@@ -16,7 +16,7 @@
   border-right: 1px solid var(--border-light);
   padding: 2rem 0;
   flex-shrink: 0;
-  min-height: calc(100vh - 80px);
+  min-height: 100%;
   /* Prevent any animations or transitions on the sidebar container */
   transition: none !important;
   animation: none !important;
@@ -24,7 +24,7 @@
   /* Make sidebar sticky to prevent scrolling */
   position: sticky;
   top: 0;
-  align-self: flex-start;
+  align-self: stretch;
   contain: layout style paint;
   overflow-y: auto;
   max-height: 100vh;
@@ -77,17 +77,17 @@
 }
 
 .sidebarButton:hover {
-  background-color: var(--bg-light);
+  background-color: var(--button-hover-bg);
 }
 
 .sidebarButtonActive {
   background-color: var(--teal-lighter);
-  color: var(--text-secondary);
+  color: var(--purple);
 }
 
 .sidebarButtonActive:hover {
   background-color: var(--teal-lighter);
-  color: var(--text-secondary);
+  color: var(--purple);
 }
 
 .content {
@@ -95,7 +95,7 @@
   padding: 2rem;
   background: var(--bg-white);
   position: relative;
-  min-height: calc(100vh - 80px);
+  min-height: 100%;
 }
 
 /* Responsive design */

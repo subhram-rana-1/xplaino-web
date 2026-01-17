@@ -2150,16 +2150,15 @@ export const FolderBookmark: React.FC = () => {
           overflowY: 'auto',
         } : undefined}
       >
-        <div className={styles.headerRow}>
-          <button 
-            className={styles.backButton}
-            onClick={() => navigate('/user/dashboard/bookmark')}
-          >
-            <FiArrowLeft />
-            <span>Back to Dashboard</span>
-          </button>
-          <h1 className={styles.heading}>{folderName}</h1>
-          <div className={styles.headerActions}>
+        <div className={styles.headerSection}>
+          <div className={styles.headerActionsRow}>
+            <button 
+              className={styles.backButton}
+              onClick={() => navigate('/user/dashboard/bookmark')}
+            >
+              <FiArrowLeft />
+              <span>Back to Dashboard</span>
+            </button>
             <button
               className={`${styles.refreshAllButton} ${showRefreshSuccess ? styles.refreshAllButtonSuccess : ''}`}
               onClick={handleRefreshAll}
@@ -2181,6 +2180,7 @@ export const FolderBookmark: React.FC = () => {
               )}
             </button>
           </div>
+          <h1 className={styles.heading}>{folderName}</h1>
         </div>
 
         <div className={styles.tabContainer}>

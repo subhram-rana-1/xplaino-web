@@ -97,7 +97,7 @@
 
 .filterButton:hover {
   border-color: var(--purple);
-  background-color: #f9f9f9;
+  background-color: var(--button-hover-bg);
 }
 
 .filterDropdown {
