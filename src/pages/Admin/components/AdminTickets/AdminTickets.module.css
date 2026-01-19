@@ -317,7 +317,7 @@
   border-radius: 20px;
   padding: 1rem 1.25rem;
   box-shadow: 0 1px 3px var(--shadow-black-10);
-  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   cursor: pointer;
   animation: fadeInUp 0.5s ease-out forwards;
   opacity: 0;
@@ -337,6 +337,16 @@
 .issueCard:hover {
   background: var(--teal-lighter);
   box-shadow: 0 8px 24px var(--shadow-black-20);
+}
+
+/* Dark theme - teal borders */
+[data-theme="dark"] .issueCard {
+  border: 1px solid var(--teal-light);
+}
+
+[data-theme="dark"] .issueCard:hover {
+  border-color: var(--teal);
+  box-shadow: 0 8px 24px var(--teal-rgba-20);
 }
 
 .issueHeader {

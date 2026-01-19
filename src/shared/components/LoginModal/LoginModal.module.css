@@ -67,6 +67,11 @@
   color: var(--teal-dark);
 }
 
+/* Dark theme - teal border */
+[data-theme="dark"] .modalContainer {
+  border: 2px solid var(--teal);
+}
+
 @media (max-width: 768px) {
   .modalContainer {
     padding: 2rem 1.5rem;

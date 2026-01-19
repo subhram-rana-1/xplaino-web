@@ -124,3 +124,8 @@
   color: var(--red);
 }
 
+/* Dark theme - confirm dialog teal border */
+[data-theme="dark"] .dialog {
+  border: 2px solid var(--teal);
+}
+

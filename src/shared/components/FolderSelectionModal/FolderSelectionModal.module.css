@@ -225,3 +225,8 @@
   }
 }
 
+/* Dark theme - teal border */
+[data-theme="dark"] .modal {
+  border: 2px solid var(--teal);
+}
+

@@ -343,6 +343,11 @@
   background: #fafafa;
 }
 
+/* Dark theme - preview images teal border */
+[data-theme="dark"] .previewImage {
+  border: 1px solid var(--teal-light);
+}
+
 .fileLink {
   display: inline-flex;
   align-items: center;

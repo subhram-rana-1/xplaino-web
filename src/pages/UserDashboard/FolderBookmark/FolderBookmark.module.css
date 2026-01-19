@@ -602,15 +602,25 @@
 .imageCard {
   display: flex;
   flex-direction: column;
-  background: white;
+  background: var(--bg-white);
   border-radius: 12px;
   border: 1px solid var(--teal-lighter);
   overflow: hidden;
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .imageCard:hover {
   box-shadow: 0 4px 20px var(--shadow-black-20);
+}
+
+/* Dark theme - image cards teal border */
+[data-theme="dark"] .imageCard {
+  border: 1px solid var(--teal-light);
+}
+
+[data-theme="dark"] .imageCard:hover {
+  border-color: var(--teal);
+  box-shadow: 0 4px 20px var(--teal-rgba-20);
 }
 
 .imageCardWrapper {
@@ -634,7 +644,7 @@
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
-  background: white;
+  background: var(--bg-white);
   border-radius: 10px;
   padding: 0.5rem;
   display: inline-flex;
@@ -662,7 +672,7 @@
   position: absolute;
   top: 0.75rem;
   left: 0.75rem;
-  background: white;
+  background: var(--bg-white);
   border-radius: 10px;
   padding: 0.5rem;
   display: inline-flex;
@@ -703,7 +713,7 @@
 }
 
 .actionIconsOnImage {
-  background: white;
+  background: var(--bg-white);
   border-radius: 8px;
   padding: 0.25rem;
   box-shadow: 0 2px 8px var(--shadow-black-10);
@@ -795,7 +805,7 @@
 .tooltip {
   position: fixed;
   padding: 1rem 1.25rem;
-  background: white;
+  background: var(--bg-white);
   color: var(--text-secondary);
   border-radius: 20px;
   font-size: 0.875rem;
@@ -878,15 +888,21 @@
   position: relative;
   max-width: 90vw;
   max-height: 90vh;
-  background: white;
+  background: var(--bg-white);
   border-radius: 30px;
   overflow: hidden;
   animation: scaleIn 0.3s ease;
   box-shadow: 0 20px 60px var(--shadow-black-30);
+  border: 2px solid transparent;
 }
 
 .imageModalClosing {
   animation: scaleOut 0.3s ease forwards;
+}
+
+/* Dark theme - image modal teal border */
+[data-theme="dark"] .imageModal {
+  border: 2px solid var(--teal);
 }
 
 @keyframes scaleIn {
@@ -916,7 +932,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.5rem;
-  background: white;
+  background: var(--bg-white);
   border-bottom: 1px solid var(--teal-lighter);
 }
 
@@ -946,7 +962,7 @@
   padding: 0.5rem;
   border-radius: 4px;
   transition: all 0.2s ease;
-  background: white;
+  background: var(--bg-white);
 }
 
 .imageModalSource:hover {
@@ -967,7 +983,7 @@
   border-radius: 4px;
   transition: all 0.2s ease;
   cursor: pointer;
-  background: white;
+  background: var(--bg-white);
 }
 
 .imageModalInfoIcon:hover {
@@ -1067,6 +1083,16 @@
   box-shadow: 0 4px 12px var(--teal-rgba-15);
 }
 
+/* Dark theme - folder cards teal border */
+[data-theme="dark"] .folderCard {
+  border: 2px solid var(--teal-light);
+}
+
+[data-theme="dark"] .folderCard:hover {
+  border-color: var(--teal);
+  box-shadow: 0 4px 12px var(--teal-rgba-30);
+}
+
 .folderCard svg {
   color: var(--teal);
 }
@@ -1088,7 +1114,7 @@
 
 .paragraphItem {
   padding: 1.5rem;
-  background: white;
+  background: var(--bg-white);
   border: 1px solid var(--teal-lighter);
   border-radius: 15px;
   transition: all 0.2s ease;
@@ -1096,6 +1122,16 @@
 
 .paragraphItem:hover {
   box-shadow: 0 2px 8px var(--teal-rgba-10);
+}
+
+/* Dark theme - paragraph items teal border */
+[data-theme="dark"] .paragraphItem {
+  border: 1px solid var(--teal-light);
+}
+
+[data-theme="dark"] .paragraphItem:hover {
+  border-color: var(--teal);
+  box-shadow: 0 2px 8px var(--teal-rgba-20);
 }
 
 .paragraphHeader {
@@ -1214,17 +1250,23 @@
   max-width: 90vw;
   max-height: 90vh;
   width: 800px;
-  background: white;
+  background: var(--bg-white);
   border-radius: 30px;
   overflow: hidden;
   animation: scaleIn 0.3s ease;
   box-shadow: 0 8px 24px var(--shadow-black-20);
   display: flex;
   flex-direction: column;
+  border: 2px solid transparent;
 }
 
 .paragraphModalClosing {
   animation: scaleOut 0.3s ease forwards;
+}
+
+/* Dark theme - paragraph modal teal border */
+[data-theme="dark"] .paragraphModal {
+  border: 2px solid var(--teal);
 }
 
 .paragraphModalHeader {
@@ -1232,7 +1274,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.5rem;
-  background: white;
+  background: var(--bg-white);
   border-bottom: 1px solid var(--teal-lighter);
   flex-shrink: 0;
 }
@@ -1263,7 +1305,7 @@
   padding: 0.5rem;
   border-radius: 4px;
   transition: all 0.2s ease;
-  background: white;
+  background: var(--bg-white);
 }
 
 .paragraphModalSource:hover {
@@ -1513,17 +1555,23 @@
   max-width: 90vw;
   max-height: 90vh;
   width: 800px;
-  background: white;
+  background: var(--bg-white);
   border-radius: 30px;
   overflow: hidden;
   animation: scaleIn 0.3s ease;
   box-shadow: 0 8px 24px var(--shadow-black-20);
   display: flex;
   flex-direction: column;
+  border: 2px solid transparent;
 }
 
 .summaryModalClosing {
   animation: scaleOut 0.3s ease forwards;
+}
+
+/* Dark theme - summary modal teal border */
+[data-theme="dark"] .summaryModal {
+  border: 2px solid var(--teal);
 }
 
 .summaryModalHeader {
@@ -1531,7 +1579,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.5rem;
-  background: white;
+  background: var(--bg-white);
   border-bottom: 1px solid var(--teal-lighter);
   flex-shrink: 0;
   position: relative;
@@ -1737,17 +1785,23 @@
   position: relative;
   max-width: 90vw;
   width: 500px;
-  background: white;
+  background: var(--bg-white);
   border-radius: 30px;
   overflow: hidden;
   box-shadow: 0 8px 24px var(--shadow-black-20);
   display: flex;
   flex-direction: column;
   animation: scaleIn 0.3s ease;
+  border: 2px solid transparent;
 }
 
 .addLinkModalClosing {
   animation: scaleOut 0.3s ease forwards;
+}
+
+/* Dark theme - add link modal teal border */
+[data-theme="dark"] .addLinkModal {
+  border: 2px solid var(--teal);
 }
 
 .addLinkModalHeader {
@@ -1843,7 +1897,7 @@
 }
 
 .addLinkCancelButton {
-  background: white;
+  background: var(--bg-white);
   border: 1px solid var(--teal-lighter);
   color: var(--text-tertiary);
   padding: 0.75rem 1.5rem;

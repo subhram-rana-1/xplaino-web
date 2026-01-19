@@ -271,6 +271,16 @@
   box-shadow: 0 4px 16px rgba(34, 197, 94, 0.3);
 }
 
+/* Dark theme - teal borders */
+[data-theme="dark"] .couponCard {
+  border: 2px solid var(--teal);
+}
+
+[data-theme="dark"] .couponCard:hover {
+  border-color: var(--teal-light);
+  box-shadow: 0 4px 16px var(--teal-rgba-30);
+}
+
 
 .cardHeader {
   display: flex;

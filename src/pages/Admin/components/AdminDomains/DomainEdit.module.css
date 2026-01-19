@@ -60,6 +60,11 @@
   padding: 2rem;
 }
 
+/* Dark theme - card teal border */
+[data-theme="dark"] .card {
+  border: 2px solid var(--teal-light);
+}
+
 .fieldRow {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

@@ -41,6 +41,12 @@
   transform-origin: center center;
   margin: auto;
   flex-shrink: 0;
+  border: 2px solid transparent;
+}
+
+/* Dark theme - video modal teal border */
+[data-theme="dark"] .modalContent {
+  border: 2px solid var(--teal);
 }
 
 .modalOpening {

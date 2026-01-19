@@ -23,10 +23,10 @@ export const Pricing: React.FC = () => {
         const response = await getLivePricings();
         setPricings(response.pricings);
         
-        // Initialize billing cycles for each pricing (default to monthly)
+        // Initialize billing cycles for each pricing (default to yearly)
         const initialCycles: Record<string, 'monthly' | 'yearly'> = {};
         response.pricings.forEach(pricing => {
-          initialCycles[pricing.id] = 'monthly';
+          initialCycles[pricing.id] = 'yearly';
         });
         setBillingCycles(initialCycles);
       } catch (error) {
@@ -99,17 +99,14 @@ export const Pricing: React.FC = () => {
     return (
       <div className={styles.priceContainer}>
         <div className={styles.priceAmount}>
+          {discount > 0 && (
+            <span className={styles.originalPrice}>{currencySymbol}{originalPrice.toFixed(2)} </span>
+          )}
           {currencySymbol}{price.toFixed(2)}
         </div>
         <div className={styles.pricePeriod}>
           per month {billingCycle === 'yearly' && '(billed annually)'}
         </div>
-        {discount > 0 && (
-          <div className={styles.priceDiscount}>
-            <span className={styles.originalPrice}>{currencySymbol}{originalPrice.toFixed(2)}</span>
-            <span className={styles.discountBadge}>{discount}% OFF</span>
-          </div>
-        )}
       </div>
     );
   };
@@ -181,6 +178,7 @@ export const Pricing: React.FC = () => {
             const allowedFeatures = pricing.features.filter(f => f.is_allowed);
             const billingCycle = billingCycles[pricing.id] || 'monthly';
             const hasYearlyOption = pricing.pricing_details.is_yearly_enabled;
+            const { discount } = calculatePrice(pricing, billingCycle);
             
             return (
               <div 
@@ -190,7 +188,12 @@ export const Pricing: React.FC = () => {
                 {pricing.is_highlighted && (
                   <div className={styles.banner}>Most Popular</div>
                 )}
-                <h2 className={styles.cardTitle}>{pricing.name}</h2>
+                <div className={`${styles.cardTitleContainer} ${pricing.is_highlighted ? styles.cardTitleWithBanner : ''}`}>
+                  <h2 className={styles.cardTitle}>{pricing.name}</h2>
+                  {discount > 0 && (
+                    <span className={styles.titleDiscountBadge}>{discount}% OFF</span>
+                  )}
+                </div>
                 
                 {/* Billing Cycle Toggle inside card */}
                 {hasYearlyOption && (

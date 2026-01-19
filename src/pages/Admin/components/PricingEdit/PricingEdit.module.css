@@ -55,6 +55,11 @@
   padding: 2rem;
 }
 
+/* Dark theme - card teal border */
+[data-theme="dark"] .card {
+  border: 2px solid var(--teal-light);
+}
+
 .section {
   margin-bottom: 2rem;
 }

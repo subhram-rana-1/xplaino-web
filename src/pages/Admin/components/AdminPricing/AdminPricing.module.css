@@ -248,6 +248,25 @@
   box-shadow: 0 4px 16px rgba(34, 197, 94, 0.2);
 }
 
+/* Dark theme - teal borders */
+[data-theme="dark"] .pricingCard {
+  border: 1px solid var(--teal-light);
+}
+
+[data-theme="dark"] .pricingCard:hover {
+  border-color: var(--teal);
+  box-shadow: 0 4px 16px var(--teal-rgba-20);
+}
+
+[data-theme="dark"] .cardActive {
+  border: 2px solid var(--teal);
+}
+
+[data-theme="dark"] .cardActive:hover {
+  border-color: var(--teal-light);
+  box-shadow: 0 8px 24px var(--teal-rgba-30);
+}
+
 .cardHeader {
   display: flex;
   justify-content: space-between;

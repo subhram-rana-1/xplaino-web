@@ -14,10 +14,20 @@ type UserDashboardSection = 'bookmarks' | 'pdf';
 export const UserDashboardLayout: React.FC = () => {
   const location = useLocation();
 
-  const sidebarItems: { key: UserDashboardSection; label: string; path: string; icon: React.ReactNode }[] = useMemo(() => [
-    { key: 'bookmarks', label: 'Bookmarks', path: '/user/dashboard/bookmark', icon: <FiBookmark /> },
-    { key: 'pdf', label: 'Pdf', path: '/user/dashboard/pdf', icon: <FiBookOpen /> },
-  ], []);
+  const sidebarItems: {
+    key: UserDashboardSection;
+    label: string;
+    path: string;
+    icon: React.ReactNode;
+    hidden?: boolean;
+  }[] = useMemo(
+    () => [
+      { key: 'bookmarks', label: 'Bookmarks', path: '/user/dashboard/bookmark', icon: <FiBookmark /> },
+      // Pdf section is kept but marked as hidden so it doesn't show in the sidebar for now
+      { key: 'pdf', label: 'Pdf', path: '/user/dashboard/pdf', icon: <FiBookOpen />, hidden: true },
+    ],
+    []
+  );
 
   // Determine active section from current route
   const activeSection = useMemo((): UserDashboardSection => {
@@ -33,16 +43,18 @@ export const UserDashboardLayout: React.FC = () => {
       <div className={styles.sidebar}>
         <h2 className={styles.sidebarTitle}>My dashboard</h2>
         <nav className={styles.sidebarNav}>
-          {sidebarItems.map((item) => (
-            <Link
-              key={item.key}
-              to={item.path}
-              className={`${styles.sidebarButton} ${activeSection === item.key ? styles.sidebarButtonActive : ''}`}
-            >
-              <span className={styles.sidebarButtonIcon}>{item.icon}</span>
-              {item.label}
-            </Link>
-          ))}
+          {sidebarItems
+            .filter((item) => !item.hidden)
+            .map((item) => (
+              <Link
+                key={item.key}
+                to={item.path}
+                className={`${styles.sidebarButton} ${activeSection === item.key ? styles.sidebarButtonActive : ''}`}
+              >
+                <span className={styles.sidebarButtonIcon}>{item.icon}</span>
+                {item.label}
+              </Link>
+            ))}
         </nav>
       </div>
       <div className={styles.content}>
