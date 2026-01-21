@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import styles from './Navbar.module.css';
-import logoImage from '../../../assets/images/logo-white-removebg.png';
+import logoImageLight from '../../../assets/images/logo-white-removebg.png';
+import logoImageDark from '../../../assets/images/logo-dark-removebg.png';
 import { useAuth } from '@/shared/hooks/useAuth';
+import { useTheme } from '@/shared/hooks/ThemeContext';
+import { Theme } from '@/shared/types/user-settings.types';
 import { FiLogOut } from 'react-icons/fi';
 import { LoginModal } from '@/shared/components/LoginModal';
 import { Toast } from '@/shared/components/Toast';
@@ -25,6 +28,8 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
   const [loginModalActionText, setLoginModalActionText] = useState('access your dashboard');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const { isLoggedIn, user, logout } = useAuth();
+  const { theme } = useTheme();
+  const logoImage = theme === Theme.DARK ? logoImageDark : logoImageLight;
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
