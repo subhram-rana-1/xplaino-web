@@ -59,7 +59,7 @@
 }
 
 .charCountWarning {
-  color: #f59e0b;
+  color: var(--yellow);
 }
 
 .cancelButton {

@@ -159,7 +159,7 @@
   z-index: 1000;
   max-height: 300px;
   overflow-y: auto;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px var(--shadow-black-10);
 }
 
 .dropdownOption {
@@ -384,7 +384,7 @@
 .submitButton {
   padding: 0.875rem 2rem;
   background-color: var(--teal);
-  color: #ffffff;
+  color: var(--text-on-primary);
   border: none;
   border-radius: var(--button-border-radius);
   font-size: 1rem;
@@ -441,7 +441,7 @@
 .reportAnotherButton {
   padding: 0.875rem 2rem;
   background-color: var(--teal);
-  color: #ffffff;
+  color: var(--text-on-primary);
   border: none;
   border-radius: var(--button-border-radius);
   font-size: 1rem;

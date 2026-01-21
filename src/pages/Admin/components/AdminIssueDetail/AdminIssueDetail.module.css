@@ -470,7 +470,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-on-primary);
   background: var(--teal);
   border: 2px solid var(--teal);
   border-radius: var(--button-border-radius);

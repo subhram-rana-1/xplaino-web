@@ -127,7 +127,7 @@
 .folderName {
   font-family: 'Inter', sans-serif;
   font-size: 0.9375rem;
-  color: #333;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -146,7 +146,7 @@
 .cancelButton {
   background: white;
   border: 1px solid var(--teal-lighter);
-  color: #666;
+  color: var(--text-tertiary);
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
   font-family: 'Inter', sans-serif;

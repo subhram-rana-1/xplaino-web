@@ -357,7 +357,7 @@
 }
 
 .resetButton:hover {
-  background-color: #fee;
+  background-color: var(--light-red);
   color: var(--red);
 }
 
@@ -395,7 +395,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: #ffffff;
+  color: var(--text-on-primary);
   font-size: 14px;
   font-weight: bold;
 }
@@ -431,7 +431,7 @@
   align-items: center;
   justify-content: center;
   padding: 6px 12px;
-  background: #e6f7f5;
+  background: var(--teal-lighter);
   border: 1px solid var(--teal-light);
   border-radius: 6px;
   font-family: 'Inter', sans-serif;

@@ -77,8 +77,8 @@
 }
 
 .errorMessage {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--light-red);
+  color: var(--red-darker);
   padding: 0.75rem 1rem;
   border-radius: 6px;
   font-family: 'Inter', sans-serif;

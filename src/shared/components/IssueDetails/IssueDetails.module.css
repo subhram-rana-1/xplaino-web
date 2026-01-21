@@ -36,23 +36,23 @@
 }
 
 .statusOPEN {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--status-open-bg);
+  color: var(--status-open-text);
 }
 
 .statusWORK_IN_PROGRESS {
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--status-wip-bg);
+  color: var(--status-wip-text);
 }
 
 .statusDISCARDED {
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--status-discarded-bg);
+  color: var(--status-discarded-text);
 }
 
 .statusRESOLVED {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--status-resolved-bg);
+  color: var(--status-resolved-text);
 }
 
 /* Status Dropdown - Admin only */
@@ -80,27 +80,27 @@
 }
 
 .statusDropdownButtonOPEN {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--status-open-bg);
+  color: var(--status-open-text);
   border-color: var(--yellow-border);
 }
 
 .statusDropdownButtonWORK_IN_PROGRESS {
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--status-wip-bg);
+  color: var(--status-wip-text);
   border-color: var(--blue-border);
 }
 
 .statusDropdownButtonDISCARDED {
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--status-discarded-bg);
+  color: var(--status-discarded-text);
   border-color: var(--gray-300);
 }
 
 .statusDropdownButtonRESOLVED {
-  background: #d1fae5;
-  color: #065f46;
-  border-color: #a7f3d0;
+  background: var(--status-resolved-bg);
+  color: var(--status-resolved-text);
+  border-color: var(--issue-resolved-border);
 }
 
 .statusDropdown {
@@ -109,9 +109,9 @@
   right: 0;
   margin-top: 0.5rem;
   background: var(--bg-white);
-  border: 2px solid #ddd;
+  border: 2px solid var(--border-medium);
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px var(--shadow-black-15);
   min-width: 180px;
   z-index: 100;
   overflow: hidden;
@@ -261,7 +261,7 @@
 }
 
 .copyButton:active {
-  background: #e8dfff;
+  background: var(--teal-lighter);
 }
 
 .copyButton svg {
@@ -270,7 +270,7 @@
 }
 
 .checkIcon {
-  color: #10b981;
+  color: var(--green);
 }
 
 .copiedTooltip {
@@ -279,13 +279,13 @@
   left: 0;
   font-family: 'Inter', sans-serif;
   font-size: 0.75rem;
-  color: #10b981;
+  color: var(--green);
   font-weight: 500;
   white-space: nowrap;
   background: var(--bg-white);
   padding: 0.25rem 0.5rem;
   border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px var(--shadow-black-15);
   z-index: 10;
   pointer-events: none;
 }
@@ -340,7 +340,7 @@
   object-fit: contain;
   border-radius: 8px;
   border: 1px solid var(--teal-lighter);
-  background: #fafafa;
+  background: var(--bg-lighter);
 }
 
 /* Dark theme - preview images teal border */
@@ -365,7 +365,7 @@
 }
 
 .fileLink:hover {
-  background-color: #ede5ff;
+  background-color: var(--teal-lighter);
   text-decoration: none;
 }
 
@@ -399,23 +399,23 @@
 }
 
 .issueTypeGLITCH {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--issue-glitch-bg);
+  color: var(--issue-glitch-text);
 }
 
 .issueTypeSUBSCRIPTION {
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--issue-subscription-bg);
+  color: var(--issue-subscription-text);
 }
 
 .issueTypeAUTHENTICATION {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--issue-auth-bg);
+  color: var(--issue-auth-text);
 }
 
 .issueTypeFEATURE_REQUEST {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--issue-feature-bg);
+  color: var(--issue-feature-text);
 }
 
 .issueTypeOTHERS {
@@ -444,7 +444,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
   font-weight: 600;
-  color: white;
+  color: var(--text-on-primary);
   background: var(--teal);
   border: 2px solid var(--teal);
   border-radius: var(--button-border-radius);

@@ -51,7 +51,7 @@
 }
 
 .content {
-  background: white;
+  background: var(--bg-white);
   border-radius: 0;
   padding: 1.5rem;
   border-bottom: 1px solid var(--teal-lighter);
@@ -75,23 +75,23 @@
 }
 
 .statusOPEN {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--status-open-bg);
+  color: var(--status-open-text);
 }
 
 .statusWORK_IN_PROGRESS {
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--status-wip-bg);
+  color: var(--status-wip-text);
 }
 
 .statusDISCARDED {
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--status-discarded-bg);
+  color: var(--status-discarded-text);
 }
 
 .statusRESOLVED {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--status-resolved-bg);
+  color: var(--status-resolved-text);
 }
 
 .details {
@@ -110,7 +110,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #666;
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -118,7 +118,7 @@
 .value {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: #333;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -132,7 +132,7 @@
 .ticketIdValue {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: #333;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -174,7 +174,7 @@
 .raisedOnValue {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: #333;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -186,7 +186,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 1.5rem;
   font-weight: 400;
-  color: #333;
+  color: var(--text-secondary);
   margin: 0;
   line-height: 1.4;
 }
@@ -214,7 +214,7 @@
 }
 
 .copyButton:active {
-  background: #e8dfff;
+  background: var(--teal-lighter);
 }
 
 .copyButton svg {
@@ -223,7 +223,7 @@
 }
 
 .checkIcon {
-  color: #10b981;
+  color: var(--green);
 }
 
 .copiedTooltip {
@@ -232,13 +232,13 @@
   left: 0;
   font-family: 'Inter', sans-serif;
   font-size: 0.75rem;
-  color: #10b981;
+  color: var(--green);
   font-weight: 500;
   white-space: nowrap;
-  background: white;
+  background: var(--bg-white);
   padding: 0.25rem 0.5rem;
   border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px var(--shadow-black-15);
   z-index: 10;
   pointer-events: none;
 }
@@ -246,7 +246,7 @@
 .descriptionText {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: #333;
+  color: var(--text-secondary);
   line-height: 1.6;
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -293,7 +293,7 @@
   object-fit: contain;
   border-radius: 8px;
   border: 1px solid var(--teal-lighter);
-  background: #fafafa;
+  background: var(--bg-lighter);
 }
 
 .fileLink {
@@ -313,7 +313,7 @@
 }
 
 .fileLink:hover {
-  background-color: #ede5ff;
+  background-color: var(--teal-lighter);
   text-decoration: none;
 }
 
@@ -347,23 +347,23 @@
 }
 
 .issueTypeGLITCH {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--issue-glitch-bg);
+  color: var(--issue-glitch-text);
 }
 
 .issueTypeSUBSCRIPTION {
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--issue-subscription-bg);
+  color: var(--issue-subscription-text);
 }
 
 .issueTypeAUTHENTICATION {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--issue-auth-bg);
+  color: var(--issue-auth-text);
 }
 
 .issueTypeFEATURE_REQUEST {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--issue-feature-bg);
+  color: var(--issue-feature-text);
 }
 
 .issueTypeOTHERS {
@@ -380,14 +380,14 @@
   font-family: 'Inter', sans-serif;
   font-size: 1.5rem;
   font-weight: 600;
-  color: #000;
+  color: var(--text-primary);
   margin: 0 0 0.5rem 0;
 }
 
 .errorMessage {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: #666;
+  color: var(--text-tertiary);
   margin: 0 0 2rem 0;
 }
 

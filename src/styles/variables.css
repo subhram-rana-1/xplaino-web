@@ -75,6 +75,7 @@
   --text-dark-gray: #2D3748;
   --text-medium: #4A5568;
   --text-light: #A0AEC0;
+  --text-on-primary: #ffffff;
 
   /* ============================================
      BACKGROUND COLORS
@@ -124,6 +125,48 @@
   --white-rgba-95: rgba(255, 255, 255, 0.95);
 
   /* ============================================
+     GRADIENT COLORS
+     ============================================ */
+  --teal-gradient-start: #14b8a6;
+  --teal-gradient-end: #0d9488;
+
+  /* ============================================
+     TOGGLE SWITCH COLORS
+     ============================================ */
+  --toggle-bg: rgba(148, 163, 184, 0.2);
+  --toggle-border: rgba(148, 163, 184, 0.3);
+  --toggle-bg-hover: rgba(148, 163, 184, 0.25);
+  --toggle-border-hover: rgba(148, 163, 184, 0.4);
+  --toggle-focus-shadow: rgba(20, 184, 166, 0.2);
+  --toggle-slider-bg: white;
+  --toggle-slider-shadow: rgba(0, 0, 0, 0.2);
+
+  /* ============================================
+     STATUS BADGE COLORS
+     ============================================ */
+  --status-open-bg: #fef3c7;
+  --status-open-text: #92400e;
+  --status-wip-bg: #dbeafe;
+  --status-wip-text: #1e40af;
+  --status-discarded-bg: #f3f4f6;
+  --status-discarded-text: #374151;
+  --status-resolved-bg: #d1fae5;
+  --status-resolved-text: #065f46;
+
+  /* ============================================
+     ISSUE TYPE BADGE COLORS
+     ============================================ */
+  --issue-glitch-bg: #fee2e2;
+  --issue-glitch-text: #991b1b;
+  --issue-subscription-bg: #dbeafe;
+  --issue-subscription-text: #1e40af;
+  --issue-auth-bg: #fef3c7;
+  --issue-auth-text: #92400e;
+  --issue-feature-bg: #d1fae5;
+  --issue-feature-text: #065f46;
+  --issue-resolved-border: #a7f3d0;
+
+  /* ============================================
      UTILITIES
      ============================================ */
   --button-border-radius: 10px;
@@ -135,12 +178,12 @@
    ============================================ */
 [data-theme="dark"] {
   /* ============================================
-     PRIMARY COLORS - TEAL THEME (DARK MODE)
+     PRIMARY COLORS - TURQUOISE THEME (DARK MODE)
      ============================================ */
-  --teal: #0d8070;
-  --teal-light: #14b8a6;
-  --teal-lighter: rgba(20, 184, 166, 0.15);
-  --teal-dark: #0a5d52;
+  --teal: #38c9b5;
+  --teal-light: #4dd4bf;
+  --teal-lighter: rgba(56, 201, 181, 0.15);
+  --teal-dark: #2a9985;
 
   /* ============================================
      GRAY SCALE (DARK MODE)
@@ -210,6 +253,7 @@
   --text-dark-gray: #c9cdd3;
   --text-medium: #a8adb7;
   --text-light: #6b7280;
+  --text-on-primary: #0f1419;
 
   /* ============================================
      BACKGROUND COLORS (DARK MODE)
@@ -231,16 +275,16 @@
   --border-default: #2d3748;
 
   /* ============================================
-     SHADOW COLORS (RGBA) (DARK MODE)
+     SHADOW COLORS (RGBA) (DARK MODE) - TURQUOISE
      ============================================ */
-  --teal-rgba-10: rgba(13, 128, 112, 0.1);
-  --teal-rgba-15: rgba(13, 128, 112, 0.15);
-  --teal-rgba-20: rgba(13, 128, 112, 0.2);
-  --teal-rgba-25: rgba(13, 128, 112, 0.25);
-  --teal-rgba-30: rgba(13, 128, 112, 0.3);
-  --teal-rgba-40: rgba(13, 128, 112, 0.4);
-  --teal-rgba-50: rgba(13, 128, 112, 0.5);
-  --teal-rgba-60: rgba(13, 128, 112, 0.6);
+  --teal-rgba-10: rgba(56, 201, 181, 0.1);
+  --teal-rgba-15: rgba(56, 201, 181, 0.15);
+  --teal-rgba-20: rgba(56, 201, 181, 0.2);
+  --teal-rgba-25: rgba(56, 201, 181, 0.25);
+  --teal-rgba-30: rgba(56, 201, 181, 0.3);
+  --teal-rgba-40: rgba(56, 201, 181, 0.4);
+  --teal-rgba-50: rgba(56, 201, 181, 0.5);
+  --teal-rgba-60: rgba(56, 201, 181, 0.6);
   
   --shadow-black-10: rgba(255, 255, 255, 0.05);
   --shadow-black-15: rgba(255, 255, 255, 0.08);
@@ -257,6 +301,48 @@
   --white-rgba-40: rgba(255, 255, 255, 0.2);
   --white-rgba-50: rgba(255, 255, 255, 0.25);
   --white-rgba-95: rgba(255, 255, 255, 0.05);
+
+  /* ============================================
+     GRADIENT COLORS (DARK MODE) - TURQUOISE
+     ============================================ */
+  --teal-gradient-start: #4dd4bf;
+  --teal-gradient-end: #38c9b5;
+
+  /* ============================================
+     TOGGLE SWITCH COLORS (DARK MODE)
+     ============================================ */
+  --toggle-bg: rgba(75, 85, 99, 0.4);
+  --toggle-border: rgba(75, 85, 99, 0.5);
+  --toggle-bg-hover: rgba(75, 85, 99, 0.5);
+  --toggle-border-hover: rgba(75, 85, 99, 0.6);
+  --toggle-focus-shadow: rgba(56, 201, 181, 0.3);
+  --toggle-slider-bg: #e8eaed;
+  --toggle-slider-shadow: rgba(0, 0, 0, 0.3);
+
+  /* ============================================
+     STATUS BADGE COLORS (DARK MODE)
+     ============================================ */
+  --status-open-bg: rgba(251, 191, 36, 0.2);
+  --status-open-text: #fbbf24;
+  --status-wip-bg: rgba(59, 130, 246, 0.2);
+  --status-wip-text: #60a5fa;
+  --status-discarded-bg: rgba(107, 114, 128, 0.2);
+  --status-discarded-text: #9ca3af;
+  --status-resolved-bg: rgba(34, 197, 94, 0.2);
+  --status-resolved-text: #4ade80;
+
+  /* ============================================
+     ISSUE TYPE BADGE COLORS (DARK MODE)
+     ============================================ */
+  --issue-glitch-bg: rgba(239, 68, 68, 0.2);
+  --issue-glitch-text: #f87171;
+  --issue-subscription-bg: rgba(59, 130, 246, 0.2);
+  --issue-subscription-text: #60a5fa;
+  --issue-auth-bg: rgba(251, 191, 36, 0.2);
+  --issue-auth-text: #fbbf24;
+  --issue-feature-bg: rgba(34, 197, 94, 0.2);
+  --issue-feature-text: #4ade80;
+  --issue-resolved-border: rgba(74, 222, 128, 0.4);
 
   /* ============================================
      UTILITIES (DARK MODE)

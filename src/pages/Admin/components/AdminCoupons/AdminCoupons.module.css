@@ -136,12 +136,12 @@
 
 .filterOptionSelected {
   background-color: var(--teal);
-  color: #ffffff;
+  color: var(--text-on-primary);
 }
 
 .filterOptionSelected:hover {
   background-color: var(--teal-dark);
-  color: #ffffff;
+  color: var(--text-on-primary);
 }
 
 .headerActions {
@@ -169,7 +169,7 @@
 
 .refreshButton:hover:not(:disabled) {
   background: var(--teal);
-  color: #ffffff;
+  color: var(--text-on-primary);
 }
 
 .refreshButton:disabled {
@@ -195,7 +195,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-on-primary);
   background: var(--teal);
   border: 2px solid var(--teal);
   border-radius: var(--button-border-radius);
@@ -458,7 +458,7 @@
 
 .paginationButton:hover:not(:disabled) {
   background: var(--teal);
-  color: #ffffff;
+  color: var(--text-on-primary);
 }
 
 .paginationButton:active:not(:disabled) {

@@ -55,12 +55,12 @@
 
 .sidebarButtonActive {
   background-color: var(--teal);
-  color: #ffffff;
+  color: var(--text-on-primary);
 }
 
 .sidebarButtonActive:hover {
   background-color: var(--teal-dark);
-  color: #ffffff;
+  color: var(--text-on-primary);
 }
 
 .content {

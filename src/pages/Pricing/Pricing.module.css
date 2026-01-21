@@ -60,7 +60,7 @@
   top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+  background: linear-gradient(135deg, var(--teal-gradient-start) 0%, var(--teal-gradient-end) 100%);
   color: white;
   padding: 0.5rem 1.5rem;
   border-radius: 20px;
@@ -68,7 +68,7 @@
   font-size: 0.875rem;
   font-weight: 600;
   white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+  box-shadow: 0 4px 12px var(--teal-rgba-30);
 }
 
 .cardTitleContainer {
@@ -96,8 +96,8 @@
   font-family: 'Inter', sans-serif;
   font-size: 1.125rem;
   font-weight: 700;
-  color: var(--green);
-  background: rgba(34, 197, 94, 0.1);
+  color: var(--green-success);
+  background: var(--green-light-bg);
   padding: 0.375rem 0.75rem;
   border-radius: 12px;
   white-space: nowrap;
@@ -130,9 +130,9 @@
   position: relative;
   width: 48px;
   height: 26px;
-  background: rgba(148, 163, 184, 0.2);
+  background: var(--toggle-bg);
   border-radius: 13px;
-  border: 2px solid rgba(148, 163, 184, 0.3);
+  border: 2px solid var(--toggle-border);
   cursor: pointer;
   transition: all 0.3s ease;
   padding: 0;
@@ -140,12 +140,12 @@
 }
 
 .toggleSwitch:hover {
-  background: rgba(148, 163, 184, 0.25);
-  border-color: rgba(148, 163, 184, 0.4);
+  background: var(--toggle-bg-hover);
+  border-color: var(--toggle-border-hover);
 }
 
 .toggleSwitch:focus-visible {
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2);
+  box-shadow: 0 0 0 3px var(--toggle-focus-shadow);
 }
 
 .toggleSlider {
@@ -154,26 +154,26 @@
   left: 2px;
   width: 18px;
   height: 18px;
-  background: white;
+  background: var(--toggle-slider-bg);
   border-radius: 50%;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px var(--toggle-slider-shadow);
 }
 
 .toggleSliderActive {
   left: 24px;
-  background: white;
+  background: var(--toggle-slider-bg);
 }
 
 .toggleSwitch:has(.toggleSliderActive) {
-  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
-  border-color: #0d9488;
+  background: linear-gradient(135deg, var(--teal-gradient-start) 0%, var(--teal-gradient-end) 100%);
+  border-color: var(--teal-gradient-end);
 }
 
 .cardSaveBadge {
   font-size: 0.625rem;
   font-weight: 700;
-  color: #fbbf24;
+  color: var(--yellow);
   background: rgba(251, 191, 36, 0.15);
   padding: 0.125rem 0.375rem;
   border-radius: 8px;
@@ -232,8 +232,8 @@
   font-family: 'Inter', sans-serif;
   font-size: 1.125rem;
   font-weight: 700;
-  color: var(--green);
-  background: rgba(34, 197, 94, 0.1);
+  color: var(--green-success);
+  background: var(--green-light-bg);
   padding: 0.375rem 0.75rem;
   border-radius: 12px;
 }
@@ -263,7 +263,7 @@
 
 .buttonPrimary {
   background-color: var(--teal);
-  color: white;
+  color: var(--text-on-primary);
   border-color: var(--teal);
 }
 
