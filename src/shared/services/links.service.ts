@@ -20,7 +20,7 @@ export interface SaveLinkRequest {
  * Get all saved links with folders and pagination
  */
 export async function getAllSavedLinksByFolderId(
-  accessToken: string,
+  _accessToken: string,
   folderId: string | null = null,
   offset: number = 0,
   limit: number = 20
@@ -49,7 +49,7 @@ export async function getAllSavedLinksByFolderId(
  * Save a new link
  */
 export async function saveLink(
-  accessToken: string,
+  _accessToken: string,
   body: SaveLinkRequest
 ): Promise<SavedLink> {
   const response = await fetchWithAuth(
@@ -77,7 +77,7 @@ export async function saveLink(
  * Delete a saved link by ID
  */
 export async function deleteSavedLink(
-  accessToken: string,
+  _accessToken: string,
   linkId: string
 ): Promise<void> {
   const response = await fetchWithAuth(
@@ -100,7 +100,7 @@ export async function deleteSavedLink(
  * Move a saved link to a folder
  */
 export async function moveSavedLinkToFolder(
-  accessToken: string,
+  _accessToken: string,
   linkId: string,
   folderId: string | null
 ): Promise<SavedLink> {

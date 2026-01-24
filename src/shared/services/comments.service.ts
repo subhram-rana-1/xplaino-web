@@ -17,7 +17,7 @@ import type {
  * Get comments for an entity
  */
 export async function getCommentsByEntity(
-  accessToken: string,
+  _accessToken: string,
   entityType: EntityType,
   entityId: string,
   count: number = 20
@@ -51,7 +51,7 @@ export async function getCommentsByEntity(
  * Create a new comment
  */
 export async function createComment(
-  accessToken: string,
+  _accessToken: string,
   body: CreateCommentRequest
 ): Promise<CreateCommentResponse> {
   const response = await fetchWithAuth(

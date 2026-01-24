@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from 'react';
 import { useAuth } from './useAuth';
 import { getUserSettings } from '@/shared/services/user-settings.service';
 import { Theme } from '@/shared/types/user-settings.types';

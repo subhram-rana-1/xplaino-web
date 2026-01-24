@@ -12,7 +12,7 @@ import type { GetMyIssuesResponse, GetAllIssuesResponse, GetAllIssuesFilters, Is
  * Get all issues for the authenticated user
  */
 export async function getMyIssues(
-  accessToken: string,
+  _accessToken: string,
   statuses?: string[]
 ): Promise<GetMyIssuesResponse> {
   const statusesParam = statuses && statuses.length > 0 
@@ -42,7 +42,7 @@ export async function getMyIssues(
  * Report a new issue
  */
 export async function reportIssue(
-  accessToken: string,
+  _accessToken: string,
   body: ReportIssueRequest,
   files?: File[]
 ): Promise<IssueResponse> {
@@ -91,7 +91,7 @@ export async function reportIssue(
  * Returns issue with CreatedByUser objects for created_by and closed_by
  */
 export async function getIssueByTicketId(
-  accessToken: string,
+  _accessToken: string,
   ticketId: string
 ): Promise<GetIssueByTicketIdResponse> {
   const response = await fetchWithAuth(
@@ -118,7 +118,7 @@ export async function getIssueByTicketId(
  * Requires ADMIN or SUPER_ADMIN role
  */
 export async function getAllIssues(
-  accessToken: string,
+  _accessToken: string,
   filters?: GetAllIssuesFilters
 ): Promise<GetAllIssuesResponse> {
   const params = new URLSearchParams();
@@ -166,7 +166,7 @@ export async function getAllIssues(
  * Requires ADMIN or SUPER_ADMIN role
  */
 export async function updateIssue(
-  accessToken: string,
+  _accessToken: string,
   issueId: string,
   body: UpdateIssueRequest
 ): Promise<IssueResponse> {

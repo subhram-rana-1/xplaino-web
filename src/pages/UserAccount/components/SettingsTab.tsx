@@ -16,7 +16,7 @@ import { IconTabGroup } from '@/shared/components/IconTabGroup';
  */
 export const SettingsTab: React.FC = () => {
   const { accessToken } = useAuth();
-  const { theme: globalTheme, setTheme: setGlobalTheme } = useTheme();
+  const { setTheme: setGlobalTheme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);

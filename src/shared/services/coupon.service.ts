@@ -26,7 +26,7 @@ export interface GetAllCouponsFilters {
  * Requires authentication and ADMIN or SUPER_ADMIN role
  */
 export async function getAllCoupons(
-  accessToken: string,
+  _accessToken: string,
   filters?: GetAllCouponsFilters,
   offset: number = 0,
   limit: number = 20
@@ -72,7 +72,7 @@ export async function getAllCoupons(
  * Requires authentication and ADMIN or SUPER_ADMIN role
  */
 export async function getCouponById(
-  accessToken: string,
+  _accessToken: string,
   couponId: string
 ): Promise<CouponResponse> {
   const response = await fetchWithAuth(
@@ -99,7 +99,7 @@ export async function getCouponById(
  * Requires authentication and ADMIN or SUPER_ADMIN role
  */
 export async function createCoupon(
-  accessToken: string,
+  _accessToken: string,
   body: CreateCouponRequest
 ): Promise<CouponResponse> {
   const response = await fetchWithAuth(
@@ -127,7 +127,7 @@ export async function createCoupon(
  * Requires authentication and ADMIN or SUPER_ADMIN role
  */
 export async function updateCoupon(
-  accessToken: string,
+  _accessToken: string,
   couponId: string,
   body: UpdateCouponRequest
 ): Promise<CouponResponse> {
@@ -156,7 +156,7 @@ export async function updateCoupon(
  * Requires authentication and ADMIN or SUPER_ADMIN role
  */
 export async function deleteCoupon(
-  accessToken: string,
+  _accessToken: string,
   couponId: string
 ): Promise<void> {
   const response = await fetchWithAuth(

@@ -18,7 +18,7 @@ import type {
  * Get all saved paragraphs with folders and pagination
  */
 export async function getAllSavedParagraphs(
-  accessToken: string,
+  _accessToken: string,
   folderId: string | null = null,
   offset: number = 0,
   limit: number = 20
@@ -47,7 +47,7 @@ export async function getAllSavedParagraphs(
  * Delete a saved paragraph by ID
  */
 export async function deleteSavedParagraph(
-  accessToken: string,
+  _accessToken: string,
   paragraphId: string
 ): Promise<void> {
   const response = await fetchWithAuth(
@@ -70,7 +70,7 @@ export async function deleteSavedParagraph(
  * Create a paragraph folder
  */
 export async function createParagraphFolder(
-  accessToken: string,
+  _accessToken: string,
   name: string,
   parentFolderId: string | null = null
 ): Promise<Folder> {
@@ -101,7 +101,7 @@ export async function createParagraphFolder(
  * Delete a folder by ID
  */
 export async function deleteFolder(
-  accessToken: string,
+  _accessToken: string,
   folderId: string
 ): Promise<void> {
   const response = await fetchWithAuth(
@@ -127,7 +127,7 @@ export async function deleteFolder(
  * will result in a validation error as the API requires a valid folder ID.
  */
 export async function moveSavedParagraphToFolder(
-  accessToken: string,
+  _accessToken: string,
   paragraphId: string,
   folderId: string | null
 ): Promise<void> {
@@ -161,7 +161,7 @@ export async function moveSavedParagraphToFolder(
  * @returns AsyncGenerator that yields SSE response chunks
  */
 export async function* askAISavedParagraphs(
-  accessToken: string,
+  _accessToken: string,
   initialContext: string[],
   userQuestionType: UserQuestionType,
   chatHistory: ChatMessage[] = [],

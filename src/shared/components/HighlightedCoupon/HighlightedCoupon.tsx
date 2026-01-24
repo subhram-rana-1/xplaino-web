@@ -13,13 +13,11 @@ interface HighlightedCouponProps {
  * 
  * @returns JSX element or null if no active coupon
  */
-export const HighlightedCoupon: React.FC<HighlightedCouponProps> = ({ onDismiss }) => {
+export const HighlightedCoupon: React.FC<HighlightedCouponProps> = ({ onDismiss: _onDismiss }) => {
   const [coupon, setCoupon] = useState<GetActiveHighlightedCouponResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
   const [timeRemaining, setTimeRemaining] = useState<string>('');
   const navigate = useNavigate();
 
@@ -29,7 +27,7 @@ export const HighlightedCoupon: React.FC<HighlightedCouponProps> = ({ onDismiss 
     
     const updateCountdown = () => {
       const now = new Date().getTime();
-      const expiryTime = new Date(coupon.expiry).getTime();
+      const expiryTime = new Date(coupon.expiry!).getTime();
       const diff = expiryTime - now;
       
       if (diff <= 0) {
@@ -98,23 +96,13 @@ export const HighlightedCoupon: React.FC<HighlightedCouponProps> = ({ onDismiss 
     navigate('/pricing');
   };
 
-  const handleClose = () => {
-    setIsClosing(true);
-    setTimeout(() => {
-      setIsVisible(false);
-      if (onDismiss) {
-        onDismiss();
-      }
-    }, 300);
-  };
-
-  // Don't render anything if loading, error, no coupon, or after closing
-  if (isLoading || error || !coupon || !coupon.coupon_code || !isVisible) {
+  // Don't render anything if loading, error, or no coupon
+  if (isLoading || error || !coupon || !coupon.coupon_code) {
     return null;
   }
 
   return (
-    <div className={`${styles.banner} ${isClosing ? styles.closing : ''}`}>
+    <div className={styles.banner}>
       <div className={styles.container}>
         <div className={styles.content}>
           <div className={styles.leftSection}>

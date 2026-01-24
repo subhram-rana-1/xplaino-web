@@ -17,7 +17,7 @@ import type {
  * Get user settings for the authenticated user
  */
 export async function getUserSettings(
-  accessToken: string
+  _accessToken: string
 ): Promise<UserSettingsResponse> {
   const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/user-settings`,
@@ -42,7 +42,7 @@ export async function getUserSettings(
  * Update user settings for the authenticated user
  */
 export async function updateUserSettings(
-  accessToken: string,
+  _accessToken: string,
   body: UpdateSettingsRequest
 ): Promise<SettingsResponse> {
   const response = await fetchWithAuth(

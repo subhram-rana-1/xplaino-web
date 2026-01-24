@@ -4,7 +4,8 @@ import styles from './PricingAdd.module.css';
 import { getFeatures } from '@/shared/services/features.service';
 import { createPricing } from '@/shared/services/pricing.service';
 import type { Feature } from '@/shared/types/features.types';
-import type { PricingFeature, CreatePricingRequest, PricingStatus, Currency, MaxAllowedType } from '@/shared/types/pricing.types';
+import type { PricingFeature, CreatePricingRequest } from '@/shared/types/pricing.types';
+import { PricingStatus, Currency, MaxAllowedType } from '@/shared/types/pricing.types';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { Toast } from '@/shared/components/Toast';
 import { DropdownIcon } from '@/shared/components/DropdownIcon';
@@ -35,8 +36,8 @@ export const PricingAdd: React.FC = () => {
     name: '',
     activation: '',
     expiry: '',
-    status: 'ENABLED' as PricingStatus,
-    currency: 'USD' as Currency,
+    status: PricingStatus.ENABLED,
+    currency: Currency.USD,
     description: '',
     is_highlighted: false,
     monthly_price: '',
@@ -110,7 +111,7 @@ export const PricingAdd: React.FC = () => {
           ...feature,
           is_allowed: !feature.is_allowed,
           // Auto-select Unlimited when checking, reset when unchecking
-          max_allowed_type: !feature.is_allowed ? 'UNLIMITED' as MaxAllowedType : null,
+          max_allowed_type: !feature.is_allowed ? MaxAllowedType.UNLIMITED : null,
           max_allowed_count: null,
         });
       }
@@ -140,7 +141,7 @@ export const PricingAdd: React.FC = () => {
           newMap.set(name, {
             ...feature,
             is_allowed: true,
-            max_allowed_type: 'UNLIMITED' as MaxAllowedType,
+            max_allowed_type: MaxAllowedType.UNLIMITED,
             max_allowed_count: null,
           });
         });
@@ -160,7 +161,7 @@ export const PricingAdd: React.FC = () => {
         newMap.set(featureName, {
           ...feature,
           max_allowed_type: type,
-          max_allowed_count: type === 'UNLIMITED' ? null : (feature.max_allowed_count || 1),
+          max_allowed_count: type === MaxAllowedType.UNLIMITED ? null : (feature.max_allowed_count || 1),
         });
       }
       return newMap;
@@ -257,7 +258,7 @@ export const PricingAdd: React.FC = () => {
 
     // Validate feature counts
     for (const feature of selectedFeatures.values()) {
-      if (feature.is_allowed && feature.max_allowed_type === 'FIXED') {
+      if (feature.is_allowed && feature.max_allowed_type === MaxAllowedType.FIXED) {
         if (!feature.max_allowed_count || feature.max_allowed_count <= 0) {
           setToast({ message: `Please enter a valid count (> 0) for feature: ${feature.name}`, type: 'error' });
           return;
@@ -278,7 +279,7 @@ export const PricingAdd: React.FC = () => {
         name: f.name,
         is_allowed: f.is_allowed,
         max_allowed_type: f.is_allowed ? f.max_allowed_type : null,
-        max_allowed_count: f.is_allowed && f.max_allowed_type === 'FIXED' ? f.max_allowed_count : null,
+        max_allowed_count: f.is_allowed && f.max_allowed_type === MaxAllowedType.FIXED ? f.max_allowed_count : null,
       }));
 
       const requestBody: CreatePricingRequest = {
@@ -381,7 +382,7 @@ export const PricingAdd: React.FC = () => {
                         type="button"
                         className={styles.dropdownItem}
                         onClick={() => {
-                          setFormData(prev => ({ ...prev, status: 'ENABLED' }));
+                          setFormData(prev => ({ ...prev, status: PricingStatus.ENABLED }));
                           setIsStatusDropdownOpen(false);
                         }}
                       >
@@ -391,7 +392,7 @@ export const PricingAdd: React.FC = () => {
                         type="button"
                         className={styles.dropdownItem}
                         onClick={() => {
-                          setFormData(prev => ({ ...prev, status: 'DISABLED' }));
+                          setFormData(prev => ({ ...prev, status: PricingStatus.DISABLED }));
                           setIsStatusDropdownOpen(false);
                         }}
                       >
@@ -450,7 +451,7 @@ export const PricingAdd: React.FC = () => {
                         type="button"
                         className={styles.dropdownItem}
                         onClick={() => {
-                          setFormData(prev => ({ ...prev, currency: 'USD' }));
+                          setFormData(prev => ({ ...prev, currency: Currency.USD }));
                           setIsCurrencyDropdownOpen(false);
                         }}
                       >
@@ -647,8 +648,8 @@ export const PricingAdd: React.FC = () => {
                               <input
                                 type="radio"
                                 name={`${feature.name}-type`}
-                                checked={featureData.max_allowed_type === 'FIXED'}
-                                onChange={() => handleFeatureTypeChange(feature.name, 'FIXED')}
+                                checked={featureData.max_allowed_type === MaxAllowedType.FIXED}
+                                onChange={() => handleFeatureTypeChange(feature.name, MaxAllowedType.FIXED)}
                                 className={styles.radio}
                               />
                               Fixed Count
@@ -657,15 +658,15 @@ export const PricingAdd: React.FC = () => {
                               <input
                                 type="radio"
                                 name={`${feature.name}-type`}
-                                checked={featureData.max_allowed_type === 'UNLIMITED'}
-                                onChange={() => handleFeatureTypeChange(feature.name, 'UNLIMITED')}
+                                checked={featureData.max_allowed_type === MaxAllowedType.UNLIMITED}
+                                onChange={() => handleFeatureTypeChange(feature.name, MaxAllowedType.UNLIMITED)}
                                 className={styles.radio}
                               />
                               Unlimited
                             </label>
                           </div>
 
-                          {featureData.max_allowed_type === 'FIXED' && (
+                          {featureData.max_allowed_type === MaxAllowedType.FIXED && (
                             <div className={styles.featureCountField}>
                               <label className={styles.label}>Count *</label>
                               <input

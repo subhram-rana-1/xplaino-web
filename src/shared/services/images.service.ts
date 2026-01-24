@@ -12,7 +12,7 @@ import type { GetAllSavedImagesResponse } from '@/shared/types/images.types';
  * Get all saved images by folder ID with pagination
  */
 export async function getAllSavedImagesByFolderId(
-  accessToken: string,
+  _accessToken: string,
   folderId: string,
   offset: number = 0,
   limit: number = 20
@@ -40,7 +40,7 @@ export async function getAllSavedImagesByFolderId(
  * Delete a saved image by ID
  */
 export async function deleteSavedImage(
-  accessToken: string,
+  _accessToken: string,
   imageId: string
 ): Promise<void> {
   const response = await fetchWithAuth(
@@ -63,7 +63,7 @@ export async function deleteSavedImage(
  * Move a saved image to a folder
  */
 export async function moveSavedImageToFolder(
-  accessToken: string,
+  _accessToken: string,
   imageId: string,
   folderId: string | null
 ): Promise<void> {

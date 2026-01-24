@@ -12,7 +12,7 @@ import type { GetAllPdfsResponse, PdfResponse, GetPdfHtmlPagesResponse } from '@
  * Get all PDFs for the authenticated user
  */
 export async function getAllPdfs(
-  accessToken: string
+  _accessToken: string
 ): Promise<GetAllPdfsResponse> {
   const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/pdf`,
@@ -39,7 +39,7 @@ export async function getAllPdfs(
  * Uploads a PDF file and converts it to HTML format
  */
 export async function convertPdfToHtml(
-  accessToken: string,
+  _accessToken: string,
   file: File
 ): Promise<PdfResponse> {
   // Create FormData for multipart/form-data request
@@ -72,7 +72,7 @@ export async function convertPdfToHtml(
  * Retrieves paginated HTML pages for a PDF
  */
 export async function getHtmlPagesByPdfId(
-  accessToken: string,
+  _accessToken: string,
   pdfId: string,
   offset: number = 0,
   limit: number = 20
@@ -102,7 +102,7 @@ export async function getHtmlPagesByPdfId(
  * Deletes a PDF by ID for the authenticated user
  */
 export async function deletePdf(
-  accessToken: string,
+  _accessToken: string,
   pdfId: string
 ): Promise<void> {
   const response = await fetchWithAuth(

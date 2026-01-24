@@ -13,7 +13,7 @@ import type { GetAllDomainsResponse, DomainResponse, CreateDomainRequest, Update
  * Requires authentication and ADMIN or SUPER_ADMIN role
  */
 export async function getAllDomains(
-  accessToken: string,
+  _accessToken: string,
   offset: number = 0,
   limit: number = 20
 ): Promise<GetAllDomainsResponse> {
@@ -41,7 +41,7 @@ export async function getAllDomains(
  * Requires authentication and ADMIN or SUPER_ADMIN role
  */
 export async function getDomainById(
-  accessToken: string,
+  _accessToken: string,
   domainId: string
 ): Promise<DomainResponse> {
   const response = await fetchWithAuth(
@@ -68,7 +68,7 @@ export async function getDomainById(
  * Requires authentication and ADMIN or SUPER_ADMIN role
  */
 export async function createDomain(
-  accessToken: string,
+  _accessToken: string,
   body: CreateDomainRequest
 ): Promise<DomainResponse> {
   const response = await fetchWithAuth(
@@ -96,7 +96,7 @@ export async function createDomain(
  * Requires authentication and ADMIN or SUPER_ADMIN role
  */
 export async function updateDomain(
-  accessToken: string,
+  _accessToken: string,
   domainId: string,
   body: UpdateDomainRequest
 ): Promise<DomainResponse> {
@@ -125,7 +125,7 @@ export async function updateDomain(
  * Requires authentication and ADMIN or SUPER_ADMIN role
  */
 export async function deleteDomain(
-  accessToken: string,
+  _accessToken: string,
   domainId: string
 ): Promise<void> {
   const response = await fetchWithAuth(

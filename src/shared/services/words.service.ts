@@ -12,7 +12,7 @@ import type { GetSavedWordsResponse } from '@/shared/types/words.types';
  * Get saved words with pagination
  */
 export async function getSavedWords(
-  accessToken: string,
+  _accessToken: string,
   offset: number = 0,
   limit: number = 20
 ): Promise<GetSavedWordsResponse> {
@@ -39,7 +39,7 @@ export async function getSavedWords(
  * Get saved words by folder ID with pagination
  */
 export async function getSavedWordsByFolderId(
-  accessToken: string,
+  _accessToken: string,
   folderId: string,
   offset: number = 0,
   limit: number = 20
@@ -67,7 +67,7 @@ export async function getSavedWordsByFolderId(
  * Delete a saved word by ID
  */
 export async function deleteSavedWord(
-  accessToken: string,
+  _accessToken: string,
   wordId: string
 ): Promise<void> {
   const response = await fetchWithAuth(
@@ -90,7 +90,7 @@ export async function deleteSavedWord(
  * Move a saved word to a folder
  */
 export async function moveSavedWordToFolder(
-  accessToken: string,
+  _accessToken: string,
   wordId: string,
   folderId: string | null
 ): Promise<void> {

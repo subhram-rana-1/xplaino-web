@@ -37,7 +37,7 @@ export async function getLivePricings(): Promise<GetLivePricingsResponse> {
  * Requires authentication and ADMIN or SUPER_ADMIN role
  */
 export async function getAllPricings(
-  accessToken: string
+  _accessToken: string
 ): Promise<GetAllPricingsResponse> {
   const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/pricing/all`,
@@ -63,7 +63,7 @@ export async function getAllPricings(
  * Requires authentication and ADMIN or SUPER_ADMIN role
  */
 export async function createPricing(
-  accessToken: string,
+  _accessToken: string,
   body: CreatePricingRequest
 ): Promise<PricingResponse> {
   const response = await fetchWithAuth(
@@ -91,7 +91,7 @@ export async function createPricing(
  * Requires authentication and ADMIN or SUPER_ADMIN role
  */
 export async function getPricingById(
-  accessToken: string,
+  _accessToken: string,
   pricingId: string
 ): Promise<PricingResponse> {
   const response = await fetchWithAuth(
@@ -118,7 +118,7 @@ export async function getPricingById(
  * Requires authentication and ADMIN or SUPER_ADMIN role
  */
 export async function updatePricing(
-  accessToken: string,
+  _accessToken: string,
   pricingId: string,
   body: UpdatePricingRequest
 ): Promise<PricingResponse> {
@@ -147,7 +147,7 @@ export async function updatePricing(
  * Requires authentication and ADMIN or SUPER_ADMIN role
  */
 export async function deletePricing(
-  accessToken: string,
+  _accessToken: string,
   pricingId: string
 ): Promise<void> {
   const response = await fetchWithAuth(

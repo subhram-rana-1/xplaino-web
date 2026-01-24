@@ -13,7 +13,7 @@ import type { FeaturesResponse } from '@/shared/types/features.types';
  * Requires authentication and ADMIN or SUPER_ADMIN role
  */
 export async function getFeatures(
-  accessToken: string
+  _accessToken: string
 ): Promise<FeaturesResponse> {
   const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/feature`,

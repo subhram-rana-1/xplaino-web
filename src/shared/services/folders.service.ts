@@ -12,7 +12,7 @@ import type { GetAllFoldersResponse, CreateFolderRequest, CreateFolderResponse, 
  * Get all folders for the authenticated user
  */
 export async function getAllFolders(
-  accessToken: string
+  _accessToken: string
 ): Promise<GetAllFoldersResponse> {
   const response = await fetchWithAuth(
     `${authConfig.catenBaseUrl}/api/folders`,
@@ -37,7 +37,7 @@ export async function getAllFolders(
  * Create a new folder for the authenticated user
  */
 export async function createFolder(
-  accessToken: string,
+  _accessToken: string,
   name: string,
   parentId?: string
 ): Promise<CreateFolderResponse> {
@@ -71,7 +71,7 @@ export async function createFolder(
  * Delete a folder by ID
  */
 export async function deleteFolder(
-  accessToken: string,
+  _accessToken: string,
   folderId: string
 ): Promise<void> {
   const response = await fetchWithAuth(
@@ -94,7 +94,7 @@ export async function deleteFolder(
  * Rename a folder by ID
  */
 export async function renameFolder(
-  accessToken: string,
+  _accessToken: string,
   folderId: string,
   name: string
 ): Promise<RenameFolderResponse> {

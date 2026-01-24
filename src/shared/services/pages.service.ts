@@ -12,7 +12,7 @@ import type { GetAllSavedPagesResponse, Folder } from '@/shared/types/pages.type
  * Get all saved pages with folders and pagination
  */
 export async function getAllSavedPages(
-  accessToken: string,
+  _accessToken: string,
   folderId: string | null = null,
   offset: number = 0,
   limit: number = 20
@@ -41,7 +41,7 @@ export async function getAllSavedPages(
  * Delete a saved page by ID
  */
 export async function deleteSavedPage(
-  accessToken: string,
+  _accessToken: string,
   pageId: string
 ): Promise<void> {
   const response = await fetchWithAuth(
@@ -64,7 +64,7 @@ export async function deleteSavedPage(
  * Create a page folder
  */
 export async function createPageFolder(
-  accessToken: string,
+  _accessToken: string,
   name: string,
   parentFolderId: string | null = null
 ): Promise<Folder> {
@@ -95,7 +95,7 @@ export async function createPageFolder(
  * Delete a folder by ID
  */
 export async function deleteFolder(
-  accessToken: string,
+  _accessToken: string,
   folderId: string
 ): Promise<void> {
   const response = await fetchWithAuth(
