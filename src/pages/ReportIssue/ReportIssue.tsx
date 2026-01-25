@@ -38,6 +38,7 @@ export const ReportIssue: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' } | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const requiresUrl = issueType && ISSUE_TYPES_REQUIRING_URL.includes(issueType as IssueType);
 
@@ -146,12 +147,11 @@ export const ReportIssue: React.FC = () => {
         webpage_url: requiresUrl && webpageUrl.trim() ? webpageUrl.trim() : null,
       };
 
-      const response = await reportIssue(accessToken, payload, files.length > 0 ? files : undefined);
+      await reportIssue(accessToken, payload, files.length > 0 ? files : undefined);
 
-      // Redirect to /user/issues with ticket_id in state
-      navigate('/user/issues', { 
-        state: { ticketId: response.ticket_id } 
-      });
+      // Show success modal instead of redirecting
+      setShowSuccessModal(true);
+      setIsSubmitting(false);
     } catch (error) {
       console.error('Error reporting issue:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to report issue';
@@ -161,11 +161,11 @@ export const ReportIssue: React.FC = () => {
   };
 
   const issueTypeOptions = [
-    { value: IssueType.GLITCH, label: 'Glitch' },
-    { value: IssueType.SUBSCRIPTION, label: 'Subscription' },
-    { value: IssueType.AUTHENTICATION, label: 'Authentication' },
-    { value: IssueType.FEATURE_REQUEST, label: 'Feature request' },
-    { value: IssueType.OTHERS, label: 'Others' },
+    { value: IssueType.GLITCH, label: 'Extension not working properly' },
+    { value: IssueType.SUBSCRIPTION, label: 'Subscription related issue' },
+    { value: IssueType.AUTHENTICATION, label: 'Login related issue' },
+    { value: IssueType.FEATURE_REQUEST, label: 'Request a new feature' },
+    { value: IssueType.OTHERS, label: 'Others, I will describe' },
   ];
 
   const selectedLabel = issueType 
@@ -281,6 +281,7 @@ export const ReportIssue: React.FC = () => {
               <label htmlFor="webpageUrl" className={styles.label}>
                 Webpage URL <span className={styles.required}>*</span>
               </label>
+              <span className={styles.helperText}>The webpage where you are facing issue</span>
               <input
                 id="webpageUrl"
                 type="url"
@@ -370,6 +371,49 @@ export const ReportIssue: React.FC = () => {
             {isSubmitting ? 'Submitting...' : 'Submit'}
           </button>
         </form>
+
+        {/* Success Modal */}
+        {showSuccessModal && (
+          <div className={styles.successModalOverlay}>
+            <div className={styles.successModalContent}>
+              <div className={styles.successIcon}>✓</div>
+              <h2 className={styles.successTitle}>Issue Reported Successfully!</h2>
+              <p className={styles.successMessage}>
+                Thank you for bringing this to our attention. Our team will review your issue and work on resolving it as soon as possible.
+              </p>
+              <div className={styles.successActions}>
+                <button 
+                  className={styles.successButtonPrimary}
+                  onClick={() => navigate('/user/issues')}
+                >
+                  View All My Issues
+                </button>
+                <div className={styles.successActionsRow}>
+                  <button 
+                    className={styles.successButtonText}
+                    onClick={() => navigate('/user/dashboard')}
+                  >
+                    Back to Dashboard
+                  </button>
+                  <button 
+                    className={styles.successButtonText}
+                    onClick={() => {
+                      setShowSuccessModal(false);
+                      // Reset form
+                      setIssueType('');
+                      setHeading('');
+                      setDescription('');
+                      setWebpageUrl('');
+                      setFiles([]);
+                    }}
+                  >
+                    Report Another Issue
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Toast Notification */}
         {toast && (
