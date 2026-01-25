@@ -158,7 +158,11 @@ export const Pricing: React.FC = () => {
     return (
       <div className={styles.pricingEmpty}>
         <div className={styles.emptyState}>
-          <p className={styles.emptyMessage}>Its free ! Download chrome extension to get started</p>
+          <p className={styles.emptyMessage}>
+            <strong style={{ fontWeight: 800 }}>Free while in beta</strong>
+            <br />
+            <span style={{ fontSize: '0.85em', fontStyle: 'italic' }}>Join thousands of early adopters before pricing kicks in!</span>
+          </p>
           <div className={styles.chromeButtonContainer}>
             <ChromeButton />
           </div>
