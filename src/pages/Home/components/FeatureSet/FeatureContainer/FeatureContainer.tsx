@@ -78,6 +78,7 @@ export const FeatureContainer: React.FC<FeatureContainerProps> = ({
             ref={videoRef}
             className={styles.video}
             src={videoUrl}
+            autoPlay
             loop
             muted
             playsInline

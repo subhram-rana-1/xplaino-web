@@ -12,12 +12,20 @@ export const FeatureSet: React.FC = () => {
   const features = [
     { 
       id: 1, 
-      title: 'No need to change DARK and LIGHT theme everytime', 
+      title: 'Different themes for different websites', 
+      videoUrl: 'https://ik.imagekit.io/subhram/xplaino/website-videos/theme.mp4',
+      bullets: [
+        'No global theme — set Light or Dark individually for each website',
+        'Switch between websites without toggling themes manually'
+      ]
+    },
+    {
+      id: 2,
+      title: 'Revisit what you just learned',
       videoUrl: 'https://static-web.maxai.photos/videos/landing/homepage-v3/primary.mp4?t=1',
       bullets: [
-        'Set your preferred theme once for each website',
-        'Different websites can have different theme settings',
-        'Theme auto-applies every time you visit the configured website'
+        'All AI explanations for words, text, images, summaries, and translations are stored right in the UI',
+        'Previous conversations stay intact while you explore new topics'
       ]
     },
   ];
