@@ -42,7 +42,8 @@ export const SupportedLanguages: React.FC = () => {
 
   return (
     <section className={styles.supportedLanguages}>
-      <h2 className={styles.heading}>Supported Languages</h2>
+      <h2 className={styles.heading}>Languages</h2>
+      <p className={styles.subheading}>Works in 30+ languages</p>
       <div className={styles.scrollingContainer}>
         <div className={styles.scrollingContent}>
           {languages.map((language, index) => (

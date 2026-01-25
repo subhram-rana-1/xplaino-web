@@ -74,7 +74,8 @@ export const FeatureSet: React.FC = () => {
 
   return (
     <section className={styles.featureSet}>
-      <h2 className={styles.heading}>FEATURES</h2>
+      <h2 className={styles.heading}>Features</h2>
+      <p className={styles.subheading}>Everything you need to understand better</p>
       <div className={styles.containerList}>
         {features.map((feature, index) => (
           <FeatureContainer

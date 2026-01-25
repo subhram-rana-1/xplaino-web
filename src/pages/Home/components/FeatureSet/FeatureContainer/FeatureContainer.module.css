@@ -2,13 +2,39 @@
   display: flex;
   align-items: center;
   gap: 3rem;
-  margin-bottom: 4rem;
-  padding: 2rem;
-  border-radius: 20px;
+  margin-bottom: 2rem;
+  padding: 3rem;
+  border-radius: 24px;
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+  position: relative;
+}
+
+.featureContainer::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 1.5rem;
+  bottom: 1.5rem;
+  width: 4px;
+  background: linear-gradient(180deg, var(--teal) 0%, var(--teal-light) 100%);
+  border-radius: 0 4px 4px 0;
+}
+
+.featureContainer:hover {
+  transform: translateY(-4px);
+  border-color: var(--teal-rgba-30);
 }
 
 .featureContainer.reversed {
   flex-direction: row-reverse;
+}
+
+.featureContainer.reversed::before {
+  left: auto;
+  right: 0;
+  border-radius: 4px 0 0 4px;
 }
 
 .contentSection {
@@ -19,12 +45,13 @@
 }
 
 .heading {
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: 1.875rem;
+  font-weight: 700;
   margin: 0;
   color: var(--text-primary);
   font-family: 'Inter', sans-serif;
   line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 .bulletList {
@@ -37,35 +64,47 @@
 }
 
 .bulletItem {
-  font-size: 1.125rem;
+  font-size: 1.0625rem;
   font-weight: 400;
   color: var(--text-secondary);
   font-family: 'Inter', sans-serif;
   line-height: 1.6;
   position: relative;
-  padding-left: 1.5rem;
+  padding-left: 2rem;
+  transition: color 0.2s ease;
 }
 
 .bulletItem::before {
-  content: '•';
+  content: '';
   position: absolute;
   left: 0;
-  color: var(--teal);
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.2;
+  top: 0.55em;
+  width: 10px;
+  height: 10px;
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
+  border-radius: 50%;
+}
+
+.featureContainer:hover .bulletItem {
+  color: var(--text-primary);
 }
 
 .videoSection {
   flex: 0.7;
-  max-width: 70%;
+  max-width: 50%;
   position: relative;
-  border-radius: 15px;
+  border-radius: 12px;
   overflow: hidden;
-  background-color: var(--black);
+  background-color: var(--bg-lighter);
   cursor: pointer;
   outline: none;
-  border: none;
+  border: 1px solid var(--border-light);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.videoSection:hover {
+  transform: scale(1.01);
+  border-color: var(--teal-rgba-30);
 }
 
 .video {
@@ -80,28 +119,63 @@
 @media (max-width: 1024px) {
   .featureContainer {
     gap: 2rem;
-    padding: 1.5rem;
+    padding: 2.5rem;
+    border-radius: 20px;
+    margin-bottom: 1.5rem;
+  }
+
+  .featureContainer::before {
+    top: 1.25rem;
+    bottom: 1.25rem;
+    width: 3px;
   }
 
   .heading {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
   }
 
   .bulletItem {
     font-size: 1rem;
+  }
+
+  .videoSection {
+    max-width: 45%;
   }
 }
 
 @media (max-width: 768px) {
   .featureContainer {
     flex-direction: column !important;
-    gap: 2rem;
-    padding: 1.5rem;
-    margin-bottom: 3rem;
+    gap: 1.5rem;
+    padding: 2rem;
+    margin-bottom: 1.25rem;
+    border-radius: 16px;
+  }
+
+  .featureContainer::before {
+    left: 1.5rem;
+    right: 1.5rem;
+    top: 0;
+    bottom: auto;
+    width: auto;
+    height: 3px;
+    border-radius: 0 0 4px 4px;
   }
 
   .featureContainer.reversed {
     flex-direction: column !important;
+  }
+
+  .featureContainer.reversed::before {
+    left: 1.5rem;
+    right: 1.5rem;
+    top: 0;
+    bottom: auto;
+    border-radius: 0 0 4px 4px;
+  }
+
+  .featureContainer:hover {
+    transform: translateY(-2px);
   }
 
   .contentSection {
@@ -113,8 +187,12 @@
     max-width: 100%;
   }
 
+  .videoSection:hover {
+    transform: none;
+  }
+
   .heading {
-    font-size: 1.5rem;
+    font-size: 1.375rem;
     text-align: center;
   }
 
@@ -123,14 +201,26 @@
   }
 
   .bulletItem {
-    font-size: 0.95rem;
+    font-size: 0.9375rem;
+    padding-left: 1.75rem;
+  }
+
+  .bulletItem::before {
+    width: 8px;
+    height: 8px;
   }
 }
 
 @media (max-width: 480px) {
   .featureContainer {
-    padding: 1rem;
-    margin-bottom: 2rem;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+  }
+
+  .featureContainer::before {
+    left: 1rem;
+    right: 1rem;
   }
 
   .heading {
@@ -139,6 +229,11 @@
 
   .bulletItem {
     font-size: 0.875rem;
-    padding-left: 1.25rem;
+    padding-left: 1.5rem;
+  }
+
+  .bulletItem::before {
+    width: 6px;
+    height: 6px;
   }
 }

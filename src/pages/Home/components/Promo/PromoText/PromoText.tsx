@@ -1,4 +1,5 @@
 import React from 'react';
+import { HiSparkles } from 'react-icons/hi2';
 import { ChromeButton } from '@/shared/components/ChromeButton';
 import styles from './PromoText.module.css';
 
@@ -10,9 +11,17 @@ import styles from './PromoText.module.css';
 export const PromoText: React.FC = () => {
   return (
     <div className={styles.promoText}>
-      <h1 className={styles.heading}>Maximise your contextual understanding with AI</h1>
+      <div className={styles.badge}>
+        <HiSparkles className={styles.badgeIcon} />
+        <span>AI-Powered Browser Extension</span>
+      </div>
+      <h1 className={styles.heading}>
+        Maximise your{' '}
+        <span className={styles.headingHighlight}>contextual understanding</span>{' '}
+        while browsing
+      </h1>
       <p className={styles.description}>
-      Get AI-powered contextual explanations, summaries, and instant answers in any language—right as you browse
+        Get AI-powered contextual explanations, summaries, and instant answers in any language—right as you browse
       </p>
       <ChromeButton />
     </div>

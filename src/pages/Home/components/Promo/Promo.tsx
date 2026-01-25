@@ -10,10 +10,12 @@ import styles from './Promo.module.css';
  */
 export const Promo: React.FC = () => {
   return (
-    <section className={styles.promo}>
-      <PromoText />
-      <PromoVideo />
-    </section>
+    <div className={styles.promoWrapper}>
+      <section className={styles.promo}>
+        <PromoText />
+        <PromoVideo />
+      </section>
+    </div>
   );
 };
 

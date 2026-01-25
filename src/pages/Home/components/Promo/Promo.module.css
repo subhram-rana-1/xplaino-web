@@ -2,30 +2,51 @@
   display: flex;
   align-items: center;
   gap: 4rem;
-  padding: 4rem 4.5rem;
+  padding: 4rem 4.5rem 5rem;
   max-width: 1400px;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* Wrapper for the entire promo section */
+.promoWrapper {
+  position: relative;
+  padding-bottom: 3rem;
 }
 
 /* Responsive design */
 @media (max-width: 1024px) {
   .promo {
     flex-direction: column;
-    gap: 2rem;
-    padding: 3rem 2rem;
+    gap: 3rem;
+    padding: 3rem 2rem 4rem;
+  }
+
+  .promoWrapper {
+    padding-bottom: 2rem;
   }
 }
 
 @media (max-width: 768px) {
   .promo {
-    padding: 2rem 1.5rem;
-    gap: 1.5rem;
+    padding: 2.5rem 1.5rem 3rem;
+    gap: 2rem;
+  }
+
+  .promoWrapper {
+    padding-bottom: 1.5rem;
   }
 }
 
 @media (max-width: 480px) {
   .promo {
-    padding: 1.5rem 1rem;
+    padding: 2rem 1rem 2.5rem;
+    gap: 1.5rem;
+  }
+
+  .promoWrapper {
+    padding-bottom: 1rem;
   }
 }
 

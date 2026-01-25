@@ -2,56 +2,85 @@
   display: flex;
   align-items: center;
   position: relative;
-  padding: 0.875rem 1.5rem;
-  padding-left: 0.875rem;
-  background-color: var(--teal);
-  color: var(--white);
+  padding: 1rem 1.75rem;
+  padding-left: 1rem;
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+  color: var(--text-on-primary);
   border: none;
   border-radius: 9999px;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  transition: all 0.3s ease;
   width: fit-content;
-  box-shadow: 0 8px 24px var(--shadow-black-20);
-  animation: breathe 2s ease-in-out infinite;
+  box-shadow: 
+    0 4px 12px var(--teal-rgba-30),
+    0 8px 24px var(--shadow-black-15),
+    inset 0 1px 0 var(--white-rgba-20);
+  animation: breathe 3s ease-in-out infinite;
   transform-origin: center;
   margin: 0;
 }
 
+.chromeButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, var(--white-rgba-20) 0%, transparent 50%);
+  pointer-events: none;
+}
+
 .chromeButton:hover {
-  background-color: var(--teal-dark);
+  background: linear-gradient(135deg, var(--teal-light) 0%, var(--teal) 100%);
+  box-shadow: 
+    0 6px 20px var(--teal-rgba-40),
+    0 12px 32px var(--shadow-black-20),
+    inset 0 1px 0 var(--white-rgba-32);
   animation: none;
+  transform: translateY(-2px);
 }
 
 .chromeButton:active {
-  background-color: var(--teal-dark);
-  transform: scale(0.98);
+  transform: translateY(0) scale(0.98);
+  box-shadow: 
+    0 2px 8px var(--teal-rgba-30),
+    0 4px 12px var(--shadow-black-15);
 }
 
 .chromeLogo {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   flex-shrink: 0;
   position: absolute;
-  left: 0.75rem;
+  left: 0.875rem;
   top: 50%;
   transform: translateY(-50%);
+  filter: drop-shadow(0 1px 2px var(--shadow-black-20));
 }
 
 .buttonText {
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   font-family: 'Inter', sans-serif;
   margin-left: 0;
-  padding-left: 2rem;
+  padding-left: 2.25rem;
+  text-shadow: 0 1px 2px var(--shadow-black-15);
 }
 
 @keyframes breathe {
   0%, 100% {
     transform: scale(1);
+    box-shadow: 
+      0 4px 12px var(--teal-rgba-30),
+      0 8px 24px var(--shadow-black-15),
+      inset 0 1px 0 var(--white-rgba-20);
   }
   50% {
-    transform: scale(1.05);
+    transform: scale(1.02);
+    box-shadow: 
+      0 6px 16px var(--teal-rgba-40),
+      0 10px 28px var(--shadow-black-18),
+      inset 0 1px 0 var(--white-rgba-20);
   }
 }
 
@@ -60,6 +89,21 @@
   .chromeButton {
     width: 100%;
     justify-content: center;
+    padding: 0.875rem 1.5rem;
+    padding-left: 0.875rem;
+  }
+
+  .chromeLogo {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: 24px;
+    height: 24px;
+  }
+
+  .buttonText {
+    padding-left: 0.75rem;
   }
 }
 
