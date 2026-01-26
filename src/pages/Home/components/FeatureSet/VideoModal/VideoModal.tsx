@@ -6,6 +6,7 @@ interface VideoModalProps {
   isOpen: boolean;
   videoUrl: string;
   title: string;
+  bullets?: string[];
   sourceElement?: HTMLElement | null;
   onClose: () => void;
 }
@@ -16,7 +17,7 @@ interface VideoModalProps {
  * @param props - Component props
  * @returns JSX element
  */
-export const VideoModal: React.FC<VideoModalProps> = ({ isOpen, videoUrl, title, onClose }) => {
+export const VideoModal: React.FC<VideoModalProps> = ({ isOpen, videoUrl, title, bullets, onClose }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -145,36 +146,57 @@ export const VideoModal: React.FC<VideoModalProps> = ({ isOpen, videoUrl, title,
         onClick={(e) => e.stopPropagation()}
       >
         <button className={styles.closeButton} onClick={handleClose} aria-label="Close modal">
-          ×
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
         </button>
-        <h3 className={styles.modalTitle}>{title}</h3>
-        <div className={styles.videoWrapper}>
-          <video
-            ref={videoRef}
-            className={styles.video}
-            src={videoUrl}
-            onTimeUpdate={handleTimeUpdate}
-            onLoadedMetadata={handleLoadedMetadata}
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            onEnded={() => setIsPlaying(false)}
-          />
-        </div>
-        <div className={styles.controls}>
-          <button className={styles.controlButton} onClick={handlePlayPause}>
-            {isPlaying ? '⏸' : '▶'}
-          </button>
-          <input
-            type="range"
-            min="0"
-            max={duration || 0}
-            value={currentTime}
-            onChange={handleSeek}
-            className={styles.seekBar}
-          />
-          <span className={styles.time}>
-            {formatTime(currentTime)} / {formatTime(duration)}
-          </span>
+        
+        <div className={styles.modalBody}>
+          {/* Left side - Video */}
+          <div className={styles.videoColumn}>
+            <h3 className={styles.modalTitle}>{title}</h3>
+            <div className={styles.videoWrapper}>
+              <video
+                ref={videoRef}
+                className={styles.video}
+                src={videoUrl}
+                onTimeUpdate={handleTimeUpdate}
+                onLoadedMetadata={handleLoadedMetadata}
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
+                onEnded={() => setIsPlaying(false)}
+              />
+            </div>
+            <div className={styles.controls}>
+              <button className={styles.controlButton} onClick={handlePlayPause}>
+                {isPlaying ? '⏸' : '▶'}
+              </button>
+              <input
+                type="range"
+                min="0"
+                max={duration || 0}
+                value={currentTime}
+                onChange={handleSeek}
+                className={styles.seekBar}
+              />
+              <span className={styles.time}>
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </span>
+            </div>
+          </div>
+
+          {/* Right side - Feature List */}
+          {bullets && bullets.length > 0 && (
+            <div className={styles.featureColumn}>
+              <h4 className={styles.featureTitle}>Key Features</h4>
+              <ul className={styles.bulletList}>
+                {bullets.map((bullet, index) => (
+                  <li key={index} className={styles.bulletItem}>{bullet}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     </div>

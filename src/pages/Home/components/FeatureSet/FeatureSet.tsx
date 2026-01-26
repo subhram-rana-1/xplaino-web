@@ -3,7 +3,7 @@ import { FeatureContainer } from './FeatureContainer';
 import styles from './FeatureSet.module.css';
 
 /**
- * FeatureSet - Feature set section with vertical containers in alternating layout
+ * FeatureSet - Feature set section with compact feature cards in responsive grid
  * 
  * @returns JSX element
  */
@@ -119,14 +119,13 @@ export const FeatureSet: React.FC = () => {
     <section className={styles.featureSet}>
       <h2 className={styles.subheading}>Key Features</h2>
       <div className={styles.containerList}>
-        {features.map((feature, index) => (
+        {features.map((feature) => (
           <FeatureContainer
             key={feature.id}
             icon={feature.icon}
             title={feature.title}
             videoUrl={feature.videoUrl}
             bullets={feature.bullets}
-            isReversed={index % 2 === 1} // Alternate: even index = normal, odd index = reversed
           />
         ))}
       </div>

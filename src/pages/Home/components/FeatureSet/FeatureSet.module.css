@@ -29,15 +29,28 @@
 }
 
 .containerList {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
+}
+
+/* Tablet: 2 columns */
+@media (max-width: 1024px) {
+  .containerList {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
   .featureSet {
     padding: 3rem 2rem;
+  }
+
+  .containerList {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
   .heading {
