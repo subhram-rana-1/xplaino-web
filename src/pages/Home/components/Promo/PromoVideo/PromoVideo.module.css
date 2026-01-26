@@ -5,15 +5,27 @@
   border-radius: 16px;
   overflow: hidden;
   cursor: pointer;
-  background: var(--bg-white);
-  border: 1px solid var(--border-light);
-  transition: transform 0.3s ease, border-color 0.3s ease;
+  background: transparent;
+  transition: transform 0.3s ease;
   z-index: 1;
+}
+
+/* Subtle teal gradient overlay on right side only */
+.promoVideo::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 50px;
+  background: linear-gradient(270deg, rgba(45, 212, 191, 0.08) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 2;
+  border-radius: 0 16px 16px 0;
 }
 
 .promoVideo:hover {
   transform: translateY(-4px);
-  border-color: var(--teal-rgba-30);
 }
 
 .video {
@@ -39,6 +51,11 @@
     max-width: 100%;
   }
 
+  .promoVideo::after {
+    width: 50px;
+    border-radius: 0 12px 12px 0;
+  }
+
   .promoVideo:hover {
     transform: translateY(-2px);
   }
@@ -47,6 +64,11 @@
 @media (max-width: 480px) {
   .promoVideo {
     border-radius: 10px;
+  }
+
+  .promoVideo::after {
+    width: 40px;
+    border-radius: 0 10px 10px 0;
   }
 }
 

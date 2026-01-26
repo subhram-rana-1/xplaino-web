@@ -24,7 +24,7 @@ export const PromoVideo: React.FC = () => {
       >
         <video
           className={styles.video}
-          src="https://static-web.maxai.photos/videos/landing/homepage-v3/primary.mp4?t=1"
+          src="https://ik.imagekit.io/subhram/xplaino/website-videos/promo-v2.mp4"
           autoPlay
           loop
           muted
@@ -33,7 +33,7 @@ export const PromoVideo: React.FC = () => {
       </div>
       <VideoModal
         isOpen={isModalOpen}
-        videoUrl="https://static-web.maxai.photos/videos/landing/homepage-v3/primary.mp4?t=1"
+        videoUrl="https://ik.imagekit.io/subhram/xplaino/website-videos/promo-v2.mp4"
         title="Maximise your contextual understanding with AI"
         sourceElement={containerRef.current}
         onClose={() => setIsModalOpen(false)}

@@ -10,40 +10,20 @@ import styles from './FeatureSet.module.css';
 export const FeatureSet: React.FC = () => {
   // Placeholder data - will be replaced with actual data
   const features = [
-    { 
-      id: 1, 
-      icon: '🎨',
-      title: 'Different themes for different websites', 
-      videoUrl: 'https://ik.imagekit.io/subhram/xplaino/website-videos/theme.mov/ik-video.mp4',
+    {
+      id: 1,
+      icon: '⚡',
+      title: 'Summarize any webpage in seconds',
+      videoUrl: '',
       bullets: [
-        'No global theme — set Light or Dark individually for each website',
-        'Switch between websites without toggling themes manually'
+        'Get a concise AI-generated summary of any webpage — skip the fluff and grasp the key points instantly',
+        'Each summary point links back to the exact section of the page it came from, so you can dive deeper when needed',
+        'Auto-generated follow-up questions help you build context faster without guessing what to ask',
+        'Save summaries to your dashboard with the original link — revisit anytime and trace back to the source'
       ]
     },
     {
       id: 2,
-      icon: '🔄',
-      title: 'Revisit what you just learned',
-      videoUrl: '',
-      bullets: [
-        'All AI explanations for words, text, images, summaries, and translations are stored right in the UI',
-        'Previous conversations stay intact while you explore new topics'
-      ]
-    },
-    {
-      id: 3,
-      icon: '📖',
-      title: 'Master any word with one click',
-      videoUrl: '',
-      bullets: [
-        'Get contextual explanations with real examples, synonyms, antonyms, and instant translation to your native language',
-        'Ask follow-up questions about the word — in context or in general — with built-in smart prompts for detailed, clear answers',
-        'Save words to your personal dashboard and track your vocabulary growth over time',
-        'Jump back to the original webpage where you discovered the word with one click'
-      ]
-    },
-    {
-      id: 4,
       icon: '📝',
       title: 'Understand any text in depth instantly',
       videoUrl: '',
@@ -55,7 +35,17 @@ export const FeatureSet: React.FC = () => {
       ]
     },
     {
-      id: 5,
+      id: 3,
+      icon: '🔄',
+      title: 'Revisit what you just learned',
+      videoUrl: '',
+      bullets: [
+        'All AI explanations for words, text, images, summaries, and translations are stored right in the UI',
+        'Previous conversations stay intact while you explore new topics'
+      ]
+    },
+    {
+      id: 4,
       icon: '🖼️',
       title: 'Decode any image with AI',
       videoUrl: '',
@@ -67,15 +57,27 @@ export const FeatureSet: React.FC = () => {
       ]
     },
     {
-      id: 6,
-      icon: '⚡',
-      title: 'Summarize any webpage in seconds',
+      id: 5,
+      icon: '🗂️',
+      title: 'One place for all your bookmarks',
       videoUrl: '',
       bullets: [
-        'Get a concise AI-generated summary of any webpage — skip the fluff and grasp the key points instantly',
-        'Each summary point links back to the exact section of the page it came from, so you can dive deeper when needed',
-        'Auto-generated follow-up questions help you build context faster without guessing what to ask',
-        'Save summaries to your dashboard with the original link — revisit anytime and trace back to the source'
+        'Stop juggling bookmarks across YouTube, Twitter, articles, and other platforms — save everything to one unified dashboard',
+        'No more switching tabs or hunting through different apps to find what you saved — it\'s all here',
+        'Organize words, passages, images, videos, and summaries in one powerful hub you fully control',
+        'Every saved item links back to its source, so you can jump to the original content in one click'
+      ]
+    },
+    {
+      id: 6,
+      icon: '📖',
+      title: 'Master any word with one click',
+      videoUrl: '',
+      bullets: [
+        'Get contextual explanations with real examples, synonyms, antonyms, and instant translation to your native language',
+        'Ask follow-up questions about the word — in context or in general — with built-in smart prompts for detailed, clear answers',
+        'Save words to your personal dashboard and track your vocabulary growth over time',
+        'Jump back to the original webpage where you discovered the word with one click'
       ]
     },
     {
@@ -90,27 +92,14 @@ export const FeatureSet: React.FC = () => {
         'Toggle translations on or off anytime — switch between views with a single click'
       ]
     },
-    {
-      id: 8,
-      icon: '🗂️',
-      title: 'One place for all your bookmarks',
-      videoUrl: '',
+    { 
+      id: 8, 
+      icon: '🎨',
+      title: 'Different themes for different websites', 
+      videoUrl: 'https://ik.imagekit.io/subhram/xplaino/website-videos/theme.mov/ik-video.mp4',
       bullets: [
-        'Stop juggling bookmarks across YouTube, Twitter, articles, and other platforms — save everything to one unified dashboard',
-        'No more switching tabs or hunting through different apps to find what you saved — it\'s all here',
-        'Organize words, passages, images, videos, and summaries in one powerful hub you fully control',
-        'Every saved item links back to its source, so you can jump to the original content in one click'
-      ]
-    },
-    {
-      id: 9,
-      icon: '💚',
-      title: 'We\'ve got your back — always',
-      videoUrl: '',
-      bullets: [
-        'Report any issue directly from the extension — your time and money matter to us, so we prioritize resolving it fast',
-        'Get real support from real people who care about your experience, not bots or endless FAQs',
-        'Request new features you\'d find useful in your day-to-day — your ideas help shape what we build next'
+        'You can set Light or Dark theme individually for each website',
+        'Switch between websites without toggling themes manually'
       ]
     },
   ];
