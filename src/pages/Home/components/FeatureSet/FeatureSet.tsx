@@ -12,6 +12,7 @@ export const FeatureSet: React.FC = () => {
   const features = [
     { 
       id: 1, 
+      icon: '🎨',
       title: 'Different themes for different websites', 
       videoUrl: 'https://ik.imagekit.io/subhram/xplaino/website-videos/theme.mov/ik-video.mp4',
       bullets: [
@@ -21,6 +22,7 @@ export const FeatureSet: React.FC = () => {
     },
     {
       id: 2,
+      icon: '🔄',
       title: 'Revisit what you just learned',
       videoUrl: '',
       bullets: [
@@ -30,6 +32,7 @@ export const FeatureSet: React.FC = () => {
     },
     {
       id: 3,
+      icon: '📖',
       title: 'Master any word with one click',
       videoUrl: '',
       bullets: [
@@ -41,6 +44,7 @@ export const FeatureSet: React.FC = () => {
     },
     {
       id: 4,
+      icon: '📝',
       title: 'Understand any text instantly',
       videoUrl: '',
       bullets: [
@@ -52,6 +56,7 @@ export const FeatureSet: React.FC = () => {
     },
     {
       id: 5,
+      icon: '🖼️',
       title: 'Decode any image with AI',
       videoUrl: '',
       bullets: [
@@ -63,6 +68,7 @@ export const FeatureSet: React.FC = () => {
     },
     {
       id: 6,
+      icon: '⚡',
       title: 'Summarize any webpage in seconds',
       videoUrl: '',
       bullets: [
@@ -74,6 +80,7 @@ export const FeatureSet: React.FC = () => {
     },
     {
       id: 7,
+      icon: '🌐',
       title: 'Translate entire webpages instantly',
       videoUrl: '',
       bullets: [
@@ -85,6 +92,7 @@ export const FeatureSet: React.FC = () => {
     },
     {
       id: 8,
+      icon: '🗂️',
       title: 'Your personal knowledge hub',
       videoUrl: '',
       bullets: [
@@ -96,13 +104,13 @@ export const FeatureSet: React.FC = () => {
     },
     {
       id: 9,
+      icon: '💚',
       title: 'We\'ve got your back — always',
       videoUrl: '',
       bullets: [
-        'Report any issue directly from the extension and we\'ll prioritize resolving it as fast as possible',
-        'Your time and money matter to us — we\'re committed to making every feature work seamlessly for you',
+        'Report any issue directly from the extension — your time and money matter to us, so we prioritize resolving it fast',
         'Get real support from real people who care about your experience, not bots or endless FAQs',
-        'We build with you in mind — your feedback shapes the product you use every day'
+        'Request new features you\'d find useful in your day-to-day — your ideas help shape what we build next'
       ]
     },
   ];
@@ -115,6 +123,7 @@ export const FeatureSet: React.FC = () => {
         {features.map((feature, index) => (
           <FeatureContainer
             key={feature.id}
+            icon={feature.icon}
             title={feature.title}
             videoUrl={feature.videoUrl}
             bullets={feature.bullets}

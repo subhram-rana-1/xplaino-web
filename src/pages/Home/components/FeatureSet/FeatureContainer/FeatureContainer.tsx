@@ -6,6 +6,7 @@ interface FeatureContainerProps {
   title: string;
   videoUrl: string;
   bullets: string[];
+  icon?: string;
   isReversed?: boolean; // If true, content on right, video on left
 }
 
@@ -19,6 +20,7 @@ export const FeatureContainer: React.FC<FeatureContainerProps> = ({
   title, 
   videoUrl, 
   bullets,
+  icon,
   isReversed = false 
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -62,7 +64,10 @@ export const FeatureContainer: React.FC<FeatureContainerProps> = ({
     <>
       <div className={`${styles.featureContainer} ${isReversed ? styles.reversed : ''}`}>
         <div className={styles.contentSection}>
-          <h3 className={styles.heading}>{title}</h3>
+          <h3 className={styles.heading}>
+            {icon && <span className={styles.icon}>{icon}</span>}
+            {title}
+          </h3>
           <ul className={styles.bulletList}>
             {bullets.map((bullet, index) => (
               <li key={index} className={styles.bulletItem}>{bullet}</li>

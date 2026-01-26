@@ -23,6 +23,7 @@ export const VideoModal: React.FC<VideoModalProps> = ({ isOpen, videoUrl, title,
   const [duration, setDuration] = useState(0);
   const [isClosing, setIsClosing] = useState(false);
   const scrollPositionRef = useRef<number>(0);
+  const wasOpenRef = useRef<boolean>(false);
 
   const handleClose = useCallback(() => {
     setIsClosing(true);
@@ -42,6 +43,7 @@ export const VideoModal: React.FC<VideoModalProps> = ({ isOpen, videoUrl, title,
   useEffect(() => {
     if (isOpen) {
       setIsClosing(false);
+      wasOpenRef.current = true;
       // Store current scroll position
       scrollPositionRef.current = window.scrollY;
       // Prevent body scroll
@@ -51,8 +53,9 @@ export const VideoModal: React.FC<VideoModalProps> = ({ isOpen, videoUrl, title,
       document.body.style.left = '0';
       document.body.style.right = '0';
       document.body.style.width = '100%';
-    } else if (!isOpen && scrollPositionRef.current !== 0) {
+    } else if (!isOpen && wasOpenRef.current) {
       setIsClosing(false);
+      wasOpenRef.current = false;
       // Restore scroll position
       const scrollY = scrollPositionRef.current;
       document.body.style.position = '';
@@ -75,9 +78,7 @@ export const VideoModal: React.FC<VideoModalProps> = ({ isOpen, videoUrl, title,
         document.body.style.right = '';
         document.body.style.width = '';
         document.body.style.overflow = '';
-        if (scrollY !== 0) {
-          window.scrollTo(0, scrollY);
-        }
+        window.scrollTo(0, scrollY);
       }
     };
   }, [isOpen]);
