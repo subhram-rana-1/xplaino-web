@@ -23,7 +23,17 @@ export const FeatureSet: React.FC = () => {
       ]
     },
     {
-      id: 2,
+        id: 2,
+        icon: '🌍',
+        title: 'Get explanations in Your Language',
+        videoUrl: '',
+        bullets: [
+            'Set your language once, works everywhere automatically',
+            'Switch languages anytime from settings'
+        ]
+    },
+    {
+      id: 3,
       icon: '📝',
       title: 'Understand any text in depth instantly',
       videoUrl: 'https://www.xplaino.com/website/',
@@ -35,7 +45,7 @@ export const FeatureSet: React.FC = () => {
       ]
     },
     {
-      id: 3,
+      id: 4,
       icon: '🔄',
       title: 'Revisit what you just learned',
       videoUrl: 'https://www.xplaino.com/website/',
@@ -45,7 +55,7 @@ export const FeatureSet: React.FC = () => {
       ]
     },
     {
-      id: 4,
+      id: 5,
       icon: '🖼️',
       title: 'Decode any image with AI',
       videoUrl: 'https://www.xplaino.com/website/image-mp4.mp4',
@@ -57,7 +67,7 @@ export const FeatureSet: React.FC = () => {
       ]
     },
     {
-      id: 5,
+      id: 6,
       icon: '🗂️',
       title: 'One place for all your bookmarks',
       videoUrl: 'https://www.xplaino.com/website/',
@@ -69,10 +79,10 @@ export const FeatureSet: React.FC = () => {
       ]
     },
     {
-      id: 6,
+      id: 7,
       icon: '📖',
       title: 'Master any word with one click',
-      videoUrl: 'https://www.xplaino.com/website/',
+      videoUrl: 'https://www.xplaino.com/website/word.mp4',
       bullets: [
         'Get contextual explanations with real examples, synonyms, antonyms, and instant translation to your native language',
         'Ask follow-up questions about the word — in context or in general — with built-in smart prompts for detailed, clear answers',
@@ -81,7 +91,7 @@ export const FeatureSet: React.FC = () => {
       ]
     },
     {
-      id: 7,
+      id: 8,
       icon: '🌐',
       title: 'Translate entire webpages instantly',
       videoUrl: 'https://www.xplaino.com/website/page_translate.mp4',
@@ -93,7 +103,7 @@ export const FeatureSet: React.FC = () => {
       ]
     },
     { 
-      id: 8, 
+      id: 9,
       icon: '🎨',
       title: 'Different themes for different websites', 
       videoUrl: 'https://ik.imagekit.io/subhram/xplaino/website-videos/theme.mov/ik-video.mp4',
