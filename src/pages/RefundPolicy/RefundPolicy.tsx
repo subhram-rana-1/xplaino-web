@@ -19,10 +19,11 @@ export const RefundPolicy: React.FC = () => {
       <div className={styles.content}>
         <section className={styles.section}>
           <div className={styles.policyStatement}>
-            <h2>No Refund Policy</h2>
+            <h2>Our Refund Policy</h2>
             <p className={styles.emphasis}>
-              Xplaino operates under a <strong>no refund policy</strong>. All purchases and subscriptions 
-              are final and non-refundable.
+              Due to the nature of our digital service, Xplaino operates with a <strong>commitment to 
+              quality and immediate access</strong>. We kindly ask you to understand that purchases and 
+              subscriptions are generally not eligible for refunds.
             </p>
           </div>
         </section>
@@ -36,9 +37,10 @@ export const RefundPolicy: React.FC = () => {
             be bound by this Policy.
           </p>
           <p>
-            <strong>All sales are final.</strong> We do not provide refunds, returns, or exchanges for any 
-            purchases or subscriptions, except as required by applicable law or as explicitly stated in this 
-            Policy.
+            <strong>Please note that purchases are generally considered complete upon confirmation.</strong> We 
+            understand this is an important consideration, and while we typically cannot offer refunds, returns, 
+            or exchanges, we remain committed to working with you on any concerns, and will always honor 
+            applicable legal requirements.
           </p>
         </section>
 
@@ -55,8 +57,9 @@ export const RefundPolicy: React.FC = () => {
             <li>The Extension can be used immediately without physical delivery delays</li>
           </ul>
           <p>
-            Due to the immediate and intangible nature of digital services, we are unable to process refunds 
-            once a purchase has been completed or a subscription has been activated.
+            We hope you understand that due to the immediate and intangible nature of digital services, 
+            processing refunds after a purchase is completed or a subscription is activated presents 
+            significant challenges. We appreciate your understanding of this aspect of digital products.
           </p>
         </section>
 
@@ -70,11 +73,12 @@ export const RefundPolicy: React.FC = () => {
             and payment confirmation.</li>
             <li><strong>Automatic Renewal:</strong> Subscriptions may automatically renew at the end of each 
             billing period unless cancelled before the renewal date.</li>
-            <li><strong>Cancellation:</strong> You may cancel your subscription at any time through your 
-            account settings or by contacting us. Cancellation will prevent future charges but does not 
-            entitle you to a refund for the current billing period.</li>
-            <li><strong>No Refunds for Partial Periods:</strong> We do not provide refunds for unused 
-            portions of subscription periods, regardless of when you cancel.</li>
+            <li><strong>Cancellation:</strong> You have the flexibility to cancel your subscription at any time 
+            through your account settings or by contacting us. Please note that while cancellation will prevent 
+            future charges, the current billing period will remain active until its natural conclusion.</li>
+            <li><strong>Partial Period Policy:</strong> We kindly ask for your understanding that unused 
+            portions of subscription periods are not eligible for refunds, as access to all features remains 
+            available throughout the entire billing period.</li>
             <li><strong>Immediate Access:</strong> Once payment is processed, you have immediate access 
             to all subscription features for the entire billing period.</li>
           </ul>
@@ -86,11 +90,11 @@ export const RefundPolicy: React.FC = () => {
             For one-time purchases of the Extension or premium features:
           </p>
           <ul>
-            <li>Payment is required in full at the time of purchase</li>
+            <li>Payment is processed in full at the time of purchase</li>
             <li>Access to purchased features is granted immediately upon payment confirmation</li>
-            <li>All sales are final and non-refundable</li>
-            <li>Purchased features remain accessible as long as the Extension is available and your account 
-            is in good standing</li>
+            <li>We appreciate your understanding that purchases are considered complete upon confirmation</li>
+            <li>Purchased features remain accessible to you as long as the Extension is available and your 
+            account remains in good standing</li>
           </ul>
         </section>
 
@@ -104,7 +108,8 @@ export const RefundPolicy: React.FC = () => {
             <li>You may cancel during the free trial period to avoid being charged</li>
             <li>If you do not cancel before the trial ends, your subscription will begin and charges will 
             apply</li>
-            <li>Once a paid subscription begins after a free trial, our standard no refund policy applies</li>
+            <li>Please be aware that once a paid subscription begins after a free trial, the standard terms 
+            regarding completed purchases will apply</li>
           </ul>
         </section>
 
@@ -120,9 +125,9 @@ export const RefundPolicy: React.FC = () => {
             technical issues you may encounter</li>
             <li><strong>Compatibility:</strong> Please ensure your browser and system meet the Extension's 
             requirements before purchasing</li>
-            <li><strong>No Refund for Technical Issues:</strong> Technical difficulties, compatibility 
-            issues, or user error do not entitle you to a refund, though we will make reasonable efforts 
-            to help resolve issues</li>
+            <li><strong>Our Commitment to You:</strong> While technical difficulties, compatibility 
+            issues, or user challenges may not qualify for refund consideration, we want to emphasize our 
+            strong commitment to working with you to resolve any issues you encounter</li>
           </ul>
         </section>
 
@@ -133,25 +138,28 @@ export const RefundPolicy: React.FC = () => {
             However:
           </p>
           <ul>
-            <li>We will make reasonable efforts to provide advance notice of significant changes or 
+            <li>We will make every reasonable effort to provide advance notice of significant changes or 
             discontinuation</li>
-            <li>Modifications to features or functionality do not entitle you to a refund</li>
-            <li>If we permanently discontinue the Extension, we will evaluate refund eligibility on a 
-            case-by-case basis for active subscriptions</li>
+            <li>We ask for your understanding that modifications to features or functionality generally 
+            do not qualify for refund consideration, as we continuously work to improve the service</li>
+            <li>In the unlikely event that we permanently discontinue the Extension, we are committed to 
+            evaluating each active subscription fairly on a case-by-case basis</li>
           </ul>
         </section>
 
         <section className={styles.section}>
-          <h2>8. Chargebacks and Payment Disputes</h2>
+          <h2>8. Payment Disputes</h2>
           <p>
-            If you initiate a chargeback or payment dispute with your financial institution:
+            We value open communication and encourage you to contact us directly before initiating a 
+            chargeback or payment dispute. If a dispute is raised with your financial institution:
           </p>
           <ul>
-            <li>We will provide documentation of your purchase and this Refund Policy to your financial 
-            institution</li>
-            <li>Chargebacks initiated in violation of this Policy may result in immediate termination of 
-            your account and access to the Extension</li>
-            <li>We reserve the right to dispute chargebacks and provide evidence of service delivery</li>
+            <li>We will work cooperatively with your financial institution by providing documentation of 
+            your purchase and this Refund Policy</li>
+            <li>Please understand that chargebacks can affect our ability to continue providing service 
+            to your account, and may result in service suspension while the matter is being resolved</li>
+            <li>We will present our perspective and evidence of service delivery to help reach a fair 
+            resolution</li>
           </ul>
         </section>
 
@@ -172,8 +180,8 @@ export const RefundPolicy: React.FC = () => {
         <section className={styles.section}>
           <h2>10. Exceptional Circumstances</h2>
           <p>
-            While we maintain a strict no refund policy, we understand that exceptional circumstances may 
-            arise. If you believe your situation warrants special consideration, please contact us at 
+            We recognize that every situation is unique, and exceptional circumstances can arise. If you 
+            believe your situation warrants special consideration, we welcome you to reach out to us at 
             support@xplaino.com with:
           </p>
           <ul>
@@ -182,17 +190,19 @@ export const RefundPolicy: React.FC = () => {
             <li>Any relevant documentation</li>
           </ul>
           <p>
-            We will review each request on a case-by-case basis. However, submission of a request does 
-            not guarantee a refund, and our decision is final.
+            We are committed to reviewing each request thoughtfully on a case-by-case basis. While we 
+            cannot guarantee a particular outcome, we will carefully consider your situation and provide 
+            you with a clear response.
           </p>
         </section>
 
         <section className={styles.section}>
           <h2>11. Changes to This Policy</h2>
           <p>
-            We reserve the right to modify this Refund Policy at any time. Changes will be effective 
-            immediately upon posting on this page. Your continued use of the Extension after any changes 
-            constitutes your acceptance of the updated Policy.
+            We may occasionally update this Refund Policy to reflect changes in our practices or for legal 
+            reasons. When we make changes, they will be posted on this page and become effective as indicated 
+            by the "Last Updated" date. Your continued use of the Extension after updates indicates your 
+            acceptance of the revised Policy.
           </p>
           <p>
             Material changes to this Policy will be communicated through the Extension interface or via 
@@ -207,9 +217,8 @@ export const RefundPolicy: React.FC = () => {
             subscription, please contact us:
           </p>
           <div className={styles.contactInfo}>
-            <p><strong>Email:</strong> support@xplaino.com</p>
-            <p><strong>Refund Inquiries:</strong> refunds@xplaino.com</p>
-            <p><strong>Website:</strong> <a href="https://xplaino.com" className={styles.link}>https://xplaino.com</a></p>
+            <p><strong>Refund Inquiries:</strong> support@xplaino.com</p>
+            <p><strong>Website:</strong> <a href="https://www.xplaino.com" className={styles.link}>www.xplaino.com</a></p>
           </div>
           <p>
             We aim to respond to all inquiries within 2-3 business days.
@@ -217,17 +226,17 @@ export const RefundPolicy: React.FC = () => {
         </section>
 
         <section className={styles.section}>
-          <h2>13. Acknowledgment</h2>
+          <h2>13. Your Agreement</h2>
           <p>
-            By purchasing, subscribing to, or using any paid features of Xplaino, you acknowledge that:
+            By purchasing, subscribing to, or using any paid features of Xplaino, you confirm that:
           </p>
           <ul>
-            <li>You have read and understood this Refund Policy</li>
-            <li>You agree to be bound by the terms of this Policy</li>
-            <li>You understand that all sales are final and non-refundable</li>
-            <li>You have had the opportunity to review the Extension's features and requirements before 
-            making a purchase</li>
-            <li>You accept the digital nature of the service and the immediate access provided</li>
+            <li>You have had the opportunity to read and understand this Refund Policy</li>
+            <li>You agree to the terms outlined in this Policy</li>
+            <li>You understand our approach to completed purchases as described above</li>
+            <li>You have had the opportunity to review the Extension's features, free trial (if available), 
+            and requirements before making your purchase decision</li>
+            <li>You understand the digital nature of the service and appreciate the immediate access provided</li>
           </ul>
         </section>
       </div>

@@ -25,7 +25,7 @@ export const Contact: React.FC = () => {
   return (
     <div className={styles.contact}>
       <div className={styles.content}>
-        <p className={styles.message}>Please reach out to us via email</p>
+        <p className={styles.message}>We're here for you. Let's talk.</p>
         <div className={styles.emailContainer}>
           <span className={styles.email}>{email}</span>
           <div className={styles.copyButtonWrapper}>
