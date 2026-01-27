@@ -160,7 +160,7 @@ export const PreLaunch: React.FC = () => {
                 className={styles.submitButton}
                 disabled={isSubmitting || !email.trim() || !!validationError}
               >
-                {isSubmitting ? 'Registering...' : 'Register My Interest'}
+                {isSubmitting ? 'Registering your email...' : 'Notify me when launched'}
               </button>
             </form>
           </>
