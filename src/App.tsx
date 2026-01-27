@@ -7,6 +7,7 @@ import { PageContent } from '@/shared/components/PageContent';
 import { Footer } from '@/shared/components/Footer';
 import { Home } from '@/pages/Home';
 import { Contact } from '@/pages/Contact';
+import { PreLaunch } from '@/pages/PreLaunch';
 import { ReportIssue } from '@/pages/ReportIssue';
 import { Issues } from '@/pages/Issues';
 import { IssueDetail } from '@/pages/IssueDetail';
@@ -52,6 +53,7 @@ const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: 
       <PageContent>
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/pre-launch" element={<PreLaunch />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/contact-us" element={<Contact />} />
               <Route 
