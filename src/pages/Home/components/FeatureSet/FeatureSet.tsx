@@ -36,7 +36,7 @@ export const FeatureSet: React.FC = () => {
       id: 3,
       icon: '📝',
       title: 'Understand any text in depth instantly',
-      videoUrl: 'https://www.xplaino.com/website/',
+      videoUrl: 'https://www.xplaino.com/website/text.mp4',
       bullets: [
         'Select any text or paragraph and get AI-powered contextual explanations — ask follow-up questions to dive deeper',
         'Translate selections to your native language or any language you choose',
@@ -48,7 +48,7 @@ export const FeatureSet: React.FC = () => {
       id: 4,
       icon: '🔄',
       title: 'Revisit what you just learned',
-      videoUrl: 'https://www.xplaino.com/website/',
+      videoUrl: 'https://www.xplaino.com/website/persistence.mp4',
       bullets: [
         'All AI explanations for words, text, images, summaries, and translations are stored right in the UI',
         'Previous conversations stay intact while you explore new topics'
@@ -70,7 +70,7 @@ export const FeatureSet: React.FC = () => {
       id: 6,
       icon: '🗂️',
       title: 'One place for all your bookmarks',
-      videoUrl: 'https://www.xplaino.com/website/',
+      videoUrl: 'https://www.xplaino.com/website/save_info.mp4',
       bullets: [
         'Stop juggling bookmarks across YouTube, Twitter, articles, and other platforms — save everything to one unified dashboard',
         'No more switching tabs or hunting through different apps to find what you saved — it\'s all here',

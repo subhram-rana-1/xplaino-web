@@ -218,8 +218,6 @@ export const PrivacyPolicy: React.FC = () => {
           <h3>7.3 Control Over Data Collection</h3>
           <ul>
             <li>Disable the Extension at any time to stop data collection</li>
-            <li>Control which features you use (e.g., choose not to use chat or bookmarking)</li>
-            <li>Adjust Extension settings to limit data processing</li>
           </ul>
 
           <h3>7.4 Opt-Out</h3>
@@ -261,13 +259,35 @@ export const PrivacyPolicy: React.FC = () => {
         <section className={styles.section}>
           <h2>10. Children's Privacy</h2>
           <p>
-            The Extension is not intended for children under the age of 13. We do not knowingly collect 
-            personal information from children under 13. If you are a parent or guardian and believe your 
-            child has provided us with personal information, please contact us immediately.
+            We recognize that Xplaino can be a valuable educational tool for children who are learning to 
+            read and comprehend online materials and webpages. The Extension's features—including instant 
+            word meanings, text explanations, and summaries—can help young readers understand complex 
+            content and enhance their learning experience.
           </p>
           <p>
-            If we become aware that we have collected personal information from a child under 13, we will 
-            take steps to delete such information from our servers.
+            <strong>Parental Consent Required:</strong> For children under the age of 13, we require parental 
+            or guardian consent before using the Extension. Parents and guardians should supervise their 
+            child's use of the Extension and review this Privacy Policy to understand what information is 
+            collected and how it is used.
+          </p>
+          <p>
+            <strong>Educational Use:</strong> When used by children for educational purposes, the Extension 
+            collects only the information necessary to provide its reading assistance features, such as 
+            selected words or text passages for explanations and summaries.
+          </p>
+          <p>
+            <strong>Parental Controls:</strong> Parents and guardians can:
+          </p>
+          <ul>
+            <li>Monitor their child's use of the Extension</li>
+            <li>Review and delete bookmarked words and saved content</li>
+            <li>Disable or uninstall the Extension at any time</li>
+            <li>Contact us to request deletion of any data collected from their child</li>
+          </ul>
+          <p>
+            If you are a parent or guardian and believe your child under 13 has used the Extension without 
+            your consent, or if you have any concerns about your child's privacy, please contact us 
+            immediately at support@xplaino.com.
           </p>
         </section>
 
@@ -336,7 +356,7 @@ export const PrivacyPolicy: React.FC = () => {
           </p>
           <div className={styles.contactInfo}>
             <p><strong>General Support:</strong> support@xplaino.com</p>
-            <p><strong>Website:</strong> <a href="https://xplaino.com" className={styles.link}>https://xplaino.com</a></p>
+            <p><strong>Website:</strong> <a href="https://www.xplaino.com" className={styles.link}>www.xplaino.com</a></p>
           </div>
           <p>
             We will respond to your inquiry within a reasonable timeframe and in accordance with applicable 

@@ -74,7 +74,7 @@ export const TermsAndConditions: React.FC = () => {
             <li>Maintain and promptly update your account information</li>
             <li>Maintain the security of your password and identification</li>
             <li>Accept all responsibility for activities that occur under your account</li>
-            <li>Notify us immediately of any unauthorized use of your account</li>
+            <li>Inform us immediately by raising an "issue ticket" of any unauthorized use of your account</li>
           </ul>
         </section>
 
@@ -165,11 +165,6 @@ export const TermsAndConditions: React.FC = () => {
             through the Extension, in our sole discretion without notice. We will not be liable if, for any 
             reason, all or any part of the Extension is unavailable at any time or for any period.
           </p>
-          <p>
-            We may update the Extension from time to time, and may change the content at any time. However, 
-            please note that any of the content on the Extension may be out of date at any given time, and 
-            we are under no obligation to update it.
-          </p>
         </section>
 
         <section className={styles.section}>
@@ -215,7 +210,7 @@ export const TermsAndConditions: React.FC = () => {
           </p>
           <div className={styles.contactInfo}>
             <p><strong>Email:</strong> support@xplaino.com</p>
-            <p><strong>Website:</strong> <a href="https://xplaino.com" className={styles.link}>https://xplaino.com</a></p>
+            <p><strong>Website:</strong> <a href="https://www.xplaino.com" className={styles.link}>www.xplaino.com</a></p>
           </div>
         </section>
 
