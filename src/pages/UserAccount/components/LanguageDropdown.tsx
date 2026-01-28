@@ -24,9 +24,16 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const selectedOption = options.find((opt) => opt.value === value);
+
+  // Filter options based on search query
+  const filteredOptions = options.filter((option) =>
+    option.label.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -64,14 +71,20 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
   const toggleDropdown = () => {
     if (!isOpen) {
       setIsAnimating(true);
+      setSearchQuery(''); // Clear search when opening
       // Small delay to ensure the element is rendered before animation starts
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setIsOpen(true);
+          // Focus the search input after opening
+          setTimeout(() => {
+            searchInputRef.current?.focus();
+          }, 50);
         });
       });
     } else {
       setIsOpen(false);
+      setSearchQuery(''); // Clear search when closing
     }
   };
 
@@ -116,26 +129,44 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
         </button>
         {(isOpen || isAnimating) && (
           <div className={`${styles.dropdownMenu} ${isOpen ? styles.dropdownMenuOpen : styles.dropdownMenuClosed}`}>
-            {options.map((option) => {
-              const isSelected = value === option.value;
-              return (
-                <div
-                  key={option.value}
-                  className={`${styles.dropdownItem} ${isSelected ? styles.selected : ''}`}
-                  onMouseDown={(e) => {
-                    e.stopPropagation();
-                    handleSelect(option.value, e);
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                  }}
-                  style={{ cursor: 'pointer' }}
-                >
-                  {option.label}
-                </div>
-              );
-            })}
+            <div className={styles.searchContainer}>
+              <input
+                ref={searchInputRef}
+                type="text"
+                className={styles.searchInput}
+                placeholder="Search language..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+              />
+            </div>
+            <div className={styles.optionsList}>
+              {filteredOptions.length > 0 ? (
+                filteredOptions.map((option) => {
+                  const isSelected = value === option.value;
+                  return (
+                    <div
+                      key={option.value}
+                      className={`${styles.dropdownItem} ${isSelected ? styles.selected : ''}`}
+                      onMouseDown={(e) => {
+                        e.stopPropagation();
+                        handleSelect(option.value, e);
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {option.label}
+                    </div>
+                  );
+                })
+              ) : (
+                <div className={styles.noResults}>No languages found</div>
+              )}
+            </div>
           </div>
         )}
       </div>
