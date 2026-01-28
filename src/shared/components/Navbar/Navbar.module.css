@@ -553,7 +553,7 @@
   padding: 0.5rem;
   flex-direction: column;
   justify-content: space-around;
-  width: 2rem;
+  width: 2.5rem;
   height: 2rem;
   z-index: 20;
   transition: opacity 0.2s ease;
@@ -658,9 +658,9 @@
 
   .navRight {
     display: flex;
-    width: 100%;
-    padding: 1rem 1.5rem;
-    border-top: 1px solid var(--white-rgba-10);
+    width: auto;
+    padding: 0;
+    border-top: none;
     justify-content: flex-end;
   }
 
@@ -672,17 +672,21 @@
     padding: 0.875rem 1.5rem;
   }
 
+  .nameContainer {
+    display: none;
+  }
+
   .userSection {
-    width: 100%;
-    flex-direction: column;
+    position: relative;
+    width: auto;
+    flex-direction: row;
     gap: 0.75rem;
     padding: 0;
   }
 
   .profilePicture {
-    width: 48px;
-    height: 48px;
-    align-self: center;
+    width: 40px;
+    height: 40px;
   }
 
   .logoutButton {
@@ -739,25 +743,36 @@
   }
 
   .profilePopover {
-    position: static;
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
     transform: none;
-    margin-top: 0.5rem;
-    width: 100%;
-    border-radius: 0;
-    box-shadow: none;
-    background-color: var(--white-rgba-10);
-    opacity: 1;
-    visibility: visible;
-    display: none;
+    margin-top: 0;
+    width: auto;
+    min-width: 200px;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px var(--shadow-black-15);
+    background-color: var(--bg-white);
+    border: 2px solid var(--border-dark);
+    opacity: 0;
+    visibility: hidden;
+    display: block;
+    z-index: 1002;
   }
 
   .profilePopoverOpen {
-    display: block;
+    opacity: 1;
+    visibility: visible;
   }
 
   .popoverItem {
-    color: var(--white);
-    border-bottom: 1px solid var(--white-rgba-10);
+    color: var(--teal);
+    border-bottom: 1px solid var(--teal-lighter);
+  }
+
+  .popoverItem:first-child {
+    border-top-left-radius: 13px;
+    border-top-right-radius: 13px;
   }
 
   .popoverItem:last-of-type {
@@ -766,13 +781,15 @@
 
   .popoverLogoutButton {
     color: var(--red);
-    border-top: 1px solid var(--white-rgba-10);
+    border-top: 1px solid var(--teal-lighter);
     width: 100%;
     justify-content: flex-start;
+    border-bottom-left-radius: 13px;
+    border-bottom-right-radius: 13px;
   }
 
   .popoverLogoutButton:hover {
-    background-color: var(--white-rgba-10);
+    background-color: var(--button-hover-bg);
   }
 }
 
