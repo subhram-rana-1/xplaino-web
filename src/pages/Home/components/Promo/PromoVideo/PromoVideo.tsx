@@ -15,6 +15,8 @@ export const PromoVideo: React.FC = () => {
     setIsModalOpen(true);
   };
 
+  const youtubeVideoId = 'ziaFZV3RRbI';
+
   return (
     <>
       <div 
@@ -22,18 +24,19 @@ export const PromoVideo: React.FC = () => {
         className={styles.promoVideo}
         onClick={handleVideoClick}
       >
-        <video
+        <iframe
           className={styles.video}
-          src="https://www.xplaino.com/website/website_promo.mp4"
-          autoPlay
-          loop
-          muted
-          playsInline
+          src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&mute=1&loop=1&playlist=${youtubeVideoId}&controls=0&modestbranding=1&vq=hd720`}
+          title="YouTube video player"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allowFullScreen
         />
       </div>
       <VideoModal
         isOpen={isModalOpen}
-        videoUrl="https://www.xplaino.com/website/website_promo.mp4"
+        videoUrl={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&rel=0&vq=hd720`}
         title="Maximise your contextual understanding with AI"
         sourceElement={containerRef.current}
         onClose={() => setIsModalOpen(false)}

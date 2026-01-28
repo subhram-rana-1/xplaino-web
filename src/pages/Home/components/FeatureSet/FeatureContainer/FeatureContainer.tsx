@@ -27,8 +27,21 @@ export const FeatureContainer: React.FC<FeatureContainerProps> = ({
   const videoSectionRef = useRef<HTMLDivElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Check if the video URL is a YouTube embed
+  const isYouTubeEmbed = videoUrl.includes('youtube.com/embed');
+  
+  // Extract YouTube video ID and build URL with parameters for autoplay and looping
+  const getYouTubeEmbedUrl = (url: string): string => {
+    const videoId = url.split('/embed/')[1]?.split('?')[0];
+    if (!videoId) return url;
+    return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&disablekb=1&playsinline=1&cc_load_policy=0&fs=0&color=white&autohide=1&vq=hd720`;
+  };
 
   useEffect(() => {
+    // Skip IntersectionObserver for YouTube embeds as they handle autoplay via URL params
+    if (isYouTubeEmbed) return;
+    
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -55,7 +68,7 @@ export const FeatureContainer: React.FC<FeatureContainerProps> = ({
         observer.unobserve(containerRef.current);
       }
     };
-  }, []);
+  }, [isYouTubeEmbed]);
 
   const handleVideoClick = () => {
     setIsModalOpen(true);
@@ -78,14 +91,26 @@ export const FeatureContainer: React.FC<FeatureContainerProps> = ({
           className={styles.videoSection} 
           onClick={handleVideoClick}
         >
-          <video
-            ref={videoRef}
-            className={styles.video}
-            src={videoUrl}
-            loop
-            muted
-            playsInline
-          />
+          {isYouTubeEmbed ? (
+            <iframe
+              className={styles.video}
+              src={getYouTubeEmbedUrl(videoUrl)}
+              title={title}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
+          ) : (
+            <video
+              ref={videoRef}
+              className={styles.video}
+              src={videoUrl}
+              loop
+              muted
+              playsInline
+            />
+          )}
         </div>
 
         {/* Title Section - always visible below video */}
@@ -119,7 +144,7 @@ export const FeatureContainer: React.FC<FeatureContainerProps> = ({
 
       <VideoModal
         isOpen={isModalOpen}
-        videoUrl={videoUrl}
+        videoUrl={isYouTubeEmbed ? `${videoUrl.split('?')[0]}?autoplay=1&rel=0&modestbranding=1&showinfo=0&iv_load_policy=3&vq=hd720` : videoUrl}
         title={title}
         bullets={bullets}
         sourceElement={videoSectionRef.current}

@@ -116,9 +116,9 @@ export const PreLaunch: React.FC = () => {
       <div className={styles.content}>
         {!isSuccess ? (
           <>
-            <h1 className={styles.title}>Thank You for Your Interest in Xplaino!</h1>
+            <h1 className={styles.title}>Yohoo! Just a few days to launch</h1>
             <p className={styles.description}>
-              We're excited to have you join us on this journey. Enter your email below to stay updated on our launch and be the first to know when Xplaino goes live.
+              We will notify you once we launch our browser extension.
             </p>
             
             <form onSubmit={handleSubmit} className={styles.form}>

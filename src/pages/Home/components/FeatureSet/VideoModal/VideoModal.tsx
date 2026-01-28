@@ -25,6 +25,9 @@ export const VideoModal: React.FC<VideoModalProps> = ({ isOpen, videoUrl, title,
   const [isClosing, setIsClosing] = useState(false);
   const scrollPositionRef = useRef<number>(0);
   const wasOpenRef = useRef<boolean>(false);
+  
+  // Check if the video URL is a YouTube embed
+  const isYouTubeEmbed = videoUrl.includes('youtube.com/embed');
 
   const handleClose = useCallback(() => {
     setIsClosing(true);
@@ -152,38 +155,53 @@ export const VideoModal: React.FC<VideoModalProps> = ({ isOpen, videoUrl, title,
           </svg>
         </button>
         
+        <h3 className={styles.modalTitle}>{title}</h3>
+        
         <div className={styles.modalBody}>
           {/* Left side - Video */}
           <div className={styles.videoColumn}>
-            <h3 className={styles.modalTitle}>{title}</h3>
             <div className={styles.videoWrapper}>
-              <video
-                ref={videoRef}
-                className={styles.video}
-                src={videoUrl}
-                onTimeUpdate={handleTimeUpdate}
-                onLoadedMetadata={handleLoadedMetadata}
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-                onEnded={() => setIsPlaying(false)}
-              />
+              {isYouTubeEmbed ? (
+                <iframe
+                  className={styles.video}
+                  src={videoUrl}
+                  title={title}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                />
+              ) : (
+                <video
+                  ref={videoRef}
+                  className={styles.video}
+                  src={videoUrl}
+                  onTimeUpdate={handleTimeUpdate}
+                  onLoadedMetadata={handleLoadedMetadata}
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
+                  onEnded={() => setIsPlaying(false)}
+                />
+              )}
             </div>
-            <div className={styles.controls}>
-              <button className={styles.controlButton} onClick={handlePlayPause}>
-                {isPlaying ? '⏸' : '▶'}
-              </button>
-              <input
-                type="range"
-                min="0"
-                max={duration || 0}
-                value={currentTime}
-                onChange={handleSeek}
-                className={styles.seekBar}
-              />
-              <span className={styles.time}>
-                {formatTime(currentTime)} / {formatTime(duration)}
-              </span>
-            </div>
+            {!isYouTubeEmbed && (
+              <div className={styles.controls}>
+                <button className={styles.controlButton} onClick={handlePlayPause}>
+                  {isPlaying ? '⏸' : '▶'}
+                </button>
+                <input
+                  type="range"
+                  min="0"
+                  max={duration || 0}
+                  value={currentTime}
+                  onChange={handleSeek}
+                  className={styles.seekBar}
+                />
+                <span className={styles.time}>
+                  {formatTime(currentTime)} / {formatTime(duration)}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Right side - Feature List */}

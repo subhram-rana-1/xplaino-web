@@ -12,7 +12,7 @@
   justify-content: center;
   z-index: 999999;
   padding: 2rem;
-  animation: overlayFadeIn 0.3s ease-out;
+  animation: overlayFadeIn 0.2s ease-out;
   overflow-y: auto;
   overflow-x: hidden;
   margin: 0 !important;
@@ -31,9 +31,9 @@
 .modalContent {
   background-color: #ffffff;
   border-radius: 24px;
-  max-width: 90vw;
-  max-height: 90vh;
-  width: auto;
+  max-width: 95vw;
+  max-height: 95vh;
+  width: 1400px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -45,11 +45,11 @@
 }
 
 .modalOpening {
-  animation: modalOpen 0.3s ease-out forwards;
+  animation: modalOpen 0.2s ease-out forwards;
 }
 
 .modalClosing {
-  animation: modalClose 0.3s ease-in forwards;
+  animation: modalClose 0.2s ease-out forwards;
 }
 
 @keyframes modalOpen {
@@ -78,18 +78,18 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: var(--teal-rgba-10);
-  border: 1px solid var(--teal-rgba-30);
+  background: transparent;
+  border: none;
   color: var(--teal);
   width: 40px;
   height: 40px;
-  border-radius: 50%;
+  border-radius: 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  transition: opacity 0.2s ease, transform 0.1s ease;
 }
 
 .closeButton svg {
@@ -98,11 +98,11 @@
 }
 
 .closeButton:hover {
-  background: var(--teal-rgba-20);
+  background: rgba(45, 212, 191, 0.1);
 }
 
 .closeButton:active {
-  background: var(--teal-rgba-30);
+  background: rgba(45, 212, 191, 0.15);
   transform: scale(0.95);
 }
 
@@ -119,16 +119,22 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  background: #ffffff;
 }
 
 .modalTitle {
   padding: 1.5rem 1.5rem 1rem;
   margin: 0;
-  color: #374151;
+  color: #6B7280;
   font-size: 1.5rem;
   font-weight: 700;
   font-family: 'Inter', sans-serif;
   letter-spacing: -0.02em;
+  border: 2px solid var(--teal-rgba-30);
+  border-bottom: none;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  background: #ffffff;
 }
 
 .videoWrapper {
@@ -138,13 +144,21 @@
   justify-content: center;
   min-height: 0;
   background: #000;
+  border-left: 2px solid var(--teal-rgba-30);
+  border-bottom: 2px solid var(--teal-rgba-30);
+  border-top: 2px solid var(--teal-rgba-30);
+  border-right: none;
 }
 
 .video {
   width: 100%;
   height: auto;
-  max-height: 60vh;
+  max-height: 80vh;
   display: block;
+  aspect-ratio: 16 / 9;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 .controls {
@@ -153,7 +167,10 @@
   gap: 0.75rem;
   padding: 1rem 1.5rem;
   background-color: var(--bg-lighter);
-  border-top: 1px solid var(--border-light);
+  border-top: none;
+  border-left: 2px solid var(--teal-rgba-30);
+  border-right: none;
+  border-bottom: 2px solid var(--teal-rgba-30);
 }
 
 .controlButton {
@@ -223,7 +240,10 @@
   width: 380px;
   flex-shrink: 0;
   background: #ffffff;
-  border-left: 1px solid var(--border-light);
+  border-right: 3px solid var(--teal-rgba-30);
+  border-bottom: 3px solid var(--teal-rgba-30);
+  border-top: 3px solid var(--teal-rgba-30);
+  border-left: 3px solid var(--teal-rgba-30);
   padding: 2rem;
   display: flex;
   flex-direction: column;
@@ -235,7 +255,7 @@
   margin: 0 0 1.25rem 0;
   font-size: 1.125rem;
   font-weight: 700;
-  color: #374151;
+  color: #6B7280;
   font-family: 'Inter', sans-serif;
   letter-spacing: -0.01em;
 }
@@ -303,7 +323,9 @@
 
   .featureColumn {
     width: 100%;
-    border-left: none;
+    border-left: 2px solid rgba(45, 212, 191, 0.65);
+    border-right: 2px solid rgba(45, 212, 191, 0.65);
+    border-bottom: 2px solid rgba(45, 212, 191, 0.65);
     border-top: none;
     max-height: 200px;
   }
@@ -312,6 +334,7 @@
     font-size: 1.25rem;
     padding: 1rem 1rem 0.75rem;
     padding-right: 3.5rem;
+    border-width: 2px;
   }
 
   .controls {
@@ -343,7 +366,21 @@
   }
 
   .video {
-    max-height: 50vh;
+    max-height: 70vh;
+    aspect-ratio: 16 / 9;
+  }
+
+  .videoWrapper {
+    border-width: 2px;
+    border-top: none;
+  }
+
+  .featureColumn {
+    border-width: 2px;
+  }
+
+  .controls {
+    border-width: 2px;
   }
 }
 
@@ -353,6 +390,7 @@
     height: 36px;
     top: 0.75rem;
     right: 0.75rem;
+    border-radius: 10px;
   }
 
   .closeButton svg {
@@ -368,5 +406,22 @@
     min-width: 36px;
     height: 36px;
     font-size: 1rem;
+  }
+
+  .modalTitle {
+    border-width: 2px;
+  }
+
+  .videoWrapper {
+    border-width: 2px;
+    border-top: none;
+  }
+
+  .featureColumn {
+    border-width: 2px;
+  }
+
+  .controls {
+    border-width: 2px;
   }
 }
