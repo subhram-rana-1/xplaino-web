@@ -10,7 +10,7 @@
   border-radius: 9999px;
   font-size: 1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
   width: fit-content;
   box-shadow: 
     0 4px 12px var(--teal-rgba-30),
@@ -31,13 +31,12 @@
 }
 
 .chromeButton:hover {
-  background: linear-gradient(135deg, var(--teal-light) 0%, var(--teal) 100%);
+  background: linear-gradient(135deg, var(--teal-dark) 0%, #2a8a8a 100%);
   box-shadow: 
     0 6px 20px var(--teal-rgba-40),
     0 12px 32px var(--shadow-black-20),
     inset 0 1px 0 var(--white-rgba-32);
   animation: none;
-  transform: translateY(-2px);
 }
 
 .chromeButton:active {

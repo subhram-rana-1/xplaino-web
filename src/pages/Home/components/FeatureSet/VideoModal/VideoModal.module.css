@@ -131,7 +131,6 @@
   font-family: 'Inter', sans-serif;
   letter-spacing: -0.02em;
   border: 2px solid var(--teal-rgba-30);
-  border-bottom: none;
   border-top-left-radius: 24px;
   border-top-right-radius: 24px;
   background: #ffffff;
@@ -147,7 +146,7 @@
   border-left: 2px solid var(--teal-rgba-30);
   border-bottom: 2px solid var(--teal-rgba-30);
   border-top: 2px solid var(--teal-rgba-30);
-  border-right: none;
+  border-right: 2px solid var(--teal-rgba-30);
 }
 
 .video {
@@ -167,9 +166,9 @@
   gap: 0.75rem;
   padding: 1rem 1.5rem;
   background-color: var(--bg-lighter);
-  border-top: none;
+  border-top: 2px solid var(--teal-rgba-30);
   border-left: 2px solid var(--teal-rgba-30);
-  border-right: none;
+  border-right: 2px solid var(--teal-rgba-30);
   border-bottom: 2px solid var(--teal-rgba-30);
 }
 
@@ -326,7 +325,7 @@
     border-left: 2px solid rgba(45, 212, 191, 0.65);
     border-right: 2px solid rgba(45, 212, 191, 0.65);
     border-bottom: 2px solid rgba(45, 212, 191, 0.65);
-    border-top: none;
+    border-top: 2px solid rgba(45, 212, 191, 0.65);
     max-height: 200px;
   }
 
@@ -372,7 +371,6 @@
 
   .videoWrapper {
     border-width: 2px;
-    border-top: none;
   }
 
   .featureColumn {
@@ -414,7 +412,6 @@
 
   .videoWrapper {
     border-width: 2px;
-    border-top: none;
   }
 
   .featureColumn {

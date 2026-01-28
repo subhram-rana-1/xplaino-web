@@ -23,10 +23,14 @@ export const FeatureContainer: React.FC<FeatureContainerProps> = ({
   icon
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoSectionRef = useRef<HTMLDivElement>(null);
+  const youtubePlayerRef = useRef<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isApiReady, setIsApiReady] = useState(false);
+  const [isPlayerReady, setIsPlayerReady] = useState(false);
   
   // Check if the video URL is a YouTube embed
   const isYouTubeEmbed = videoUrl.includes('youtube.com/embed');
@@ -35,40 +39,148 @@ export const FeatureContainer: React.FC<FeatureContainerProps> = ({
   const getYouTubeEmbedUrl = (url: string): string => {
     const videoId = url.split('/embed/')[1]?.split('?')[0];
     if (!videoId) return url;
-    return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&disablekb=1&playsinline=1&cc_load_policy=0&fs=0&color=white&autohide=1&vq=hd720`;
+    return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${window.location.origin}&mute=1&loop=1&playlist=${videoId}&controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&disablekb=1&playsinline=1&cc_load_policy=0&fs=0&color=white&autohide=1&vq=hd720`;
   };
 
+  // Load YouTube IFrame API
   useEffect(() => {
-    // Skip IntersectionObserver for YouTube embeds as they handle autoplay via URL params
-    if (isYouTubeEmbed) return;
+    if (!isYouTubeEmbed) return;
+
+    // Check if API is already fully ready
+    if (window.YT && window.YT.Player) {
+      setIsApiReady(true);
+      return;
+    }
+
+    // Check if script is already added
+    const existingScript = document.querySelector('script[src="https://www.youtube.com/iframe_api"]');
+    
+    if (!existingScript) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+    }
+
+    // Store previous callback to chain them
+    const previousCallback = window.onYouTubeIframeAPIReady;
+    
+    window.onYouTubeIframeAPIReady = () => {
+      if (previousCallback) previousCallback();
+      setIsApiReady(true);
+    };
+    
+    // Poll for API readiness in case callback was missed
+    const checkInterval = setInterval(() => {
+      if (window.YT && window.YT.Player) {
+        setIsApiReady(true);
+        clearInterval(checkInterval);
+      }
+    }, 100);
+
+    return () => {
+      clearInterval(checkInterval);
+    };
+  }, [isYouTubeEmbed]);
+
+  // Initialize YouTube player
+  useEffect(() => {
+    if (!isYouTubeEmbed || !isApiReady || !iframeRef.current) return;
+
+    youtubePlayerRef.current = new window.YT.Player(iframeRef.current, {
+      events: {
+        onReady: () => {
+          setIsPlayerReady(true);
+        }
+      }
+    });
+
+    return () => {
+      if (youtubePlayerRef.current && youtubePlayerRef.current.destroy) {
+        youtubePlayerRef.current.destroy();
+        setIsPlayerReady(false);
+      }
+    };
+  }, [isYouTubeEmbed, isApiReady]);
+
+  // IntersectionObserver for viewport-based autoplay
+  useEffect(() => {
+    if (!containerRef.current) return;
+    
+    // For YouTube videos, wait until player is ready
+    if (isYouTubeEmbed && !isPlayerReady) return;
     
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && videoRef.current) {
-            videoRef.current.play().catch((error) => {
-              console.log('Autoplay prevented:', error);
-            });
-          } else if (videoRef.current) {
-            videoRef.current.pause();
+          if (entry.isIntersecting) {
+            if (isYouTubeEmbed && youtubePlayerRef.current) {
+              try {
+                youtubePlayerRef.current.seekTo(0, true);
+                youtubePlayerRef.current.playVideo();
+              } catch (error) {
+                console.log('YouTube player control error:', error);
+              }
+            } else if (videoRef.current) {
+              videoRef.current.currentTime = 0;
+              videoRef.current.play().catch((error) => {
+                console.log('Autoplay prevented:', error);
+              });
+            }
+          } else {
+            if (isYouTubeEmbed && youtubePlayerRef.current) {
+              try {
+                youtubePlayerRef.current.pauseVideo();
+              } catch (error) {
+                console.log('YouTube player control error:', error);
+              }
+            } else if (videoRef.current) {
+              videoRef.current.pause();
+            }
           }
         });
       },
       {
-        threshold: 0.3,
+        threshold: 0.5,
       }
     );
 
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
+    const currentContainer = containerRef.current;
+    observer.observe(currentContainer);
+
+    // Check if already in viewport when observer is set up (50% threshold)
+    const rect = currentContainer.getBoundingClientRect();
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    
+    // Calculate visible height
+    const visibleTop = Math.max(0, rect.top);
+    const visibleBottom = Math.min(viewportHeight, rect.bottom);
+    const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+    const elementHeight = rect.height;
+    
+    // Check if at least 50% is visible
+    const isInViewport = (visibleHeight / elementHeight) >= 0.5;
+    
+    if (isInViewport) {
+      if (isYouTubeEmbed && youtubePlayerRef.current) {
+        try {
+          youtubePlayerRef.current.seekTo(0, true);
+          youtubePlayerRef.current.playVideo();
+        } catch (error) {
+          console.log('YouTube player control error:', error);
+        }
+      } else if (videoRef.current) {
+        videoRef.current.currentTime = 0;
+        videoRef.current.play().catch((error) => {
+          console.log('Autoplay prevented:', error);
+        });
+      }
     }
 
     return () => {
-      if (containerRef.current) {
-        observer.unobserve(containerRef.current);
-      }
+      observer.disconnect();
     };
-  }, [isYouTubeEmbed]);
+  }, [isYouTubeEmbed, isPlayerReady]);
 
   const handleVideoClick = () => {
     setIsModalOpen(true);
@@ -93,6 +205,7 @@ export const FeatureContainer: React.FC<FeatureContainerProps> = ({
         >
           {isYouTubeEmbed ? (
             <iframe
+              ref={iframeRef}
               className={styles.video}
               src={getYouTubeEmbedUrl(videoUrl)}
               title={title}

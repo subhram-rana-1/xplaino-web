@@ -14,7 +14,7 @@ export const FeatureSet: React.FC = () => {
       id: 1,
       icon: '⚡',
       title: 'Summarize any webpage in seconds',
-      videoUrl: 'https://bmicorrect.com/website/page_summary.mp4',
+      videoUrl: 'https://www.youtube.com/embed/fZeNDBk2AyQ',
       bullets: [
         'Get a concise AI-generated summary of any webpage — skip the fluff and grasp the key points instantly',
         'Each summary point links back to the exact section of the page it came from, so you can dive deeper when needed',
@@ -26,7 +26,7 @@ export const FeatureSet: React.FC = () => {
         id: 2,
         icon: '🌍',
         title: 'Get explanations in Your Language',
-        videoUrl: 'https://bmicorrect.com/website/text.mp4',
+        videoUrl: 'https://www.youtube.com/embed/PBmcNg_oRxs',
         bullets: [
             'Set your language once, works everywhere automatically',
             'Switch languages anytime from settings'
@@ -48,7 +48,7 @@ export const FeatureSet: React.FC = () => {
       id: 4,
       icon: '🔄',
       title: 'Revisit what you just learned',
-      videoUrl: 'https://bmicorrect.com/website/persistence.mp4',
+      videoUrl: 'https://www.youtube.com/embed/u94PB_SjPg8',
       bullets: [
         'All AI explanations for words, text, images, summaries, and translations are stored right in the UI',
         'Previous conversations stay intact while you explore new topics'
@@ -58,7 +58,7 @@ export const FeatureSet: React.FC = () => {
       id: 5,
       icon: '🖼️',
       title: 'Decode any image with AI',
-      videoUrl: 'https://bmicorrect.com/website/image-mp4.mp4',
+      videoUrl: 'https://www.youtube.com/embed/yHe7_MsaUy0',
       bullets: [
         'Click on any image and get instant AI-powered explanations — understand diagrams, charts, infographics, and more',
         'Ask follow-up questions to explore details, context, or anything you\'re curious about',
@@ -70,7 +70,7 @@ export const FeatureSet: React.FC = () => {
       id: 6,
       icon: '🗂️',
       title: 'One place for all your bookmarks',
-      videoUrl: 'https://bmicorrect.com/website/save_info.mp4',
+      videoUrl: 'https://www.youtube.com/embed/_L9jWcIl__s',
       bullets: [
         'Stop juggling bookmarks across YouTube, Twitter, articles, and other platforms — save everything to one unified dashboard',
         'No more switching tabs or hunting through different apps to find what you saved — it\'s all here',
@@ -82,7 +82,7 @@ export const FeatureSet: React.FC = () => {
       id: 7,
       icon: '📖',
       title: 'Master any word with one click',
-      videoUrl: 'https://bmicorrect.com/website/word.mp4',
+      videoUrl: 'https://www.youtube.com/embed/cJxWhUKk9rc',
       bullets: [
         'Get contextual explanations with real examples, synonyms, antonyms, and instant translation to your native language',
         'Ask follow-up questions about the word — in context or in general — with built-in smart prompts for detailed, clear answers',
@@ -94,7 +94,7 @@ export const FeatureSet: React.FC = () => {
       id: 8,
       icon: '🌐',
       title: 'Translate entire webpages instantly',
-      videoUrl: 'https://bmicorrect.com/website/page_translate.mp4',
+      videoUrl: 'https://www.youtube.com/embed/ij5XBehuq7A',
       bullets: [
         'Translate any webpage into your preferred language in seconds — no copy-pasting, no extra tabs',
         'Replace the original content seamlessly so the page feels like it was written in your native language',
@@ -106,7 +106,7 @@ export const FeatureSet: React.FC = () => {
       id: 9,
       icon: '🎨',
       title: 'Different themes for different websites', 
-      videoUrl: 'https://bmicorrect.com/website/dark_theme.mp4',
+      videoUrl: 'https://www.youtube.com/embed/ZOpLJsZlb3U',
       bullets: [
         'You can set Light or Dark theme individually for each website',
         'Switch between websites without toggling themes manually'

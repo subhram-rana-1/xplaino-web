@@ -114,6 +114,15 @@ export const PreLaunch: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.content}>
+        <button
+          onClick={() => navigate('/')}
+          className={styles.backButton}
+          aria-label="Go back to home"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        </button>
         {!isSuccess ? (
           <>
             <h1 className={styles.title}>Yohoo! Just a few days to launch</h1>

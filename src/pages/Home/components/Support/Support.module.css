@@ -80,16 +80,35 @@
 .videoSection {
   flex: 0 0 45%;
   max-width: 500px;
+  position: relative;
   border-radius: 16px;
   overflow: hidden;
+  cursor: pointer;
+  z-index: 1;
+}
+
+/* Subtle teal gradient overlay on right side only */
+.videoSection::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 50px;
+  background: linear-gradient(270deg, rgba(45, 212, 191, 0.08) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 2;
+  border-radius: 0 16px 16px 0;
 }
 
 .video {
   width: 100%;
   height: auto;
   display: block;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
+  aspect-ratio: 16 / 9;
+  user-select: none;
+  border: none;
+  pointer-events: none;
 }
 
 /* Responsive design */
@@ -159,6 +178,12 @@
     width: 100%;
     max-width: 100%;
     flex: none;
+    border-radius: 12px;
+  }
+
+  .videoSection::after {
+    width: 50px;
+    border-radius: 0 12px 12px 0;
   }
 }
 
@@ -187,5 +212,14 @@
   .bulletItem::before {
     width: 6px;
     height: 6px;
+  }
+
+  .videoSection {
+    border-radius: 10px;
+  }
+
+  .videoSection::after {
+    width: 40px;
+    border-radius: 0 10px 10px 0;
   }
 }
