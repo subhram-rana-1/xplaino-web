@@ -143,7 +143,7 @@ export const openCheckout = async (
         allowLogout: settings?.allowLogout ?? true,
         showAddDiscounts: settings?.showAddDiscounts ?? true,
         showAddTaxId: settings?.showAddTaxId ?? true,
-        successUrl: settings?.successUrl,
+        successUrl: settings?.successUrl || `${window.location.origin}/payment-success`,
       },
       customer: customer ? {
         email: customer.email,
