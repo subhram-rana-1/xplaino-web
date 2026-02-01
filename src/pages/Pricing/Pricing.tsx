@@ -194,8 +194,7 @@ export const Pricing: React.FC = () => {
   return (
     <div className={styles.pricing}>
       <div className={styles.container}>
-        <h1 className={styles.heading}>Don't Get Left Behind in the Era of AI</h1>
-        <p className={styles.tagline}>Learn faster as you browse with your AI explainer. Save everything — links, images, text — all in one place, accessible anywhere.</p>
+        <h1 className={styles.heading}>Learn faster as you browse with your AI explainer</h1>
         <p className={styles.subheading}>You found us at the right time. Exclusive launch discounts won't last forever.</p>
 
         {/* Billing Period Toggle */}
