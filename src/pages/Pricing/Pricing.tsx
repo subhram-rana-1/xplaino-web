@@ -42,7 +42,7 @@ const plusFeatures = [
   'Unlimited page summaries & AI chat',
   'Unlimited text explanations & AI chat',
   'Unlimited image explanations & AI chat',
-  'Page translations in 60+ languages',
+  'Unlimited Page translations in 60+ languages',
   'Contextual word meanings & vocabulary',
   'Revisit your reading history',
   'Bookmark anything with source links',
@@ -175,7 +175,27 @@ export const Pricing: React.FC = () => {
     return (
       <div className={styles.pricing}>
         <div className={styles.container}>
-          <div className={styles.loading}>Loading pricing plans...</div>
+          <div className={styles.loadingContainer}>
+            <div className={styles.loadingHeader}>
+              <div className={styles.loadingTitle}></div>
+              <div className={styles.loadingSubtitle}></div>
+            </div>
+            <div className={styles.loadingToggle}></div>
+            <div className={styles.loadingCards}>
+              {[1, 2, 3].map((i) => (
+                <div key={i} className={styles.loadingCard}>
+                  <div className={styles.loadingCardTitle}></div>
+                  <div className={styles.loadingCardPrice}></div>
+                  <div className={styles.loadingCardButton}></div>
+                  <div className={styles.loadingCardFeatures}>
+                    {[1, 2, 3, 4, 5].map((j) => (
+                      <div key={j} className={styles.loadingCardFeature}></div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );

@@ -1,10 +1,10 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { FiUser, FiSettings } from 'react-icons/fi';
+import { FiUser, FiSettings, FiCreditCard } from 'react-icons/fi';
 import styles from './UserAccount.module.css';
-import { ProfileTab, SettingsTab } from './components';
+import { ProfileTab, SettingsTab, SubscriptionTab } from './components';
 
-type TabType = 'profile' | 'settings';
+type TabType = 'profile' | 'settings' | 'subscription';
 
 /**
  * UserAccount - User account page with sidebar and tabs
@@ -17,13 +17,21 @@ export const UserAccount: React.FC = () => {
   // Determine active tab from current route
   const getActiveTab = (): TabType => {
     if (location.pathname === '/user/account/profile') return 'profile';
+    if (location.pathname === '/user/account/subscription') return 'subscription';
     return 'settings'; // default to settings
   };
 
   const activeTab = getActiveTab();
 
   const getHeading = () => {
-    return activeTab === 'profile' ? 'Profile' : 'Settings';
+    switch (activeTab) {
+      case 'profile':
+        return 'Profile';
+      case 'subscription':
+        return 'Subscription';
+      default:
+        return 'Settings';
+    }
   };
 
   return (
@@ -50,12 +58,20 @@ export const UserAccount: React.FC = () => {
               <FiSettings className={styles.tabIcon} size={20} />
               <span>Settings</span>
             </Link>
+            <Link
+              to="/user/account/subscription"
+              className={`${styles.tab} ${activeTab === 'subscription' ? styles.tabActive : ''}`}
+            >
+              <FiCreditCard className={styles.tabIcon} size={20} />
+              <span>Subscription</span>
+            </Link>
           </div>
 
           {/* Content Area */}
           <div className={styles.contentArea}>
             {activeTab === 'profile' && <ProfileTab />}
             {activeTab === 'settings' && <SettingsTab />}
+            {activeTab === 'subscription' && <SubscriptionTab />}
           </div>
         </div>
       </div>
