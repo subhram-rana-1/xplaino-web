@@ -128,6 +128,21 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
     }
   }, [location, isLoggedIn]);
 
+  // Listen for loginRequired event from API client (e.g., when subscription APIs return LOGIN_REQUIRED)
+  useEffect(() => {
+    const handleLoginRequired = (event: Event) => {
+      const customEvent = event as CustomEvent<{ message?: string }>;
+      setLoginModalActionText(customEvent.detail?.message || 'continue');
+      setIsModalClosing(false);
+      setShowLoginModal(true);
+    };
+
+    window.addEventListener('loginRequired', handleLoginRequired);
+    return () => {
+      window.removeEventListener('loginRequired', handleLoginRequired);
+    };
+  }, []);
+
   // Close login modal after successful login
   useEffect(() => {
     if (isLoggedIn && showLoginModal) {

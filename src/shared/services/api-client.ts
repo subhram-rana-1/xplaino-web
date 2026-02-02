@@ -7,6 +7,7 @@
  * - Refreshes tokens automatically
  * - Retries failed requests with new token
  * - Prevents duplicate refresh calls
+ * - Detects LOGIN_REQUIRED errors and clears auth + dispatches loginRequired event
  */
 
 import { authConfig } from '@/config/auth.config';
@@ -34,6 +35,23 @@ function isTokenExpiredError(errorData: any): boolean {
   
   // Check if detail is an object with errorCode
   if (typeof errorData.detail === 'object' && errorData.detail.errorCode === 'TOKEN_EXPIRED') {
+    return true;
+  }
+  
+  return false;
+}
+
+/**
+ * Check if error response indicates login is required
+ * This happens when the user's session is invalid or doesn't exist
+ */
+function isLoginRequiredError(errorData: any): boolean {
+  if (!errorData || !errorData.detail) {
+    return false;
+  }
+  
+  // Check if detail is an object with errorCode
+  if (typeof errorData.detail === 'object' && errorData.detail.errorCode === 'LOGIN_REQUIRED') {
     return true;
   }
   
@@ -145,8 +163,24 @@ export async function fetchWithAuth(
         // Auth has already been cleared in refreshAccessToken()
         throw refreshError;
       }
+    } else if (isLoginRequiredError(errorData)) {
+      // Login required - clear auth and dispatch event to show login modal
+      await clearAuthFromStorage();
+      
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('loginRequired', { 
+          detail: { message: errorData.detail?.message || 'Please login' }
+        }));
+      }
+      
+      // Return response for caller to handle
+      return new Response(JSON.stringify(errorData), {
+        status: 401,
+        statusText: response.statusText,
+        headers: response.headers,
+      });
     } else {
-      // Other 401 error (not token expired) - return as-is
+      // Other 401 error (not token expired or login required) - return as-is
       // Recreate response with error data for caller to handle
       return new Response(JSON.stringify(errorData), {
         status: 401,
