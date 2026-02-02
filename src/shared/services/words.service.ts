@@ -5,7 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
-import { fetchWithAuth } from './api-client';
+import { fetchWithAuth, extractErrorMessage } from './api-client';
 import type { GetSavedWordsResponse } from '@/shared/types/words.types';
 
 /**
@@ -27,8 +27,8 @@ export async function getSavedWords(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to fetch saved words' }));
-    throw new Error(errorData.detail || `Failed to fetch saved words with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to fetch saved words'));
   }
 
   const data: GetSavedWordsResponse = await response.json();
@@ -55,8 +55,8 @@ export async function getSavedWordsByFolderId(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to fetch saved words' }));
-    throw new Error(errorData.detail || `Failed to fetch saved words with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to fetch saved words'));
   }
 
   const data: GetSavedWordsResponse = await response.json();
@@ -81,8 +81,8 @@ export async function deleteSavedWord(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to delete saved word' }));
-    throw new Error(errorData.detail || `Failed to delete saved word with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to delete saved word'));
   }
 }
 
@@ -106,8 +106,8 @@ export async function moveSavedWordToFolder(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to move saved word' }));
-    throw new Error(errorData.detail || `Failed to move saved word with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to move saved word'));
   }
 }
 

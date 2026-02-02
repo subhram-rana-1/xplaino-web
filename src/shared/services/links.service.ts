@@ -5,7 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
-import { fetchWithAuth } from './api-client';
+import { fetchWithAuth, extractErrorMessage } from './api-client';
 import type { GetAllSavedLinksResponse, SavedLink } from '@/shared/types/links.types';
 
 export interface SaveLinkRequest {
@@ -37,8 +37,8 @@ export async function getAllSavedLinksByFolderId(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to fetch saved links' }));
-    throw new Error(errorData.detail || `Failed to fetch saved links with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to fetch saved links'));
   }
 
   const data: GetAllSavedLinksResponse = await response.json();
@@ -64,9 +64,8 @@ export async function saveLink(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to save link' }));
-    const errorMessage = errorData.detail?.error_message || errorData.detail || `Failed to save link with status ${response.status}`;
-    throw new Error(errorMessage);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to save link'));
   }
 
   const data: SavedLink = await response.json();
@@ -91,8 +90,8 @@ export async function deleteSavedLink(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to delete saved link' }));
-    throw new Error(errorData.detail || `Failed to delete saved link with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to delete saved link'));
   }
 }
 
@@ -116,8 +115,8 @@ export async function moveSavedLinkToFolder(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to move saved link' }));
-    throw new Error(errorData.detail || `Failed to move saved link with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to move saved link'));
   }
 
   const data: SavedLink = await response.json();

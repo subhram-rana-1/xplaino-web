@@ -5,7 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
-import { fetchWithAuth } from './api-client';
+import { fetchWithAuth, extractErrorMessage } from './api-client';
 import type { GetAllFoldersResponse, CreateFolderRequest, CreateFolderResponse, RenameFolderRequest, RenameFolderResponse } from '@/shared/types/folders.types';
 
 /**
@@ -25,8 +25,8 @@ export async function getAllFolders(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to fetch folders' }));
-    throw new Error(errorData.detail || `Failed to fetch folders with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to fetch folders'));
   }
 
   const data: GetAllFoldersResponse = await response.json();
@@ -58,9 +58,8 @@ export async function createFolder(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to create folder' }));
-    const errorMessage = errorData.detail || errorData.error_message || `Failed to create folder with status ${response.status}`;
-    throw new Error(errorMessage);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to create folder'));
   }
 
   const data: CreateFolderResponse = await response.json();
@@ -85,8 +84,8 @@ export async function deleteFolder(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to delete folder' }));
-    throw new Error(errorData.detail || `Failed to delete folder with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to delete folder'));
   }
 }
 
@@ -114,9 +113,8 @@ export async function renameFolder(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to rename folder' }));
-    const errorMessage = errorData.detail || errorData.error_message || `Failed to rename folder with status ${response.status}`;
-    throw new Error(errorMessage);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to rename folder'));
   }
 
   const data: RenameFolderResponse = await response.json();

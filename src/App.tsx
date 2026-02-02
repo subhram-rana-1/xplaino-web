@@ -39,6 +39,7 @@ import { ThemeProvider } from '@/shared/hooks/ThemeContext';
 import { ProtectedRoute } from '@/shared/components/ProtectedRoute';
 import { AdminProtectedRoute } from '@/shared/components/AdminProtectedRoute';
 import { UserProtectedRoute } from '@/shared/components/UserProtectedRoute';
+import { SubscriptionRequiredModal } from '@/shared/components/SubscriptionRequiredModal';
 
 /**
  * AppContent - Inner component that uses useLocation for conditional rendering
@@ -260,6 +261,7 @@ const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: 
             </Routes>
           </PageContent>
           {!isPdfDetailPage && <Footer />}
+          <SubscriptionRequiredModal />
         </>
       );
     };

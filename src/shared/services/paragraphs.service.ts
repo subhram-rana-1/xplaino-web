@@ -5,7 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
-import { fetchWithAuth } from './api-client';
+import { fetchWithAuth, extractErrorMessage } from './api-client';
 import type { 
   GetAllSavedParagraphsResponse, 
   Folder,
@@ -35,8 +35,8 @@ export async function getAllSavedParagraphs(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to fetch saved paragraphs' }));
-    throw new Error(errorData.detail || `Failed to fetch saved paragraphs with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to fetch saved paragraphs'));
   }
 
   const data: GetAllSavedParagraphsResponse = await response.json();
@@ -61,8 +61,8 @@ export async function deleteSavedParagraph(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to delete saved paragraph' }));
-    throw new Error(errorData.detail || `Failed to delete saved paragraph with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to delete saved paragraph'));
   }
 }
 
@@ -89,8 +89,8 @@ export async function createParagraphFolder(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to create folder' }));
-    throw new Error(errorData.detail || `Failed to create folder with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to create folder'));
   }
 
   const data: Folder = await response.json();
@@ -115,8 +115,8 @@ export async function deleteFolder(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to delete folder' }));
-    throw new Error(errorData.detail || `Failed to delete folder with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to delete folder'));
   }
 }
 
@@ -143,8 +143,8 @@ export async function moveSavedParagraphToFolder(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to move saved paragraph' }));
-    throw new Error(errorData.detail || `Failed to move saved paragraph with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to move saved paragraph'));
   }
 }
 
@@ -198,11 +198,8 @@ export async function* askAISavedParagraphs(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ 
-      detail: { error_message: 'Failed to ask AI' } 
-    }));
-    const errorMessage = errorData.detail?.error_message || errorData.detail || `Failed to ask AI with status ${response.status}`;
-    throw new Error(errorMessage);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to ask AI'));
   }
 
   if (!response.body) {

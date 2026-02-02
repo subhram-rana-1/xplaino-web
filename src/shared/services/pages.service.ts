@@ -5,7 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
-import { fetchWithAuth } from './api-client';
+import { fetchWithAuth, extractErrorMessage } from './api-client';
 import type { GetAllSavedPagesResponse, Folder } from '@/shared/types/pages.types';
 
 /**
@@ -29,8 +29,8 @@ export async function getAllSavedPages(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to fetch saved pages' }));
-    throw new Error(errorData.detail || `Failed to fetch saved pages with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to fetch saved pages'));
   }
 
   const data: GetAllSavedPagesResponse = await response.json();
@@ -55,8 +55,8 @@ export async function deleteSavedPage(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to delete saved page' }));
-    throw new Error(errorData.detail || `Failed to delete saved page with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to delete saved page'));
   }
 }
 
@@ -83,8 +83,8 @@ export async function createPageFolder(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to create folder' }));
-    throw new Error(errorData.detail || `Failed to create folder with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to create folder'));
   }
 
   const data: Folder = await response.json();
@@ -109,8 +109,8 @@ export async function deleteFolder(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to delete folder' }));
-    throw new Error(errorData.detail || `Failed to delete folder with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to delete folder'));
   }
 }
 

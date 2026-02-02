@@ -5,7 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
-import { fetchWithAuth } from './api-client';
+import { fetchWithAuth, extractErrorMessage } from './api-client';
 import type { GetAllSavedImagesResponse } from '@/shared/types/images.types';
 
 /**
@@ -28,8 +28,8 @@ export async function getAllSavedImagesByFolderId(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to fetch saved images' }));
-    throw new Error(errorData.detail || `Failed to fetch saved images with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to fetch saved images'));
   }
 
   const data: GetAllSavedImagesResponse = await response.json();
@@ -54,8 +54,8 @@ export async function deleteSavedImage(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to delete saved image' }));
-    throw new Error(errorData.detail || `Failed to delete saved image with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to delete saved image'));
   }
 }
 
@@ -79,8 +79,8 @@ export async function moveSavedImageToFolder(
   );
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'Failed to move saved image' }));
-    throw new Error(errorData.detail || `Failed to move saved image with status ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to move saved image'));
   }
 }
 

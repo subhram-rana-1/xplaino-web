@@ -8,6 +8,7 @@
  * - Retries failed requests with new token
  * - Prevents duplicate refresh calls
  * - Detects LOGIN_REQUIRED errors and clears auth + dispatches loginRequired event
+ * - Detects SUBSCRIPTION_REQUIRED errors and dispatches subscriptionRequired event
  */
 
 import { authConfig } from '@/config/auth.config';
@@ -56,6 +57,53 @@ function isLoginRequiredError(errorData: any): boolean {
   }
   
   return false;
+}
+
+/**
+ * Check if error response indicates subscription upgrade is required
+ * This happens when the user tries to access a feature that requires a higher subscription tier
+ */
+function isSubscriptionRequiredError(errorData: any): boolean {
+  if (!errorData || !errorData.detail) {
+    return false;
+  }
+  
+  // Check if detail is an object with errorCode
+  if (typeof errorData.detail === 'object' && errorData.detail.errorCode === 'SUBSCRIPTION_REQUIRED') {
+    return true;
+  }
+  
+  return false;
+}
+
+/**
+ * Extract a human-readable error message from API error response
+ * Handles both string and object formats for errorData.detail
+ * 
+ * @param errorData - The parsed error response body
+ * @param defaultMessage - Fallback message if extraction fails
+ * @returns A human-readable error message string
+ */
+export function extractErrorMessage(errorData: any, defaultMessage: string): string {
+  if (!errorData) {
+    return defaultMessage;
+  }
+  
+  // If detail is an object, extract message from it
+  if (typeof errorData.detail === 'object' && errorData.detail !== null) {
+    return errorData.detail.message 
+      || errorData.detail.reason 
+      || errorData.detail.error_message 
+      || defaultMessage;
+  }
+  
+  // If detail is a string, use it directly
+  if (typeof errorData.detail === 'string' && errorData.detail) {
+    return errorData.detail;
+  }
+  
+  // Fallback to other common error fields
+  return errorData.error_message || errorData.message || defaultMessage;
 }
 
 /**
@@ -190,6 +238,25 @@ export async function fetchWithAuth(
         statusText: response.statusText,
         headers: response.headers,
       });
+    }
+  }
+
+  // Check for SUBSCRIPTION_REQUIRED error on any non-ok response
+  if (!response.ok) {
+    // Clone the response so we can read the body and still return it
+    const clonedResponse = response.clone();
+    const errorData = await clonedResponse.json().catch(() => ({ detail: '' }));
+    
+    if (isSubscriptionRequiredError(errorData)) {
+      // Subscription required - dispatch event to show upgrade modal
+      if (typeof window !== 'undefined') {
+        const message = typeof errorData.detail === 'object' 
+          ? (errorData.detail?.message || errorData.detail?.reason || 'Upgrade your plan to access this feature')
+          : (errorData.detail || 'Upgrade your plan to access this feature');
+        window.dispatchEvent(new CustomEvent('subscriptionRequired', { 
+          detail: { message }
+        }));
+      }
     }
   }
 
