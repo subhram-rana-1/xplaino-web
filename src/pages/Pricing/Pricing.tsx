@@ -121,7 +121,13 @@ export const Pricing: React.FC = () => {
     try {
       setCheckoutLoading(price.id);
       const discountId = getDiscountIdForPrice(price);
-      await openCheckout(price.id, discountId, undefined, undefined, { userId: user!.id });
+      await openCheckout(
+        price.id,
+        discountId,
+        { allowLogout: false },
+        { email: user!.email },
+        { userId: user!.id }
+      );
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to open checkout';
       setToast({ message: errorMessage, type: 'error' });
