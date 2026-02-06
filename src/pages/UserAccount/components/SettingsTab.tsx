@@ -18,7 +18,7 @@ export const SettingsTab: React.FC = () => {
   const { accessToken } = useAuth();
   const { setTheme: setGlobalTheme } = useTheme();
   const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
+  const [, setUpdating] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   
   // Form state
@@ -27,7 +27,7 @@ export const SettingsTab: React.FC = () => {
   const [theme, setTheme] = useState<Theme>(Theme.LIGHT);
   
   // Original values to detect changes
-  const [originalSettings, setOriginalSettings] = useState<{
+  const [, setOriginalSettings] = useState<{
     nativeLanguage: NativeLanguage | null;
     pageTranslationView: PageTranslationView;
     theme: Theme;
@@ -125,7 +125,7 @@ export const SettingsTab: React.FC = () => {
   };
 
   // Individual change handlers that auto-save
-  const handleNativeLanguageChange = async (value: string) => {
+  const handleNativeLanguageChange = async (value: string | null) => {
     const newValue = value ? (value as NativeLanguage) : null;
     setNativeLanguage(newValue);
     await saveSettings({ nativeLanguage: newValue, pageTranslationView, theme });
