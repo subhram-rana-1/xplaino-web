@@ -505,11 +505,29 @@ export const SubscriptionTab: React.FC = () => {
             )}
           </div>
 
-          {/* Warning when subscription won't auto-renew - outside the details box */}
-          {!hasNextBillingDate && (subscription.current_billing_period_ends_at || nextBilledAt) && (
-            <p className={styles.subscriptionEndWarning}>
-              Your current subscription ends on {formatDate(subscription.current_billing_period_ends_at || nextBilledAt)}. You will need to subscribe manually after that.
-            </p>
+          {/* Cancellation notice when subscription won't auto-renew */}
+          {!hasNextBillingDate && (
+            <div className={styles.cancellationNotice}>
+              <h3 className={styles.cancellationHeading}>
+                <FiAlertCircle size={20} />
+                Subscription Cancelled
+              </h3>
+              <p className={styles.cancellationMessage}>
+                Your <strong>{planName}</strong> subscription has been cancelled. You will <strong>not be charged</strong> from the next billing cycle onwards.
+                {(subscription.current_billing_period_ends_at || previouslyBilledAt) && (
+                  <> However, you can continue using all your premium features until <strong>{formatDate(subscription.current_billing_period_ends_at || null)}</strong>, as your current billing period is still active.</>
+                )}
+              </p>
+              <p className={styles.cancellationNoRefund}>
+                Please note that cancellations do not include a refund for the current billing period. For more details, please review our{' '}
+                <Link to="/refund-policy" className={styles.refundPolicyLink}>Refund Policy</Link>.
+              </p>
+              {subscription.canceled_at && (
+                <p className={styles.cancellationDate}>
+                  Cancelled on {formatDate(subscription.canceled_at)}
+                </p>
+              )}
+            </div>
           )}
 
           <div className={styles.divider} />
