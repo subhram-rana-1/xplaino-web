@@ -1,0 +1,1 @@
+export { UninstallFeedback } from './UninstallFeedback';

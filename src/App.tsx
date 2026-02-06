@@ -14,6 +14,7 @@ import { IssueDetail } from '@/pages/IssueDetail';
 import { TermsAndConditions } from '@/pages/TermsAndConditions';
 import { PrivacyPolicy } from '@/pages/PrivacyPolicy';
 import { RefundPolicy } from '@/pages/RefundPolicy';
+import { UninstallFeedback } from '@/pages/UninstallFeedback';
 import { Pricing } from '@/pages/Pricing';
 import { PaymentSuccess } from '@/pages/PaymentSuccess';
 import { AdminPricingPage } from '@/pages/Admin/AdminPricingPage';
@@ -86,6 +87,7 @@ const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: 
               <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/refund-policy" element={<RefundPolicy />} />
+              <Route path="/uninstall-extension-feedback" element={<UninstallFeedback />} />
               <Route 
                 path="/user/dashboard" 
                 element={

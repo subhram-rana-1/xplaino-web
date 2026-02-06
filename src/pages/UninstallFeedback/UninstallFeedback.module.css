@@ -1,0 +1,430 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 200px);
+  padding: 2rem;
+  background: var(--bg-white);
+}
+
+.content {
+  background: var(--bg-white);
+  border-radius: 16px;
+  padding: 3rem;
+  max-width: 600px;
+  width: 100%;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+.headerIcon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+  color: var(--text-medium);
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--text-dark);
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.description {
+  font-size: 1.05rem;
+  color: var(--text-medium);
+  margin-bottom: 2rem;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ============================================
+   FORM
+   ============================================ */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-dark-gray);
+  margin-bottom: 0.25rem;
+}
+
+.required {
+  color: var(--red-error);
+}
+
+.optional {
+  font-weight: 400;
+  color: var(--text-quaternary);
+  font-size: 0.9rem;
+}
+
+/* ============================================
+   REASON RADIO CARDS
+   ============================================ */
+
+.reasonGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reasonOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.reasonCard {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--border-default);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--bg-white);
+}
+
+.reasonCard:hover {
+  border-color: var(--teal-light);
+  background: var(--teal-rgba-10);
+}
+
+.reasonCardSelected {
+  border-color: var(--teal);
+  background: var(--teal-rgba-10);
+}
+
+.radioInput {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.radioIndicator {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border-dark);
+  transition: all 0.2s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reasonCardSelected .radioIndicator {
+  border-color: var(--teal);
+}
+
+.reasonCardSelected .radioIndicator::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--teal);
+}
+
+.reasonLabel {
+  font-size: 0.975rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.reasonCardSelected .reasonLabel {
+  color: var(--text-dark);
+  font-weight: 500;
+}
+
+/* ============================================
+   TEXTAREA
+   ============================================ */
+
+.feedbackGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.textarea {
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  font-family: inherit;
+  border: 2px solid var(--border-default);
+  border-radius: 8px;
+  transition: all 0.2s;
+  outline: none;
+  background-color: var(--bg-white);
+  color: var(--text-primary);
+  resize: vertical;
+  min-height: 100px;
+}
+
+.textarea:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px var(--teal-rgba-15);
+}
+
+.textarea:disabled {
+  background-color: var(--bg-light);
+  cursor: not-allowed;
+}
+
+.textarea::placeholder {
+  color: var(--text-quaternary);
+}
+
+/* ============================================
+   SUBMIT BUTTON
+   ============================================ */
+
+.submitButton {
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-on-primary);
+  background: linear-gradient(135deg, var(--teal-gradient-start) 0%, var(--teal-gradient-end) 100%);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 0.5rem;
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px var(--teal-rgba-40);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ============================================
+   ERROR MESSAGE
+   ============================================ */
+
+.errorMessage {
+  padding: 0.875rem;
+  background-color: var(--light-red);
+  border: 1px solid var(--medium-red);
+  border-radius: 8px;
+  color: var(--red-dark);
+  font-size: 0.95rem;
+}
+
+/* ============================================
+   SUCCESS / THANK YOU VIEW
+   ============================================ */
+
+.successMessage {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.successIcon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  background: linear-gradient(135deg, var(--teal-gradient-start) 0%, var(--teal-gradient-end) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-on-primary);
+  box-shadow: 0 10px 30px var(--teal-rgba-30);
+  animation: scaleIn 0.4s ease-out;
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.successTitle {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: var(--text-dark);
+  margin-bottom: 1rem;
+}
+
+.successDescription {
+  font-size: 1.05rem;
+  color: var(--text-medium);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.gratitudeText {
+  font-size: 1rem;
+  color: var(--text-tertiary);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.homeButton {
+  padding: 0.875rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-on-primary);
+  background: linear-gradient(135deg, var(--teal-gradient-start) 0%, var(--teal-gradient-end) 100%);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  min-width: 200px;
+}
+
+.homeButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px var(--teal-rgba-40);
+}
+
+.homeButton:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   RESPONSIVE - TABLET
+   ============================================ */
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1.5rem;
+  }
+
+  .content {
+    padding: 2rem 1.5rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .description {
+    font-size: 1rem;
+  }
+
+  .successTitle {
+    font-size: 1.5rem;
+  }
+}
+
+/* ============================================
+   RESPONSIVE - MOBILE
+   ============================================ */
+
+@media (max-width: 480px) {
+  .container {
+    padding: 1rem;
+    min-height: calc(100vh - 150px);
+  }
+
+  .content {
+    padding: 1.5rem 1.25rem;
+    border-radius: 12px;
+  }
+
+  .headerIcon svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .title {
+    font-size: 1.35rem;
+    line-height: 1.3;
+  }
+
+  .description {
+    font-size: 0.9375rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+
+  .form {
+    gap: 1.25rem;
+  }
+
+  .label {
+    font-size: 0.9375rem;
+  }
+
+  .reasonCard {
+    padding: 0.75rem 0.875rem;
+  }
+
+  .reasonLabel {
+    font-size: 0.9375rem;
+  }
+
+  .textarea {
+    padding: 0.75rem 0.875rem;
+    font-size: 1rem;
+    min-height: 80px;
+  }
+
+  .submitButton {
+    padding: 0.875rem;
+    font-size: 1rem;
+  }
+
+  .successIcon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .successIcon svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  .successTitle {
+    font-size: 1.25rem;
+  }
+
+  .successDescription {
+    font-size: 0.9375rem;
+  }
+
+  .gratitudeText {
+    font-size: 0.9375rem;
+  }
+
+  .homeButton {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9375rem;
+    min-width: 160px;
+  }
+
+  .errorMessage {
+    font-size: 0.875rem;
+    padding: 0.75rem;
+  }
+}
