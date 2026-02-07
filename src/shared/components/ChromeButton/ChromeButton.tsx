@@ -13,14 +13,14 @@ export const ChromeButton: React.FC = () => {
 
   const handleButtonClick = () => {
     // TODO: Uncomment once chorme extension is all done
-    // window.open(
-    //   'https://chromewebstore.google.com/detail/xplaino/nmphalmbdmddagbllhjnfnmodfmbnlkp',
-    //   '_blank',
-    //   'noopener,noreferrer'
-    // );
+    window.open(
+      'https://chromewebstore.google.com/detail/xplaino/nmphalmbdmddagbllhjnfnmodfmbnlkp',
+      '_blank',
+      'noopener,noreferrer'
+    );
     
     // Navigate to pre-launch page to register user interest
-    navigate('/pre-launch');
+    // navigate('/pre-launch');
   };
 
   return (

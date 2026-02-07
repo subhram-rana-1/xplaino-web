@@ -24,6 +24,8 @@ export const PromoText: React.FC = () => {
       </h1>
       <p className={styles.description}>
         Get AI-powered contextual explanations, summaries, and instant answers in any language—<span className={styles.highlight}>right as you browse</span>
+          <br/>
+          Your all-in-one bookmark manager.
       </p>
       <ChromeButton />
     </div>
