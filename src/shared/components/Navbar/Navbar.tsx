@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import styles from './Navbar.module.css';
-import logoImageLight from '../../../assets/images/logo-white-removebg.png';
-import logoImageDark from '../../../assets/images/logo-dark-removebg.png';
+import logoImageLight from '../../../assets/images/xplaino-brand-white.png';
+import logoImageDark from '../../../assets/images/xplaino-brand-white.png';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { useTheme } from '@/shared/hooks/ThemeContext';
 import { Theme } from '@/shared/types/user-settings.types';
@@ -190,7 +190,6 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
               alt="Xplaino Logo" 
               className={styles.logo}
             />
-            <span className={styles.brandName}>Xplaino</span>
           </Link>
           {showMiniCoupon && (
             <button
@@ -224,13 +223,6 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
         {!hideNavButtons && (
           <div className={styles.navCenter}>
             <div className={`${styles.navLinks} ${isMenuOpen ? styles.navLinksOpen : ''}`}>
-              <button 
-                className={`${styles.navLink} ${isDashboardActive() ? styles.navLinkActive : ''}`} 
-                onClick={handleMyDashboardClick}
-              >
-                {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') ? 'Admin Dashboard' : 'My Dashboard'}
-              </button>
-              {/* Temporarily hidden
               <Link 
                 to="/pricing" 
                 className={`${styles.navLink} ${isActiveRoute('/pricing') ? styles.navLinkActive : ''}`} 
@@ -238,7 +230,12 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
               >
                 Pricing
               </Link>
-              */}
+              <button 
+                className={`${styles.navLink} ${isDashboardActive() ? styles.navLinkActive : ''}`} 
+                onClick={handleMyDashboardClick}
+              >
+                {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') ? 'Admin Dashboard' : 'My Dashboard'}
+              </button>
               <Link 
                 to="/report-issue" 
                 className={`${styles.navLink} ${isActiveRoute('/report-issue') ? styles.navLinkActive : ''}`} 
