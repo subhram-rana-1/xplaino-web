@@ -8,6 +8,7 @@ import { Footer } from '@/shared/components/Footer';
 import { Home } from '@/pages/Home';
 import { Contact } from '@/pages/Contact';
 import { PreLaunch } from '@/pages/PreLaunch';
+import { GettingStarted } from '@/pages/GettingStarted';
 import { ReportIssue } from '@/pages/ReportIssue';
 import { Issues } from '@/pages/Issues';
 import { IssueDetail } from '@/pages/IssueDetail';
@@ -48,15 +49,17 @@ import { SubscriptionRequiredModal } from '@/shared/components/SubscriptionRequi
 const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: boolean) => void }> = ({ showMiniCoupon, setShowMiniCoupon }) => {
   const location = useLocation();
   const isPdfDetailPage = location.pathname.startsWith('/pdf/');
+  const isGettingStartedPage = location.pathname === '/getting-started';
 
   return (
     <>
-      <HighlightedCoupon onDismiss={() => setShowMiniCoupon(true)} />
+      {!isGettingStartedPage && <HighlightedCoupon onDismiss={() => setShowMiniCoupon(true)} />}
       <Navbar showMiniCoupon={showMiniCoupon} hideNavButtons={isPdfDetailPage} />
       <PageContent>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/pre-launch" element={<PreLaunch />} />
+              <Route path="/getting-started" element={<GettingStarted />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/contact-us" element={<Contact />} />

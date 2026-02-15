@@ -5,6 +5,7 @@ import { usePaddle } from '@/shared/hooks/usePaddle';
 
 interface HighlightedCouponProps {
   onDismiss?: () => void;
+  placement?: 'banner' | 'sidebar';
 }
 
 const FOMO_TIMER_KEY = 'xplaino_fomo_timer_expiry';
@@ -59,7 +60,7 @@ const getFomoExpiry = (): number => {
  *
  * @returns JSX element or null if no discounts available
  */
-export const HighlightedCoupon: React.FC<HighlightedCouponProps> = ({ onDismiss: _onDismiss }) => {
+export const HighlightedCoupon: React.FC<HighlightedCouponProps> = ({ onDismiss: _onDismiss, placement = 'banner' }) => {
   const { monthlyPrices, yearlyPrices, isLoading, error } = usePaddle();
   const [timeRemaining, setTimeRemaining] = useState<string>('');
   const navigate = useNavigate();
@@ -131,7 +132,7 @@ export const HighlightedCoupon: React.FC<HighlightedCouponProps> = ({ onDismiss:
   }
 
   return (
-    <div className={styles.banner}>
+    <div className={placement === 'sidebar' ? styles.bannerSidebar : styles.banner}>
       <div className={styles.container}>
         <div className={styles.content}>
           <div className={styles.leftSection}>

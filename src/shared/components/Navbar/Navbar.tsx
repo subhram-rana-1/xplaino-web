@@ -230,6 +230,13 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
               >
                 Pricing
               </Link>
+              <Link 
+                to="/getting-started" 
+                className={`${styles.navLink} ${isActiveRoute('/getting-started') ? styles.navLinkActive : ''}`} 
+                onClick={closeMenu}
+              >
+                Getting Started
+              </Link>
               <button 
                 className={`${styles.navLink} ${isDashboardActive() ? styles.navLinkActive : ''}`} 
                 onClick={handleMyDashboardClick}

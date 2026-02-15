@@ -1,0 +1,345 @@
+.pageWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  min-height: 100%;
+  font-family: 'Inter', sans-serif;
+}
+
+.refreshTabsBanner {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  margin-bottom: 0.75rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #b91c1c;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.mainRow {
+  display: flex;
+  gap: 0;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.leftSidebar {
+  flex: 0 0 auto;
+  width: 300px;
+  position: sticky;
+  top: 2rem;
+  align-self: flex-start;
+  padding: 2rem 1.5rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sidebarCoupon {
+  width: 100%;
+}
+
+.userInstructionSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.userInstructionHeading {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+}
+
+.sidebarGuide {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.guideLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+}
+
+.instructionsList {
+  margin: 0;
+  padding: 1rem 1rem 1rem 1.25rem;
+  list-style: none;
+  background-color: var(--teal-lighter);
+  border-radius: 10px;
+  border-left: 4px solid var(--teal-light);
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.instructionsList li {
+  margin-bottom: 0.35rem;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.instructionsList li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--teal-dark);
+}
+
+.instructionsList li:last-child {
+  margin-bottom: 0;
+}
+
+.mainCenter {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1.5rem 2rem 1.5rem;
+}
+
+.centerContent {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.headerSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.centerContent .title {
+  margin-bottom: 0.5rem;
+}
+
+.workflowFigure {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: var(--bg-lighter);
+  border-radius: 8px;
+}
+
+.workflowImage,
+.workflowDiagram {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  border-radius: 6px;
+  display: block;
+}
+
+.workflowCaption {
+  margin: 0.75rem 0 0 0;
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.3;
+}
+
+.shortcutsLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+}
+
+.sidebarGuide .shortcuts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.shortcutItem {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.shortcutAction {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.shortcutKeyCombo {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--teal-dark);
+  flex-shrink: 0;
+}
+
+.infoBanner {
+  padding: 0.875rem 1rem;
+  background-color: var(--teal-lighter);
+  border: 1px solid var(--teal-light);
+  border-radius: 8px;
+  color: var(--teal-dark);
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.article {
+  padding: 2rem 0;
+}
+
+.sampleBadge {
+  display: inline-block;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--teal-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, var(--teal-lighter) 0%, rgba(56, 201, 181, 0.25) 100%);
+  border: 1px solid var(--teal-light);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(10, 93, 82, 0.12);
+}
+
+.articleTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 1.5rem 0;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.4;
+}
+
+.articleBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.paragraph {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.paragraph:last-child {
+  margin-bottom: 0;
+}
+
+/* Responsive design */
+@media (max-width: 968px) {
+  .mainRow {
+    flex-direction: column;
+  }
+
+  .leftSidebar {
+    position: static;
+    width: 100%;
+    padding: 1.5rem 1rem;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .sidebarCoupon {
+    flex: 1 1 280px;
+  }
+
+  .sidebarGuide {
+    flex: 1 1 200px;
+  }
+
+  .sidebarGuide .shortcuts {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .mainCenter {
+    padding: 0 1rem 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .leftSidebar {
+    flex-direction: column;
+  }
+
+  .mainCenter {
+    padding: 0 1rem 1.5rem;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .article {
+    padding: 1.5rem 0;
+  }
+
+  .articleTitle {
+    font-size: 1.35rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .infoBanner {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .article {
+    padding: 1.25rem 0;
+  }
+
+  .shortcutAction {
+    font-size: 0.875rem;
+  }
+
+  .articleTitle {
+    font-size: 1.25rem;
+  }
+
+  .paragraph {
+    font-size: 0.95rem;
+  }
+}
