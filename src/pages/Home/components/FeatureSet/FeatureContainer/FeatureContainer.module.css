@@ -232,7 +232,7 @@
 /* Desktop hover - expand description */
 @media (hover: hover) and (pointer: fine) {
   .featureContainer:hover .descriptionSection {
-    max-height: min(400px, calc(100vh - 350px - 2rem));
+    max-height: 600px;
     opacity: 1;
     padding: 1rem 1.25rem;
     transition-delay: 0.4s;

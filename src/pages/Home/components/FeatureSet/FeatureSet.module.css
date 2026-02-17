@@ -9,6 +9,7 @@
   margin: 0 auto;
   position: relative;
   z-index: 1;
+  overflow: visible;
 }
 
 /* Raise z-index when hovering over feature cards so expanded descriptions appear above other sections */
@@ -42,6 +43,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
+  overflow: visible;
 }
 
 /* Tablet: 2 columns */
