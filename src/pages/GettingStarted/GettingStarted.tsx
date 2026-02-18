@@ -83,7 +83,7 @@ export const GettingStarted: React.FC = () => {
           <div className={styles.userInstructionSection}>
             <h2 className={styles.userInstructionHeading}>User instruction</h2>
             <div className={styles.refreshTabsBanner}>
-              Refresh the already opened tabs or open a new tab for Xplaino to work.
+              After installing, refresh any open tabs or open a new one to activate Xplaino.
             </div>
             <div className={styles.sidebarGuide}>
               <span className={styles.guideLabel}>Use guide</span>
