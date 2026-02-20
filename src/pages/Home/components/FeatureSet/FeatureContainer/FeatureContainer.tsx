@@ -21,7 +21,6 @@ export const FeatureContainer: React.FC<FeatureContainerProps> = ({
   title, 
   videoUrl, 
   bullets,
-  icon,
   thumbnailImage
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
