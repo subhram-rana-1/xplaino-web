@@ -1,28 +1,26 @@
 import React from 'react';
-import { FiTrash2, FiBookOpen } from 'react-icons/fi';
+import { FiTrash2, FiBookOpen, FiDownload } from 'react-icons/fi';
 import styles from './PdfActionIcons.module.css';
 
 export interface PdfActionIconsProps {
   onDelete: () => void;
   onBook: () => void;
+  onDownload: () => void;
   isVisible: boolean;
+  canDownload?: boolean;
   className?: string;
 }
 
 /**
  * PdfActionIcons - Action icons for PDF table rows
- * Shows delete and book icons on hover
- * 
- * @param onDelete - Function to call on delete click
- * @param onBook - Function to call on book click
- * @param isVisible - Whether icons should be visible
- * @param className - Additional CSS class
- * @returns JSX element
+ * Shows view, download and delete icons on hover
  */
 export const PdfActionIcons: React.FC<PdfActionIconsProps> = ({
   onDelete,
   onBook,
+  onDownload,
   isVisible,
+  canDownload = true,
   className = '',
 }) => {
   return (
@@ -38,6 +36,19 @@ export const PdfActionIcons: React.FC<PdfActionIconsProps> = ({
       >
         <FiBookOpen />
       </button>
+      {canDownload && (
+        <button
+          className={`${styles.downloadButton} ${isVisible ? styles.visible : styles.hidden}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onDownload();
+          }}
+          title="Download"
+          aria-label="Download"
+        >
+          <FiDownload />
+        </button>
+      )}
       <button
         className={`${styles.deleteButton} ${isVisible ? styles.visible : styles.hidden}`}
         onClick={(e) => {

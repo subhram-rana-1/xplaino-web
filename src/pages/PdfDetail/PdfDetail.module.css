@@ -68,6 +68,22 @@
   gap: 2rem;
 }
 
+/* react-pdf document and page wrapper */
+.document {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.page {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Ensure text layer is selectable for extension */
+.content :global(.react-pdf__Page__textContent) {
+  user-select: text;
+}
+
 .pageWrapper {
   display: flex;
   flex-direction: column;

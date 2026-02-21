@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FiRefreshCw, FiPlus, FiCheck } from 'react-icons/fi';
 import styles from './PdfPage.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
-import { getAllPdfs, convertPdfToHtml, deletePdf } from '@/shared/services/pdf.service';
+import { getAllPdfs, createPdf, getPresignedUploadUrl, getDownloadUrl, deletePdf } from '@/shared/services/pdf.service';
 import type { PdfResponse } from '@/shared/types/pdf.types';
 import { Toast } from '@/shared/components/Toast';
 import { ProcessingModal } from '@/shared/components/ProcessingModal';
@@ -18,6 +19,7 @@ import { PdfActionIcons } from './components/PdfActionIcons';
  */
 export const PdfPage: React.FC = () => {
   const { accessToken } = useAuth();
+  const navigate = useNavigate();
   const [pdfs, setPdfs] = useState<PdfResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -101,22 +103,41 @@ export const PdfPage: React.FC = () => {
 
     try {
       setIsUploading(true);
-      const newPdf = await convertPdfToHtml(accessToken, file);
-      
-      // Add new PDF to the beginning of the list
-      setPdfs(prevPdfs => [newPdf, ...prevPdfs]);
-      setToast({ message: 'PDF uploaded and converted successfully!', type: 'success' });
-      
-      // Open PDF detail page in new tab (same URL as clicking the green book icon)
-      const url = `${window.location.origin}/pdf/${newPdf.id}`;
-      window.open(url, '_blank', 'noopener,noreferrer');
+
+      // 1. Create PDF record (metadata only)
+      const newPdf = await createPdf(accessToken, { file_name: file.name });
+
+      // 2. Get presigned upload URL (response includes content_type to use for PUT)
+      const { upload_url, content_type } = await getPresignedUploadUrl(accessToken, {
+        file_name: file.name,
+        file_type: 'PDF',
+        entity_type: 'PDF',
+        entity_id: newPdf.id,
+      });
+
+      // 3. PUT file to S3 using the same Content-Type the backend used when signing
+      const putResponse = await fetch(upload_url, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': content_type,
+        },
+      });
+
+      if (!putResponse.ok) {
+        throw new Error(`Upload failed with status ${putResponse.status}`);
+      }
+
+      // 4. Add to list and navigate to PDF viewer
+      setPdfs((prevPdfs) => [{ ...newPdf, file_uploads: [] }, ...prevPdfs]);
+      setToast({ message: 'PDF uploaded successfully!', type: 'success' });
+      navigate(`/pdf/${newPdf.id}`);
     } catch (error) {
       console.error('Error uploading PDF:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to upload PDF';
       setToast({ message: errorMessage, type: 'error' });
     } finally {
       setIsUploading(false);
-      // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -168,6 +189,31 @@ export const PdfPage: React.FC = () => {
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
+  const handleDownload = async (pdf: PdfResponse) => {
+    const fileUploads = pdf.file_uploads ?? [];
+    if (fileUploads.length === 0) {
+      setToast({ message: 'No file to download', type: 'error' });
+      return;
+    }
+    if (!accessToken) return;
+    const fileUploadId = fileUploads[0].id;
+    try {
+      const { download_url } = await getDownloadUrl(accessToken, fileUploadId);
+      const link = document.createElement('a');
+      link.href = download_url;
+      link.download = pdf.file_name || 'document.pdf';
+      link.rel = 'noopener noreferrer';
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error getting download URL:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to get download link';
+      setToast({ message: errorMessage, type: 'error' });
+    }
+  };
+
   const columns: Column<PdfResponse>[] = [
     {
       key: 'file_name',
@@ -195,11 +241,14 @@ export const PdfPage: React.FC = () => {
       align: 'left',
       render: (pdf) => {
         const isHovered = hoveredRowId === pdf.id;
+        const canDownload = (pdf.file_uploads?.length ?? 0) > 0;
         return (
           <PdfActionIcons
             onDelete={() => handleDelete(pdf.id)}
             onBook={() => handleBook(pdf.id)}
+            onDownload={() => handleDownload(pdf)}
             isVisible={isHovered}
+            canDownload={canDownload}
             className={styles.actionIconsInCell}
           />
         );

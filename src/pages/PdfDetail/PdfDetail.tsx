@@ -1,137 +1,89 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/Page/TextLayer.css';
+import 'react-pdf/dist/Page/AnnotationLayer.css';
 import styles from './PdfDetail.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
-import { getHtmlPagesByPdfId, getAllPdfs } from '@/shared/services/pdf.service';
-import type { PdfHtmlPageResponse, PdfResponse } from '@/shared/types/pdf.types';
+import { getAllPdfs, getDownloadUrl } from '@/shared/services/pdf.service';
+import type { PdfResponse } from '@/shared/types/pdf.types';
 import { Toast } from '@/shared/components/Toast';
 
+// PDF.js worker: use same version as react-pdf's pdfjs-dist (5.4.296)
+pdfjs.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@5.4.296/build/pdf.worker.min.mjs';
+
+type ViewState = 'loading' | 'not_found' | 'no_file' | 'ready' | 'error';
+
 /**
- * PdfDetail - PDF detail page showing HTML pages
- * Displays PDF pages as HTML with infinite scroll
- * 
- * @returns JSX element
+ * PdfDetail - PDF viewer page using react-pdf
+ * Loads PDF via download URL (getDownloadUrl) and renders with text layer for selection.
  */
 export const PdfDetail: React.FC = () => {
   const { pdfId } = useParams<{ pdfId: string }>();
   const { accessToken } = useAuth();
   const [pdfDetails, setPdfDetails] = useState<PdfResponse | null>(null);
-  const [pages, setPages] = useState<PdfHtmlPageResponse[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [hasNext, setHasNext] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [viewState, setViewState] = useState<ViewState>('loading');
+  const [numPages, setNumPages] = useState<number | null>(null);
   const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' } | null>(null);
-  const [offset, setOffset] = useState(0);
-  const [total, setTotal] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const loadMoreTriggerRef = useRef<HTMLDivElement>(null);
-  const limit = 20;
 
-  // Fetch PDF details from the list of all PDFs
   useEffect(() => {
     if (!accessToken || !pdfId) return;
 
-    const fetchPdfDetails = async () => {
+    let cancelled = false;
+
+    const loadPdf = async () => {
       try {
+        setViewState('loading');
         const response = await getAllPdfs(accessToken);
-        const pdf = response.pdfs.find(p => p.id === pdfId);
-        if (pdf) {
-          setPdfDetails(pdf);
+        const pdf = response.pdfs.find((p) => p.id === pdfId);
+
+        if (cancelled) return;
+        if (!pdf) {
+          setViewState('not_found');
+          return;
         }
+
+        setPdfDetails(pdf);
+
+        const fileUploads = pdf.file_uploads ?? [];
+        if (fileUploads.length === 0) {
+          setViewState('no_file');
+          return;
+        }
+
+        const fileUploadId = fileUploads[0].id;
+        const { download_url } = await getDownloadUrl(accessToken, fileUploadId);
+
+        if (cancelled) return;
+        setDownloadUrl(download_url);
+        setViewState('ready');
       } catch (error) {
-        console.error('Error fetching PDF details:', error);
-        // Don't show error toast for PDF details - it's not critical
+        if (cancelled) return;
+        console.error('Error loading PDF:', error);
+        const message = error instanceof Error ? error.message : 'Failed to load PDF';
+        setToast({ message, type: 'error' });
+        setViewState('error');
       }
     };
 
-    fetchPdfDetails();
-  }, [accessToken, pdfId]);
-
-  // Initial load
-  useEffect(() => {
-    if (!accessToken || !pdfId) return;
-
-    const fetchInitialPages = async () => {
-      try {
-        setIsLoading(true);
-        const response = await getHtmlPagesByPdfId(accessToken, pdfId, 0, limit);
-        setPages(response.pages);
-        setHasNext(response.has_next);
-        setTotal(response.total);
-        setOffset(response.pages.length);
-      } catch (error) {
-        console.error('Error fetching PDF pages:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Failed to load PDF pages';
-        setToast({ message: errorMessage, type: 'error' });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchInitialPages();
-  }, [accessToken, pdfId]);
-
-  // Load more pages
-  const loadMorePages = useCallback(async () => {
-    if (!accessToken || !pdfId || isLoadingMore || !hasNext) return;
-
-    try {
-      setIsLoadingMore(true);
-      const response = await getHtmlPagesByPdfId(accessToken, pdfId, offset, limit);
-      setPages(prevPages => [...prevPages, ...response.pages]);
-      setHasNext(response.has_next);
-      setOffset(prevOffset => prevOffset + response.pages.length);
-    } catch (error) {
-      console.error('Error loading more PDF pages:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load more pages';
-      setToast({ message: errorMessage, type: 'error' });
-    } finally {
-      setIsLoadingMore(false);
-    }
-  }, [accessToken, pdfId, offset, limit, hasNext, isLoadingMore]);
-
-  // Set up intersection observer for infinite scroll
-  useEffect(() => {
-    if (!loadMoreTriggerRef.current || !hasNext || isLoadingMore) return;
-
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNext && !isLoadingMore) {
-          loadMorePages();
-        }
-      },
-      {
-        root: null,
-        rootMargin: '100px',
-        threshold: 0.1,
-      }
-    );
-
-    observerRef.current.observe(loadMoreTriggerRef.current);
-
+    loadPdf();
     return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
+      cancelled = true;
     };
-  }, [hasNext, isLoadingMore, loadMorePages]);
+  }, [accessToken, pdfId]);
 
-  // Render HTML content safely
-  const renderHtmlContent = (htmlContent: string, pageNo: number) => {
-    return (
-      <div key={`page-${pageNo}`} className={styles.pageWrapper}>
-        <div className={styles.pageNumber}>Page {pageNo}</div>
-        <div
-          className={styles.pageContainer}
-          dangerouslySetInnerHTML={{ __html: htmlContent }}
-        />
-      </div>
-    );
+  const onDocumentLoadSuccess = ({ numPages: n }: { numPages: number }) => {
+    setNumPages(n);
   };
 
+  const onDocumentLoadError = (error: Error) => {
+    console.error('Document load error:', error);
+    setToast({ message: error.message || 'Failed to load PDF document', type: 'error' });
+    setViewState('error');
+  };
 
-  if (isLoading && pages.length === 0) {
+  if (viewState === 'loading') {
     return (
       <div className={styles.wrapper}>
         <div className={styles.container}>
@@ -141,14 +93,43 @@ export const PdfDetail: React.FC = () => {
     );
   }
 
-  if (pages.length === 0 && !isLoading) {
+  if (viewState === 'not_found') {
     return (
       <div className={styles.wrapper}>
         <div className={styles.container}>
           <div className={styles.emptyState}>
-            <h2 className={styles.emptyHeading}>No pages found</h2>
-            <p className={styles.emptyMessage}>This PDF doesn't have any pages yet.</p>
+            <h2 className={styles.emptyHeading}>PDF not found</h2>
+            <p className={styles.emptyMessage}>This PDF does not exist or you do not have access to it.</p>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (viewState === 'no_file') {
+    return (
+      <div className={styles.wrapper}>
+        <div className={styles.container}>
+          <div className={styles.emptyState}>
+            <h2 className={styles.emptyHeading}>No file attached</h2>
+            <p className={styles.emptyMessage}>This PDF has no file attached yet.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (viewState === 'error') {
+    return (
+      <div className={styles.wrapper}>
+        <div className={styles.container}>
+          <div className={styles.emptyState}>
+            <h2 className={styles.emptyHeading}>Failed to load PDF</h2>
+            <p className={styles.emptyMessage}>Something went wrong. Please try again.</p>
+          </div>
+          {toast && (
+            <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
+          )}
         </div>
       </div>
     );
@@ -156,29 +137,37 @@ export const PdfDetail: React.FC = () => {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.container} ref={containerRef}>
+      <div className={styles.container}>
         {pdfDetails && (
           <h3 className={styles.pdfTitle}>{pdfDetails.file_name}</h3>
         )}
-        
-        <div className={styles.header}>
-          {total > 0 && (
-            <div className={styles.pageInfo}>
-              Showing {pages.length} of {total} pages
-            </div>
-          )}
-        </div>
+
+        {numPages !== null && (
+          <div className={styles.header}>
+            <div className={styles.pageInfo}>{numPages} page{numPages !== 1 ? 's' : ''}</div>
+          </div>
+        )}
 
         <div className={styles.content}>
-          {pages.map((page) => renderHtmlContent(page.html_content, page.page_no))}
-          
-          {/* Load more trigger */}
-          {hasNext && (
-            <div ref={loadMoreTriggerRef} className={styles.loadMoreTrigger}>
-              {isLoadingMore && (
-                <div className={styles.loadingMore}>Loading more pages...</div>
-              )}
-            </div>
+          {downloadUrl && (
+            <Document
+              file={downloadUrl}
+              onLoadSuccess={onDocumentLoadSuccess}
+              onLoadError={onDocumentLoadError}
+              loading={<div className={styles.loading}>Loading document…</div>}
+              className={styles.document}
+            >
+              {numPages !== null &&
+                Array.from(new Array(numPages), (_, index) => (
+                  <Page
+                    key={`page-${index + 1}`}
+                    pageNumber={index + 1}
+                    renderTextLayer={true}
+                    renderAnnotationLayer={true}
+                    className={styles.page}
+                  />
+                ))}
+            </Document>
           )}
         </div>
 
@@ -195,4 +184,3 @@ export const PdfDetail: React.FC = () => {
 };
 
 PdfDetail.displayName = 'PdfDetail';
-

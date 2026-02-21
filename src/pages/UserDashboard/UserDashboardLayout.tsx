@@ -23,8 +23,7 @@ export const UserDashboardLayout: React.FC = () => {
   }[] = useMemo(
     () => [
       { key: 'bookmarks', label: 'Bookmarks', path: '/user/dashboard/bookmark', icon: <FiBookmark /> },
-      // Pdf section is kept but marked as hidden so it doesn't show in the sidebar for now
-      { key: 'pdf', label: 'Pdf', path: '/user/dashboard/pdf', icon: <FiBookOpen />, hidden: true },
+      { key: 'pdf', label: 'Pdf', path: '/user/dashboard/pdf', icon: <FiBookOpen /> },
     ],
     []
   );
