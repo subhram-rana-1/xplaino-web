@@ -3,7 +3,7 @@ import { ScrollReveal } from '@/shared/components/ScrollReveal';
 import { VideoModal } from '../FeatureSet/VideoModal/VideoModal';
 import styles from './Support.module.css';
 
-const SUPPORT_VIDEO_URL = 'https://bmicorrect.com/website/customer-centric.mp4';
+const SUPPORT_VIDEO_URL = 'https://bmicorrect.com/website/features/videos/custoemr-centric.webm';
 
 /**
  * Support - Support section with text on left and video on right
