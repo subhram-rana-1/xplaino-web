@@ -1,5 +1,6 @@
 .useCaseWrapper {
   position: relative;
+  margin-bottom: 3rem;
 }
 
 .useCase {
@@ -31,78 +32,54 @@
   letter-spacing: -0.02em;
 }
 
-.scrollingContainer {
-  overflow: hidden;
-  white-space: nowrap;
-  position: relative;
-  width: 100%;
-  padding: 1rem 0;
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    black 10%,
-    black 90%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    black 10%,
-    black 90%,
-    transparent 100%
-  );
+.useCaseGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
 }
 
-.scrollingContent {
-  display: inline-flex;
-  gap: 1.25rem;
-  animation: scroll 25s linear infinite;
-}
-
-.useCaseItem {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  font-family: 'Inter', sans-serif;
-  white-space: nowrap;
-  flex-shrink: 0;
+.useCaseCard {
+  padding: 1.25rem 1.5rem;
   background: var(--white-rgba-95);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--border-light);
-  border-radius: 50px;
+  border-radius: 0.75rem;
   box-shadow: 0 2px 8px var(--shadow-black-10);
   transition: all 0.2s ease;
 }
 
-.useCaseItem:hover {
-  color: var(--teal);
+.useCaseCard:hover {
   border-color: var(--teal-rgba-30);
   box-shadow: 0 4px 12px var(--teal-rgba-15);
-  transform: translateY(-2px);
   background: var(--bg-white);
 }
 
-@keyframes scroll {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
+.useCaseCardTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.useCaseCardDescription {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  font-family: 'Inter', sans-serif;
+  margin: 0;
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .useCase {
-    padding: 3rem 2rem 1.5rem;
+  .useCaseWrapper {
+    margin-bottom: 2.5rem;
   }
 
-  .heading {
-    font-size: 0.875rem;
+  .useCase {
+    padding: 3rem 2rem 1.5rem;
   }
 
   .subheading {
@@ -110,37 +87,32 @@
     margin-bottom: 2rem;
   }
 
-  .scrollingContent {
-    gap: 1rem;
+  .useCaseGrid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
   }
 
-  .useCaseItem {
-    font-size: 0.9375rem;
-    padding: 0.625rem 1.25rem;
+  .useCaseCardTitle {
+    font-size: 1rem;
+  }
+
+  .useCaseCardDescription {
+    font-size: 0.875rem;
   }
 }
 
 @media (max-width: 480px) {
-  .useCase {
-    padding: 2rem 1rem 1rem;
+  .useCaseWrapper {
+    margin-bottom: 2rem;
   }
 
-  .heading {
-    font-size: 0.8rem;
+  .useCase {
+    padding: 2rem 1rem 1rem;
   }
 
   .subheading {
     font-size: 1.5rem;
     margin-bottom: 1.5rem;
-  }
-
-  .scrollingContent {
-    gap: 0.75rem;
-  }
-
-  .useCaseItem {
-    font-size: 0.875rem;
-    padding: 0.5rem 1rem;
   }
 }
 

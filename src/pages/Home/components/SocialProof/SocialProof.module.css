@@ -1,0 +1,115 @@
+.wrapper {
+  position: relative;
+  margin-bottom: 4rem;
+}
+
+.section {
+  padding: 2.5rem 4.5rem 2.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.metricsRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.metricValue {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.metricLabel {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-family: 'Inter', sans-serif;
+}
+
+.starIcon,
+.globeIcon {
+  font-size: 1.75rem;
+}
+
+.metricDivider {
+  width: 1px;
+  height: 2.5rem;
+  background: var(--border-light);
+}
+
+.trustLine {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--teal);
+  font-family: 'Inter', sans-serif;
+  margin: 1.5rem 0 0;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    margin-bottom: 3rem;
+  }
+
+  .section {
+    padding: 2rem 2rem 2rem;
+  }
+
+  .metricsRow {
+    gap: 1.75rem;
+  }
+
+  .metricValue {
+    font-size: 1.875rem;
+  }
+
+  .metricLabel {
+    font-size: 0.9375rem;
+  }
+
+  .trustLine {
+    font-size: 1.25rem;
+    margin-top: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .wrapper {
+    margin-bottom: 2.5rem;
+  }
+
+  .section {
+    padding: 1.75rem 1rem 1.75rem;
+  }
+
+  .metricsRow {
+    gap: 1.5rem;
+  }
+
+  .metricValue {
+    font-size: 1.5rem;
+  }
+
+  .trustLine {
+    font-size: 1.125rem;
+  }
+}

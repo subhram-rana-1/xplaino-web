@@ -45,7 +45,10 @@ export const SupportedLanguages: React.FC = () => {
     <ScrollReveal variant="fadeRight">
       <div className={styles.supportedLanguagesWrapper}>
         <section className={styles.supportedLanguages}>
-          <h2 className={styles.subheading}>Works in 50+ languages</h2>
+          <h2 className={styles.subheading}>AI Webpage Translator Supporting 50+ Languages</h2>
+          <p className={styles.introParagraph}>
+            Translate articles, research papers, blogs, and websites instantly while preserving context and meaning.
+          </p>
           <div className={styles.scrollingContainer}>
             <div className={styles.scrollingContent}>
               {languages.map((language, index) => (

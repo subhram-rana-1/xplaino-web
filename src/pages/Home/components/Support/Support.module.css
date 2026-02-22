@@ -1,5 +1,6 @@
 .supportWrapper {
   position: relative;
+  margin-bottom: 4rem;
 }
 
 .support {
@@ -36,12 +37,6 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-}
-
-.icon {
-  font-size: 1.75rem;
-  line-height: 1;
-  font-style: normal;
 }
 
 .description {
@@ -119,6 +114,10 @@
     padding: 2.5rem 2rem;
   }
 
+  .supportWrapper {
+    margin-bottom: 3rem;
+  }
+
   .container {
     flex-direction: column;
     gap: 2rem;
@@ -133,10 +132,6 @@
   .heading {
     font-size: 1.5rem;
     justify-content: center;
-  }
-
-  .icon {
-    font-size: 1.5rem;
   }
 
   .description {
@@ -158,6 +153,10 @@
 }
 
 @media (max-width: 480px) {
+  .supportWrapper {
+    margin-bottom: 2.5rem;
+  }
+
   .support {
     padding: 2rem 1rem;
   }
@@ -168,10 +167,6 @@
 
   .heading {
     font-size: 1.375rem;
-  }
-
-  .icon {
-    font-size: 1.25rem;
   }
 
   .description {

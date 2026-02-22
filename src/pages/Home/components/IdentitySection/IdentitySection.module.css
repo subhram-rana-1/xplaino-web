@@ -1,0 +1,92 @@
+.wrapper {
+  position: relative;
+  margin-bottom: 4rem;
+}
+
+.section {
+  padding: 4rem 4.5rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.heading {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 1.5rem;
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.identityList {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.identityItem {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.75rem;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  font-family: 'Inter', sans-serif;
+  padding: 0.5rem 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.checkmark {
+  flex-shrink: 0;
+  color: var(--teal);
+  font-weight: 700;
+  min-width: 1.25em;
+  text-align: center;
+}
+
+.identityText {
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    margin-bottom: 3rem;
+  }
+
+  .section {
+    padding: 3rem 2rem 1.5rem;
+  }
+
+  .heading {
+    font-size: 1.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .identityItem {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .wrapper {
+    margin-bottom: 2.5rem;
+  }
+
+  .section {
+    padding: 2rem 1rem 1rem;
+  }
+
+  .heading {
+    font-size: 1.5rem;
+  }
+}

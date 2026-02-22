@@ -13,15 +13,13 @@ export const PromoText: React.FC = () => {
     <div className={styles.promoText}>
       <div className={styles.badge}>
         <HiSparkles className={styles.badgeIcon} />
-        <span>Multilingual AI Research assistant</span>
+        <span>AI Web Research & Second Brain System</span>
       </div>
       <h1 className={styles.heading}>
-        AI Research Assistant & Webpage Summarizer for <span className={styles.headingHighlight}>Smarter Learning</span>
+        From Information Overload to <span className={styles.headingHighlight}>Organized Intelligence</span>
       </h1>
       <p className={styles.description}>
-        Get AI-powered contextual explanations, summaries, and instant answers in any language—<span className={styles.highlight}>right as you browse</span>
-          <br/>
-          Your all-in-one bookmark manager.
+      Xplaino turns chaotic webpages into structured summaries, contextual explanations, and a personal knowledge system — automatically while you browse
       </p>
       <ChromeButton />
     </div>

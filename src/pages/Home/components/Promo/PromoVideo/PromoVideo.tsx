@@ -72,13 +72,13 @@ export const PromoVideo: React.FC = () => {
           muted
           loop
           playsInline
-          title="AI Research Assistant – Summarize, Translate & Understand Any Webpage"
+          title="Web Research & Second Brain – Summarize, Translate & Understand Any Webpage"
         />
       </div>
       <VideoModal
         isOpen={isModalOpen}
         videoUrl={PROMO_VIDEO_URL}
-        title="AI Research Assistant – Summarize, Translate & Understand Any Webpage"
+        title="Web Research & Second Brain – Summarize, Translate & Understand Any Webpage"
         sourceElement={containerRef.current}
         onClose={() => setIsModalOpen(false)}
       />

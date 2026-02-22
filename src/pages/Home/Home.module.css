@@ -84,22 +84,6 @@
   max-width: 500px;
 }
 
-.trustBadge {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  color: var(--teal);
-  font-family: 'Inter', sans-serif;
-  margin: 0;
-  margin-top: 0.5rem;
-}
-
-.trustIcon {
-  font-size: 1rem;
-}
-
 /* Responsive design */
 @media (max-width: 1200px) {
   .home::before,
@@ -137,10 +121,6 @@
   .ctaSubtext {
     font-size: 1rem;
   }
-
-  .trustBadge {
-    font-size: 0.875rem;
-  }
 }
 
 @media (max-width: 480px) {
@@ -172,9 +152,5 @@
 
   .ctaSubtext {
     font-size: 0.9375rem;
-  }
-
-  .trustBadge {
-    font-size: 0.8125rem;
   }
 }

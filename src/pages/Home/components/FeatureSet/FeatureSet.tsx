@@ -13,7 +13,7 @@ export const FeatureSet: React.FC = () => {
     {
       id: 1,
       icon: '⚡',
-      title: 'AI Webpage & Article Summarizer for Faster Learning',
+      title: 'Structured Article & Research Summaries',
       description: 'Instantly summarize long webpages and online articles with an AI-powered research assistant designed for students, researchers, and professionals.',
       videoUrl: 'https://bmicorrect.com/website/features/videos/summary.webm',
       thumbnailImage: 'https://bmicorrect.com/website/features/images/summary-v2.webp',
@@ -27,7 +27,7 @@ export const FeatureSet: React.FC = () => {
     {
       id: 8,
       icon: '🌐',
-      title: 'AI Website Translator to Break Language Barriers',
+      title: 'AI Web Translator (50+ Languages)',
       description: 'Translate entire webpages instantly into your preferred language and read international research, blogs, and academic content effortlessly.',
       videoUrl: 'https://bmicorrect.com/website/features/videos/translate.webm',
       thumbnailImage: 'https://bmicorrect.com/website/features/images/translate.webp',
@@ -41,7 +41,7 @@ export const FeatureSet: React.FC = () => {
     {
       id: 3,
       icon: '📝',
-      title: 'Simplify Complex Text & Understand Any Content Instantly',
+      title: 'Context-Aware AI Research Assistant',
       description: 'Select any text and get contextual AI explanations, simplifications, and translations to deeply understand complex academic or technical content.',
       videoUrl: 'https://bmicorrect.com/website/features/videos/ask-ai.webm',
       thumbnailImage: 'https://bmicorrect.com/website/features/images/Ask-AI.webp',
@@ -83,7 +83,7 @@ export const FeatureSet: React.FC = () => {
     {
       id: 6,
       icon: '🗂️',
-      title: 'Save & Organize Web Research in One Smart Dashboard',
+      title: 'Personal Knowledge Dashboard',
       description: 'Highlight text, save summaries, store links, and organize insights automatically while browsing — build your personal knowledge hub.',
       videoUrl: 'https://bmicorrect.com/website/features/videos/bookmark.webm',
       thumbnailImage: 'https://bmicorrect.com/website/features/images/bookmark.webp',
@@ -129,6 +129,10 @@ export const FeatureSet: React.FC = () => {
             <span className={styles.comingSoonText}>
               Summarise any PDF & chat with your documents — Few days to launch.
             </span>
+          </div>
+          <div className={styles.transformationIntro}>
+            <p className={styles.transformationIntroTitle}>Your Browsing. Upgraded.</p>
+            <p className={styles.transformationIntroSub}>From passive reading to active understanding.</p>
           </div>
           <h2 className={styles.subheading}>What you can do today</h2>
         </div>

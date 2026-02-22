@@ -25,8 +25,7 @@ export const ChromeButton: React.FC = () => {
     <button className={styles.chromeButton} onClick={handleButtonClick}>
       <img src={chromeIcon} alt="Chrome Logo" className={styles.chromeLogo} />
       <span className={styles.buttonText}>
-        <span className={styles.buttonLinePrimary}>Install Chrome Extension</span>
-        <span className={styles.buttonLineSecondary}>— It's FREE!</span>
+        <span className={styles.buttonLinePrimary}>Install Chrome Extension — It's Free</span>
       </span>
     </button>
   );
