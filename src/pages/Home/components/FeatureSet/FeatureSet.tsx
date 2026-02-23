@@ -16,7 +16,7 @@ export const FeatureSet: React.FC = () => {
       title: 'Structured Article & Research Summaries',
       description: 'Instantly summarize long webpages and online articles with an AI-powered research assistant designed for students, researchers, and professionals.',
       videoUrl: 'https://bmicorrect.com/website/features/videos/summary.webm',
-      thumbnailImage: 'https://bmicorrect.com/website/features/images/summary-v2.webp',
+      thumbnailImage: 'https://bmicorrect.com/website/features/images/v3/summary-v3.webp',
       bullets: [
         'Get a concise AI-generated summary of any webpage — skip the fluff and grasp the key points instantly',
         'Each summary point links back to the exact section of the page it came from, so you can dive deeper when needed',
@@ -30,7 +30,7 @@ export const FeatureSet: React.FC = () => {
       title: 'AI Web Translator (50+ Languages)',
       description: 'Translate entire webpages instantly into your preferred language and read international research, blogs, and academic content effortlessly.',
       videoUrl: 'https://bmicorrect.com/website/features/videos/translate.webm',
-      thumbnailImage: 'https://bmicorrect.com/website/features/images/translate.webp',
+      thumbnailImage: 'https://bmicorrect.com/website/features/images/v3/translate-v3.webp',
       bullets: [
         'Translate any webpage into your preferred language in seconds — no copy-pasting, no extra tabs',
         'Replace the original content seamlessly so the page feels like it was written in your native language',
@@ -44,7 +44,7 @@ export const FeatureSet: React.FC = () => {
       title: 'Context-Aware AI Research Assistant',
       description: 'Select any text and get contextual AI explanations, simplifications, and translations to deeply understand complex academic or technical content.',
       videoUrl: 'https://bmicorrect.com/website/features/videos/ask-ai.webm',
-      thumbnailImage: 'https://bmicorrect.com/website/features/images/Ask-AI.webp',
+      thumbnailImage: 'https://bmicorrect.com/website/features/images/v3/ask-ai-v3.webp',
       bullets: [
         'Select any text or paragraph and get AI-powered contextual explanations — ask follow-up questions to dive deeper',
         'Translate selections to your native language or any language you choose',
@@ -58,7 +58,7 @@ export const FeatureSet: React.FC = () => {
       title: 'AI Vocabulary Assistant – Master Any Word Instantly',
       description: 'Understand new words in context with AI-powered explanations, examples, synonyms, antonyms, and instant translation while browsing.',
       videoUrl: 'https://bmicorrect.com/website/features/videos/word.webm',
-      thumbnailImage: 'https://bmicorrect.com/website/features/images/word.webp',
+      thumbnailImage: 'https://bmicorrect.com/website/features/images/v3/words-v3.webp',
       bullets: [
         'Get contextual explanations with real examples, synonyms, antonyms, and instant translation to your native language',
         'Ask follow-up questions about the word — in context or in general — with built-in smart prompts for detailed, clear answers',
@@ -72,7 +72,7 @@ export const FeatureSet: React.FC = () => {
       title: 'AI Image Explainer – Understand Diagrams, Charts & Infographics',
       description: 'Click on any image to get instant AI-powered explanations and explore diagrams, charts, and visual content in depth.',
       videoUrl: 'https://bmicorrect.com/website/features/videos/image.webm',
-      thumbnailImage: 'https://bmicorrect.com/website/features/images/image.webp',
+      thumbnailImage: 'https://bmicorrect.com/website/features/images/v3/image-v3.webp',
       bullets: [
         'Click on any image and get instant AI-powered explanations — understand diagrams, charts, infographics, and more',
         'Ask follow-up questions to explore details, context, or anything you\'re curious about',
@@ -86,7 +86,7 @@ export const FeatureSet: React.FC = () => {
       title: 'Personal Knowledge Dashboard',
       description: 'Highlight text, save summaries, store links, and organize insights automatically while browsing — build your personal knowledge hub.',
       videoUrl: 'https://bmicorrect.com/website/features/videos/bookmark.webm',
-      thumbnailImage: 'https://bmicorrect.com/website/features/images/bookmark.webp',
+      thumbnailImage: 'https://bmicorrect.com/website/features/images/v3/bookmark-v3.webp',
       bullets: [
         'Stop juggling bookmarks across YouTube, Twitter, articles, and other platforms — save everything to one unified dashboard',
         'No more switching tabs or hunting through different apps to find what you saved — it\'s all here',
@@ -100,7 +100,7 @@ export const FeatureSet: React.FC = () => {
       title: 'Revisit Previous AI Explanations & Conversations Anytime',
       description: 'All your AI explanations, summaries, translations, and interactions remain accessible so you can continue learning without losing context.',
       videoUrl: 'https://bmicorrect.com/website/features/videos/persistence.webm',
-      thumbnailImage: 'https://bmicorrect.com/website/features/images/persistance.webp',
+      thumbnailImage: 'https://bmicorrect.com/website/features/images/v3/persistance-v3.webp',
       bullets: [
         'All AI explanations for words, text, images, summaries, and translations are stored right in the UI',
         'Previous conversations stay intact while you explore new topics'
@@ -112,7 +112,7 @@ export const FeatureSet: React.FC = () => {
       title: 'Custom Light & Dark Themes for Every Website',
       description: 'Switch between light and dark themes individually for each website to optimize your reading and browsing experience.',
       videoUrl: 'https://bmicorrect.com/website/features/videos/theme.webm',
-      thumbnailImage: 'https://bmicorrect.com/website/features/images/theme.webp',
+      thumbnailImage: 'https://bmicorrect.com/website/features/images/v3/theme-v4.webp',
       bullets: [
         'You can set Light or Dark theme individually for each website',
         'Switch between websites without toggling themes manually'
@@ -129,10 +129,6 @@ export const FeatureSet: React.FC = () => {
             <span className={styles.comingSoonText}>
               Summarise any PDF & chat with your documents — Few days to launch.
             </span>
-          </div>
-          <div className={styles.transformationIntro}>
-            <p className={styles.transformationIntroTitle}>Your Browsing. Upgraded.</p>
-            <p className={styles.transformationIntroSub}>From passive reading to active understanding.</p>
           </div>
           <h2 className={styles.subheading}>What you can do today</h2>
         </div>

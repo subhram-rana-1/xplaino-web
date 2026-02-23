@@ -1,10 +1,10 @@
 .wrapper {
   position: relative;
-  margin-bottom: 3rem;
+  margin-bottom: 1.5rem;
 }
 
 .section {
-  padding: 4rem 4.5rem 2rem;
+  padding: 1.5rem 4.5rem 2rem;
   max-width: 1400px;
   margin: 0 auto;
   position: relative;
@@ -26,7 +26,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2.5rem;
-  max-width: 560px;
+  max-width: 720px;
   margin: 0 auto 1.5rem;
   align-items: start;
 }
@@ -55,9 +55,10 @@
 
 .problemList {
   list-style: none;
-  padding: 0;
+  padding: 0 1.25rem;
   margin: 0;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .problemItem {
@@ -87,20 +88,39 @@
 
 .benefitList {
   list-style: none;
-  padding: 0;
+  padding: 0 1.25rem;
   margin: 0;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .benefitItem {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.75rem;
   font-size: 1rem;
-  font-weight: 500;
-  color: var(--text-primary);
   font-family: 'Inter', sans-serif;
-  padding: 0.4rem 0;
+  padding: 0.5rem 0;
+}
+
+.benefitContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.benefitTitle {
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.benefitDescription {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+  line-height: 1.5;
 }
 
 .checkmark {
@@ -109,6 +129,7 @@
   font-weight: 700;
   min-width: 1.25em;
   text-align: center;
+  line-height: 1.4;
 }
 
 .closing {
@@ -122,11 +143,17 @@
 
 @media (max-width: 768px) {
   .wrapper {
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.25rem;
   }
 
   .section {
-    padding: 3rem 2rem 1.5rem;
+    padding: 1.25rem 2rem 1.5rem;
+  }
+
+  .problemList,
+  .benefitList {
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 
   .heading {
@@ -139,9 +166,16 @@
     margin-bottom: 1.25rem;
   }
 
-  .problemItem,
-  .benefitItem {
+  .problemItem {
     font-size: 0.9375rem;
+  }
+
+  .benefitTitle {
+    font-size: 0.9375rem;
+  }
+
+  .benefitDescription {
+    font-size: 0.875rem;
   }
 
   .closing {
@@ -151,11 +185,17 @@
 
 @media (max-width: 480px) {
   .wrapper {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
   }
 
   .section {
-    padding: 2rem 1rem 1rem;
+    padding: 1rem 1rem 1rem;
+  }
+
+  .problemList,
+  .benefitList {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
   }
 
   .heading {

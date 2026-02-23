@@ -30,7 +30,7 @@ export const SocialProof: React.FC = () => {
             </div>
           </div>
           <p className={styles.trustLine}>
-            Trusted by students, researchers & professionals
+            Trusted by students, researchers & professionals — already used across 10+ countries.
           </p>
         </section>
       </div>

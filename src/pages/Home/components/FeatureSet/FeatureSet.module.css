@@ -1,7 +1,7 @@
 .featureSetWrapper {
   position: relative;
   overflow: visible;
-  margin-bottom: 4rem;
+  margin-bottom: 1.5rem;
 }
 
 .featureSet {
@@ -41,31 +41,8 @@
   order: 1;
 }
 
-.transformationIntro {
-  order: 2;
-  text-align: center;
-  margin: 0 0 0.5rem;
-}
-
-.transformationIntroTitle {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
-  letter-spacing: -0.02em;
-  margin: 0 0 0.25rem;
-}
-
-.transformationIntroSub {
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  font-family: 'Inter', sans-serif;
-  margin: 0;
-}
-
 .headingRow .subheading {
-  order: 3;
+  order: 2;
 }
 
 .subheading {
@@ -146,6 +123,7 @@
 
   .featureSet {
     padding: 3rem 2rem;
+    padding-top: 3.5rem;
   }
 
   .containerList {
@@ -160,6 +138,7 @@
 
   .headingRow {
     margin-bottom: 2.5rem;
+    margin-top: 0.5rem;
   }
 
   .subheading {
@@ -183,6 +162,7 @@
 
   .featureSet {
     padding: 2rem 1rem;
+    padding-top: 2.5rem;
   }
 
   .heading {
@@ -191,6 +171,7 @@
 
   .headingRow {
     margin-bottom: 2rem;
+    margin-top: 0.5rem;
   }
 
   .subheading {

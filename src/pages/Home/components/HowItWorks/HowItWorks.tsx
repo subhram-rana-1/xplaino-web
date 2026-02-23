@@ -38,11 +38,25 @@ export const HowItWorks: React.FC = () => {
           </p>
           <div className={styles.stepsGrid}>
             {steps.map((step, index) => (
-              <div key={index} className={styles.step}>
-                <span className={styles.stepNumber}>{step.number}</span>
-                <h3 className={styles.stepTitle}>{step.title}</h3>
-                <p className={styles.stepDescription}>{step.description}</p>
-              </div>
+              <React.Fragment key={index}>
+                <div className={styles.step}>
+                  <span className={styles.stepNumber}>{step.number}</span>
+                  <h3 className={styles.stepTitle}>{step.title}</h3>
+                  <p className={styles.stepDescription}>{step.description}</p>
+                </div>
+                {index < steps.length - 1 && (
+                  <div className={styles.stepArrow} aria-hidden>
+                    <img
+                      src="https://bmicorrect.com/website/how-xplaino-works/images/arrow.webp"
+                      alt=""
+                      className={styles.arrowIcon}
+                      width={32}
+                      height={32}
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+              </React.Fragment>
             ))}
           </div>
           <p className={styles.frictionLine}>

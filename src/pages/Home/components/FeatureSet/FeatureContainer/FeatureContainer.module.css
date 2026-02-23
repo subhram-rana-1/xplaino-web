@@ -154,6 +154,8 @@
 
 /* Title Section - always visible */
 .titleSection {
+  position: relative;
+  z-index: 1;
   padding: 0.625rem 0.875rem;
   background: var(--bg-white);
   border: 1px solid var(--teal-rgba-10);
@@ -236,6 +238,16 @@
   box-shadow: 
     0 3px 10px rgba(0, 0, 0, 0.1),
     0 6px 20px rgba(0, 0, 0, 0.12);
+  z-index: 20;
+}
+
+/* When collapsed, keep description behind so titleSection's border-radius is visible (fixes mobile sharp corners) */
+.featureContainer:not(.expanded):hover .descriptionSection,
+.featureContainer:not(.expanded) .descriptionSection {
+  z-index: 0;
+}
+
+.featureContainer.expanded .descriptionSection {
   z-index: 20;
 }
 
@@ -328,6 +340,17 @@
 .featureContainer.expanded .expandButton {
   background: var(--teal-rgba-10);
   border-color: var(--teal-rgba-30);
+}
+
+/* Desktop: hide heading/title section so card shows only video (+ description on hover) */
+@media (min-width: 769px) {
+  .titleSection {
+    display: none;
+  }
+
+  .videoSection {
+    border-radius: 10px;
+  }
 }
 
 /* Responsive design */

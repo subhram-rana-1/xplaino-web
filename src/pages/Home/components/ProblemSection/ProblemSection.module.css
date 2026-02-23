@@ -4,7 +4,7 @@
 }
 
 .section {
-  padding: 4rem 4.5rem 2rem;
+  padding: 2.5rem 4.5rem 2rem;
   max-width: 1400px;
   margin: 0 auto;
   position: relative;
@@ -32,37 +32,42 @@
 
 .problemList {
   list-style: none;
-  padding: 0;
+  padding: 0 2rem;
   margin: 0 auto 1.5rem;
-  max-width: 520px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  max-width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem 2rem;
 }
 
 .problemItem {
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 0.75rem;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
   font-size: 1.125rem;
   line-height: 1.6;
   color: var(--text-secondary);
   font-family: 'Inter', sans-serif;
-  padding: 0.5rem 0;
-  width: 100%;
+  padding: 0;
   box-sizing: border-box;
 }
 
-.pointIcon {
+.pointIconWrapper {
+  position: relative;
   flex-shrink: 0;
+  width: 4rem;
+  height: 4rem;
+  margin-bottom: 1rem;
+}
+
+.pointIcon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  margin-top: 0.2em;
-  color: #dc2626;
+  width: 100%;
+  height: 100%;
+  color: var(--teal, #0d9488);
 }
 
 .pointIcon svg {
@@ -70,7 +75,24 @@
   height: 100%;
 }
 
+.crossOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--red, #dc2626);
+  pointer-events: none;
+}
+
+.crossOverlay svg {
+  width: 100%;
+  height: 100%;
+  padding: 20%;
+}
+
 .pointText {
+  margin: 0;
   min-width: 0;
 }
 
@@ -98,16 +120,33 @@
   }
 
   .section {
-    padding: 3rem 2rem 1.5rem;
+    padding: 2rem 2rem 1.5rem;
+  }
+
+  .problemList {
+    grid-template-columns: 1fr;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    gap: 1rem;
+  }
+
+  .problemItem {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    gap: 1rem;
+    font-size: 1rem;
+  }
+
+  .pointIconWrapper {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 0;
   }
 
   .heading {
     font-size: 1.75rem;
     margin-bottom: 1.25rem;
-  }
-
-  .problemItem {
-    font-size: 1rem;
   }
 
   .closingLine {
@@ -125,7 +164,23 @@
   }
 
   .section {
-    padding: 2rem 1rem 1rem;
+    padding: 1.5rem 1rem 1rem;
+  }
+
+  .problemList {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    gap: 0.75rem;
+  }
+
+  .problemItem {
+    gap: 0.75rem;
+  }
+
+  .pointIconWrapper {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: 0;
   }
 
   .heading {

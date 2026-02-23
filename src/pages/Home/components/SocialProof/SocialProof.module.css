@@ -1,10 +1,10 @@
 .wrapper {
   position: relative;
-  margin-bottom: 4rem;
+  margin-bottom: 0.75rem;
 }
 
 .section {
-  padding: 2.5rem 4.5rem 2.5rem;
+  padding: 0.75rem 4.5rem 0.75rem;
   max-width: 1400px;
   margin: 0 auto;
   position: relative;
@@ -67,11 +67,11 @@
 
 @media (max-width: 768px) {
   .wrapper {
-    margin-bottom: 3rem;
+    margin-bottom: 1.25rem;
   }
 
   .section {
-    padding: 2rem 2rem 2rem;
+    padding: 0.5rem 2rem 0.5rem;
   }
 
   .metricsRow {
@@ -94,11 +94,11 @@
 
 @media (max-width: 480px) {
   .wrapper {
-    margin-bottom: 2.5rem;
+    margin-bottom: 1rem;
   }
 
   .section {
-    padding: 1.75rem 1rem 1.75rem;
+    padding: 0.5rem 1rem 0.5rem;
   }
 
   .metricsRow {

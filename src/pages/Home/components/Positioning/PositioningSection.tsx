@@ -11,10 +11,10 @@ const extensionsProblems = [
 ];
 
 const xplainoBenefits = [
-  'Understands the page',
-  'Structures information',
-  'Stores insights',
-  'Builds your personal knowledge base',
+  'Understands the page in seconds',
+  'Turns information into structured knowledge',
+  'Builds your personal knowledge base automatically',
+  'Creates long-term learning memory',
 ];
 
 /**
@@ -27,7 +27,7 @@ export const PositioningSection: React.FC = () => {
     <ScrollReveal variant="fadeUp">
       <div className={styles.wrapper}>
         <section className={styles.section}>
-          <h2 className={styles.heading}>Not Another AI Chat Popup</h2>
+          <h2 className={styles.heading}>Not Just Another AI Chat Extension</h2>
           <div className={styles.compareGrid}>
             <div className={styles.column}>
               <p className={styles.columnLabel}>Most AI extensions:</p>
@@ -43,12 +43,12 @@ export const PositioningSection: React.FC = () => {
               </ul>
             </div>
             <div className={styles.xplainoColumn}>
-              <p className={`${styles.columnLabel} ${styles.columnLabelXplaino}`}>Xplaino:</p>
+              <p className={`${styles.columnLabel} ${styles.columnLabelXplaino}`}>Xplaino (Refined & Outcome-Driven)</p>
               <ul className={styles.benefitList}>
                 {xplainoBenefits.map((item, index) => (
                   <li key={index} className={styles.benefitItem}>
                     <span className={styles.checkmark} aria-hidden>✔</span>
-                    {item}
+                    <span className={styles.benefitContent}>{item}</span>
                   </li>
                 ))}
               </ul>

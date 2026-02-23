@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { ScrollReveal } from '@/shared/components/ScrollReveal';
 import { Promo } from './components/Promo';
+import { TransformationIntro } from './components/TransformationIntro';
 import { ChromeButton } from '@/shared/components/ChromeButton';
 import styles from './Home.module.css';
 
@@ -13,6 +14,7 @@ const UseCase = lazy(() => import('./components/UseCase').then((m) => ({ default
 const IdentitySection = lazy(() => import('./components/IdentitySection').then((m) => ({ default: m.IdentitySection })));
 const SupportedLanguages = lazy(() => import('./components/SupportedLanguages').then((m) => ({ default: m.SupportedLanguages })));
 const Support = lazy(() => import('./components/Support').then((m) => ({ default: m.Support })));
+const QuoteTestimonials = lazy(() => import('./components/QuoteTestimonials').then((m) => ({ default: m.QuoteTestimonials })));
 
 /**
  * Home - Home page component
@@ -32,17 +34,21 @@ export const Home: React.FC = () => {
       <Suspense fallback={null}>
         <HowItWorks />
       </Suspense>
+      <TransformationIntro />
       <Suspense fallback={null}>
         <FeatureSet />
+      </Suspense>
+      <Suspense fallback={null}>
+        <QuoteTestimonials />
       </Suspense>
       <Suspense fallback={null}>
         <PositioningSection />
       </Suspense>
       <Suspense fallback={null}>
-        <UseCase />
+        <IdentitySection />
       </Suspense>
       <Suspense fallback={null}>
-        <IdentitySection />
+        <UseCase />
       </Suspense>
       <Suspense fallback={null}>
         <SupportedLanguages />
@@ -55,7 +61,7 @@ export const Home: React.FC = () => {
           <div className={styles.chromeButtonContainer}>
             <h2 className={styles.ctaHeading}>Build Your Second Brain While You Browse</h2>
             <p className={styles.ctaSubtext}>Get AI-powered summaries, translations, and structured knowledge storage — all inside your browser. Install Xplaino AI and transform how you learn online.</p>
-            <ChromeButton />
+            <ChromeButton stackedLabel />
           </div>
         </div>
       </ScrollReveal>

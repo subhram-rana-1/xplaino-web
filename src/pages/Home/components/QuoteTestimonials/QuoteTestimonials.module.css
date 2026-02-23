@@ -1,0 +1,247 @@
+.wrapper {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.section {
+  padding: 2rem 4.5rem 2.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.heading {
+  font-size: 2.25rem;
+  font-weight: 800;
+  text-align: center;
+  margin: 0 0 2rem;
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.carouselWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 0 -4.5rem;
+}
+
+.scrollBtn {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid var(--border-light);
+  background: var(--bg-white);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.25rem;
+  transition: background 0.2s, box-shadow 0.2s;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.scrollBtn:hover {
+  background: var(--teal-lighter);
+  color: var(--teal);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.scrollBtn:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+.scrollContainer {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 1rem 1.5rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
+}
+
+.scrollContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.grid {
+  display: flex;
+  flex-direction: row;
+  gap: 1.25rem;
+  align-items: stretch;
+  width: max-content;
+  min-width: 100%;
+}
+
+.card {
+  background: var(--bg-white);
+  border-radius: 12px;
+  padding: 2rem 1.5rem;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 0 0 320px;
+  min-width: 280px;
+  max-width: 320px;
+}
+
+.quoteIcon {
+  color: var(--teal);
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.quote {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.outcome {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+  font-family: 'Inter', sans-serif;
+  line-height: 1.5;
+  margin: 0;
+  flex: 1;
+}
+
+.footer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--border-light);
+}
+
+.footerText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+}
+
+.role {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+  font-family: 'Inter', sans-serif;
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    margin-bottom: 1.25rem;
+  }
+
+  .section {
+    padding: 1.5rem 2rem 2rem;
+  }
+
+  .heading {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+  }
+
+  .carouselWrapper {
+    margin: 0 -2rem;
+  }
+
+  .scrollBtn {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 1.125rem;
+  }
+
+  .card {
+    flex: 0 0 280px;
+    min-width: 260px;
+    max-width: 280px;
+    padding: 1.5rem 1.25rem;
+  }
+
+  .quote {
+    font-size: 1.0625rem;
+  }
+
+  .outcome {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .section {
+    padding: 1.25rem 1rem 1.5rem;
+  }
+
+  .heading {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin-bottom: 1.25rem;
+  }
+
+  .carouselWrapper {
+    margin: 0 -1rem;
+  }
+
+  .scrollBtn {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+  }
+
+  .card {
+    flex: 0 0 260px;
+    min-width: 240px;
+    max-width: 260px;
+  }
+}

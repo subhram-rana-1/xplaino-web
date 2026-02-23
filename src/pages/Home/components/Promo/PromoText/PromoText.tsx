@@ -16,10 +16,10 @@ export const PromoText: React.FC = () => {
         <span>AI Web Research & Second Brain System</span>
       </div>
       <h1 className={styles.heading}>
-        From Information Overload to <span className={styles.headingHighlight}>Organized Intelligence</span>
+      Turn Information Overload into <span className={styles.headingHighlight}>Organized Intelligence</span>
       </h1>
       <p className={styles.description}>
-      Xplaino turns chaotic webpages into structured summaries, contextual explanations, and a personal knowledge system — automatically while you browse
+      Xplaino transforms any webpage into structured summaries, contextual explanations, translations, and a personal knowledge system — automatically while you browse
       </p>
       <ChromeButton />
     </div>

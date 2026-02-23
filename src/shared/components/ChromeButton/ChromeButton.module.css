@@ -77,6 +77,48 @@
   white-space: nowrap;
 }
 
+/* Stacked label: mobile only; desktop shows single line "Install Chrome Extension — It's Free" */
+.chromeButton.stackedLabel {
+  align-items: center;
+}
+
+/* Desktop: single line with em dash between the two parts */
+@media (min-width: 769px) {
+  .chromeButton.stackedLabel .buttonText {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .chromeButton.stackedLabel .buttonLinePrimary::after {
+    content: " — ";
+  }
+
+  .chromeButton.stackedLabel .buttonLinePrimary,
+  .chromeButton.stackedLabel .buttonLineSecondary {
+    display: inline;
+  }
+}
+
+/* Mobile/tablet: "It's Free" on second line (max-width: 768px) */
+@media (max-width: 768px) {
+  .chromeButton.stackedLabel .buttonText {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.125rem;
+  }
+
+  .chromeButton.stackedLabel .buttonLinePrimary::after {
+    content: none;
+  }
+
+  .chromeButton.stackedLabel .buttonLinePrimary,
+  .chromeButton.stackedLabel .buttonLineSecondary {
+    white-space: nowrap;
+    display: block;
+  }
+}
+
 @keyframes breathe {
   0%, 100% {
     transform: scale(1);
@@ -94,15 +136,38 @@
   }
 }
 
-/* Responsive design */
+/* Responsive design - tablet */
+@media (max-width: 768px) {
+  .chromeButton {
+    font-size: 0.9375rem;
+    padding: 0.875rem 1.5rem;
+    padding-left: 1.25rem;
+  }
+
+  .chromeLogo {
+    width: 24px;
+    height: 24px;
+    left: 1rem;
+  }
+
+  .buttonText {
+    padding-left: 2rem;
+  }
+}
+
+/* Mobile - smaller font and more padding so full label + icon fit inside */
 @media (max-width: 480px) {
   .chromeButton {
     width: 90%;
     max-width: 360px;
-    margin: 0 auto;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    padding: 0.875rem 1.5rem;
-    padding-left: 0.875rem;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.8125rem;
   }
 
   .chromeLogo {
@@ -110,14 +175,20 @@
     left: auto;
     top: auto;
     transform: none;
-    width: 36px;
-    height: 36px;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
   }
 
   .buttonText {
-    padding-left: 0.75rem;
-    flex-direction: column;
+    padding-left: 0;
+    flex-direction: row;
     align-items: center;
+  }
+
+  .chromeButton.stackedLabel .buttonText {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 

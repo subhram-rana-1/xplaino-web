@@ -3,6 +3,8 @@
   overflow-x: hidden;
   position: relative;
   min-height: 100vh;
+  --text-primary: #1f2937;
+  --text-secondary: #4b5563;
   background: 
     radial-gradient(ellipse 60% 300% at 0% 50%, var(--teal-rgba-15) 0%, var(--teal-rgba-10) 30%, transparent 70%),
     radial-gradient(ellipse 60% 300% at 100% 50%, var(--teal-rgba-15) 0%, var(--teal-rgba-10) 30%, transparent 70%),
@@ -112,6 +114,8 @@
   .chromeButtonContainer {
     padding: 3rem 2rem 2.5rem;
     gap: 1.25rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
   }
 
   .ctaHeading {
@@ -142,8 +146,16 @@
   }
 
   .chromeButtonContainer {
-    padding: 2rem 1rem 2rem;
+    padding: 2rem 1.25rem 2rem;
     gap: 1rem;
+    margin-left: 1.25rem;
+    margin-right: 1.25rem;
+  }
+
+  /* CTA button: narrower on mobile so it doesn’t feel too wide */
+  .chromeButtonContainer button {
+    width: min(85vw, 300px) !important;
+    max-width: 300px;
   }
 
   .ctaHeading {

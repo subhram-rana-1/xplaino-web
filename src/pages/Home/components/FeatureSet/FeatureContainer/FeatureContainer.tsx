@@ -50,13 +50,24 @@ export const FeatureContainer: React.FC<FeatureContainerProps> = ({
     return () => observer.disconnect();
   }, []);
 
+  // After collapsing on mobile, force reflow so border-radius repaints (fixes sharp corners until click outside)
+  useEffect(() => {
+    if (isExpanded) return;
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        void containerRef.current?.offsetHeight;
+      });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [isExpanded]);
+
   const handleVideoClick = () => {
     setIsModalOpen(true);
   };
 
   const handleExpandToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsExpanded(prev => !prev);
+    setIsExpanded((prev) => !prev);
   };
 
   return (
