@@ -33,25 +33,6 @@
   padding: 0;
 }
 
-/* Dark overlay on hover - darkens the video preview */
-.videoSection::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0);
-  transition: background 0.2s ease;
-  pointer-events: none;
-  z-index: 1;
-  border-radius: 10px 10px 0 0;
-}
-
-.videoSection:hover::after {
-  background: rgba(0, 0, 0, 0.3);
-}
-
 /* Hide YouTube branding overlay - covers top where YouTube shows UI */
 .videoSection::before {
   content: '';
@@ -65,28 +46,13 @@
   pointer-events: none;
 }
 
+/* Play button circle - centered on thumbnail on hover */
 .videoSection::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 48px;
-  height: 48px;
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 50%;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M21 11.5v1c0 5.25-4.25 9.5-9.5 9.5S2 17.75 2 12.5 6.25 3 11.5 3c1.67 0 3.24.43 4.6 1.19l-1.45 1.46A7.48 7.48 0 0011.5 5C7.36 5 4 8.36 4 12.5S7.36 20 11.5 20s7.5-3.36 7.5-7.5h2zM7 9.5l6.5 3.5-6.5 3.5v-7zm9-2.5h2v-2h2v2h2v2h-2v2h-2v-2h-2v-2z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 24px;
-  z-index: 10;
+  content: none;
 }
 
 .videoSection:hover::after {
-  opacity: 1;
+  content: none;
 }
 
 .video {
@@ -103,6 +69,23 @@
   position: relative;
   width: 100%;
   height: 100%;
+}
+
+/* Semi-transparent blackout overlay on thumbnail when hovering (minimized view) */
+.thumbnailWrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  transition: background 0.2s ease;
+  pointer-events: none;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+/* Only show blackout on hover when card is in minimised (non-expanded) view */
+.featureContainer:not(.expanded) .videoSection:hover .thumbnailWrapper::after {
+  background: rgba(0, 0, 0, 0.3);
 }
 
 /* YouTube thumbnail image */
@@ -126,29 +109,29 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 48px;
-  height: 48px;
-  background: rgba(0, 0, 0, 0.55);
+  width: 36px;
+  height: 36px;
+  background: rgba(0, 0, 0, 0.35);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
   transition: opacity 0.2s ease, background 0.2s ease;
-  opacity: 0;
+  opacity: 0.6;
   z-index: 2;
 }
 
 .videoSection:hover .playOverlay {
-  opacity: 1;
-  background: rgba(0, 0, 0, 0.7);
+  opacity: 0.85;
+  background: rgba(0, 0, 0, 0.45);
 }
 
 /* Play icon triangle */
 .playIcon {
-  color: #fff;
-  font-size: 1.1rem;
-  margin-left: 3px;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1rem;
+  margin-left: 2px;
   line-height: 1;
 }
 
@@ -365,12 +348,7 @@
     padding: 0;
   }
 
-  .videoSection::after {
-    border-radius: 10px 10px 0 0;
-  }
-
   .titleSection {
-    padding: 0.5rem 0.75rem;
     border-radius: 0 0 10px 10px;
   }
 
@@ -425,10 +403,6 @@
     aspect-ratio: 16 / 9;
     border-radius: 10px 10px 0 0;
     padding: 0;
-  }
-
-  .videoSection::after {
-    border-radius: 10px 10px 0 0;
   }
 
   .titleSection {
@@ -488,10 +462,6 @@
     padding: 0;
   }
 
-  .videoSection::after {
-    border-radius: 10px 10px 0 0;
-  }
-
   .titleSection {
     padding: 0.5rem 0.75rem;
     border-radius: 0 0 10px 10px;
@@ -532,12 +502,6 @@
 
   .featureContainer.expanded .descriptionSection {
     padding: 0.5rem 0.75rem;
-  }
-
-  .videoSection::after {
-    width: 40px;
-    height: 40px;
-    background-size: 20px;
   }
 
   .featureContainer:hover .titleSection,

@@ -27,7 +27,7 @@
   font-weight: 700;
   text-align: center;
   margin-bottom: 2.5rem;
-  color: var(--text-primary);
+  color: var(--teal) !important;
   font-family: 'Inter', sans-serif;
   letter-spacing: -0.02em;
 }
@@ -38,27 +38,35 @@
   gap: 1.5rem;
 }
 
+/* Desktop: constrain width of the 4 containers */
+@media (min-width: 769px) {
+  .useCaseGrid {
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
 .useCaseCard {
   padding: 1.25rem 1.5rem;
-  background: var(--white-rgba-95);
+  background: var(--teal-rgba-10);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid var(--border-light);
-  border-radius: 0.75rem;
+  border-radius: 1rem;
   box-shadow: 0 2px 8px var(--shadow-black-10);
   transition: all 0.2s ease;
 }
 
 .useCaseCard:hover {
-  border-color: var(--teal-rgba-30);
   box-shadow: 0 4px 12px var(--teal-rgba-15);
-  background: var(--bg-white);
+  background: var(--teal-rgba-15);
 }
 
 .useCaseCardTitle {
   font-size: 1.125rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--teal);
+  opacity: 0.65;
   font-family: 'Inter', sans-serif;
   margin: 0 0 0.5rem;
   letter-spacing: -0.02em;

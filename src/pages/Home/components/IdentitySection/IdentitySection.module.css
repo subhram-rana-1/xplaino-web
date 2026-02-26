@@ -16,7 +16,7 @@
   font-weight: 700;
   text-align: center;
   margin: 0 0 1.5rem;
-  color: var(--text-primary);
+  color: var(--teal) !important;
   font-family: 'Inter', sans-serif;
   letter-spacing: -0.02em;
   line-height: 1.2;

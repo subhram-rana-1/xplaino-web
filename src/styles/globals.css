@@ -40,3 +40,9 @@ body::-webkit-scrollbar {
   background-color: var(--bg-white);
 }
 
+/* Headings: slightly grey so they're not pure black (overrides component heading classes) */
+h1,
+h2 {
+  color: var(--text-heading) !important;
+}
+

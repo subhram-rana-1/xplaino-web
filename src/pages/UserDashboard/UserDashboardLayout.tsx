@@ -57,7 +57,7 @@ export const UserDashboardLayout: React.FC = () => {
             ))}
         </nav>
         <div className={styles.comingSoonTeaser} aria-label="Upcoming features">
-          <span className={styles.comingSoonBadge}>Upcoming feature !</span>
+          <span className={styles.comingSoonBadge}>Coming Soon !</span>
           <span className={styles.comingSoonText}>
             Summarise any PDF & chat with your documents — Few days to launch.
           </span>

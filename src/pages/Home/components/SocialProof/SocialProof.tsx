@@ -1,4 +1,5 @@
 import React from 'react';
+import { FiStar, FiGlobe } from 'react-icons/fi';
 import { ScrollReveal } from '@/shared/components/ScrollReveal';
 import styles from './SocialProof.module.css';
 
@@ -15,7 +16,9 @@ export const SocialProof: React.FC = () => {
           <div className={styles.metricsRow}>
             <div className={styles.metric}>
               <span className={styles.metricValue}>
-                <span className={styles.starIcon} aria-hidden>⭐</span>
+                <span className={styles.metricIcon} aria-hidden>
+                  <FiStar />
+                </span>
                 4.9/5
               </span>
               <span className={styles.metricLabel}>on Chrome Web Store</span>
@@ -23,7 +26,9 @@ export const SocialProof: React.FC = () => {
             <div className={styles.metricDivider} aria-hidden />
             <div className={styles.metric}>
               <span className={styles.metricValue}>
-                <span className={styles.globeIcon} aria-hidden>🌍</span>
+                <span className={styles.metricIcon} aria-hidden>
+                  <FiGlobe />
+                </span>
                 10+
               </span>
               <span className={styles.metricLabel}>countries</span>

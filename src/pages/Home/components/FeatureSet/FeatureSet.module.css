@@ -1,6 +1,7 @@
 .featureSetWrapper {
   position: relative;
   overflow: visible;
+  margin-top: 2.5rem;
   margin-bottom: 1.5rem;
 }
 
@@ -38,18 +39,18 @@
 }
 
 .headingRow .comingSoonTeaser {
-  order: 1;
+  order: 2;
 }
 
 .headingRow .subheading {
-  order: 2;
+  order: 1;
 }
 
 .subheading {
   font-size: 2.5rem;
   font-weight: 700;
   margin: 0;
-  color: var(--text-primary);
+  color: var(--teal) !important;
   font-family: 'Inter', sans-serif;
   letter-spacing: -0.02em;
   line-height: 1.2;
@@ -71,9 +72,11 @@
   0%,
   100% {
     background-color: rgba(124, 58, 237, 0.15);
+    transform: scale(1);
   }
   50% {
     background-color: rgba(13, 128, 112, 0.15);
+    transform: scale(1.08);
   }
 }
 
@@ -148,6 +151,8 @@
   .comingSoonTeaser {
     padding: 0.5rem 0.875rem;
     flex-wrap: wrap;
+    align-self: center;
+    justify-content: center;
   }
 
   .comingSoonText {
@@ -180,6 +185,8 @@
 
   .comingSoonTeaser {
     padding: 0.5rem 0.75rem;
+    align-self: center;
+    justify-content: center;
   }
 
   .comingSoonText {

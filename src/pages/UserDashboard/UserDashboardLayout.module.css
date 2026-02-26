@@ -120,6 +120,12 @@
   padding: 0.4rem 0.75rem;
   border-radius: 0.25rem;
   flex-shrink: 0;
+  animation: comingSoonBadgeScale 2s ease-in-out infinite;
+}
+
+@keyframes comingSoonBadgeScale {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
 }
 
 .comingSoonText {

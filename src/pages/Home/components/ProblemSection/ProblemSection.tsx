@@ -5,10 +5,10 @@ import { ScrollReveal } from '@/shared/components/ScrollReveal';
 import styles from './ProblemSection.module.css';
 
 const problemItems: { icon: IconType; text: string }[] = [
-  { icon: FiBookOpen, text: 'You read 20 articles but remember 2' },
-  { icon: FiFileText, text: 'Research papers feel dense and slow' },
-  { icon: FiBookmark, text: 'Important insights get lost in bookmarks' },
-  { icon: FiMessageCircle, text: 'AI chat tools give answers — but not structure' },
+  { icon: FiBookOpen, text: 'You read dozens of articles — but retain very little.' },
+  { icon: FiFileText, text: 'Research papers feel dense, overwhelming, and slow.' },
+  { icon: FiBookmark, text: 'Important insights disappear into bookmarks.' },
+  { icon: FiMessageCircle, text: 'AI chat tools give answers — but don\'t build knowledge.' },
 ];
 
 /**
@@ -33,11 +33,6 @@ export const ProblemSection: React.FC = () => {
                   <span className={styles.pointIconWrapper} aria-hidden>
                     <span className={styles.pointIcon}>
                       <Icon />
-                    </span>
-                    <span className={styles.crossOverlay} aria-hidden>
-                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4 4l16 16M20 4L4 20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                      </svg>
                     </span>
                   </span>
                   <p className={styles.pointText}>{item.text}</p>

@@ -68,6 +68,7 @@
      TEXT COLORS
      ============================================ */
   --text-primary: #000000;
+  --text-heading: #374151;
   --text-secondary: #333333;
   --text-tertiary: #666666;
   --text-quaternary: #999999;
@@ -246,6 +247,7 @@
      TEXT COLORS (DARK MODE)
      ============================================ */
   --text-primary: #f5f5f5;
+  --text-heading: #d1d5db;
   --text-secondary: #e8eaed;
   --text-tertiary: #c9cdd3;
   --text-quaternary: #6b7280;
