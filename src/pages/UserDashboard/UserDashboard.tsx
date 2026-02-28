@@ -53,7 +53,7 @@ export const UserDashboard: React.FC = () => {
 
     try {
       setIsLoading(true);
-      const response = await getAllFolders(accessToken);
+      const response = await getAllFolders(accessToken, 'BOOKMARK');
       setFolders(response.folders);
       
       if (showSuccessFeedback) {
@@ -103,7 +103,7 @@ export const UserDashboard: React.FC = () => {
     }
 
     try {
-      await createFolder(accessToken, name);
+      await createFolder(accessToken, name, undefined, 'BOOKMARK');
       // Refresh folders list to show the newly created folder
       await fetchFolders();
       setToast({ message: 'Folder created successfully!', type: 'success' });

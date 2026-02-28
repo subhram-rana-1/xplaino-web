@@ -36,6 +36,7 @@ const UserDashboardLayout = lazy(() => import('@/pages/UserDashboard/UserDashboa
 const MyBookmarksPage = lazy(() => import('@/pages/UserDashboard/MyBookmarksPage').then((m) => ({ default: m.MyBookmarksPage })));
 const PdfPage = lazy(() => import('@/pages/UserDashboard/PdfPage').then((m) => ({ default: m.PdfPage })));
 const FolderBookmarkPage = lazy(() => import('@/pages/UserDashboard/FolderBookmarkPage').then((m) => ({ default: m.FolderBookmarkPage })));
+const FolderPdfPage = lazy(() => import('@/pages/UserDashboard/FolderPdfPage').then((m) => ({ default: m.FolderPdfPage })));
 const PdfDetail = lazy(() => import('@/pages/PdfDetail').then((m) => ({ default: m.PdfDetail })));
 const UserAccount = lazy(() => import('@/pages/UserAccount').then((m) => ({ default: m.UserAccount })));
 const AdminDashboard = lazy(() => import('@/pages/AdminDashboard').then((m) => ({ default: m.AdminDashboard })));
@@ -43,6 +44,7 @@ const PricingEdit = lazy(() => import('@/pages/Admin/components/PricingEdit').th
 const AdminIssueDetail = lazy(() => import('@/pages/Admin/components/AdminIssueDetail').then((m) => ({ default: m.AdminIssueDetail })));
 const DomainEdit = lazy(() => import('@/pages/Admin/components/AdminDomains').then((m) => ({ default: m.DomainEdit })));
 const CouponEdit = lazy(() => import('@/pages/Admin/components/AdminCoupons').then((m) => ({ default: m.CouponEdit })));
+const ToolsPdfPage = lazy(() => import('@/pages/ToolsPdf').then((m) => ({ default: m.ToolsPdfPage })));
 
 /**
  * AppContent - Inner component that uses useLocation for conditional rendering
@@ -120,6 +122,10 @@ const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: 
                 <Route 
                   path="pdf" 
                   element={<PdfPage />} 
+                />
+                <Route 
+                  path="pdf/:folderId" 
+                  element={<FolderPdfPage />} 
                 />
               </Route>
               <Route 
@@ -264,6 +270,7 @@ const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: 
                   </AdminProtectedRoute>
                 } 
               />
+              <Route path="/tools/pdf" element={<ToolsPdfPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
             </Suspense>

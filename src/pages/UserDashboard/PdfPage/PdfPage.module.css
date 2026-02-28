@@ -1,8 +1,3 @@
-.pdfPage {
-  min-height: 60vh;
-  width: 100%;
-}
-
 .container {
   max-width: 1200px;
   width: 100%;
@@ -11,9 +6,15 @@
 
 .header {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
   gap: 1rem;
 }
 
@@ -23,6 +24,41 @@
   gap: 1rem;
 }
 
+/* View toggle */
+.viewToggle {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.viewButton {
+  padding: 0.625rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1.125rem;
+  color: var(--text-tertiary);
+  background: none;
+  border: none;
+  border-radius: var(--button-border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 44px;
+}
+
+.viewButton:hover {
+  background-color: var(--bg-light);
+  color: var(--teal);
+}
+
+.viewButtonActive {
+  background: var(--button-hover-bg);
+  color: var(--teal);
+  border: none;
+}
+
+/* Refresh button */
 .refreshButton {
   padding: 0.625rem 1.25rem;
   font-family: 'Inter', sans-serif;
@@ -42,12 +78,12 @@
 }
 
 .refreshButton:hover:not(:disabled) {
-  background-color: #f5f5f5;
+  background-color: var(--bg-light);
   color: var(--teal);
 }
 
 .refreshButton:active:not(:disabled) {
-  background-color: #f5f5f5;
+  background-color: var(--bg-light);
   color: var(--teal);
 }
 
@@ -61,19 +97,49 @@
   pointer-events: none;
 }
 
-.refreshButton .spin {
+.spin {
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
+/* Create folder button */
+.createFolderButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  background: none;
+  border: none;
+  border-radius: var(--button-border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 44px;
+}
+
+.createFolderButton:hover {
+  background-color: var(--bg-light);
+  color: var(--teal);
+}
+
+.createFolderButton:active {
+  background-color: var(--bg-light);
+  color: var(--teal);
+}
+
+.createFolderButton svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Upload button */
 .uploadButton {
   display: flex;
   align-items: center;
@@ -92,12 +158,12 @@
 }
 
 .uploadButton:hover:not(:disabled) {
-  background-color: #f5f5f5;
+  background-color: var(--bg-light);
   color: var(--teal);
 }
 
 .uploadButton:active:not(:disabled) {
-  background-color: #f5f5f5;
+  background-color: var(--bg-light);
   color: var(--teal);
 }
 
@@ -115,6 +181,17 @@
   display: none;
 }
 
+/* Heading */
+.heading {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  margin: 0 0 2rem 0;
+}
+
+/* Loading / empty states */
 .loading {
   text-align: center;
   padding: 3rem;
@@ -143,29 +220,103 @@
   margin: 0;
 }
 
-.heading {
-  font-family: 'Inter', sans-serif;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  text-align: center;
-  margin: 0 0 2rem 0;
+/* List View */
+.listViewWrapper {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 2rem auto;
+  width: 100%;
 }
 
-/* List View */
 .listView {
   background: var(--bg-white);
   border-radius: 0;
   overflow: hidden;
-  margin-bottom: 2rem;
-  display: flex;
-  justify-content: center;
+  width: fit-content;
+  min-width: fit-content;
 }
 
-.fileName {
+.listView table tbody td,
+.listView table thead th {
+  padding-left: 1.4rem;
+  padding-right: 1.4rem;
+}
+
+/* Sort button */
+.sortButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.sortButton:hover {
+  color: var(--teal);
+}
+
+.sortButtonActive {
+  color: var(--teal);
+}
+
+.sortIcons {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-left: 0.25rem;
+}
+
+.sortIcons svg {
+  width: 12px;
+  height: 12px;
+  line-height: 1;
+}
+
+.sortIconActive {
+  color: var(--teal);
+}
+
+.sortIconInactive {
+  color: var(--text-quaternary);
+  opacity: 0.5;
+}
+
+/* Folder name cell (list view) */
+.folderNameCell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.folderNameCell svg {
+  color: var(--teal);
+  flex-shrink: 0;
+}
+
+.folderNameInput {
+  flex: 1;
+  padding: 0.25rem 0.5rem;
   font-family: 'Inter', sans-serif;
   font-size: 0.9375rem;
   color: var(--text-secondary);
+  border: 2px solid var(--teal);
+  border-radius: 4px;
+  outline: none;
+  background: var(--bg-white);
+  min-width: 150px;
+}
+
+.folderNameInput:focus {
+  border-color: var(--teal);
 }
 
 /* Action Icons in Table Cell */
@@ -174,22 +325,75 @@
   justify-content: flex-end;
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-  .pdfPage {
-    padding: 1.5rem 1rem;
-  }
+/* Grid View */
+.gridView {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
 
+.folderCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 1rem;
+  background: var(--teal-lighter);
+  border: 2px solid transparent;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.folderCard:hover {
+  transform: scale(1.02);
+}
+
+.folderCard svg {
+  color: var(--teal);
+  transition: none;
+}
+
+.folderCard:hover svg {
+  color: var(--teal);
+}
+
+.folderCardName {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-align: center;
+  word-break: break-word;
+}
+
+/* Folder Card Actions (Grid View) */
+.folderCardActions {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 10;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
   .header {
     flex-wrap: wrap;
   }
 
-  .uploadButton {
-    font-size: 0.875rem;
-    padding: 0.625rem 1rem;
+  .gridView {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.75rem;
   }
 
-  .uploadButton span {
+  .folderCard {
+    padding: 1rem 0.75rem;
+  }
+
+  .uploadButton span,
+  .createFolderButton span {
     display: none;
   }
 }

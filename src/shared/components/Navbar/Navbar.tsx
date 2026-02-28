@@ -6,7 +6,8 @@ import logoImageDark from '../../../assets/images/xplaino-brand-white.png';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { useTheme } from '@/shared/hooks/ThemeContext';
 import { Theme } from '@/shared/types/user-settings.types';
-import { FiLogOut, FiUser, FiGrid, FiAlertCircle } from 'react-icons/fi';
+import { FiLogOut, FiUser, FiGrid, FiAlertCircle, FiChevronDown, FiFileText } from 'react-icons/fi';
+import { SiGooglechrome } from 'react-icons/si';
 import { LoginModal } from '@/shared/components/LoginModal';
 import { Toast } from '@/shared/components/Toast';
 
@@ -22,8 +23,10 @@ interface NavbarProps {
  */
 export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isToolsDropdownOpen, setIsToolsDropdownOpen] = useState(false);
   const [isProfilePopoverOpen, setIsProfilePopoverOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const toolsDropdownRef = useRef<HTMLDivElement>(null);
   const [isModalClosing, setIsModalClosing] = useState(false);
   const [loginModalActionText, setLoginModalActionText] = useState('access your dashboard');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -43,6 +46,25 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
   const closeMenu = () => {
     setIsMenuOpen(false);
     setIsProfilePopoverOpen(false);
+    setIsToolsDropdownOpen(false);
+  };
+
+  const handleToolsExtensionClick = () => {
+    window.open(
+      'https://chromewebstore.google.com/detail/xplaino/nmphalmbdmddagbllhjnfnmodfmbnlkp',
+      '_blank',
+      'noopener,noreferrer'
+    );
+    closeMenu();
+  };
+
+  const handleToolsPdfClick = () => {
+    if (isLoggedIn) {
+      navigate('/user/dashboard/pdf');
+    } else {
+      navigate('/tools/pdf');
+    }
+    closeMenu();
   };
 
   const handleProfileClick = () => {
@@ -210,6 +232,39 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
         {!hideNavButtons && (
           <div className={styles.navCenter}>
             <div className={`${styles.navLinks} ${isMenuOpen ? styles.navLinksOpen : ''}`}>
+              <div
+                className={styles.dropdownContainer}
+                ref={toolsDropdownRef}
+                onMouseEnter={() => setIsToolsDropdownOpen(true)}
+                onMouseLeave={() => setIsToolsDropdownOpen(false)}
+              >
+                <button
+                  className={`${styles.navLink} ${styles.dropdownTrigger} ${(isActiveRoute('/tools/pdf') || isActiveRoute('/user/dashboard/pdf')) ? styles.navLinkActive : ''}`}
+                >
+                  Tools
+                  <FiChevronDown
+                    className={styles.dropdownChevron}
+                    size={14}
+                    style={{ transition: 'transform 0.2s ease', transform: isToolsDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                  />
+                </button>
+                <div className={`${styles.dropdownMenu} ${isToolsDropdownOpen ? styles.dropdownMenuOpen : ''}`}>
+                  <button
+                    className={`${styles.dropdownItem} ${styles.dropdownItemButton}`}
+                    onClick={handleToolsExtensionClick}
+                  >
+                    <SiGooglechrome className={styles.dropdownItemIcon} size={15} />
+                    Extension
+                  </button>
+                  <button
+                    className={`${styles.dropdownItem} ${styles.dropdownItemButton}`}
+                    onClick={handleToolsPdfClick}
+                  >
+                    <FiFileText className={styles.dropdownItemIcon} size={15} />
+                    PDF
+                  </button>
+                </div>
+              </div>
               <Link 
                 to="/pricing" 
                 className={`${styles.navLink} ${isActiveRoute('/pricing') ? styles.navLinkActive : ''}`} 

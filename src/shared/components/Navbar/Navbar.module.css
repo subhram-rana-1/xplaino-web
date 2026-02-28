@@ -216,7 +216,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   font-weight: 700;
-  color: var(--teal-dark);
+  color: var(--text-dark-gray);
   letter-spacing: 0.015em;
   white-space: nowrap;
   overflow: hidden;
@@ -246,7 +246,7 @@
   align-items: center;
   gap: 0.625rem;
   padding: 0.7rem 1.25rem;
-  color: var(--teal);
+  color: var(--gray-600);
   font-size: 0.9rem;
   font-weight: 500;
   font-family: 'Inter', sans-serif;
@@ -257,7 +257,7 @@
 
 .popoverItem:hover {
   background-color: var(--button-hover-bg);
-  color: var(--teal-dark);
+  color: var(--teal);
 }
 
 .popoverItemIcon {
@@ -594,6 +594,26 @@
   border-bottom-right-radius: 8px;
 }
 
+.dropdownItemButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dropdownItemIcon {
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+.dropdownItem:hover .dropdownItemIcon {
+  opacity: 1;
+}
+
 .menuToggle {
   display: none;
   background: none;
@@ -832,7 +852,7 @@
   }
 
   .popoverItem {
-    color: var(--teal);
+    color: var(--gray-600);
   }
 
   .popoverLogoutButton {

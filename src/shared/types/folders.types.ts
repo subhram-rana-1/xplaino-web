@@ -7,6 +7,7 @@
 export interface FolderWithSubFolders {
   id: string;
   name: string;
+  type: string;
   created_at: string;
   updated_at: string;
   subFolders: FolderWithSubFolders[];
@@ -19,6 +20,7 @@ export interface GetAllFoldersResponse {
 export interface CreateFolderRequest {
   name: string;
   parentId?: string;
+  type?: string;
 }
 
 export interface UserInfo {
