@@ -115,9 +115,11 @@
   flex-shrink: 0;
   align-self: flex-start;
   margin-top: 1.5rem;
+  margin-left: -1px;
   color: var(--text-secondary);
   background: var(--bg-white);
   border: 1px solid var(--border-light);
+  border-left: none;
   border-radius: 0 6px 6px 0;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
@@ -131,7 +133,8 @@
 }
 
 .sidebarToggleCollapsed {
-  border-radius: 6px;
+  border-left: none;
+  border-radius: 0 6px 6px 0;
   margin-left: 0;
 }
 
