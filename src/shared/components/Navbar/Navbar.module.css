@@ -202,49 +202,90 @@
   transform: translateY(0);
 }
 
-.popoverItem {
-  display: block;
-  padding: 0.75rem 1.25rem;
-  color: var(--teal);
+.popoverHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem 0.75rem;
+  border-bottom: 1px solid var(--teal-lighter);
+  border-top-left-radius: 13px;
+  border-top-right-radius: 13px;
+}
+
+.popoverHeaderName {
+  font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--teal-dark);
+  letter-spacing: 0.015em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.popoverAdminBadge {
+  background-color: var(--yellow);
+  color: var(--white);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 0.1rem 0.35rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.popoverSuperAdminBadge {
+  background-color: var(--red);
+}
+
+.popoverItem {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.7rem 1.25rem;
+  color: var(--teal);
+  font-size: 0.9rem;
   font-weight: 500;
   font-family: 'Inter', sans-serif;
+  letter-spacing: 0.012em;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  border-bottom: 1px solid var(--teal-lighter);
-}
-
-.popoverItem:first-child {
-  border-top-left-radius: 15px;
-  border-top-right-radius: 15px;
-}
-
-.popoverItem:last-of-type {
-  border-bottom: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .popoverItem:hover {
   background-color: var(--button-hover-bg);
+  color: var(--teal-dark);
+}
+
+.popoverItemIcon {
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+.popoverItem:hover .popoverItemIcon {
+  opacity: 1;
 }
 
 .popoverLogoutButton {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.625rem;
   width: 100%;
-  padding: 0.75rem 1.25rem;
+  padding: 0.7rem 1.25rem 0.9rem;
   background-color: transparent;
   border: none;
   color: var(--red);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
   font-family: 'Inter', sans-serif;
+  letter-spacing: 0.012em;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  border-top: 1px solid var(--teal-lighter);
-  margin-top: 0;
-  border-bottom-left-radius: 15px;
-  border-bottom-right-radius: 15px;
+  transition: background-color 0.15s ease;
+  border-bottom-left-radius: 13px;
+  border-bottom-right-radius: 13px;
 }
 
 .popoverLogoutButton:hover {
@@ -258,6 +299,14 @@
 .popoverLogoutButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.popoverLogoutButton .popoverItemIcon {
+  opacity: 0.8;
+}
+
+.popoverLogoutButton:hover .popoverItemIcon {
+  opacity: 1;
 }
 
 /* Modal Overlay and Container */
@@ -777,27 +826,21 @@
     visibility: visible;
   }
 
+  .popoverHeader {
+    border-top-left-radius: 11px;
+    border-top-right-radius: 11px;
+  }
+
   .popoverItem {
     color: var(--teal);
-    border-bottom: 1px solid var(--teal-lighter);
-  }
-
-  .popoverItem:first-child {
-    border-top-left-radius: 13px;
-    border-top-right-radius: 13px;
-  }
-
-  .popoverItem:last-of-type {
-    border-bottom: none;
   }
 
   .popoverLogoutButton {
     color: var(--red);
-    border-top: 1px solid var(--teal-lighter);
     width: 100%;
     justify-content: flex-start;
-    border-bottom-left-radius: 13px;
-    border-bottom-right-radius: 13px;
+    border-bottom-left-radius: 11px;
+    border-bottom-right-radius: 11px;
   }
 
   .popoverLogoutButton:hover {

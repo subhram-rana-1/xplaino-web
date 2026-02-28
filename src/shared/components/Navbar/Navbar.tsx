@@ -6,7 +6,7 @@ import logoImageDark from '../../../assets/images/xplaino-brand-white.png';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { useTheme } from '@/shared/hooks/ThemeContext';
 import { Theme } from '@/shared/types/user-settings.types';
-import { FiLogOut } from 'react-icons/fi';
+import { FiLogOut, FiUser, FiGrid, FiAlertCircle } from 'react-icons/fi';
 import { LoginModal } from '@/shared/components/LoginModal';
 import { Toast } from '@/shared/components/Toast';
 
@@ -211,13 +211,6 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
           <div className={styles.navCenter}>
             <div className={`${styles.navLinks} ${isMenuOpen ? styles.navLinksOpen : ''}`}>
               <Link 
-                to="/getting-started" 
-                className={`${styles.navLink} ${isActiveRoute('/getting-started') ? styles.navLinkActive : ''}`} 
-                onClick={closeMenu}
-              >
-                Getting Started
-              </Link>
-              <Link 
                 to="/pricing" 
                 className={`${styles.navLink} ${isActiveRoute('/pricing') ? styles.navLinkActive : ''}`} 
                 onClick={closeMenu}
@@ -244,22 +237,6 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
         <div className={styles.navRight}>
           {isLoggedIn ? (
             <div className={styles.userSection} ref={profilePopoverRef}>
-              <div className={styles.nameContainer}>
-                <span 
-                  className={styles.welcomeText}
-                  onClick={handleProfileClick}
-                  style={{ cursor: 'pointer' }}
-                >
-                  {user?.firstName && user?.lastName 
-                    ? `${user.firstName} ${user.lastName}`
-                    : user?.name || 'User'}
-                </span>
-                {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
-                  <span className={`${styles.adminBadge} ${user?.role === 'SUPER_ADMIN' ? styles.superAdminBadge : ''}`}>
-                    {user?.role === 'SUPER_ADMIN' ? 'Super Admin' : 'Admin'}
-                  </span>
-                )}
-              </div>
               {user?.picture ? (
                 <img 
                   src={user.picture} 
@@ -277,75 +254,87 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                 </div>
               )}
               <div className={`${styles.profilePopover} ${isProfilePopoverOpen ? styles.profilePopoverOpen : ''}`}>
+                  <div className={styles.popoverHeader}>
+                    <span className={styles.popoverHeaderName}>
+                      {user?.firstName && user?.lastName
+                        ? `${user.firstName} ${user.lastName}`
+                        : user?.name || 'User'}
+                    </span>
+                    {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
+                      <span className={`${styles.popoverAdminBadge} ${user?.role === 'SUPER_ADMIN' ? styles.popoverSuperAdminBadge : ''}`}>
+                        {user?.role === 'SUPER_ADMIN' ? 'Super Admin' : 'Admin'}
+                      </span>
+                    )}
+                  </div>
                   {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') ? (
                     <>
-                      <div 
+                      <div
                         className={styles.popoverItem}
                         onClick={() => {
                           navigate('/admin/account');
                           setIsProfilePopoverOpen(false);
                         }}
-                        style={{ cursor: 'pointer' }}
                       >
+                        <FiUser className={styles.popoverItemIcon} size={16} />
                         Account
                       </div>
-                      <div 
+                      <div
                         className={styles.popoverItem}
                         onClick={() => {
                           navigate('/admin/dashboard');
                           setIsProfilePopoverOpen(false);
                         }}
-                        style={{ cursor: 'pointer' }}
                       >
+                        <FiGrid className={styles.popoverItemIcon} size={16} />
                         Admin Dashboard
                       </div>
-                      <button 
-                        className={styles.popoverLogoutButton} 
+                      <button
+                        className={styles.popoverLogoutButton}
                         onClick={handleLogout}
                         disabled={isLoggingOut}
                       >
-                        <FiLogOut className={styles.logoutIcon} size={18} />
+                        <FiLogOut className={styles.popoverItemIcon} size={16} />
                         Logout
                       </button>
                     </>
                   ) : (
                     <>
-                      <div 
+                      <div
                         className={styles.popoverItem}
                         onClick={() => {
                           navigate('/user/account');
                           setIsProfilePopoverOpen(false);
                         }}
-                        style={{ cursor: 'pointer' }}
                       >
+                        <FiUser className={styles.popoverItemIcon} size={16} />
                         Account
                       </div>
-                      <div 
+                      <div
                         className={styles.popoverItem}
                         onClick={() => {
                           navigate('/user/dashboard/bookmark');
                           setIsProfilePopoverOpen(false);
                         }}
-                        style={{ cursor: 'pointer' }}
                       >
+                        <FiGrid className={styles.popoverItemIcon} size={16} />
                         Dashboard
                       </div>
-                      <div 
+                      <div
                         className={styles.popoverItem}
                         onClick={() => {
                           navigate('/user/issues');
                           setIsProfilePopoverOpen(false);
                         }}
-                        style={{ cursor: 'pointer' }}
                       >
+                        <FiAlertCircle className={styles.popoverItemIcon} size={16} />
                         My Issues
                       </div>
-                      <button 
-                        className={styles.popoverLogoutButton} 
+                      <button
+                        className={styles.popoverLogoutButton}
                         onClick={handleLogout}
                         disabled={isLoggingOut}
                       >
-                        <FiLogOut className={styles.logoutIcon} size={18} />
+                        <FiLogOut className={styles.popoverItemIcon} size={16} />
                         Logout
                       </button>
                     </>

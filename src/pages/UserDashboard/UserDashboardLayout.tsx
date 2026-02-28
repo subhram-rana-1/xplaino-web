@@ -1,7 +1,18 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useLocation, Link, Outlet } from 'react-router-dom';
-import { FiBookmark, FiBookOpen } from 'react-icons/fi';
+import { FiBookmark, FiBookOpen, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import styles from './UserDashboardLayout.module.css';
+
+const SIDEBAR_VISIBLE_KEY = 'xplaino-dashboard-sidebar-visible';
+
+function getStoredSidebarVisible(): boolean {
+  try {
+    const stored = localStorage.getItem(SIDEBAR_VISIBLE_KEY);
+    return stored === null ? true : stored === 'true';
+  } catch {
+    return true;
+  }
+}
 
 type UserDashboardSection = 'bookmarks' | 'pdf';
 
@@ -13,6 +24,15 @@ type UserDashboardSection = 'bookmarks' | 'pdf';
  */
 export const UserDashboardLayout: React.FC = () => {
   const location = useLocation();
+  const [sidebarVisible, setSidebarVisible] = useState(getStoredSidebarVisible);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(SIDEBAR_VISIBLE_KEY, String(sidebarVisible));
+    } catch {
+      // ignore
+    }
+  }, [sidebarVisible]);
 
   const sidebarItems: {
     key: UserDashboardSection;
@@ -39,7 +59,7 @@ export const UserDashboardLayout: React.FC = () => {
 
   return (
     <div className={styles.userDashboard}>
-      <div className={styles.sidebar}>
+      <div className={`${styles.sidebar} ${!sidebarVisible ? styles.sidebarHidden : ''}`}>
         <h2 className={styles.sidebarTitle}>My dashboard</h2>
         <nav className={styles.sidebarNav}>
           {sidebarItems
@@ -56,6 +76,15 @@ export const UserDashboardLayout: React.FC = () => {
             ))}
         </nav>
       </div>
+      <button
+        type="button"
+        className={`${styles.sidebarToggle} ${!sidebarVisible ? styles.sidebarToggleCollapsed : ''}`}
+        onClick={() => setSidebarVisible((v) => !v)}
+        title={sidebarVisible ? 'Hide sidebar' : 'Show sidebar'}
+        aria-label={sidebarVisible ? 'Hide sidebar' : 'Show sidebar'}
+      >
+        {sidebarVisible ? <FiChevronLeft size={14} /> : <FiChevronRight size={14} />}
+      </button>
       <div className={styles.content}>
         <Outlet />
       </div>

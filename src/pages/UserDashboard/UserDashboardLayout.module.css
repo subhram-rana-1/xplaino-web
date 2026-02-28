@@ -17,17 +17,23 @@
   padding: 2rem 0;
   flex-shrink: 0;
   min-height: 100%;
-  /* Prevent any animations or transitions on the sidebar container */
-  transition: none !important;
-  animation: none !important;
+  transition: width 0.2s ease, min-width 0.2s ease, padding 0.2s ease, overflow 0.2s ease;
   will-change: auto;
-  /* Make sidebar sticky to prevent scrolling */
   position: sticky;
   top: 0;
   align-self: stretch;
   contain: layout style paint;
   overflow-y: auto;
   max-height: 100vh;
+}
+
+.sidebarHidden {
+  width: 0;
+  min-width: 0;
+  padding-left: 0;
+  padding-right: 0;
+  overflow: hidden;
+  border-right-width: 0;
 }
 
 .sidebarTitle {
@@ -97,6 +103,50 @@
   background: var(--bg-white);
   position: relative;
   min-height: 100%;
+}
+
+.sidebarToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 1.5rem;
+  color: var(--text-secondary);
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 0 6px 6px 0;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  position: sticky;
+  top: 1.5rem;
+}
+
+.sidebarToggle:hover {
+  background-color: var(--button-hover-bg);
+  color: var(--text-dark-gray);
+}
+
+.sidebarToggleCollapsed {
+  border-radius: 6px;
+  margin-left: 0;
+}
+
+@media (max-width: 768px) {
+  .sidebarToggle {
+    display: none;
+  }
+
+  .sidebarHidden {
+    width: 100%;
+    min-width: auto;
+    padding: 1rem 0;
+    overflow: visible;
+    border-bottom: 1px solid var(--border-light);
+  }
 }
 
 /* Responsive design */
