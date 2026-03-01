@@ -11,6 +11,20 @@
  * - Detects SUBSCRIPTION_REQUIRED errors and dispatches subscriptionRequired event
  */
 
+/**
+ * Custom API error that preserves the errorCode from the backend response.
+ * Use `error instanceof ApiError && error.errorCode === 'NOT_FOUND'` to detect
+ * specific error codes without relying on message string matching.
+ */
+export class ApiError extends Error {
+  errorCode?: string;
+  constructor(message: string, errorCode?: string) {
+    super(message);
+    this.name = 'ApiError';
+    this.errorCode = errorCode;
+  }
+}
+
 import { authConfig } from '@/config/auth.config';
 import type { 
   RefreshTokenRequest, 
@@ -18,7 +32,7 @@ import type {
   ApiErrorResponse,
   AuthState 
 } from '@/shared/types/auth.types';
-import { getAuthFromStorage, saveAuthToStorage, clearAuthFromStorage } from './auth.service';
+import { getAuthFromStorage, saveAuthToStorage, clearAuthFromStorage, getUnauthenticatedUserId, saveUnauthenticatedUserId } from './auth.service';
 
 /**
  * Global refresh promise to prevent duplicate refresh calls
@@ -264,8 +278,9 @@ export async function fetchWithAuth(
 }
 
 /**
- * Fetch wrapper for unauthenticated requests
- * Adds X-Source header but no Authorization
+ * Fetch wrapper for unauthenticated requests.
+ * Adds X-Source header and, when available, X-Unauthenticated-User-Id.
+ * Captures X-Unauthenticated-User-Id from the response and persists it to storage.
  */
 export async function fetchPublic(
   url: string,
@@ -274,10 +289,22 @@ export async function fetchPublic(
   const headers = new Headers(options.headers);
   headers.set('X-Source', 'XPLAINO_WEB');
 
+  const unauthUserId = await getUnauthenticatedUserId();
+  if (unauthUserId) {
+    headers.set('X-Unauthenticated-User-Id', unauthUserId);
+  }
+
   const requestOptions: RequestInit = {
     ...options,
     headers,
   };
 
-  return fetch(url, requestOptions);
+  const response = await fetch(url, requestOptions);
+
+  const returnedId = response.headers.get('X-Unauthenticated-User-Id');
+  if (returnedId) {
+    await saveUnauthenticatedUserId(returnedId);
+  }
+
+  return response;
 }

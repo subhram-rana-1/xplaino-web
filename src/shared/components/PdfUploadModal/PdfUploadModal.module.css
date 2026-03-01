@@ -1,108 +1,73 @@
-/* ToolsPdfPage - Public PDF upload landing page */
-
-/* ===== PAGE WRAPPER ===== */
-.page {
-  min-height: calc(100vh - 80px);
+/* ===== MODAL OVERLAY ===== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  z-index: 1000;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  padding: 2rem 1.5rem 4rem;
-  padding-top: 2.5rem;
-  background: linear-gradient(160deg, var(--bg-lighter) 0%, var(--bg-white) 60%);
-  position: relative;
-  overflow: hidden;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease;
 }
 
-/* Subtle background decoration */
-.page::before {
-  content: '';
-  position: absolute;
-  top: -120px;
-  right: -120px;
-  width: 480px;
-  height: 480px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--teal-rgba-10) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.page::after {
-  content: '';
-  position: absolute;
-  bottom: -100px;
-  left: -80px;
-  width: 360px;
-  height: 360px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--teal-rgba-10) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-/* ===== HERO SECTION ===== */
-.hero {
-  text-align: center;
-  margin-bottom: 3rem;
-  position: relative;
-  z-index: 1;
-}
-
-/* ===== OUTER ROW (sidebar + inner row) ===== */
-.outerRow {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 2rem;
-  width: 100%;
-  max-width: 1380px;
-  position: relative;
-  z-index: 1;
-}
-
-/* ===== INNER TWO-COLUMN ROW (features + upload card) ===== */
-.mainRow {
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  gap: 2.5rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.heroTitle {
-  font-family: 'Inter', sans-serif;
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
-  font-weight: 800;
-  color: var(--text-dark);
-  line-height: 1.2;
-  margin: 0 0 0.75rem;
-  letter-spacing: -0.02em;
-}
-
-.heroTitleAccent {
-  color: var(--teal);
-}
-
-.heroSubtitle {
-  font-family: 'Inter', sans-serif;
-  font-size: 1.05rem;
-  color: var(--text-tertiary);
-  line-height: 1.6;
-  max-width: 480px;
-  margin: 0 auto;
-}
-
-/* ===== UPLOAD CARD ===== */
-.card {
-  flex: 0 0 auto;
-  width: 100%;
-  max-width: 640px;
+.panel {
   background: var(--bg-white);
   border-radius: 20px;
-  border: 3px solid rgba(13, 128, 112, 0.35);
-  overflow: visible;
-  position: relative;
-  z-index: 1;
+  width: 100%;
+  max-width: 580px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+}
+
+/* ===== MODAL HEADER ===== */
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1.5px solid var(--border-default);
+}
+
+.modalTitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.closeButton:hover:not(:disabled) {
+  background: var(--bg-lighter);
+  color: var(--text-dark);
+}
+
+.closeButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ===== UPLOAD CARD (inside modal — no border, just the inner content) ===== */
+.card {
+  width: 100%;
 }
 
 /* ===== TABS ===== */
@@ -147,7 +112,7 @@
 
 /* ===== CARD BODY ===== */
 .cardBody {
-  padding: 2rem 2rem 1.75rem;
+  padding: 1.75rem 1.75rem 1.5rem;
 }
 
 /* ===== DROP ZONE ===== */
@@ -541,194 +506,20 @@
   background: var(--teal-rgba-10);
 }
 
-/* ===== FEATURES CTA ===== */
-.featuresCta {
-  padding-top: 1.25rem;
-  border-top: 1.5px solid var(--border-default);
+/* ===== ERROR MESSAGE ===== */
+.errorMessage {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.featuresCtaText {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 400;
-  color: var(--text-dark);
-  margin: 0;
-}
-
-.featuresCtaButton {
-  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.65rem 1.25rem;
-  background: rgba(13, 128, 112, 0.08);
-  color: #0d8070;
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--light-red);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 10px;
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
-  font-weight: 600;
-  border: 1.5px solid rgba(13, 128, 112, 0.35);
-  border-radius: var(--button-border-radius);
-  cursor: pointer;
-  text-decoration: none;
-  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
-  width: fit-content;
-}
-
-.featuresCtaButton:hover {
-  background: rgba(13, 128, 112, 0.14);
-  border-color: rgba(13, 128, 112, 0.6);
-  transform: translateY(-1px);
-}
-
-.featuresCtaButton:active {
-  transform: translateY(0);
-}
-
-.ctaButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.65rem 1.25rem;
-  background: var(--teal);
-  color: var(--white);
-  font-family: 'Inter', sans-serif;
-  font-size: 0.875rem;
-  font-weight: 600;
-  border: none;
-  border-radius: var(--button-border-radius);
-  cursor: pointer;
-  text-decoration: none;
-  transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
-  box-shadow: 0 2px 8px var(--teal-rgba-25);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.ctaButton:hover {
-  background: var(--teal-dark);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px var(--teal-rgba-35);
-}
-
-.ctaButton:active {
-  transform: translateY(0);
-}
-
-/* ===== PDF SIDEBAR (unauthenticated user history) ===== */
-.pdfSidebar {
-  flex: 0 0 220px;
-  width: 220px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 1.25rem 1rem;
-  background: var(--bg-white);
-  border: 1.5px solid var(--border-default);
-  border-radius: 16px;
-  overflow: hidden;
-  position: relative;
-  z-index: 1;
-}
-
-.pdfSidebarHeading {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--text-quaternary);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin: 0 0 0.5rem;
-}
-
-.pdfSidebarList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  overflow-y: auto;
-  max-height: 400px;
-}
-
-.pdfSidebarItem {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.6rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.15s ease;
-}
-
-.pdfSidebarItem:hover {
-  background: var(--bg-lighter);
-}
-
-.pdfSidebarItemIcon {
-  flex-shrink: 0;
-  color: var(--teal);
-}
-
-.pdfSidebarItemName {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: var(--text-medium);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-}
-
-/* ===== FEATURE COLUMN (right side, visible above the fold) ===== */
-.featuresColumn {
-  flex: 0 1 320px;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  padding-top: 0.5rem;
-  justify-content: space-between;
-}
-
-.featuresHeading {
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-quaternary);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin: 0 0 0.25rem;
-}
-
-.featureItem {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  padding: 0.35rem 0.25rem;
-  background: transparent;
-}
-
-.featureItemIcon {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #0d8070;
-  flex-shrink: 0;
-}
-
-.featureItemLabel {
-  font-family: 'Inter', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  line-height: 1.3;
-  margin: 0;
+  color: var(--red-dark);
+  animation: shake 0.35s ease;
 }
 
 /* ===== FULL-VIEWPORT DRAG OVERLAY ===== */
@@ -779,23 +570,23 @@
   margin: 0;
 }
 
-/* ===== ERROR MESSAGE ===== */
-.errorMessage {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: var(--light-red);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: 10px;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.875rem;
-  color: var(--red-dark);
-  animation: shake 0.35s ease;
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-/* ===== ANIMATIONS ===== */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -814,11 +605,6 @@
     opacity: 1;
     transform: scale(1);
   }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }
 
 @keyframes shake {
@@ -844,47 +630,10 @@
 }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 840px) {
-  .outerRow {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .mainRow {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .card {
-    max-width: 100%;
-  }
-
-  .featuresColumn {
-    padding-top: 0;
-  }
-
-  .pdfSidebar {
-    flex: 0 0 auto;
-    width: 100%;
-  }
-}
-
 @media (max-width: 640px) {
-  .page {
-    padding: 2rem 1rem 3rem;
-    justify-content: flex-start;
-  }
-
-  .heroTitle {
-    font-size: 1.5rem;
-  }
-
-  .heroSubtitle {
-    font-size: 0.9rem;
-  }
-
-  .card {
+  .panel {
     border-radius: 16px;
+    max-height: 95vh;
   }
 
   .cardBody {
@@ -900,17 +649,6 @@
   .tab {
     padding: 0.875rem 0.875rem;
     font-size: 0.85rem;
-  }
-
-  .ctaSection {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 1.25rem;
-  }
-
-  .ctaButton {
-    width: 100%;
-    justify-content: center;
   }
 
   .dropZone {

@@ -5,7 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
-import { fetchWithAuth } from './api-client';
+import { fetchWithAuth, fetchPublic } from './api-client';
 import type {
   GetAllPdfsResponse,
   PdfResponse,
@@ -27,13 +27,46 @@ function getErrorMessage(errorData: unknown, fallback: string): string {
 }
 
 /**
- * Get all PDFs for the authenticated user (with file_uploads)
+ * Get a single PDF by ID. Works for both authenticated and unauthenticated users.
+ * Authenticated: sends Authorization header via fetchWithAuth.
+ * Unauthenticated: sends X-Unauthenticated-User-Id header via fetchPublic.
+ * The response includes file_uploads with presigned s3_url — no separate download-url call needed.
+ */
+export async function getPdfById(
+  pdfId: string,
+  accessToken: string | null
+): Promise<PdfResponse> {
+  const fetcher = accessToken ? fetchWithAuth : fetchPublic;
+  const response = await fetcher(
+    `${authConfig.catenBaseUrl}/api/pdf/${pdfId}`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ detail: 'Failed to fetch PDF' }));
+    throw new Error(getErrorMessage(errorData, `Failed to fetch PDF with status ${response.status}`));
+  }
+
+  const data: PdfResponse = await response.json();
+  return data;
+}
+
+/**
+ * Get all PDFs for the authenticated user (with file_uploads).
+ * If folderId is provided, only PDFs in that folder are returned.
  */
 export async function getAllPdfs(
-  _accessToken: string
+  _accessToken: string,
+  folderId?: string
 ): Promise<GetAllPdfsResponse> {
+  const url = folderId
+    ? `${authConfig.catenBaseUrl}/api/pdf?folder_id=${folderId}`
+    : `${authConfig.catenBaseUrl}/api/pdf`;
   const response = await fetchWithAuth(
-    `${authConfig.catenBaseUrl}/api/pdf`,
+    url,
     {
       method: 'GET',
       headers: {

@@ -17,7 +17,12 @@ import {
 } from 'react-icons/fi';
 import { SiGoogledrive, SiDropbox } from 'react-icons/si';
 import { useAuth } from '@/shared/hooks/useAuth';
+import { fetchPublic, fetchWithAuth } from '@/shared/services/api-client';
+import { getUnauthenticatedUserId } from '@/shared/services/auth.service';
+import { authConfig } from '@/config/auth.config';
 import styles from './ToolsPdfPage.module.css';
+
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
 type Tab = 'local' | 'drive' | 'dropbox';
 type PageState = 'idle' | 'processing' | 'success';
@@ -26,6 +31,11 @@ interface UploadedFile {
   name: string;
   size: number;
   source: 'local' | 'drive' | 'dropbox';
+}
+
+interface UnauthPdf {
+  id: string;
+  file_name: string;
 }
 
 function formatFileSize(bytes: number): string {
@@ -64,12 +74,13 @@ function isValidDropboxUrl(url: string): boolean {
 }
 
 export const ToolsPdfPage: React.FC = () => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isLoading } = useAuth();
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState<Tab>('local');
   const [pageState, setPageState] = useState<PageState>('idle');
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Local upload state
   const [isDropZoneHovered, setIsDropZoneHovered] = useState(false);
@@ -85,15 +96,155 @@ export const ToolsPdfPage: React.FC = () => {
   const [isDraggingOverViewport, setIsDraggingOverViewport] = useState(false);
   const dragCounterRef = useRef(0);
 
+  // Prior PDFs for unauthenticated users
+  const [unauthPdfs, setUnauthPdfs] = useState<UnauthPdf[]>([]);
+  const [unauthPdfsLoading, setUnauthPdfsLoading] = useState(false);
+
   // Processing message cycling
-  const [processingMsg, setProcessingMsg] = useState('Reading your PDF…');
+  const [processingMsg, setProcessingMsg] = useState('Uploading to secure storage…');
   const processingMessages = [
-    'Reading your PDF…',
-    'Checking file integrity…',
-    'Almost there…',
+    'Uploading to secure storage…',
+    'Creating PDF record…',
+    'Finalising…',
   ];
 
-  // Simulate processing then success
+  // Fetch prior PDFs for unauthenticated users who have an existing unauthenticated user ID.
+  useEffect(() => {
+    if (isLoggedIn || isLoading) return;
+
+    const fetchUnauthPdfs = async () => {
+      const unauthUserId = await getUnauthenticatedUserId();
+      if (!unauthUserId) return;
+
+      setUnauthPdfsLoading(true);
+      try {
+        const response = await fetchPublic(`${authConfig.catenBaseUrl}/api/pdf`);
+        if (response.ok) {
+          const data = await response.json();
+          setUnauthPdfs(data.pdfs ?? []);
+        }
+      } catch {
+        // Silently ignore — sidebar simply won't appear
+      } finally {
+        setUnauthPdfsLoading(false);
+      }
+    };
+
+    fetchUnauthPdfs();
+  }, [isLoggedIn, isLoading]);
+
+  // Real upload flow for local files
+  const uploadLocalFile = useCallback(
+    async (file: File) => {
+      if (isUploading) return;
+
+      setIsUploading(true);
+      setPageState('processing');
+      setProcessingMsg(processingMessages[0]);
+
+      // Use authenticated fetch for logged-in users so PDFs are tied to their account;
+      // fall back to public fetch for unauthenticated users (sends X-Unauthenticated-User-Id).
+      const apiFetch = isLoggedIn ? fetchWithAuth : fetchPublic;
+
+      let msgIdx = 0;
+      const interval = setInterval(() => {
+        msgIdx = (msgIdx + 1) % processingMessages.length;
+        setProcessingMsg(processingMessages[msgIdx]);
+      }, 900);
+
+      const stopProcessing = (error?: string) => {
+        clearInterval(interval);
+        setIsUploading(false);
+        if (error) {
+          setPageState('idle');
+          setLocalError(error);
+        }
+      };
+
+      try {
+        // Step 1 — get presigned upload URL
+        const presignedRes = await apiFetch(
+          `${authConfig.catenBaseUrl}/api/file-upload/presigned-upload`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file_name: file.name,
+              file_type: 'PDF',
+              entity_type: 'PDF',
+            }),
+          }
+        );
+
+        if (!presignedRes.ok) {
+          const err = await presignedRes.json().catch(() => ({}));
+          const msg = err?.detail?.error_message || err?.detail || 'Failed to get upload URL.';
+          stopProcessing(typeof msg === 'string' ? msg : 'Failed to get upload URL.');
+          return;
+        }
+
+        const presignedData = await presignedRes.json();
+        const { upload_url, file_upload_id, content_type } = presignedData;
+
+        // Step 2 — PUT file directly to S3
+        const s3Res = await fetch(upload_url, {
+          method: 'PUT',
+          headers: { 'Content-Type': content_type },
+          body: file,
+        });
+
+        if (!s3Res.ok) {
+          stopProcessing('Failed to upload file to storage. Please try again.');
+          return;
+        }
+
+        // Step 3 — create PDF record
+        const createPdfRes = await apiFetch(
+          `${authConfig.catenBaseUrl}/api/pdf/create-pdf`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ file_name: file.name }),
+          }
+        );
+
+        if (!createPdfRes.ok) {
+          const err = await createPdfRes.json().catch(() => ({}));
+          const msg = err?.detail?.error_message || err?.detail || 'Failed to create PDF record.';
+          stopProcessing(typeof msg === 'string' ? msg : 'Failed to create PDF record.');
+          return;
+        }
+
+        const pdfData = await createPdfRes.json();
+        const pdfId: string = pdfData.id;
+
+        // Step 4 — link file upload to the PDF record
+        const updateEntityRes = await apiFetch(
+          `${authConfig.catenBaseUrl}/api/file-upload/${file_upload_id}/entity`,
+          {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ entity_id: pdfId }),
+          }
+        );
+
+        if (!updateEntityRes.ok) {
+          // Non-fatal — the PDF record was created; still navigate
+          console.warn('Failed to link file upload to PDF record, continuing.');
+        }
+
+        // Step 5 — navigate to PDF page
+        clearInterval(interval);
+        setIsUploading(false);
+        navigate(`/pdf/${pdfId}`);
+      } catch (err) {
+        stopProcessing('Something went wrong. Please try again.');
+      }
+    },
+    [isUploading, isLoggedIn, navigate, processingMessages]
+  );
+
+  // Mock flow for Drive / Dropbox (no S3 integration yet)
   const simulateProcess = useCallback((file: UploadedFile) => {
     setPageState('processing');
     setProcessingMsg(processingMessages[0]);
@@ -109,7 +260,7 @@ export const ToolsPdfPage: React.FC = () => {
       setUploadedFile(file);
       setPageState('success');
     }, 2400);
-  }, []);
+  }, [processingMessages]);
 
   const handleFile = useCallback(
     (file: File) => {
@@ -118,9 +269,13 @@ export const ToolsPdfPage: React.FC = () => {
         setLocalError('Only PDF files are accepted. Please select a .pdf file.');
         return;
       }
-      simulateProcess({ name: file.name, size: file.size, source: 'local' });
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        setLocalError('File is too large. Maximum allowed size is 5 MB.');
+        return;
+      }
+      uploadLocalFile(file);
     },
-    [simulateProcess]
+    [uploadLocalFile]
   );
 
   // File input change
@@ -209,7 +364,20 @@ export const ToolsPdfPage: React.FC = () => {
     return () => document.removeEventListener('paste', handlePaste);
   }, [handleFile]);
 
-  const handleDriveSubmit = () => {
+  const checkUrlFileSize = async (url: string): Promise<boolean> => {
+    try {
+      const res = await fetch(url, { method: 'HEAD', mode: 'cors' });
+      const contentLength = res.headers.get('Content-Length');
+      if (contentLength && parseInt(contentLength, 10) > MAX_FILE_SIZE_BYTES) {
+        return false; // too large
+      }
+    } catch {
+      // CORS or network error — can't verify, allow through
+    }
+    return true;
+  };
+
+  const handleDriveSubmit = async () => {
     setLinkError(null);
     const url = driveUrl.trim();
     if (!url) {
@@ -220,11 +388,16 @@ export const ToolsPdfPage: React.FC = () => {
       setLinkError('Invalid Google Drive URL. Make sure the link is from drive.google.com.');
       return;
     }
+    const sizeOk = await checkUrlFileSize(url);
+    if (!sizeOk) {
+      setLinkError('This file appears to be larger than 5 MB and cannot be loaded.');
+      return;
+    }
     const fileName = url.split('/').filter(Boolean).pop() || 'document.pdf';
     simulateProcess({ name: fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`, size: 0, source: 'drive' });
   };
 
-  const handleDropboxSubmit = () => {
+  const handleDropboxSubmit = async () => {
     setLinkError(null);
     const url = dropboxUrl.trim();
     if (!url) {
@@ -233,6 +406,11 @@ export const ToolsPdfPage: React.FC = () => {
     }
     if (!isValidDropboxUrl(url)) {
       setLinkError('Invalid Dropbox URL. Make sure the link is from dropbox.com.');
+      return;
+    }
+    const sizeOk = await checkUrlFileSize(url);
+    if (!sizeOk) {
+      setLinkError('This file appears to be larger than 5 MB and cannot be loaded.');
       return;
     }
     const pathParts = new URL(url).pathname.split('/').filter(Boolean);
@@ -300,7 +478,32 @@ export const ToolsPdfPage: React.FC = () => {
         </p>
       </div>
 
-      {/* Two-column layout: feature list + upload card */}
+      {/* Outer row: sidebar (conditional, leftmost) + inner two-column layout */}
+      <div className={styles.outerRow}>
+
+      {/* PDF history sidebar — leftmost, outside the features+card container */}
+      {!unauthPdfsLoading && unauthPdfs.length > 0 && (
+        <div className={styles.pdfSidebar}>
+          <p className={styles.pdfSidebarHeading}>Your PDFs</p>
+          <ul className={styles.pdfSidebarList}>
+            {unauthPdfs.map((pdf) => (
+              <li
+                key={pdf.id}
+                className={styles.pdfSidebarItem}
+                onClick={() => navigate(`/pdf/${pdf.id}`)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/pdf/${pdf.id}`); }}
+              >
+                <FiFileText className={styles.pdfSidebarItemIcon} size={14} />
+                <span className={styles.pdfSidebarItemName}>{pdf.file_name}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Inner row: feature list + upload card */}
       <div className={styles.mainRow}>
 
       {/* Feature list — left column */}
@@ -457,7 +660,7 @@ export const ToolsPdfPage: React.FC = () => {
                 </button>
                 <p className={styles.dropZoneHint}>
                   <FiInfo size={12} />
-                  PDF files only
+                  PDF files only · Max 5 MB
                 </p>
               </div>
               <input
@@ -565,6 +768,8 @@ export const ToolsPdfPage: React.FC = () => {
 
 
       </div>{/* end mainRow */}
+
+      </div>{/* end outerRow */}
     </div>
   );
 };

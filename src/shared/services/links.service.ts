@@ -5,7 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
-import { fetchWithAuth, extractErrorMessage } from './api-client';
+import { fetchWithAuth, extractErrorMessage, ApiError } from './api-client';
 import type { GetAllSavedLinksResponse, SavedLink } from '@/shared/types/links.types';
 
 export interface SaveLinkRequest {
@@ -38,7 +38,7 @@ export async function getAllSavedLinksByFolderId(
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(extractErrorMessage(errorData, 'Failed to fetch saved links'));
+    throw new ApiError(extractErrorMessage(errorData, 'Failed to fetch saved links'), errorData?.detail?.errorCode);
   }
 
   const data: GetAllSavedLinksResponse = await response.json();

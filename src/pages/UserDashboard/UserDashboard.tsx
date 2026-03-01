@@ -92,7 +92,7 @@ export const UserDashboard: React.FC = () => {
   };
 
   const handleFolderClick = (folder: FolderWithSubFolders) => {
-    navigate(`/user/dashboard/bookmark/${folder.id}`, {
+    navigate(`/user/dashboard/bookmark/folder/${folder.id}`, {
       state: { folder: { id: folder.id, name: folder.name } }
     });
   };
@@ -285,7 +285,8 @@ export const UserDashboard: React.FC = () => {
               title="Create folder"
             >
               <FiPlus />
-              <span>Create folder</span>
+              <FiPlus />
+              <span>Create Folder</span>
             </button>
           </div>
         </div>

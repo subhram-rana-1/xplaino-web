@@ -9,6 +9,7 @@ import { getAllSavedParagraphs, deleteSavedParagraph, moveSavedParagraphToFolder
 import { getAllSavedLinksByFolderId, saveLink, deleteSavedLink, moveSavedLinkToFolder } from '@/shared/services/links.service';
 import { getSavedWordsByFolderId, deleteSavedWord, moveSavedWordToFolder } from '@/shared/services/words.service';
 import { getAllSavedImagesByFolderId, deleteSavedImage, moveSavedImageToFolder } from '@/shared/services/images.service';
+import { ApiError } from '@/shared/services/api-client';
 import { getAllFolders } from '@/shared/services/folders.service';
 import { getUserSettings } from '@/shared/services/user-settings.service';
 import type { GetAllSavedParagraphsResponse } from '@/shared/types/paragraphs.types';
@@ -71,6 +72,9 @@ export const FolderBookmark: React.FC = () => {
   const [loadedTabs, setLoadedTabs] = useState<Set<string>>(new Set());
   const [isRefreshingAll, setIsRefreshingAll] = useState(false);
   const [showRefreshSuccess, setShowRefreshSuccess] = useState(false);
+
+  // Page-level NOT_FOUND error — when set, only the error box is rendered
+  const [notFoundError, setNotFoundError] = useState<string | null>(null);
   
   const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' } | null>(null);
   const [copiedWordId, setCopiedWordId] = useState<string | null>(null);
@@ -296,6 +300,13 @@ export const FolderBookmark: React.FC = () => {
       setParagraphsHasMore(data.has_next);
     } catch (error) {
       console.error('Error fetching paragraphs:', error);
+      if (
+        (error instanceof ApiError && error.errorCode === 'NOT_FOUND') ||
+        (error instanceof Error && error.message.toLowerCase().includes('not found'))
+      ) {
+        setNotFoundError(error.message);
+        return;
+      }
       if (!append) {
         setParagraphsError(error instanceof Error ? error.message : 'Failed to fetch paragraphs');
       }
@@ -336,6 +347,13 @@ export const FolderBookmark: React.FC = () => {
       setLinksHasMore(data.has_next);
     } catch (error) {
       console.error('Error fetching links:', error);
+      if (
+        (error instanceof ApiError && error.errorCode === 'NOT_FOUND') ||
+        (error instanceof Error && error.message.toLowerCase().includes('not found'))
+      ) {
+        setNotFoundError(error.message);
+        return;
+      }
       if (!append) {
         setLinksError(error instanceof Error ? error.message : 'Failed to fetch links');
       }
@@ -377,6 +395,13 @@ export const FolderBookmark: React.FC = () => {
       setWordsHasMore(hasMore);
     } catch (error) {
       console.error('Error fetching words:', error);
+      if (
+        (error instanceof ApiError && error.errorCode === 'NOT_FOUND') ||
+        (error instanceof Error && error.message.toLowerCase().includes('not found'))
+      ) {
+        setNotFoundError(error.message);
+        return;
+      }
       if (!append) {
         setWordsError(error instanceof Error ? error.message : 'Failed to fetch words');
       }
@@ -416,6 +441,13 @@ export const FolderBookmark: React.FC = () => {
       setImagesHasMore(data.has_next);
     } catch (error) {
       console.error('Error fetching images:', error);
+      if (
+        (error instanceof ApiError && error.errorCode === 'NOT_FOUND') ||
+        (error instanceof Error && error.message.toLowerCase().includes('not found'))
+      ) {
+        setNotFoundError(error.message);
+        return;
+      }
       if (!append) {
         setImagesError(error instanceof Error ? error.message : 'Failed to fetch images');
       }
@@ -1550,7 +1582,7 @@ export const FolderBookmark: React.FC = () => {
                     <div
                       key={subFolder.id}
                       className={styles.folderCard}
-                      onClick={() => navigate(`/user/dashboard/bookmark/${subFolder.id}`, {
+                      onClick={() => navigate(`/user/dashboard/bookmark/folder/${subFolder.id}`, {
                         state: { folder: { id: subFolder.id, name: subFolder.name } }
                       })}
                     >
@@ -2162,6 +2194,14 @@ export const FolderBookmark: React.FC = () => {
   const anyTabLoading =
     paragraphsLoading || linksLoading || wordsLoading || imagesLoading;
 
+  if (notFoundError) {
+    return (
+      <div className={styles.notFoundContainer}>
+        <div className={styles.notFoundError}>{notFoundError}</div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.folderBookmark}>
       <div 
@@ -2175,14 +2215,18 @@ export const FolderBookmark: React.FC = () => {
         } : undefined}
       >
         <div className={styles.headerSection}>
-          <div className={styles.headerActionsRow}>
-            <button 
-              className={styles.backButton}
+          <div className={styles.breadcrumb}>
+            <button
+              className={styles.breadcrumbBack}
               onClick={() => navigate('/user/dashboard/bookmark')}
             >
-              <FiArrowLeft />
-              <span>Back to Dashboard</span>
+              <FiArrowLeft size={16} />
+              <span>My Bookmarks</span>
             </button>
+            <span className={styles.breadcrumbSeparator}>/</span>
+            <span className={styles.breadcrumbCurrent}>{folderName}</span>
+          </div>
+          <div className={styles.headerActionsRow}>
             <button
               className={`${styles.refreshAllButton} ${showRefreshSuccess ? styles.refreshAllButtonSuccess : ''}`}
               onClick={handleRefreshAll}

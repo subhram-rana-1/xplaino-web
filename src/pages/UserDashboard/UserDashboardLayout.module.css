@@ -43,6 +43,7 @@
   color: var(--text-dark-gray);
   margin: 0 0 2rem 0;
   padding: 0 1.5rem;
+  white-space: nowrap;
   /* Prevent any animations */
   transition: none;
   animation: none;

@@ -12,6 +12,7 @@ import { ProtectedRoute } from '@/shared/components/ProtectedRoute';
 import { AdminProtectedRoute } from '@/shared/components/AdminProtectedRoute';
 import { UserProtectedRoute } from '@/shared/components/UserProtectedRoute';
 import { SubscriptionRequiredModal } from '@/shared/components/SubscriptionRequiredModal';
+import { useAuth } from '@/shared/hooks/useAuth';
 
 const Home = lazy(() => import('@/pages/Home').then((m) => ({ default: m.Home })));
 const Contact = lazy(() => import('@/pages/Contact').then((m) => ({ default: m.Contact })));
@@ -47,6 +48,23 @@ const CouponEdit = lazy(() => import('@/pages/Admin/components/AdminCoupons').th
 const ToolsPdfPage = lazy(() => import('@/pages/ToolsPdf').then((m) => ({ default: m.ToolsPdfPage })));
 
 /**
+ * ToolsPdfRoute - Renders ToolsPdfPage for guests; redirects logged-in users to dashboard PDF page.
+ */
+const ToolsPdfRoute: React.FC = () => {
+  const { isLoggedIn, user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return null;
+  }
+
+  if (isLoggedIn && user?.role !== 'ADMIN' && user?.role !== 'SUPER_ADMIN') {
+    return <Navigate to="/user/dashboard/pdf" replace />;
+  }
+
+  return <ToolsPdfPage />;
+};
+
+/**
  * AppContent - Inner component that uses useLocation for conditional rendering
  */
 const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: boolean) => void }> = ({ showMiniCoupon, setShowMiniCoupon }) => {
@@ -57,7 +75,7 @@ const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: 
   return (
     <>
       {!isGettingStartedPage && <HighlightedCoupon onDismiss={() => setShowMiniCoupon(true)} />}
-      <Navbar showMiniCoupon={showMiniCoupon} hideNavButtons={isPdfDetailPage} />
+      <Navbar showMiniCoupon={showMiniCoupon} />
       <PageContent>
             <Suspense fallback={null}>
             <Routes>
@@ -116,7 +134,7 @@ const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: 
                   element={<MyBookmarksPage />} 
                 />
                 <Route 
-                  path="bookmark/:folderId" 
+                  path="bookmark/folder/:folderId" 
                   element={<FolderBookmarkPage />} 
                 />
                 <Route 
@@ -124,17 +142,13 @@ const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: 
                   element={<PdfPage />} 
                 />
                 <Route 
-                  path="pdf/:folderId" 
+                  path="pdf/folder/:folderId" 
                   element={<FolderPdfPage />} 
                 />
               </Route>
               <Route 
                 path="/pdf/:pdfId" 
-                element={
-                  <UserProtectedRoute>
-                    <PdfDetail />
-                  </UserProtectedRoute>
-                } 
+                element={<PdfDetail />} 
               />
               <Route 
                 path="/user/account" 
@@ -270,7 +284,7 @@ const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: 
                   </AdminProtectedRoute>
                 } 
               />
-              <Route path="/tools/pdf" element={<ToolsPdfPage />} />
+              <Route path="/tools/pdf" element={<ToolsPdfRoute />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
             </Suspense>

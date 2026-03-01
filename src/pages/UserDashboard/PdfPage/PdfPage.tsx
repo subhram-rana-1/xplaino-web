@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiRefreshCw, FiList, FiGrid, FiArrowUp, FiArrowDown, FiPlus, FiCheck } from 'react-icons/fi';
+import { FiRefreshCw, FiList, FiGrid, FiArrowUp, FiArrowDown, FiCheck, FiPlus } from 'react-icons/fi';
 import styles from './PdfPage.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { getAllFolders, createFolder, deleteFolder, renameFolder } from '@/shared/services/folders.service';
-import { getPresignedUploadUrl, createPdf } from '@/shared/services/pdf.service';
 import type { FolderWithSubFolders } from '@/shared/types/folders.types';
 import { FolderIcon } from '@/shared/components/FolderIcon';
 import { Toast } from '@/shared/components/Toast';
@@ -13,7 +12,6 @@ import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { DataTable } from '@/shared/components/DataTable';
 import { FolderMenu } from '@/shared/components/FolderMenu';
 import { ActionIcons } from '@/shared/components/ActionIcons';
-import { ProcessingModal } from '@/shared/components/ProcessingModal';
 
 /**
  * PdfPage - PDF folder management dashboard.
@@ -36,10 +34,6 @@ export const PdfPage: React.FC = () => {
   const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
   const [editingFolderName, setEditingFolderName] = useState<string>('');
   const editInputRef = useRef<HTMLInputElement>(null);
-
-  // PDF upload state
-  const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const flattenFolders = (folderList: FolderWithSubFolders[]): FolderWithSubFolders[] => {
     const result: FolderWithSubFolders[] = [];
@@ -93,7 +87,7 @@ export const PdfPage: React.FC = () => {
   };
 
   const handleFolderClick = (folder: FolderWithSubFolders) => {
-    navigate(`/user/dashboard/pdf/${folder.id}`, {
+    navigate(`/user/dashboard/pdf/folder/${folder.id}`, {
       state: { folder: { id: folder.id, name: folder.name } },
     });
   };
@@ -183,53 +177,6 @@ export const PdfPage: React.FC = () => {
     }
   }, [editingFolderId]);
 
-  const handleUploadClick = () => fileInputRef.current?.click();
-
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !accessToken) return;
-
-    const maxFileSizeBytes = 5 * 1024 * 1024;
-    if (file.size > maxFileSizeBytes) {
-      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-      setToast({ message: `File size ${fileSizeMB}MB exceeds maximum allowed size of 5MB`, type: 'error' });
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      return;
-    }
-
-    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-      setToast({ message: 'Only PDF files are allowed', type: 'error' });
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      return;
-    }
-
-    try {
-      setIsUploading(true);
-      const newPdf = await createPdf(accessToken, { file_name: file.name });
-      const { upload_url, content_type } = await getPresignedUploadUrl(accessToken, {
-        file_name: file.name,
-        file_type: 'PDF',
-        entity_type: 'PDF',
-        entity_id: newPdf.id,
-      });
-      const putResponse = await fetch(upload_url, {
-        method: 'PUT',
-        body: file,
-        headers: { 'Content-Type': content_type },
-      });
-      if (!putResponse.ok) throw new Error(`Upload failed with status ${putResponse.status}`);
-      setToast({ message: 'PDF uploaded successfully!', type: 'success' });
-      navigate(`/pdf/${newPdf.id}`);
-    } catch (error) {
-      console.error('Error uploading PDF:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to upload PDF';
-      setToast({ message: errorMessage, type: 'error' });
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
-
   const formatDate = (dateString: string): string => {
     try {
       const date = new Date(dateString);
@@ -304,26 +251,10 @@ export const PdfPage: React.FC = () => {
             onClick={() => setIsCreateModalOpen(true)}
             title="Create folder"
           >
+            {/* icon remains handled elsewhere if needed */}
             <FiPlus />
-            <span>Create folder</span>
+            <span>Create Folder</span>
           </button>
-          <button
-            className={styles.uploadButton}
-            onClick={handleUploadClick}
-            disabled={isUploading}
-            title="Upload PDF"
-          >
-            <FiPlus />
-            <span>Upload PDF</span>
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".pdf,application/pdf"
-            onChange={handleFileChange}
-            className={styles.fileInput}
-            disabled={isUploading}
-          />
         </div>
       </div>
 
@@ -473,7 +404,6 @@ export const PdfPage: React.FC = () => {
           onCancel={() => setDeleteConfirmFolderId(null)}
         />
       )}
-      <ProcessingModal isOpen={isUploading} message="Processing PDF..." />
     </div>
   );
 };

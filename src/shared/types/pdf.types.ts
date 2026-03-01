@@ -19,6 +19,7 @@ export interface FileUploadResponse {
 export interface PdfResponse {
   id: string;
   file_name: string;
+  folder_id?: string;
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -31,6 +32,7 @@ export interface GetAllPdfsResponse {
 
 export interface CreatePdfRequest {
   file_name: string;
+  folder_id?: string;
 }
 
 export interface PresignedUploadRequest {

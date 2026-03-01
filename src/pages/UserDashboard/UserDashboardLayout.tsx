@@ -42,8 +42,8 @@ export const UserDashboardLayout: React.FC = () => {
     hidden?: boolean;
   }[] = useMemo(
     () => [
-      { key: 'bookmarks', label: 'Bookmarks', path: '/user/dashboard/bookmark', icon: <FiBookmark /> },
-      { key: 'pdf', label: 'Pdf', path: '/user/dashboard/pdf', icon: <FiBookOpen /> },
+      { key: 'bookmarks', label: 'BOOKMARKS', path: '/user/dashboard/bookmark', icon: <FiBookmark /> },
+      { key: 'pdf', label: 'PDF', path: '/user/dashboard/pdf', icon: <FiBookOpen /> },
     ],
     []
   );

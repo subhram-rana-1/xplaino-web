@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FiArrowLeft, FiRefreshCw, FiPlus, FiCheck } from 'react-icons/fi';
 import { useAuth } from '@/shared/hooks/useAuth';
-import { getAllPdfs, createPdf, deletePdf, getPresignedUploadUrl, getDownloadUrl } from '@/shared/services/pdf.service';
+import { getAllPdfs, deletePdf, getDownloadUrl } from '@/shared/services/pdf.service';
 import type { PdfResponse } from '@/shared/types/pdf.types';
 import { Toast } from '@/shared/components/Toast';
-import { ProcessingModal } from '@/shared/components/ProcessingModal';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { DataTable, type Column } from '@/shared/components/DataTable';
 import { PdfActionIcons } from '../PdfPage/components/PdfActionIcons';
+import { PdfUploadModal } from '@/shared/components/PdfUploadModal';
 import styles from './FolderPdf.module.css';
 
 /**
@@ -25,20 +25,19 @@ export const FolderPdf: React.FC = () => {
 
   const [pdfs, setPdfs] = useState<PdfResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' } | null>(null);
   const [hoveredRowId, setHoveredRowId] = useState<string | null>(null);
   const [deleteConfirmPdfId, setDeleteConfirmPdfId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showFetchSuccess, setShowFetchSuccess] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   const fetchPdfs = async (showSuccessFeedback = false) => {
     if (!accessToken) return;
 
     try {
       setIsLoading(true);
-      const response = await getAllPdfs(accessToken);
+      const response = await getAllPdfs(accessToken, folderId);
       setPdfs(response.pdfs);
 
       if (showSuccessFeedback) {
@@ -60,54 +59,6 @@ export const FolderPdf: React.FC = () => {
   }, [accessToken, folderId]);
 
   const handleRefresh = () => fetchPdfs(true);
-
-  const handleUploadClick = () => fileInputRef.current?.click();
-
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !accessToken) return;
-
-    const maxFileSizeBytes = 5 * 1024 * 1024;
-    if (file.size > maxFileSizeBytes) {
-      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-      setToast({ message: `File size ${fileSizeMB}MB exceeds maximum allowed size of 5MB`, type: 'error' });
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      return;
-    }
-
-    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-      setToast({ message: 'Only PDF files are allowed', type: 'error' });
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      return;
-    }
-
-    try {
-      setIsUploading(true);
-      const newPdf = await createPdf(accessToken, { file_name: file.name });
-      const { upload_url, content_type } = await getPresignedUploadUrl(accessToken, {
-        file_name: file.name,
-        file_type: 'PDF',
-        entity_type: 'PDF',
-        entity_id: newPdf.id,
-      });
-      const putResponse = await fetch(upload_url, {
-        method: 'PUT',
-        body: file,
-        headers: { 'Content-Type': content_type },
-      });
-      if (!putResponse.ok) throw new Error(`Upload failed with status ${putResponse.status}`);
-      setPdfs((prev) => [{ ...newPdf, file_uploads: [] }, ...prev]);
-      setToast({ message: 'PDF uploaded successfully!', type: 'success' });
-      navigate(`/pdf/${newPdf.id}`);
-    } catch (error) {
-      console.error('Error uploading PDF:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to upload PDF';
-      setToast({ message: errorMessage, type: 'error' });
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
 
   const formatDate = (dateString: string): string => {
     try {
@@ -146,8 +97,8 @@ export const FolderPdf: React.FC = () => {
   };
 
   const handleBook = (pdfId: string) => {
-    const url = `${window.location.origin}/pdf/${pdfId}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
+    const params = new URLSearchParams({ folderName, ...(folderId ? { folderId } : {}) });
+    window.open(`${window.location.origin}/pdf/${pdfId}?${params}`, '_blank', 'noopener,noreferrer');
   };
 
   const handleDownload = async (pdf: PdfResponse) => {
@@ -160,17 +111,20 @@ export const FolderPdf: React.FC = () => {
     const fileUploadId = fileUploads[0].id;
     try {
       const { download_url } = await getDownloadUrl(accessToken, fileUploadId);
+      const response = await fetch(download_url);
+      if (!response.ok) throw new Error('Failed to fetch file');
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = download_url;
+      link.href = blobUrl;
       link.download = pdf.file_name || 'document.pdf';
-      link.rel = 'noopener noreferrer';
-      link.target = '_blank';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
     } catch (error) {
-      console.error('Error getting download URL:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to get download link';
+      console.error('Error downloading PDF:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to download file';
       setToast({ message: errorMessage, type: 'error' });
     }
   };
@@ -196,7 +150,7 @@ export const FolderPdf: React.FC = () => {
     },
     {
       key: 'actions',
-      header: 'ASK AI',
+      header: 'CHAT PDF',
       align: 'left',
       render: (pdf) => {
         const isHovered = hoveredRowId === pdf.id;
@@ -251,21 +205,12 @@ export const FolderPdf: React.FC = () => {
           </button>
           <button
             className={styles.uploadButton}
-            onClick={handleUploadClick}
-            disabled={isUploading}
-            title="Upload PDF"
+            onClick={() => setIsUploadModalOpen(true)}
+            title="New PDF"
           >
             <FiPlus />
-            <span>Upload PDF</span>
+            <span>New PDF</span>
           </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".pdf,application/pdf"
-            onChange={handleFileChange}
-            className={styles.fileInput}
-            disabled={isUploading}
-          />
         </div>
       </div>
 
@@ -287,6 +232,7 @@ export const FolderPdf: React.FC = () => {
               if (pdf) setHoveredRowId(pdf.id);
               else setHoveredRowId(null);
             }}
+            onRowClick={(pdf) => handleBook(pdf.id)}
           />
         </div>
       )}
@@ -295,7 +241,12 @@ export const FolderPdf: React.FC = () => {
         <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
       )}
 
-      <ProcessingModal isOpen={isUploading} message="Processing PDF..." />
+      <PdfUploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        folderId={folderId}
+        folderName={folderName}
+      />
 
       {deleteConfirmPdfId && (
         <ConfirmDialog
