@@ -5,7 +5,8 @@
 }
 
 .deleteButton,
-.bookButton {
+.bookButton,
+.downloadButton {
   background: none;
   border: none;
   cursor: pointer;
@@ -56,8 +57,34 @@
   color: var(--teal);
 }
 
+.downloadButton {
+  color: var(--text-tertiary);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease, visibility 0.2s ease, all 0.2s ease;
+}
+
+.downloadButton.visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.downloadButton.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.downloadButton:hover {
+  background: var(--button-hover-bg);
+  color: var(--teal);
+}
+
 .deleteButton svg,
-.bookButton svg {
+.bookButton svg,
+.downloadButton svg {
   width: 18px;
   height: 18px;
   transition: color 0.2s ease;

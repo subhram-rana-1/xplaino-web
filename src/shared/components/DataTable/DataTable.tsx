@@ -18,6 +18,7 @@ export interface DataTableProps<T> {
   data: T[];
   emptyMessage?: string;
   onRowHover?: (item: T | null, index: number) => void;
+  onRowClick?: (item: T, index: number) => void;
   className?: string;
   rowKey?: (item: T, index: number) => string;
 }
@@ -27,6 +28,7 @@ export function DataTable<T>({
   data,
   emptyMessage = 'No data found',
   onRowHover,
+  onRowClick,
   className = '',
   rowKey,
 }: DataTableProps<T>): JSX.Element {
@@ -73,6 +75,8 @@ export function DataTable<T>({
                 key={rowKey ? rowKey(item, index) : index}
                 onMouseEnter={() => onRowHover?.(item, index)}
                 onMouseLeave={() => onRowHover?.(null, -1)}
+                onClick={onRowClick ? () => onRowClick(item, index) : undefined}
+                style={onRowClick ? { cursor: 'pointer' } : undefined}
               >
                 {visibleColumns.map((column) => (
                   <td

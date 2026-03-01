@@ -14,6 +14,7 @@ import type {
 } from '@/shared/types/auth.types';
 
 const STORAGE_KEY = 'xplaino_web_userAuthInfo';
+const UNAUTHENTICATED_USER_ID_KEY = 'xplaino_web_unauthenticatedUserId';
 
 /**
  * Chrome storage API wrapper
@@ -117,15 +118,35 @@ export async function logout(accessToken: string): Promise<LogoutResponse> {
 }
 
 /**
- * Save authentication data to chrome.storage.local
+ * Save authentication data to chrome.storage.local.
+ * If the login response includes a non-null unauthenticatedUserId, persist it too.
  */
 export async function saveAuthToStorage(authData: LoginResponse): Promise<void> {
   await storage.set(STORAGE_KEY, authData);
+
+  if (authData.unauthenticatedUserId) {
+    await saveUnauthenticatedUserId(authData.unauthenticatedUserId);
+  }
   
   // Dispatch custom event for same-tab updates (localStorage storage event only fires for other tabs)
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('authStateChanged', { detail: authData }));
   }
+}
+
+/**
+ * Save the unauthenticated user ID to chrome.storage.local
+ */
+export async function saveUnauthenticatedUserId(id: string): Promise<void> {
+  await storage.set(UNAUTHENTICATED_USER_ID_KEY, id);
+}
+
+/**
+ * Get the unauthenticated user ID from chrome.storage.local
+ */
+export async function getUnauthenticatedUserId(): Promise<string | null> {
+  const data = await storage.get(UNAUTHENTICATED_USER_ID_KEY);
+  return data || null;
 }
 
 /**

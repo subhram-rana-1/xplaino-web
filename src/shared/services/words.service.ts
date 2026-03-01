@@ -5,7 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
-import { fetchWithAuth, extractErrorMessage } from './api-client';
+import { fetchWithAuth, extractErrorMessage, ApiError } from './api-client';
 import type { GetSavedWordsResponse } from '@/shared/types/words.types';
 
 /**
@@ -56,7 +56,7 @@ export async function getSavedWordsByFolderId(
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(extractErrorMessage(errorData, 'Failed to fetch saved words'));
+    throw new ApiError(extractErrorMessage(errorData, 'Failed to fetch saved words'), errorData?.detail?.errorCode);
   }
 
   const data: GetSavedWordsResponse = await response.json();

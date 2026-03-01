@@ -5,7 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
-import { fetchWithAuth, extractErrorMessage } from './api-client';
+import { fetchWithAuth, extractErrorMessage, ApiError } from './api-client';
 import type { GetAllSavedImagesResponse } from '@/shared/types/images.types';
 
 /**
@@ -29,7 +29,7 @@ export async function getAllSavedImagesByFolderId(
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(extractErrorMessage(errorData, 'Failed to fetch saved images'));
+    throw new ApiError(extractErrorMessage(errorData, 'Failed to fetch saved images'), errorData?.detail?.errorCode);
   }
 
   const data: GetAllSavedImagesResponse = await response.json();

@@ -5,6 +5,26 @@
   width: 100%;
 }
 
+.notFoundContainer {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 3rem 1rem;
+  min-height: 40vh;
+}
+
+.notFoundError {
+  background: var(--light-red);
+  color: var(--red-dark);
+  border-radius: 10px;
+  padding: 1.25rem 1.75rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
 .container {
   max-width: 1200px;
   width: 100%;
@@ -54,6 +74,49 @@
 .backButton svg {
   width: 20px;
   height: 20px;
+}
+
+/* Breadcrumb path (replaces back button in header) */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.breadcrumbBack {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--teal);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.2s ease;
+}
+
+.breadcrumbBack:hover {
+  opacity: 0.75;
+}
+
+.breadcrumbSeparator {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  color: var(--text-quaternary);
+}
+
+.breadcrumbCurrent {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
 }
 
 .heading {

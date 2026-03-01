@@ -16,6 +16,7 @@ export const PageContent: React.FC<PageContentProps> = ({ children }) => {
   const location = useLocation();
   const isHomePage = location.pathname === '/';
   const isPdfDetailPage = location.pathname.startsWith('/pdf/');
+  const isToolsPdfPage = location.pathname === '/tools/pdf';
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isUserAccountRoute = location.pathname.startsWith('/user/account');
   const isUserDashboardRoute = location.pathname.startsWith('/user/dashboard');
@@ -25,6 +26,9 @@ export const PageContent: React.FC<PageContentProps> = ({ children }) => {
       return styles.pageContentFullWidthNoBottomPadding;
     }
     if (isPdfDetailPage) {
+      return styles.pageContentPdfDetail;
+    }
+    if (isToolsPdfPage) {
       return styles.pageContentFullWidth;
     }
     return styles.pageContent;
@@ -33,7 +37,7 @@ export const PageContent: React.FC<PageContentProps> = ({ children }) => {
   return (
     <main 
       key={location.pathname}
-      className={`${getPageContentClass()} ${!isAdminRoute && !isUserAccountRoute && !isUserDashboardRoute ? styles.fadeIn : ''}`}
+      className={`${getPageContentClass()} ${!isAdminRoute && !isUserAccountRoute && !isUserDashboardRoute && !isPdfDetailPage ? styles.fadeIn : ''}`}
     >
       {children}
     </main>

@@ -29,6 +29,7 @@ export interface LoginResponse {
   refreshTokenExpiresAt: number;
   userSessionPk: string;
   user: UserInfo;
+  unauthenticatedUserId?: string | null;
 }
 
 export interface LogoutRequest {

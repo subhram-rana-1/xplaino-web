@@ -5,7 +5,7 @@
  */
 
 import { authConfig } from '@/config/auth.config';
-import { fetchWithAuth, extractErrorMessage } from './api-client';
+import { fetchWithAuth, extractErrorMessage, ApiError } from './api-client';
 import type { 
   GetAllSavedParagraphsResponse, 
   Folder,
@@ -36,7 +36,7 @@ export async function getAllSavedParagraphs(
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(extractErrorMessage(errorData, 'Failed to fetch saved paragraphs'));
+    throw new ApiError(extractErrorMessage(errorData, 'Failed to fetch saved paragraphs'), errorData?.detail?.errorCode);
   }
 
   const data: GetAllSavedParagraphsResponse = await response.json();

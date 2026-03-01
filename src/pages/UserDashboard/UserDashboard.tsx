@@ -53,7 +53,7 @@ export const UserDashboard: React.FC = () => {
 
     try {
       setIsLoading(true);
-      const response = await getAllFolders(accessToken);
+      const response = await getAllFolders(accessToken, 'BOOKMARK');
       setFolders(response.folders);
       
       if (showSuccessFeedback) {
@@ -92,7 +92,7 @@ export const UserDashboard: React.FC = () => {
   };
 
   const handleFolderClick = (folder: FolderWithSubFolders) => {
-    navigate(`/user/dashboard/bookmark/${folder.id}`, {
+    navigate(`/user/dashboard/bookmark/folder/${folder.id}`, {
       state: { folder: { id: folder.id, name: folder.name } }
     });
   };
@@ -103,7 +103,7 @@ export const UserDashboard: React.FC = () => {
     }
 
     try {
-      await createFolder(accessToken, name);
+      await createFolder(accessToken, name, undefined, 'BOOKMARK');
       // Refresh folders list to show the newly created folder
       await fetchFolders();
       setToast({ message: 'Folder created successfully!', type: 'success' });
@@ -285,7 +285,8 @@ export const UserDashboard: React.FC = () => {
               title="Create folder"
             >
               <FiPlus />
-              <span>Create folder</span>
+              <FiPlus />
+              <span>Create Folder</span>
             </button>
           </div>
         </div>
