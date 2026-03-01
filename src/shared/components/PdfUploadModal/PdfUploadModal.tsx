@@ -12,8 +12,9 @@ import {
   FiX,
 } from 'react-icons/fi';
 import { SiGoogledrive, SiDropbox } from 'react-icons/si';
-import { fetchWithAuth } from '@/shared/services/api-client';
+import { fetchWithAuth, fetchPublic } from '@/shared/services/api-client';
 import { authConfig } from '@/config/auth.config';
+import { useAuth } from '@/shared/hooks/useAuth';
 import styles from './PdfUploadModal.module.css';
 
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -71,6 +72,7 @@ function isValidDropboxUrl(url: string): boolean {
 
 export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose, folderId, folderName }) => {
   const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
 
   const [activeTab, setActiveTab] = useState<Tab>('local');
   const [uploadState, setUploadState] = useState<UploadState>('idle');
@@ -116,6 +118,8 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
     async (file: File) => {
       if (isUploading) return;
 
+      const apiFetch = isLoggedIn ? fetchWithAuth : fetchPublic;
+
       setIsUploading(true);
       setUploadState('processing');
       setProcessingMsg(processingMessages[0]);
@@ -137,7 +141,7 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
 
       try {
         // Step 1 — get presigned upload URL
-        const presignedRes = await fetchWithAuth(
+        const presignedRes = await apiFetch(
           `${authConfig.catenBaseUrl}/api/file-upload/presigned-upload`,
           {
             method: 'POST',
@@ -152,6 +156,13 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
 
         if (!presignedRes.ok) {
           const err = await presignedRes.json().catch(() => ({}));
+          if (err?.detail?.errorCode === 'LOGIN_REQUIRED') {
+            stopProcessing();
+            setUploadState('idle');
+            onClose();
+            window.dispatchEvent(new CustomEvent('loginRequired', { detail: { message: 'upload PDFs' } }));
+            return;
+          }
           const msg = err?.detail?.error_message || err?.detail || 'Failed to get upload URL.';
           stopProcessing(typeof msg === 'string' ? msg : 'Failed to get upload URL.');
           return;
@@ -175,7 +186,7 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
         // Step 3 — create PDF record
         const createPdfBody: Record<string, string> = { file_name: file.name };
         if (folderId) createPdfBody.folder_id = folderId;
-        const createPdfRes = await fetchWithAuth(
+        const createPdfRes = await apiFetch(
           `${authConfig.catenBaseUrl}/api/pdf/create-pdf`,
           {
             method: 'POST',
@@ -195,7 +206,7 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
         const pdfId: string = pdfData.id;
 
         // Step 4 — link file upload to the PDF record
-        const updateEntityRes = await fetchWithAuth(
+        const updateEntityRes = await apiFetch(
           `${authConfig.catenBaseUrl}/api/file-upload/${file_upload_id}/entity`,
           {
             method: 'PATCH',
@@ -221,7 +232,7 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
         stopProcessing('Something went wrong. Please try again.');
       }
     },
-    [isUploading, folderId, navigate, onClose, processingMessages]
+    [isUploading, isLoggedIn, folderId, navigate, onClose, processingMessages]
   );
 
   // Mock flow for Drive / Dropbox

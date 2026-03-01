@@ -178,6 +178,12 @@ export const ToolsPdfPage: React.FC = () => {
 
         if (!presignedRes.ok) {
           const err = await presignedRes.json().catch(() => ({}));
+          if (err?.detail?.errorCode === 'LOGIN_REQUIRED') {
+            stopProcessing();
+            setPageState('idle');
+            window.dispatchEvent(new CustomEvent('loginRequired', { detail: { message: 'upload PDFs' } }));
+            return;
+          }
           const msg = err?.detail?.error_message || err?.detail || 'Failed to get upload URL.';
           stopProcessing(typeof msg === 'string' ? msg : 'Failed to get upload URL.');
           return;
