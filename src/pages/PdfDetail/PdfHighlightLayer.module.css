@@ -1,0 +1,82 @@
+/* ─── Layer overlay (sits over the page, pointer-events off by default) ────── */
+.layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* Sits above the text layer (z-index 2) but below annotation layer (z-index 3) */
+  z-index: 2;
+  overflow: visible;
+}
+
+/* ─── Wrapper for each highlight rect + delete button ───────────────────────── */
+.highlightRectWrapper {
+  position: absolute;
+  pointer-events: auto;
+}
+
+/* ─── The actual colored highlight band ─────────────────────────────────────── */
+.highlightRect {
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+  mix-blend-mode: multiply;
+}
+
+/* ─── Delete button ──────────────────────────────────────────────────────────── */
+.deleteBtn {
+  position: absolute;
+  /* Place the button OUTSIDE the highlight rect: above + to the right */
+  top: -14px;
+  right: -14px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg-white, #fff);
+  border: 1px solid var(--border-default, #e0e0e0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-danger, #e53e3e);
+  padding: 0;
+  /* Start hidden */
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.deleteBtnVisible {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.deleteBtn:hover:not(:disabled) {
+  background: #fff0f0;
+  border-color: #fca5a5;
+}
+
+.deleteBtn:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* ─── Spinner while deleting ─────────────────────────────────────────────────── */
+.deletingSpinner {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid rgba(229, 62, 62, 0.25);
+  border-top-color: #e53e3e;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

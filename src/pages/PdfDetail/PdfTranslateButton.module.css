@@ -1,0 +1,132 @@
+/* ─── Outer container ──────────────────────────────────────────────────────── */
+.container {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* ─── Main "Translate PDF" button ─────────────────────────────────────────── */
+.translateBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--teal, #0d8070);
+  background: rgba(11, 116, 103, 0.07);
+  border: 1px solid rgba(11, 116, 103, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+  white-space: nowrap;
+  user-select: none;
+  position: relative;
+  z-index: 1;
+}
+
+.translateBtn:hover:not(:disabled) {
+  background: rgba(11, 116, 103, 0.14);
+  border-color: rgba(11, 116, 103, 0.35);
+}
+
+.translateBtn:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+
+.translating {
+  background: rgba(11, 116, 103, 0.1);
+  border-color: rgba(11, 116, 103, 0.3);
+}
+
+.translated {
+  background: rgba(11, 116, 103, 0.12);
+  border-color: rgba(11, 116, 103, 0.32);
+}
+
+/* ─── Spinner ──────────────────────────────────────────────────────────────── */
+.spinner {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(11, 116, 103, 0.25);
+  border-top-color: var(--teal, #0d8070);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Checkmark ────────────────────────────────────────────────────────────── */
+.checkmark {
+  font-size: 0.875rem;
+  color: var(--teal, #0d8070);
+  line-height: 1;
+}
+
+/* ─── Language selector panel ─────────────────────────────────────────────── */
+.panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 240px;
+  background: var(--bg-white, #fff);
+  border: 1px solid var(--border-default, #e0e0e0);
+  border-radius: 20px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.11);
+  /* No overflow:hidden — lets the dropdown options list extend freely below */
+  z-index: 1000;
+  padding: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  /* Transition drives fade, slide, and opacity changes */
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  transform-origin: top right;
+}
+
+.panelVisible {
+  opacity: 1;
+  transform: translateY(0) scaleY(1);
+  pointer-events: auto;
+}
+
+.panelHidden {
+  opacity: 0;
+  transform: translateY(-6px) scaleY(0.96);
+  pointer-events: none;
+}
+
+/* Semi-transparent when language is already selected and only the button is hovered.
+   Higher specificity (.panelVisible.panelDimmed) so it overrides opacity: 1. */
+.panelVisible.panelDimmed {
+  opacity: 0.5;
+}
+
+/* ─── Panel title ──────────────────────────────────────────────────────────── */
+.panelTitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary, #555);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ─── "Select your native language" hint ──────────────────────────────────── */
+.noLangHint {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.775rem;
+  color: var(--teal, #0d8070);
+  margin: 0;
+  font-style: italic;
+}

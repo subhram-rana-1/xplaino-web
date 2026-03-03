@@ -1,0 +1,124 @@
+/* ─── Container ─────────────────────────────────────────────────────────────── */
+.container {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+/* ─── Trigger button — matches the "Translate PDF" teal button ───────────────── */
+.triggerBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.45rem 0.7rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--teal, #0d8070);
+  background: rgba(11, 116, 103, 0.07);
+  border: 1px solid rgba(11, 116, 103, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  user-select: none;
+  position: relative;
+  z-index: 1;
+}
+
+.triggerBtn:hover {
+  background: rgba(11, 116, 103, 0.14);
+  border-color: rgba(11, 116, 103, 0.35);
+}
+
+.triggerBtnActive {
+  background: rgba(11, 116, 103, 0.14);
+  border-color: rgba(11, 116, 103, 0.35);
+}
+
+/* ─── Color dot (small, on trigger) ─────────────────────────────────────────── */
+.colorDot {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(0, 0, 0, 0.12);
+}
+
+/* ─── Dropdown ───────────────────────────────────────────────────────────────── */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--bg-white, #fff);
+  border: 1px solid var(--border-default, #e0e0e0);
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  padding: 8px 10px;
+  transform-origin: top right;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.dropdownVisible {
+  opacity: 1;
+  transform: scaleY(1) translateY(0);
+  pointer-events: auto;
+}
+
+.dropdownHidden {
+  opacity: 0;
+  transform: scaleY(0.9) translateY(-4px);
+  pointer-events: none;
+}
+
+/* ─── Color option button ────────────────────────────────────────────────────── */
+.colourOption {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  position: relative;
+  transition: border-color 0.12s ease, transform 0.12s ease;
+}
+
+.colourOption:hover {
+  transform: scale(1.15);
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+.colourOptionSelected {
+  border-color: rgba(0, 0, 0, 0.35) !important;
+}
+
+.colourDotLarge {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0, 0, 0, 0.1);
+}
+
+.checkmark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.6rem;
+  color: #fff;
+  pointer-events: none;
+  text-shadow: 0 0 3px rgba(0,0,0,0.5);
+  font-weight: 700;
+  line-height: 1;
+}

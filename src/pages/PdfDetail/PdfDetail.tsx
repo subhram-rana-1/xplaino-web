@@ -7,9 +7,18 @@ import { FiPlus, FiList, FiExternalLink, FiChevronLeft, FiChevronRight } from 'r
 import styles from './PdfDetail.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { getPdfById, getAllPdfs } from '@/shared/services/pdf.service';
+import { getUserSettings, updateUserSettings } from '@/shared/services/user-settings.service';
 import type { PdfResponse } from '@/shared/types/pdf.types';
+import type { SettingsResponse } from '@/shared/types/user-settings.types';
 import { Toast } from '@/shared/components/Toast';
 import { PdfUploadModal } from '@/shared/components/PdfUploadModal';
+import { PdfTranslateButton } from './PdfTranslateButton';
+import { PdfTranslationOverlay } from './PdfTranslationOverlay';
+import { usePdfTranslation } from './usePdfTranslation';
+import { usePdfHighlights } from './usePdfHighlights';
+import { PdfHighlightColorPicker } from './PdfHighlightColorPicker';
+import { PdfSelectionTrigger } from './PdfSelectionTrigger';
+import { PdfHighlightLayer } from './PdfHighlightLayer';
 
 // PDF.js worker: use same version as react-pdf's pdfjs-dist (5.4.296)
 pdfjs.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@5.4.296/build/pdf.worker.min.mjs';
@@ -86,7 +95,15 @@ export const PdfDetail: React.FC = () => {
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [viewState, setViewState] = useState<ViewState>('loading');
   const [numPages, setNumPages] = useState<number | null>(null);
+  const [pdfDoc, setPdfDoc] = useState<any | null>(null);
   const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' } | null>(null);
+
+  // Translation
+  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
+  const [isTranslationActive, setIsTranslationActive] = useState(false);
+  const [showOriginal, setShowOriginal] = useState(false);
+  const [userSettings, setUserSettings] = useState<SettingsResponse | null>(null);
+  const mainAreaRef = useRef<HTMLDivElement>(null);
 
   // Container width for full-size pages
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
@@ -95,6 +112,28 @@ export const PdfDetail: React.FC = () => {
   // Per-page refs for scroll-to
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [activePage, setActivePage] = useState<number>(1);
+
+  // Per-page render version counters so PdfHighlightLayer recomputes rects on re-render
+  const [pageRenderVersions, setPageRenderVersions] = useState<Record<number, number>>({});
+
+  // Highlights
+  const {
+    colours: highlightColours,
+    selectedColourId,
+    setSelectedColourId,
+    highlights,
+    createHighlight,
+    deleteHighlight,
+  } = usePdfHighlights({ pdfId, accessToken: accessToken ?? null });
+
+  // Translation hook
+  const { pageTranslations, resetTranslation } = usePdfTranslation({
+    pdfDoc: isTranslationActive ? pdfDoc : null,
+    numPages,
+    targetLanguage: isTranslationActive ? selectedLanguage : null,
+    accessToken: accessToken ?? null,
+    scrollContainerRef: mainAreaRef,
+  });
 
   // Folder PDFs list
   const [showFolderPdfs, setShowFolderPdfs] = useState(false);
@@ -149,7 +188,7 @@ export const PdfDetail: React.FC = () => {
     return () => observer.disconnect();
   }, [viewState]);
 
-  // Load PDF data
+  // Load PDF data and user settings
   useEffect(() => {
     if (authLoading || !pdfId) return;
 
@@ -160,7 +199,22 @@ export const PdfDetail: React.FC = () => {
         setViewState('loading');
 
         const token = isLoggedIn ? (accessToken ?? null) : null;
-        const pdf = await getPdfById(pdfId, token);
+        const [pdf] = await Promise.all([
+          getPdfById(pdfId, token),
+          // Load user settings in parallel to pre-populate language & highlight colour
+          (isLoggedIn && accessToken
+            ? getUserSettings(accessToken).then(res => {
+                if (cancelled) return;
+                setUserSettings(res.settings);
+                if (res.settings.nativeLanguage) {
+                  setSelectedLanguage(res.settings.nativeLanguage);
+                }
+                if (res.settings.highlighter?.id) {
+                  setSelectedColourId(res.settings.highlighter.id);
+                }
+              })
+            : Promise.resolve()),
+        ]);
 
         if (cancelled) return;
 
@@ -195,9 +249,10 @@ export const PdfDetail: React.FC = () => {
     };
   }, [authLoading, isLoggedIn, accessToken, pdfId]);
 
-  const onDocumentLoadSuccess = ({ numPages: n }: { numPages: number }) => {
-    setNumPages(n);
-    pageRefs.current = new Array(n).fill(null);
+  const onDocumentLoadSuccess = (pdf: any) => {
+    setNumPages(pdf.numPages);
+    setPdfDoc(pdf);
+    pageRefs.current = new Array(pdf.numPages).fill(null);
   };
 
   const onDocumentLoadError = (error: Error) => {
@@ -217,6 +272,53 @@ export const PdfDetail: React.FC = () => {
   const handleNewPdf = () => {
     setIsUploadModalOpen(true);
   };
+
+  const handleTranslate = useCallback(() => {
+    if (!selectedLanguage) return;
+    resetTranslation();
+    setIsTranslationActive(true);
+    setShowOriginal(false);
+  }, [selectedLanguage, resetTranslation]);
+
+  const handleLanguageChange = useCallback(async (code: string | null) => {
+    setSelectedLanguage(code);
+    if (isTranslationActive) {
+      resetTranslation();
+      setIsTranslationActive(false);
+    }
+    // Persist language to user settings, preserving other fields
+    if (accessToken && userSettings) {
+      try {
+        const updated = await updateUserSettings(accessToken, {
+          nativeLanguage: (code as import('@/shared/types/user-settings.types').NativeLanguage | null),
+          pageTranslationView: userSettings.pageTranslationView,
+          theme: userSettings.theme,
+          highlighter: userSettings.highlighter ?? null,
+        });
+        setUserSettings(updated);
+      } catch {
+        // Non-critical – settings persist locally even if PATCH fails
+      }
+    }
+  }, [isTranslationActive, resetTranslation, accessToken, userSettings]);
+
+  const handleHighlightColourChange = useCallback(async (id: string) => {
+    setSelectedColourId(id);
+    if (accessToken && userSettings) {
+      const colour = highlightColours.find((c) => c.id === id);
+      try {
+        const updated = await updateUserSettings(accessToken, {
+          nativeLanguage: (selectedLanguage as import('@/shared/types/user-settings.types').NativeLanguage | null),
+          pageTranslationView: userSettings.pageTranslationView,
+          theme: userSettings.theme,
+          highlighter: colour ? { id: colour.id, hexcode: colour.hexcode } : (userSettings.highlighter ?? null),
+        });
+        setUserSettings(updated);
+      } catch {
+        // Non-critical — colour already applied locally
+      }
+    }
+  }, [accessToken, userSettings, highlightColours, selectedLanguage, setSelectedColourId]);
 
   const handleToggleFolderPdfs = useCallback(async () => {
     if (showFolderPdfs) {
@@ -425,7 +527,7 @@ export const PdfDetail: React.FC = () => {
       {sidebar}
       {sidebarToggle}
 
-      <div className={styles.mainArea}>
+      <div className={styles.mainArea} ref={mainAreaRef}>
         <div className={styles.mainHeader}>
           {pdfDetails && (
             folderName ? (
@@ -447,9 +549,48 @@ export const PdfDetail: React.FC = () => {
           {numPages !== null && (
             <span className={styles.pageInfo}>{numPages} page{numPages !== 1 ? 's' : ''}</span>
           )}
+          <PdfTranslateButton
+            selectedLanguage={selectedLanguage}
+            onLanguageChange={handleLanguageChange}
+            onTranslate={handleTranslate}
+            isTranslating={
+              isTranslationActive &&
+              Object.values(pageTranslations).some((s) => s.status === 'translating')
+            }
+            isTranslated={
+              isTranslationActive &&
+              numPages !== null &&
+              numPages > 0 &&
+              Object.values(pageTranslations).some((s) => s.status === 'translated') &&
+              !Object.values(pageTranslations).some((s) => s.status === 'translating')
+            }
+          />
+          {isTranslationActive && Object.values(pageTranslations).some((s) => s.status === 'translated') && (
+            <button
+              type="button"
+              className={styles.toggleViewBtn}
+              onClick={() => setShowOriginal((v) => !v)}
+              title={showOriginal ? 'Show translated' : 'Show original'}
+            >
+              {showOriginal ? 'Translated' : 'Original'}
+            </button>
+          )}
+          <PdfHighlightColorPicker
+            colours={highlightColours}
+            selectedColourId={selectedColourId}
+            onColourChange={handleHighlightColourChange}
+          />
         </div>
 
         <div className={styles.content} ref={contentRef}>
+          <PdfSelectionTrigger
+            containerRef={contentRef}
+            activeColour={
+              highlightColours.find((c) => c.id === selectedColourId)?.hexcode ?? '#fbbf24'
+            }
+            onHighlight={createHighlight}
+            onError={(msg) => setToast({ message: msg, type: 'error' })}
+          />
           {downloadUrl && (
             <Document
               file={downloadUrl}
@@ -459,21 +600,54 @@ export const PdfDetail: React.FC = () => {
               className={styles.document}
             >
               {numPages !== null &&
-                Array.from(new Array(numPages), (_, index) => (
-                  <div
-                    key={`page-${index + 1}`}
-                    ref={el => { pageRefs.current[index] = el; }}
-                    className={styles.pageWrapper}
-                  >
-                    <Page
-                      pageNumber={index + 1}
-                      renderTextLayer={true}
-                      renderAnnotationLayer={true}
-                      className={styles.page}
-                      width={containerWidth ?? undefined}
-                    />
-                  </div>
-                ))}
+                Array.from(new Array(numPages), (_, index) => {
+                  const pageNumber = index + 1;
+                  const pageState = pageTranslations[pageNumber];
+                  const isPageTranslated = pageState?.status === 'translated';
+                  const translatedParagraphs =
+                    isPageTranslated && pageState.status === 'translated'
+                      ? pageState.paragraphs
+                      : null;
+
+                  const pageHighlights = highlights.filter(
+                    (h) => h.startText || h.endText,
+                  );
+
+                  return (
+                    <div
+                      key={`page-${pageNumber}`}
+                      ref={el => { pageRefs.current[index] = el; }}
+                      className={styles.pageWrapper}
+                      data-page={pageNumber}
+                    >
+                      <Page
+                        pageNumber={pageNumber}
+                        renderTextLayer={!isPageTranslated || showOriginal}
+                        renderAnnotationLayer={true}
+                        className={styles.page}
+                        width={containerWidth ?? undefined}
+                        onRenderSuccess={() => {
+                          setPageRenderVersions((prev) => ({
+                            ...prev,
+                            [pageNumber]: (prev[pageNumber] ?? 0) + 1,
+                          }));
+                        }}
+                      />
+                      {(!isPageTranslated || showOriginal) && pageHighlights.length > 0 && (
+                        <PdfHighlightLayer
+                          highlights={pageHighlights}
+                          colours={highlightColours}
+                          pageContainerEl={pageRefs.current[index]}
+                          renderVersion={pageRenderVersions[pageNumber] ?? 0}
+                          onDelete={deleteHighlight}
+                        />
+                      )}
+                      {!showOriginal && translatedParagraphs && (
+                        <PdfTranslationOverlay paragraphs={translatedParagraphs} />
+                      )}
+                    </div>
+                  );
+                })}
             </Document>
           )}
         </div>

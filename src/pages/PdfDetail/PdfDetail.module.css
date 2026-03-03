@@ -330,7 +330,7 @@
 
 .mainHeader {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 1rem;
   margin: 1.5rem 0 1.25rem 0;
   width: 100%;
@@ -397,6 +397,30 @@
   flex-shrink: 0;
 }
 
+/* ─── Toggle Original / Translated button ─────────────────────────────────── */
+.toggleViewBtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  border: 1.5px solid var(--brand-teal, #0d9488);
+  background: transparent;
+  color: var(--brand-teal, #0d9488);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  white-space: nowrap;
+}
+
+.toggleViewBtn:hover {
+  background: var(--brand-teal, #0d9488);
+  color: #fff;
+}
+
 /* ─── PDF document area ────────────────────────────────────────────────────── */
 .content {
   width: 100%;
@@ -411,6 +435,7 @@
 
 .pageWrapper {
   /* no explicit width — shrinks to canvas size so align-items: center in .document truly centers it */
+  position: relative;
 }
 
 .page {

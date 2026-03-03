@@ -1,0 +1,114 @@
+/* ─── Root (position: fixed anchored to mouse point) ────────────────────────── */
+.root {
+  position: fixed;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  pointer-events: auto;
+  /* Small gap between icon and pill to prevent accidental leave */
+  gap: 4px;
+}
+
+/* ─── Colored circle icon ────────────────────────────────────────────────────── */
+.iconCircle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  transform-origin: center;
+  animation: iconEmerge 0.18s ease;
+}
+
+@keyframes iconEmerge {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.iconCircle:hover {
+  transform: scale(1.1);
+}
+
+.iconCircleHidden {
+  opacity: 0;
+  transform: scale(0.5);
+  pointer-events: none;
+}
+
+/* ─── Action pill ────────────────────────────────────────────────────────────── */
+.actionPill {
+  display: flex;
+  align-items: center;
+  background: var(--bg-white, #fff);
+  border: 1px solid var(--border-default, #e5e5e5);
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
+  overflow: hidden;
+  /* Width animates via clip — start from 0 */
+  max-width: 0;
+  opacity: 0;
+  transition: max-width 0.22s ease, opacity 0.18s ease;
+  pointer-events: none;
+}
+
+.actionPillVisible {
+  max-width: 160px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ─── Highlight button inside pill ──────────────────────────────────────────── */
+.highlightBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary, #222);
+  background: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s ease;
+  border-radius: 20px;
+}
+
+.highlightBtn:hover:not(:disabled) {
+  background: var(--bg-hover, #f5f5f5);
+}
+
+.highlightBtn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ─── Spinner (while saving) ─────────────────────────────────────────────────── */
+.spinner {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  border-top-color: var(--text-primary, #222);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

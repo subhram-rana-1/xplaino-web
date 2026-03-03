@@ -79,10 +79,16 @@ export enum Theme {
   DARK = 'DARK',
 }
 
+export interface HighlighterSetting {
+  id: string;
+  hexcode: string;
+}
+
 export interface SettingsResponse {
   nativeLanguage: NativeLanguage | null;
   pageTranslationView: PageTranslationView;
   theme: Theme;
+  highlighter?: HighlighterSetting | null;
 }
 
 export interface UserSettingsResponse {
@@ -94,6 +100,7 @@ export interface UpdateSettingsRequest {
   nativeLanguage: NativeLanguage | null;
   pageTranslationView: PageTranslationView;
   theme: Theme;
+  highlighter?: HighlighterSetting | null;
 }
 
 export interface LanguageInfo {
