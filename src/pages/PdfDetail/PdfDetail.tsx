@@ -19,6 +19,7 @@ import { PdfTranslateButton } from './PdfTranslateButton';
 import { PdfTranslationOverlay } from './PdfTranslationOverlay';
 import { usePdfTranslation } from './usePdfTranslation';
 import { usePdfHighlights } from './usePdfHighlights';
+import { usePdfNotes } from './usePdfNotes';
 import { PdfHighlightColorPicker } from './PdfHighlightColorPicker';
 import { PdfSelectionTrigger } from './PdfSelectionTrigger';
 import { PdfHighlightLayer } from './PdfHighlightLayer';
@@ -70,7 +71,8 @@ export const PdfDetail: React.FC = () => {
   const folderName = searchParams.get('folderName');
   const folderId = searchParams.get('folderId');
   const navigate = useNavigate();
-  const { accessToken, isLoggedIn, isLoading: authLoading } = useAuth();
+  const { accessToken, isLoggedIn, isLoading: authLoading, user } = useAuth();
+  const userFirstName = user?.firstName || user?.name?.split(' ')[0];
 
   const [sidebarVisible, setSidebarVisible] = useState(getStoredPdfSidebarVisible);
   const [toolbarVisible, setToolbarVisible] = useState(getStoredToolbarVisible);
@@ -179,6 +181,22 @@ export const PdfDetail: React.FC = () => {
   // Per-page render version counters so PdfHighlightLayer recomputes rects on re-render
   const [pageRenderVersions, setPageRenderVersions] = useState<Record<number, number>>({});
 
+  // Pending note triggered from the text-selection trigger
+  const [pendingNoteSelection, setPendingNoteSelection] = useState<{
+    startText: string;
+    endText: string;
+    clientY: number;
+  } | null>(null);
+
+  const handleWriteNoteFromSelection = useCallback(
+    (startText: string, endText: string, clientY: number) => {
+      setPendingNoteSelection({ startText, endText, clientY });
+      // Reset after a tick so PdfHighlightLayer treats each click as a fresh trigger
+      setTimeout(() => setPendingNoteSelection(null), 100);
+    },
+    [],
+  );
+
   // Highlights
   const {
     colours: highlightColours,
@@ -188,6 +206,9 @@ export const PdfDetail: React.FC = () => {
     createHighlight,
     deleteHighlight,
   } = usePdfHighlights({ pdfId, accessToken: accessToken ?? null });
+
+  // Notes
+  const { notes: pdfNotes, createNote, updateNote, deleteNote } = usePdfNotes({ pdfId, accessToken: accessToken ?? null });
 
   // Translation hook
   const { pageTranslations, resetTranslation } = usePdfTranslation({
@@ -653,10 +674,14 @@ export const PdfDetail: React.FC = () => {
             activeColour={
               highlightColours.find((c) => c.id === selectedColourId)?.hexcode ?? '#fbbf24'
             }
+            highlightColours={highlightColours}
+            selectedColourId={selectedColourId}
+            onColourChange={handleHighlightColourChange}
             onHighlight={createHighlight}
             onError={(msg) => setToast({ message: msg, type: 'error' })}
             isLoggedIn={isLoggedIn}
             onLoginRequired={() => setShowLoginModal(true)}
+            onWriteNote={handleWriteNoteFromSelection}
           />
           {downloadUrl && (
             <Document
@@ -700,13 +725,19 @@ export const PdfDetail: React.FC = () => {
                           }));
                         }}
                       />
-                      {(!isPageTranslated || showOriginal) && pageHighlights.length > 0 && highlightColours.length > 0 && (
+                      {(!isPageTranslated || showOriginal) && highlightColours.length > 0 && (
                         <PdfHighlightLayer
                           highlights={pageHighlights}
                           colours={highlightColours}
                           pageContainerEl={pageRefs.current[index]}
                           renderVersion={pageRenderVersions[pageNumber] ?? 0}
                           onDelete={deleteHighlight}
+                          notes={pdfNotes}
+                          onCreateNote={createNote}
+                          onUpdateNote={updateNote}
+                          onDeleteNote={deleteNote}
+                          userFirstName={userFirstName}
+                          pendingNoteForSelection={pendingNoteSelection}
                         />
                       )}
                       {!showOriginal && translatedParagraphs && (

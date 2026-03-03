@@ -8,7 +8,7 @@
   overflow: visible;
 }
 
-/* ─── Wrapper for each highlight rect + delete button ───────────────────────── */
+/* ─── Wrapper for each highlight rect + menu button ─────────────────────────── */
 .highlightRectWrapper {
   position: absolute;
   pointer-events: none;
@@ -20,48 +20,118 @@
   inset: 0;
   border-radius: 2px;
   mix-blend-mode: multiply;
+  transition: background 0.2s ease;
 }
 
-/* ─── Delete button ──────────────────────────────────────────────────────────── */
-.deleteBtn {
+/* ─── Container for menu button + dropdown ───────────────────────────────────── */
+.menuContainer {
   position: absolute;
-  /* Place the button OUTSIDE the highlight rect: above + to the right */
   top: -14px;
   right: -14px;
-  width: 22px;
-  height: 22px;
+  pointer-events: auto;
+  z-index: 10;
+}
+
+/* ─── Three-dot menu button ──────────────────────────────────────────────────── */
+.menuBtn {
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
-  background: var(--bg-white, #fff);
-  border: 1px solid var(--border-default, #e0e0e0);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
+  background: #fff;
+  border: 1.5px solid #0d8070;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: var(--text-danger, #e53e3e);
+  color: #0d8070;
   padding: 0;
-  /* Start hidden */
   opacity: 0;
   transform: scale(0.6);
   transition: opacity 0.18s ease, transform 0.18s ease;
   pointer-events: none;
-  z-index: 10;
 }
 
-.deleteBtnVisible {
+.menuBtnVisible {
   opacity: 1;
   transform: scale(1);
   pointer-events: auto;
 }
 
-.deleteBtn:hover:not(:disabled) {
-  background: #fff0f0;
-  border-color: #fca5a5;
+.menuBtn:hover:not(:disabled) {
+  transform: scale(1.3);
 }
 
-.deleteBtn:disabled {
+.menuBtn:disabled {
   cursor: default;
   opacity: 0.6;
+}
+
+/* ─── Inner dot inside menu button ───────────────────────────────────────────── */
+.menuBtnDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #0d8070;
+  flex-shrink: 0;
+}
+
+/* ─── Dropdown menu ──────────────────────────────────────────────────────────── */
+.dropdownMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  min-width: 140px;
+  z-index: 20;
+  animation: dropdownFadeIn 0.12s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #374151;
+  text-align: left;
+  transition: background 0.1s ease, color 0.1s ease;
+  white-space: nowrap;
+}
+
+.dropdownItem:hover {
+  background: rgba(13, 128, 112, 0.08);
+  color: #0d8070;
+}
+
+.dropdownItemDanger {
+  color: #e53e3e;
+}
+
+.dropdownItemDanger:hover {
+  background: rgba(229, 62, 62, 0.06);
+  color: #c53030;
 }
 
 /* ─── Spinner while deleting ─────────────────────────────────────────────────── */
@@ -69,8 +139,8 @@
   display: inline-block;
   width: 9px;
   height: 9px;
-  border: 1.5px solid rgba(229, 62, 62, 0.25);
-  border-top-color: #e53e3e;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
@@ -79,4 +149,234 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* ─── Note editor ─────────────────────────────────────────────────────────────── */
+.noteEditor {
+  position: absolute;
+  width: 220px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  padding: 10px;
+  pointer-events: auto;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transform-origin: top left;
+  opacity: 0;
+  /* Transition used when .noteEditorVisible is removed (close) */
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+/* Create mode: starts scaled to 0 and opens with a springy scale */
+.noteEditorCreate {
+  transform: scale(0);
+}
+
+.noteEditorCreate.noteEditorVisible {
+  transform: scale(1);
+  opacity: 1;
+  /* Transition used when .noteEditorVisible is added (open) */
+  transition: opacity 0.25s ease, transform 0.28s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+/* Edit mode: no scale change, pure fade in/out */
+.noteEditorEdit {
+  transform: scale(1);
+}
+
+.noteEditorEdit.noteEditorVisible {
+  opacity: 1;
+  transition: opacity 0.22s ease;
+}
+
+.noteEditorHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #0d8070;
+}
+
+.noteEditorMinimise {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  color: #0d8070;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 3px;
+  transition: background 0.1s ease;
+}
+
+.noteEditorMinimise:hover:not(:disabled) {
+  background: rgba(13, 128, 112, 0.1);
+}
+
+.noteEditorMinimise:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.noteEditorTextarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  padding: 7px 9px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: #1a202c;
+  background: #f9fafb;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.noteEditorTextarea:focus {
+  border-color: #0d8070;
+  background: #fff;
+}
+
+.noteEditorTextarea:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.noteEditorActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.noteEditorCancel {
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1px solid #e2e8f0;
+  background: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.noteEditorCancel:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+.noteEditorCancel:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.noteEditorSave {
+  padding: 4px 12px;
+  border-radius: 5px;
+  border: none;
+  background: #0d8070;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  transition: background 0.1s ease;
+}
+
+.noteEditorSave:hover:not(:disabled) {
+  background: #0a6b5e;
+}
+
+.noteEditorSave:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ─── Spinner inside save button ─────────────────────────────────────────────── */
+.savingSpinner {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* ─── Saved note icons ───────────────────────────────────────────────────────── */
+.noteIcon {
+  position: absolute;
+  width: 31px;
+  height: 31px;
+  border-radius: 50%;
+  background: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #0d8070;
+  padding: 0;
+  pointer-events: auto;
+  z-index: 10;
+  transition: transform 0.15s ease;
+  animation: noteIconAppear 0.3s ease;
+}
+
+.noteIcon:hover {
+  transform: scale(1.2);
+}
+
+@keyframes noteIconAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ─── Delete-note button inside the note editor ──────────────────────────────── */
+.noteEditorDeleteNote {
+  padding: 4px 8px;
+  border-radius: 5px;
+  border: none;
+  background: none;
+  color: #e53e3e;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s ease;
+  margin-right: auto;
+}
+
+.noteEditorDeleteNote:hover:not(:disabled) {
+  background: rgba(254, 202, 202, 0.5);
+}
+
+.noteEditorDeleteNote:disabled {
+  opacity: 0.5;
+  cursor: default;
 }

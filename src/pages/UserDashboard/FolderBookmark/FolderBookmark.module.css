@@ -46,7 +46,7 @@
 .headerActionsRow {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 1rem;
 }
 
@@ -79,7 +79,7 @@
 /* Breadcrumb path (replaces back button in header) */
 .breadcrumb {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.5rem;
 }
 

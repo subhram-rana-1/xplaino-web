@@ -2259,7 +2259,7 @@ export const FolderBookmark: React.FC = () => {
               className={`${styles.refreshAllButton} ${showRefreshSuccess ? styles.refreshAllButtonSuccess : ''}`}
               onClick={handleRefreshAll}
               disabled={isRefreshingAll || anyTabLoading}
-              title="Refresh all tabs"
+              title="Fetch all tabs"
             >
               {showRefreshSuccess ? (
                 <>
@@ -2271,12 +2271,11 @@ export const FolderBookmark: React.FC = () => {
                   <FiRefreshCw
                     className={isRefreshingAll ? styles.spin : ''}
                   />
-                  <span>Refresh all</span>
+                  <span>Fetch all</span>
                 </>
               )}
             </button>
           </div>
-          <h1 className={styles.heading}>{folderName}</h1>
         </div>
 
         <div className={styles.tabContainer}>

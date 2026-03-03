@@ -218,8 +218,6 @@ export const FolderPdf: React.FC = () => {
         />
       </div>
 
-      <h2 className={styles.heading}>{folderName}</h2>
-
       <div className={styles.header}>
         <div className={styles.headerRight}>
           <button

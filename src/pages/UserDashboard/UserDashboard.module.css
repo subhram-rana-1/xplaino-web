@@ -352,7 +352,7 @@
   height: 100%;
   background: var(--teal);
   border: none;
-  color: var(--text-on-primary);
+  color: white;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }

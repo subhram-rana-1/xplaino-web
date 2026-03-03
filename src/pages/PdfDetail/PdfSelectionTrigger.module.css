@@ -1,114 +1,418 @@
-/* ─── Root (position: fixed anchored to mouse point) ────────────────────────── */
-.root {
+/* ─── Color variables ────────────────────────────────────────────────────── */
+:root {
+  --sel-primary: #0d8070;
+  --sel-primary-light: #14a08a;
+  --sel-hover-bg: #e0f2ef;
+  --sel-bg: #ffffff;
+  --sel-border: #d1d5db;
+}
+
+/* ─── Root container (position: fixed anchored to mouse point) ────────────── */
+.container {
   position: fixed;
   z-index: 9999;
   display: flex;
   align-items: center;
   pointer-events: auto;
-  /* Small gap between icon and pill to prevent accidental leave */
-  gap: 4px;
 }
 
-/* ─── Colored circle icon ────────────────────────────────────────────────────── */
-.iconCircle {
-  width: 22px;
-  height: 22px;
+/* ─── Xplaino Icon Button (teal dot with .ico) ───────────────────────────── */
+.xplainoIconButton {
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
-  transition: opacity 0.15s ease, transform 0.15s ease;
-  transform-origin: center;
-  animation: iconEmerge 0.18s ease;
-}
-
-@keyframes iconEmerge {
-  from {
-    opacity: 0;
-    transform: scale(0.6);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.iconCircle:hover {
-  transform: scale(1.1);
-}
-
-.iconCircleHidden {
+  padding: 0;
+  outline: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translateX(-50%) scale(0);
   opacity: 0;
-  transform: scale(0.5);
-  pointer-events: none;
+  visibility: hidden;
+  box-shadow: none;
 }
 
-/* ─── Action pill ────────────────────────────────────────────────────────────── */
-.actionPill {
-  display: flex;
-  align-items: center;
-  background: var(--bg-white, #fff);
-  border: 1px solid var(--border-default, #e5e5e5);
-  border-radius: 20px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
-  overflow: hidden;
-  /* Width animates via clip — start from 0 */
-  max-width: 0;
-  opacity: 0;
-  transition: max-width 0.22s ease, opacity 0.18s ease;
-  pointer-events: none;
-}
-
-.actionPillVisible {
-  max-width: 160px;
+.xplainoIconButtonVisible {
+  visibility: visible;
   opacity: 1;
+  transform: translateX(-50%) scale(1);
+  animation: iconButtonEmerge 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.xplainoIconButtonHidden {
+  visibility: visible;
+  pointer-events: none;
+  animation: iconButtonShrink 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* When button group is visible, disable icon pointer events */
+.container:has(.buttonGroupVisible) .xplainoIconButton {
+  pointer-events: none;
+}
+
+.xplainoIcon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  margin: auto;
+  flex-shrink: 0;
+}
+
+/* ─── Button Group (pill-shaped, width animation) ────────────────────────── */
+.buttonGroup {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1px;
+  background: var(--sel-bg, #ffffff);
+  border-radius: 999px;
+  padding: 1px;
+  border: 1.5px solid var(--sel-border, #d1d5db);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-19px) translateY(-9px);
+  width: var(--button-group-width, 0px);
+  max-width: 600px;
+  overflow: hidden;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.1s ease 0.35s, visibility 0s ease 0.4s;
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: left center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.buttonGroupVisible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-19px) translateY(-9px);
+  max-width: 600px;
+  overflow: hidden;
+  will-change: width;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.1s ease, visibility 0s ease;
   pointer-events: auto;
 }
 
-/* ─── Highlight button inside pill ──────────────────────────────────────────── */
-.highlightBtn {
-  display: inline-flex;
+.buttonGroupClosing {
+  visibility: visible;
+  overflow: hidden;
+  animation: buttonGroupClose 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.buttonGroupAnimationComplete {
+  overflow: visible;
+}
+
+/* ─── Action Button Wrapper ──────────────────────────────────────────────── */
+.actionButtonWrapper {
+  position: relative;
+  display: flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.4rem 0.75rem;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-primary, #222);
-  background: none;
+  justify-content: center;
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ─── Individual Action Button ───────────────────────────────────────────── */
+.actionButton {
+  width: 34px;
+  height: 29px;
+  border-radius: 3px;
+  background: transparent;
   border: none;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  outline: none;
+  opacity: 0;
+  transform: translateX(-10px) scale(0.8);
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.2s ease, transform 0.2s ease, background 0.12s ease;
+}
+
+.buttonGroupVisible .actionButton {
+  pointer-events: auto;
+  visibility: visible;
+  display: flex;
+  min-width: 34px;
+  min-height: 29px;
+  opacity: 1;
+  transform: translateX(0) scale(1);
+}
+
+.actionButton:hover {
+  background: var(--sel-hover-bg, #e0f2ef);
+}
+
+.actionButton:active {
+  transform: scale(0.92);
+}
+
+/* First button — left side matches pill */
+.actionButtonWrapper:first-child .actionButton {
+  border-top-left-radius: 999px;
+  border-bottom-left-radius: 999px;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+/* Last button — right side matches pill */
+.actionButtonWrapper:last-child .actionButton {
+  border-top-right-radius: 999px;
+  border-bottom-right-radius: 999px;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+/* ─── Action Button SVG Icons ────────────────────────────────────────────── */
+.actionButton svg {
+  width: 18px;
+  height: 17px;
+  color: var(--sel-primary-light, #14a08a);
+  stroke: var(--sel-primary-light, #14a08a);
+  stroke-width: 2.5;
+  fill: none;
+  pointer-events: none;
+  display: block;
+  flex-shrink: 0;
+  opacity: 1;
+  transform: none;
+}
+
+.actionButton:hover svg {
+  color: var(--sel-primary, #0d8070);
+  stroke: var(--sel-primary, #0d8070);
+}
+
+/* ─── Tooltip ────────────────────────────────────────────────────────────── */
+.tooltip {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 7px;
+  border-radius: 4px;
   white-space: nowrap;
-  transition: background 0.12s ease;
-  border-radius: 20px;
+  pointer-events: none;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.15s ease;
 }
 
-.highlightBtn:hover:not(:disabled) {
-  background: var(--bg-hover, #f5f5f5);
+.actionButtonWrapper:hover .tooltip {
+  opacity: 1;
 }
 
-.highlightBtn:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-
-/* ─── Spinner (while saving) ─────────────────────────────────────────────────── */
+/* ─── Spinner ────────────────────────────────────────────────────────────── */
 .spinner {
   display: inline-block;
-  width: 11px;
-  height: 11px;
-  border: 2px solid rgba(0, 0, 0, 0.15);
-  border-top-color: var(--text-primary, #222);
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(13, 128, 112, 0.25);
+  border-top-color: var(--sel-primary-light, #14a08a);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;
+}
+
+/* ─── Animations ─────────────────────────────────────────────────────────── */
+@keyframes iconButtonEmerge {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+@keyframes iconButtonShrink {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) scale(0);
+  }
+}
+
+@keyframes buttonGroupClose {
+  0% {
+    opacity: 1;
+    padding: 1px;
+    border-width: 1.5px;
+  }
+  70% {
+    opacity: 1;
+    padding: 1px;
+    border-width: 1.5px;
+  }
+  90% {
+    opacity: 0;
+    padding: 0.5px;
+    border-width: 0.5px;
+  }
+  100% {
+    opacity: 0;
+    padding: 0;
+    border-width: 0;
+    visibility: hidden;
+  }
 }
 
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* ─── Highlight wrapper — positions chevron absolutely ───────────────────── */
+.highlightWrapper {
+  position: relative;
+}
+
+/* Highlight action button — slightly wider to accommodate circle */
+.highlightActionButton {
+  width: 36px;
+}
+
+/* ─── Colour circle (replaces SVG icon in highlight button) ──────────────── */
+.colorCircle {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--sel-primary, #0d8070);
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+/* ─── Chevron button — appears on hover of highlight wrapper ─────────────── */
+.chevronBtn {
+  position: absolute;
+  bottom: -7px;
+  right: -5px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--sel-primary, #0d8070);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.12s ease;
+  z-index: 1;
+}
+
+.highlightWrapper:hover .chevronBtn,
+.chevronBtn:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.buttonGroupVisible .chevronBtn {
+  pointer-events: auto;
+}
+
+.chevronBtn svg {
+  width: 9px;
+  height: 9px;
+  stroke: #ffffff;
+  stroke-width: 3;
+  fill: none;
+  display: block;
+  pointer-events: none;
+}
+
+/* ─── Colour picker popover ──────────────────────────────────────────────── */
+.colorPickerPopover {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  border: 1px solid var(--sel-border, #d1d5db);
+  border-radius: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  z-index: 10001;
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  padding: 6px 10px;
+  transform-origin: bottom center;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  white-space: nowrap;
+}
+
+.colorPickerVisible {
+  opacity: 1;
+  transform: translateX(-50%) scaleY(1) translateY(0);
+  pointer-events: auto;
+}
+
+.colorPickerHidden {
+  opacity: 0;
+  transform: translateX(-50%) scaleY(0.9) translateY(4px);
+  pointer-events: none;
+}
+
+/* ─── Individual colour dot in picker ────────────────────────────────────── */
+.colourDot {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.12s ease, transform 0.12s ease;
+}
+
+.colourDot:hover {
+  transform: scale(1.15);
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+.colourDotSelected {
+  border-color: rgba(0, 0, 0, 0.35);
+}
+
+.colourCheck {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.6rem;
+  color: #fff;
+  pointer-events: none;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+  font-weight: 700;
+  line-height: 1;
 }

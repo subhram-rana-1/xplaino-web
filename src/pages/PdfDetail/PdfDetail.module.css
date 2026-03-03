@@ -532,7 +532,7 @@
 
 .pdfBreadcrumb {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin: 0;
