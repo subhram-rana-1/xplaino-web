@@ -439,7 +439,7 @@ export const ToolsPdfPage: React.FC = () => {
 
   const handleCtaClick = () => {
     if (isLoggedIn) {
-      navigate('/user/dashboard/pdf');
+      navigate('/user/dashboard');
     } else {
       window.dispatchEvent(
         new CustomEvent('loginRequired', { detail: { message: 'unlock all PDF features' } })

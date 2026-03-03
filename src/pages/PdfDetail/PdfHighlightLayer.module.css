@@ -11,7 +11,7 @@
 /* ─── Wrapper for each highlight rect + delete button ───────────────────────── */
 .highlightRectWrapper {
   position: absolute;
-  pointer-events: auto;
+  pointer-events: none;
 }
 
 /* ─── The actual colored highlight band ─────────────────────────────────────── */

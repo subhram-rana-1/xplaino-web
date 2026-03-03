@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FiTrash2 } from 'react-icons/fi';
 import type { PdfHighlight, HighlightColour } from '@/shared/services/pdfHighlightService';
 import styles from './PdfHighlightLayer.module.css';
@@ -135,7 +135,6 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
   const [rects, setRects] = useState<HighlightRect[]>([]);
   const [hoveredHighlightId, setHoveredHighlightId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Recompute rects when page renders or highlights change
   useEffect(() => {
@@ -161,6 +160,30 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
 
     return () => clearTimeout(timer);
   }, [highlights, colours, pageContainerEl, renderVersion]);
+
+  // Coordinate-based hover detection — the wrapper divs are pointer-events:none so
+  // we listen on the page container instead and hit-test against stored rect positions.
+  useEffect(() => {
+    if (!pageContainerEl) return;
+
+    const onMove = (e: MouseEvent) => {
+      const containerRect = pageContainerEl.getBoundingClientRect();
+      const x = e.clientX - containerRect.left;
+      const y = e.clientY - containerRect.top;
+      const hit = rects.find(
+        (r) => x >= r.x && x <= r.x + r.width && y >= r.y && y <= r.y + r.height,
+      );
+      setHoveredHighlightId(hit?.highlightId ?? null);
+    };
+    const onLeave = () => setHoveredHighlightId(null);
+
+    pageContainerEl.addEventListener('mousemove', onMove);
+    pageContainerEl.addEventListener('mouseleave', onLeave);
+    return () => {
+      pageContainerEl.removeEventListener('mousemove', onMove);
+      pageContainerEl.removeEventListener('mouseleave', onLeave);
+    };
+  }, [pageContainerEl, rects]);
 
   const handleDelete = useCallback(
     async (id: string) => {
@@ -203,15 +226,6 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
               width: rect.width,
               height: rect.height,
             }}
-            onMouseEnter={() => {
-              if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
-              setHoveredHighlightId(rect.highlightId);
-            }}
-            onMouseLeave={() => {
-              hoverTimerRef.current = setTimeout(() => {
-                setHoveredHighlightId(null);
-              }, 200);
-            }}
           >
             {/* The highlight color band */}
             <div
@@ -227,15 +241,6 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
                 onClick={() => handleDelete(rect.highlightId)}
                 disabled={isDeleting}
                 aria-label="Delete highlight"
-                onMouseEnter={() => {
-                  if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
-                  setHoveredHighlightId(rect.highlightId);
-                }}
-                onMouseLeave={() => {
-                  hoverTimerRef.current = setTimeout(() => {
-                    setHoveredHighlightId(null);
-                  }, 200);
-                }}
               >
                 {isDeleting ? (
                   <span className={styles.deletingSpinner} aria-hidden="true" />

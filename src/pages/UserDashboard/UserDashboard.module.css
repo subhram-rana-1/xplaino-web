@@ -174,7 +174,7 @@
   font-weight: 600;
   color: var(--text-primary);
   text-align: center;
-  margin: 0 0 2rem 0;
+  margin: 1.5rem 0 2rem 0;
 }
 
 /* List View */
@@ -318,6 +318,48 @@
 
 .folderNameInput:focus {
   border-color: var(--teal);
+}
+
+/* Grid Card Inline Edit */
+.folderCardEditWrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: 2px solid var(--teal);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--bg-white);
+}
+
+.folderCardNameInput {
+  flex: 1;
+  min-width: 0;
+  padding: 0.25rem 0.4rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  border: none;
+  outline: none;
+  background: transparent;
+}
+
+.folderCardConfirmButton {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.4rem;
+  height: 100%;
+  background: var(--teal);
+  border: none;
+  color: var(--text-on-primary);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.folderCardConfirmButton:hover {
+  background: var(--teal-dark, var(--teal));
+  filter: brightness(0.9);
 }
 
 /* Grid View */

@@ -1,17 +1,20 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/TextLayer.css';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
-import { FiPlus, FiList, FiExternalLink, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiPlus, FiChevronLeft, FiChevronRight, FiChevronDown, FiEyeOff } from 'react-icons/fi';
 import styles from './PdfDetail.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { getPdfById, getAllPdfs } from '@/shared/services/pdf.service';
+import { getAllFolders } from '@/shared/services/folders.service';
+import type { FolderWithSubFolders } from '@/shared/types/folders.types';
 import { getUserSettings, updateUserSettings } from '@/shared/services/user-settings.service';
 import type { PdfResponse } from '@/shared/types/pdf.types';
 import type { SettingsResponse } from '@/shared/types/user-settings.types';
 import { Toast } from '@/shared/components/Toast';
 import { PdfUploadModal } from '@/shared/components/PdfUploadModal';
+import { LoginModal } from '@/shared/components/LoginModal';
 import { PdfTranslateButton } from './PdfTranslateButton';
 import { PdfTranslationOverlay } from './PdfTranslationOverlay';
 import { usePdfTranslation } from './usePdfTranslation';
@@ -19,6 +22,8 @@ import { usePdfHighlights } from './usePdfHighlights';
 import { PdfHighlightColorPicker } from './PdfHighlightColorPicker';
 import { PdfSelectionTrigger } from './PdfSelectionTrigger';
 import { PdfHighlightLayer } from './PdfHighlightLayer';
+import { FolderSelectorPopover } from '@/shared/components/FolderSelectorPopover';
+import { PdfSelectorPopover } from '@/shared/components/PdfSelectorPopover';
 
 // PDF.js worker: use same version as react-pdf's pdfjs-dist (5.4.296)
 pdfjs.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@5.4.296/build/pdf.worker.min.mjs';
@@ -26,11 +31,21 @@ pdfjs.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@5.4.296/buil
 type ViewState = 'loading' | 'not_found' | 'no_file' | 'ready' | 'error';
 
 const PDF_SIDEBAR_VISIBLE_KEY = 'xplaino-pdf-sidebar-visible';
+const PDF_TOOLBAR_VISIBLE_KEY = 'xplaino-pdf-toolbar-visible';
 const PDF_REFRESH_BANNER_DISMISSED_KEY = 'xplaino-pdf-refresh-banner-dismissed';
 
 function getStoredPdfSidebarVisible(): boolean {
   try {
     const stored = localStorage.getItem(PDF_SIDEBAR_VISIBLE_KEY);
+    return stored === null ? true : stored === 'true';
+  } catch {
+    return true;
+  }
+}
+
+function getStoredToolbarVisible(): boolean {
+  try {
+    const stored = localStorage.getItem(PDF_TOOLBAR_VISIBLE_KEY);
     return stored === null ? true : stored === 'true';
   } catch {
     return true;
@@ -58,6 +73,46 @@ export const PdfDetail: React.FC = () => {
   const { accessToken, isLoggedIn, isLoading: authLoading } = useAuth();
 
   const [sidebarVisible, setSidebarVisible] = useState(getStoredPdfSidebarVisible);
+  const [toolbarVisible, setToolbarVisible] = useState(getStoredToolbarVisible);
+
+  // Resolved folder name: use query param if present, otherwise fetch from folders API
+  const [resolvedFolderName, setResolvedFolderName] = useState<string | null>(folderName);
+
+  // All folders for the folder selector popover
+  const [allFolders, setAllFolders] = useState<FolderWithSubFolders[]>([]);
+
+  useEffect(() => {
+    if (!accessToken) return;
+    getAllFolders(accessToken)
+      .then((res) => setAllFolders(res.folders))
+      .catch(() => {});
+  }, [accessToken]);
+
+  const handleFolderSelect = async (folder: FolderWithSubFolders) => {
+    if (!accessToken) {
+      navigate(`/user/dashboard/folder/${folder.id}/pdf`, { state: { folderName: folder.name } });
+      return;
+    }
+    try {
+      const result = await getAllPdfs(accessToken, folder.id);
+      const pdfs = result.pdfs ?? [];
+      if (pdfs.length > 0) {
+        const sorted = [...pdfs].sort(
+          (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+        );
+        const recent = sorted[0];
+        const params = new URLSearchParams({
+          folderId: folder.id,
+          ...(folder.name ? { folderName: folder.name } : {}),
+        });
+        navigate(`/pdf/${recent.id}?${params}`);
+      } else {
+        navigate(`/user/dashboard/folder/${folder.id}/pdf`, { state: { folderName: folder.name } });
+      }
+    } catch {
+      navigate(`/user/dashboard/folder/${folder.id}/pdf`, { state: { folderName: folder.name } });
+    }
+  };
 
   // Lock html/body/root to viewport height so only .mainArea scrolls internally
   useEffect(() => {
@@ -89,6 +144,14 @@ export const PdfDetail: React.FC = () => {
       // ignore
     }
   }, [sidebarVisible]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(PDF_TOOLBAR_VISIBLE_KEY, String(toolbarVisible));
+    } catch {
+      // ignore
+    }
+  }, [toolbarVisible]);
 
   // PDF data
   const [pdfDetails, setPdfDetails] = useState<PdfResponse | null>(null);
@@ -135,12 +198,9 @@ export const PdfDetail: React.FC = () => {
     scrollContainerRef: mainAreaRef,
   });
 
-  // Folder PDFs list
-  const [showFolderPdfs, setShowFolderPdfs] = useState(false);
-  const [folderPdfs, setFolderPdfs] = useState<PdfResponse[]>([]);
-  const [folderPdfsLoading, setFolderPdfsLoading] = useState(false);
-  const [hoveredFolderPdfId, setHoveredFolderPdfId] = useState<string | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isLoginModalClosing, setIsLoginModalClosing] = useState(false);
 
   // Refresh banner: show when browser zoom increases beyond the level at page load
   const [showRefreshBanner, setShowRefreshBanner] = useState(false);
@@ -249,6 +309,28 @@ export const PdfDetail: React.FC = () => {
     };
   }, [authLoading, isLoggedIn, accessToken, pdfId]);
 
+  // Resolve folder name from API when only folderId is available (no folderName query param)
+  useEffect(() => {
+    const effectiveFolderId = folderId || pdfDetails?.folder_id;
+    if (folderName || !effectiveFolderId || !accessToken) return;
+
+    const findInTree = (folders: FolderWithSubFolders[], id: string): string | null => {
+      for (const f of folders) {
+        if (f.id === id) return f.name;
+        const found = findInTree(f.subFolders || [], id);
+        if (found) return found;
+      }
+      return null;
+    };
+
+    getAllFolders(accessToken)
+      .then((res) => {
+        const name = findInTree(res.folders, effectiveFolderId);
+        if (name) setResolvedFolderName(name);
+      })
+      .catch(() => {});
+  }, [folderId, folderName, pdfDetails?.folder_id, accessToken]);
+
   const onDocumentLoadSuccess = (pdf: any) => {
     setNumPages(pdf.numPages);
     setPdfDoc(pdf);
@@ -320,35 +402,7 @@ export const PdfDetail: React.FC = () => {
     }
   }, [accessToken, userSettings, highlightColours, selectedLanguage, setSelectedColourId]);
 
-  const handleToggleFolderPdfs = useCallback(async () => {
-    if (showFolderPdfs) {
-      setShowFolderPdfs(false);
-      return;
-    }
-    const resolvedFolderId = pdfDetails?.folder_id;
-    if (!resolvedFolderId || !accessToken) return;
 
-    setShowFolderPdfs(true);
-    setFolderPdfsLoading(true);
-    try {
-      const result = await getAllPdfs(accessToken, resolvedFolderId);
-      setFolderPdfs(result.pdfs ?? []);
-    } catch (err) {
-      setToast({ message: err instanceof Error ? err.message : 'Failed to load PDFs', type: 'error' });
-      setShowFolderPdfs(false);
-    } finally {
-      setFolderPdfsLoading(false);
-    }
-  }, [showFolderPdfs, pdfDetails, accessToken]);
-
-  const buildPdfUrl = (id: string) => {
-    const resolvedFolderId = pdfDetails?.folder_id;
-    const params = new URLSearchParams({
-      ...(resolvedFolderId ? { folderId: resolvedFolderId } : {}),
-      ...(folderName ? { folderName } : {}),
-    });
-    return `/pdf/${id}${params.toString() ? `?${params}` : ''}`;
-  };
 
   // Sidebar toggle button (same as UserDashboard bookmark sidebar)
   const sidebarToggle = (
@@ -371,50 +425,10 @@ export const PdfDetail: React.FC = () => {
           <FiPlus size={15} />
           <span>New PDF</span>
         </button>
-        {pdfDetails?.folder_id && (
-          <button
-            className={styles.sidebarBtn}
-            onClick={handleToggleFolderPdfs}
-            title={showFolderPdfs ? 'Hide all' : 'Folder PDFs'}
-          >
-            <FiList size={15} />
-            <span>{showFolderPdfs ? 'Hide all' : 'Folder PDFs'}</span>
-          </button>
-        )}
       </div>
 
-      {showFolderPdfs ? (
-        <div className={styles.folderPdfList}>
-          {folderPdfsLoading ? (
-            <div className={styles.folderPdfsLoading}>Loading…</div>
-          ) : folderPdfs.length === 0 ? (
-            <div className={styles.folderPdfsLoading}>No PDFs in folder.</div>
-          ) : (
-            folderPdfs.map(pdf => (
-              <div
-                key={pdf.id}
-                className={`${styles.folderPdfItem} ${pdf.id === pdfId ? styles.folderPdfItemActive : ''}`}
-                onClick={() => navigate(buildPdfUrl(pdf.id))}
-                onMouseEnter={() => setHoveredFolderPdfId(pdf.id)}
-                onMouseLeave={() => setHoveredFolderPdfId(null)}
-                title={pdf.file_name}
-              >
-                <span className={styles.folderPdfName}>{pdf.file_name}</span>
-                <button
-                  className={`${styles.folderPdfOpenBtn} ${hoveredFolderPdfId === pdf.id ? styles.folderPdfOpenBtnVisible : ''}`}
-                  onClick={e => { e.stopPropagation(); window.open(buildPdfUrl(pdf.id), '_blank', 'noopener,noreferrer'); }}
-                  title="Open in new tab"
-                  aria-label="Open in new tab"
-                >
-                  <FiExternalLink size={13} />
-                </button>
-              </div>
-            ))
-          )}
-        </div>
-      ) : (
-        downloadUrl && numPages !== null && (
-          <div className={styles.thumbnailList}>
+      {downloadUrl && numPages !== null && (
+        <div className={styles.thumbnailList}>
             <Document
               file={downloadUrl}
               loading={null}
@@ -439,8 +453,7 @@ export const PdfDetail: React.FC = () => {
               ))}
             </Document>
           </div>
-        )
-      )}
+        )}
     </aside>
   );
 
@@ -528,59 +541,111 @@ export const PdfDetail: React.FC = () => {
       {sidebarToggle}
 
       <div className={styles.mainArea} ref={mainAreaRef}>
-        <div className={styles.mainHeader}>
-          {pdfDetails && (
-            folderName ? (
-              <div className={styles.pdfBreadcrumb}>
-                <Link to="/user/dashboard/pdf" className={styles.pdfBreadcrumbLink}>My PDFs</Link>
-                <span className={styles.pdfBreadcrumbSeparator}>/</span>
-                {folderId ? (
-                  <Link to={`/user/dashboard/pdf/folder/${folderId}`} className={styles.pdfBreadcrumbLink}>{folderName}</Link>
-                ) : (
-                  <span className={styles.pdfBreadcrumbPart}>{folderName}</span>
-                )}
-                <span className={styles.pdfBreadcrumbSeparator}>/</span>
-                <span className={styles.pdfBreadcrumbCurrent}>{pdfDetails.file_name}</span>
-              </div>
-            ) : (
-              <h3 className={styles.pdfTitle}>{pdfDetails.file_name}</h3>
-            )
-          )}
-          {numPages !== null && (
-            <span className={styles.pageInfo}>{numPages} page{numPages !== 1 ? 's' : ''}</span>
-          )}
-          <PdfTranslateButton
-            selectedLanguage={selectedLanguage}
-            onLanguageChange={handleLanguageChange}
-            onTranslate={handleTranslate}
-            isTranslating={
-              isTranslationActive &&
-              Object.values(pageTranslations).some((s) => s.status === 'translating')
-            }
-            isTranslated={
-              isTranslationActive &&
-              numPages !== null &&
-              numPages > 0 &&
-              Object.values(pageTranslations).some((s) => s.status === 'translated') &&
-              !Object.values(pageTranslations).some((s) => s.status === 'translating')
-            }
-          />
-          {isTranslationActive && Object.values(pageTranslations).some((s) => s.status === 'translated') && (
-            <button
-              type="button"
-              className={styles.toggleViewBtn}
-              onClick={() => setShowOriginal((v) => !v)}
-              title={showOriginal ? 'Show translated' : 'Show original'}
-            >
-              {showOriginal ? 'Translated' : 'Original'}
-            </button>
-          )}
-          <PdfHighlightColorPicker
-            colours={highlightColours}
-            selectedColourId={selectedColourId}
-            onColourChange={handleHighlightColourChange}
-          />
+
+        {/* ── Sticky horizontal toolbar ── */}
+        <div className={styles.toolbar}>
+          <div className={`${styles.toolbarBody} ${!toolbarVisible ? styles.toolbarBodyHidden : ''}`}>
+            <div className={styles.toolbarSpacer} />
+            <div className={styles.toolbarButtons}>
+              <PdfTranslateButton
+                selectedLanguage={selectedLanguage}
+                onLanguageChange={handleLanguageChange}
+                onTranslate={handleTranslate}
+                isTranslating={
+                  isTranslationActive &&
+                  Object.values(pageTranslations).some((s) => s.status === 'translating')
+                }
+                isTranslated={
+                  isTranslationActive &&
+                  numPages !== null &&
+                  numPages > 0 &&
+                  Object.values(pageTranslations).some((s) => s.status === 'translated') &&
+                  !Object.values(pageTranslations).some((s) => s.status === 'translating')
+                }
+              />
+              {isTranslationActive && Object.values(pageTranslations).some((s) => s.status === 'translated') && (
+                <button
+                  type="button"
+                  className={styles.toggleViewBtn}
+                  onClick={() => setShowOriginal((v) => !v)}
+                  title={showOriginal ? 'Show translated' : 'Show original'}
+                >
+                  {showOriginal ? 'Translated' : 'Original'}
+                </button>
+              )}
+              <PdfHighlightColorPicker
+                colours={highlightColours}
+                selectedColourId={selectedColourId}
+                onColourChange={handleHighlightColourChange}
+              />
+            </div>
+            <div className={styles.toolbarEndActions}>
+              <button
+                type="button"
+                className={styles.toolbarHideBtn}
+                onClick={() => setToolbarVisible(false)}
+                title="Hide toolbar"
+                aria-label="Hide toolbar"
+              >
+                <FiEyeOff size={14} />
+              </button>
+            </div>
+          </div>
+          <div className={styles.toolbarFooter}>
+            {!toolbarVisible && (
+              <button
+                type="button"
+                className={styles.toolbarRevealBtn}
+                onClick={() => setToolbarVisible(true)}
+                title="Show toolbar"
+                aria-label="Show toolbar"
+              >
+                <FiChevronDown size={14} />
+              </button>
+            )}
+          </div>
         </div>
+
+        <div className={styles.mainHeader}>
+          <div className={styles.mainHeaderTop}>
+            <div className={styles.pdfBreadcrumb}>
+              <button
+                className={styles.pdfBreadcrumbBack}
+                onClick={() => navigate('/user/dashboard')}
+              >
+                ← Dashboard
+              </button>
+              <FolderSelectorPopover
+                folders={allFolders}
+                currentFolderId={folderId || pdfDetails?.folder_id || undefined}
+                onSelect={handleFolderSelect}
+              />
+              <PdfSelectorPopover
+                folderId={folderId || pdfDetails?.folder_id || undefined}
+                currentPdfId={pdfId}
+                currentPdfName={pdfDetails?.file_name}
+                accessToken={accessToken}
+                onSelect={(pdf) => {
+                  const effectiveFolderId = folderId || pdfDetails?.folder_id;
+                  const params = new URLSearchParams({
+                    ...(effectiveFolderId ? { folderId: effectiveFolderId } : {}),
+                    ...(resolvedFolderName ? { folderName: resolvedFolderName } : {}),
+                  });
+                  navigate(`/pdf/${pdf.id}${params.toString() ? `?${params}` : ''}`);
+                }}
+              />
+            </div>
+            {numPages !== null && (
+              <span className={styles.pageInfo}>{numPages} page{numPages !== 1 ? 's' : ''}</span>
+            )}
+          </div>
+        </div>
+
+        {pdfDetails && (
+          <h2 className={styles.pdfFileHeading}>
+            {pdfDetails.file_name.replace(/\.pdf$/i, '')}
+          </h2>
+        )}
 
         <div className={styles.content} ref={contentRef}>
           <PdfSelectionTrigger
@@ -590,6 +655,8 @@ export const PdfDetail: React.FC = () => {
             }
             onHighlight={createHighlight}
             onError={(msg) => setToast({ message: msg, type: 'error' })}
+            isLoggedIn={isLoggedIn}
+            onLoginRequired={() => setShowLoginModal(true)}
           />
           {downloadUrl && (
             <Document
@@ -633,7 +700,7 @@ export const PdfDetail: React.FC = () => {
                           }));
                         }}
                       />
-                      {(!isPageTranslated || showOriginal) && pageHighlights.length > 0 && (
+                      {(!isPageTranslated || showOriginal) && pageHighlights.length > 0 && highlightColours.length > 0 && (
                         <PdfHighlightLayer
                           highlights={pageHighlights}
                           colours={highlightColours}
@@ -665,8 +732,38 @@ export const PdfDetail: React.FC = () => {
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
         folderId={pdfDetails?.folder_id}
-        folderName={folderName ?? undefined}
+        folderName={resolvedFolderName ?? undefined}
       />
+
+      {(showLoginModal || isLoginModalClosing) && (
+        <>
+          <div
+            className={`${styles.modalOverlay} ${isLoginModalClosing ? styles.modalOverlayClosing : ''}`}
+            onClick={() => {
+              setIsLoginModalClosing(true);
+              setTimeout(() => {
+                setShowLoginModal(false);
+                setIsLoginModalClosing(false);
+              }, 300);
+            }}
+          />
+          <div
+            className={`${styles.modalContainer} ${isLoginModalClosing ? styles.modalContainerClosing : ''}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <LoginModal
+              actionText="highlight text"
+              onClose={() => {
+                setIsLoginModalClosing(true);
+                setTimeout(() => {
+                  setShowLoginModal(false);
+                  setIsLoginModalClosing(false);
+                }, 300);
+              }}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 };

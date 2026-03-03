@@ -12,12 +12,9 @@ import type { GetAllFoldersResponse, CreateFolderRequest, CreateFolderResponse, 
  * Get all folders for the authenticated user
  */
 export async function getAllFolders(
-  _accessToken: string,
-  type?: string
+  _accessToken: string
 ): Promise<GetAllFoldersResponse> {
-  const url = type
-    ? `${authConfig.catenBaseUrl}/api/folders?type=${encodeURIComponent(type)}`
-    : `${authConfig.catenBaseUrl}/api/folders`;
+  const url = `${authConfig.catenBaseUrl}/api/folders`;
   const response = await fetchWithAuth(
     url,
     {
@@ -43,13 +40,11 @@ export async function getAllFolders(
 export async function createFolder(
   _accessToken: string,
   name: string,
-  parentId?: string,
-  type?: string
+  parentId?: string
 ): Promise<CreateFolderResponse> {
   const requestBody: CreateFolderRequest = {
     name,
     ...(parentId && { parentId }),
-    ...(type && { type }),
   };
 
   const response = await fetchWithAuth(

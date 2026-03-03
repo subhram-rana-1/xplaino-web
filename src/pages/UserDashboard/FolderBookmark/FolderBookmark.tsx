@@ -17,6 +17,7 @@ import type { GetAllSavedLinksResponse } from '@/shared/types/links.types';
 import type { GetSavedWordsResponse } from '@/shared/types/words.types';
 import type { GetAllSavedImagesResponse } from '@/shared/types/images.types';
 import { FolderIcon } from '@/shared/components/FolderIcon';
+import { FolderSelectorPopover } from '@/shared/components/FolderSelectorPopover';
 import { Toast } from '@/shared/components/Toast';
 import { DataTable, type Column } from '@/shared/components/DataTable';
 import { ActionMenu } from '@/shared/components/ActionMenu';
@@ -265,7 +266,31 @@ export const FolderBookmark: React.FC = () => {
 
   // Get folder data from navigation state if available
   const folder = (location.state as { folder?: { id: string; name: string } })?.folder;
-  const folderName = folder?.name || `Folder ${folderId}`;
+  const [resolvedFolderName, setResolvedFolderName] = useState<string>(folder?.name || '');
+
+  useEffect(() => {
+    if (!folderId || !accessToken) return;
+    const findInTree = (nodes: FolderWithSubFolders[], id: string): string | null => {
+      for (const f of nodes) {
+        if (f.id === id) return f.name;
+        const found = findInTree(f.subFolders || [], id);
+        if (found) return found;
+      }
+      return null;
+    };
+    getAllFolders(accessToken)
+      .then((res) => {
+        setFolders(res.folders);
+        if (!folder?.name) {
+          const name = findInTree(res.folders, folderId);
+          if (name) setResolvedFolderName(name);
+        }
+      })
+      .catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [folderId, accessToken]);
+
+  const folderName = resolvedFolderName;
 
   // Fetch functions
   const fetchParagraphs = useCallback(async (forceRefresh = false, append = false) => {
@@ -1582,7 +1607,7 @@ export const FolderBookmark: React.FC = () => {
                     <div
                       key={subFolder.id}
                       className={styles.folderCard}
-                      onClick={() => navigate(`/user/dashboard/bookmark/folder/${subFolder.id}`, {
+                      onClick={() => navigate(`/user/dashboard/folder/${subFolder.id}`, {
                         state: { folder: { id: subFolder.id, name: subFolder.name } }
                       })}
                     >
@@ -2218,13 +2243,16 @@ export const FolderBookmark: React.FC = () => {
           <div className={styles.breadcrumb}>
             <button
               className={styles.breadcrumbBack}
-              onClick={() => navigate('/user/dashboard/bookmark')}
+              onClick={() => navigate('/user/dashboard')}
             >
               <FiArrowLeft size={16} />
-              <span>My Bookmarks</span>
+              <span>Dashboard</span>
             </button>
-            <span className={styles.breadcrumbSeparator}>/</span>
-            <span className={styles.breadcrumbCurrent}>{folderName}</span>
+            <FolderSelectorPopover
+              folders={folders}
+              currentFolderId={folderId}
+              onSelect={(folder) => navigate(`/user/dashboard/folder/${folder.id}/bookmark`, { state: { folderName: folder.name } })}
+            />
           </div>
           <div className={styles.headerActionsRow}>
             <button

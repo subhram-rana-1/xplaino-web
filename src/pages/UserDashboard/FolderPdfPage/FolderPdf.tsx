@@ -3,10 +3,13 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FiArrowLeft, FiRefreshCw, FiPlus, FiCheck } from 'react-icons/fi';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { getAllPdfs, deletePdf, getDownloadUrl } from '@/shared/services/pdf.service';
+import { getAllFolders } from '@/shared/services/folders.service';
 import type { PdfResponse } from '@/shared/types/pdf.types';
+import type { FolderWithSubFolders } from '@/shared/types/folders.types';
 import { Toast } from '@/shared/components/Toast';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { DataTable, type Column } from '@/shared/components/DataTable';
+import { FolderSelectorPopover } from '@/shared/components/FolderSelectorPopover';
 import { PdfActionIcons } from '../PdfPage/components/PdfActionIcons';
 import { PdfUploadModal } from '@/shared/components/PdfUploadModal';
 import styles from './FolderPdf.module.css';
@@ -21,7 +24,38 @@ export const FolderPdf: React.FC = () => {
   const location = useLocation();
   const { accessToken } = useAuth();
 
-  const folderName: string = (location.state as { folder?: { name?: string } } | null)?.folder?.name ?? 'Folder';
+  const nameFromState: string = (location.state as { folder?: { name?: string } } | null)?.folder?.name ?? '';
+  const [resolvedFolderName, setResolvedFolderName] = useState<string>(nameFromState);
+
+  useEffect(() => {
+    if (nameFromState || !folderId || !accessToken) return;
+    const findInTree = (folders: FolderWithSubFolders[], id: string): string | null => {
+      for (const f of folders) {
+        if (f.id === id) return f.name;
+        const found = findInTree(f.subFolders || [], id);
+        if (found) return found;
+      }
+      return null;
+    };
+    getAllFolders(accessToken)
+      .then((res) => {
+        const name = findInTree(res.folders, folderId);
+        if (name) setResolvedFolderName(name);
+      })
+      .catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [folderId, accessToken]);
+
+  const folderName = resolvedFolderName;
+
+  const [folders, setFolders] = useState<FolderWithSubFolders[]>([]);
+
+  useEffect(() => {
+    if (!accessToken) return;
+    getAllFolders(accessToken)
+      .then((res) => setFolders(res.folders))
+      .catch(() => {});
+  }, [accessToken]);
 
   const [pdfs, setPdfs] = useState<PdfResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -173,12 +207,15 @@ export const FolderPdf: React.FC = () => {
     <div className={styles.container}>
       {/* Breadcrumb */}
       <div className={styles.breadcrumb}>
-        <button className={styles.backButton} onClick={() => navigate('/user/dashboard/pdf')}>
+        <button className={styles.backButton} onClick={() => navigate('/user/dashboard')}>
           <FiArrowLeft size={16} />
-          <span>My PDFs</span>
+          <span>Dashboard</span>
         </button>
-        <span className={styles.breadcrumbSeparator}>/</span>
-        <span className={styles.breadcrumbCurrent}>{folderName}</span>
+        <FolderSelectorPopover
+          folders={folders}
+          currentFolderId={folderId}
+          onSelect={(folder) => navigate(`/user/dashboard/folder/${folder.id}/pdf`, { state: { folderName: folder.name } })}
+        />
       </div>
 
       <h2 className={styles.heading}>{folderName}</h2>

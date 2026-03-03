@@ -60,7 +60,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
 
   const handleToolsPdfClick = () => {
     if (isLoggedIn) {
-      navigate('/user/dashboard/pdf');
+      navigate('/user/dashboard');
     } else {
       navigate('/tools/pdf');
     }
@@ -78,7 +78,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
       if (user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') {
         pendingRouteRef.current = '/admin/dashboard';
       } else {
-        pendingRouteRef.current = '/user/dashboard/bookmark';
+        pendingRouteRef.current = '/user/dashboard';
       }
       setIsModalClosing(false);
       setShowLoginModal(true);
@@ -86,7 +86,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
       navigate('/admin/dashboard');
       closeMenu();
     } else {
-      navigate('/user/dashboard/bookmark');
+      navigate('/user/dashboard');
       closeMenu();
     }
   };
@@ -199,7 +199,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
     if (user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') {
       return isActiveRoute('/admin/dashboard');
     }
-    return isActiveRoute('/user/dashboard/bookmark') || isActiveRoute('/user/dashboard');
+    return isActiveRoute('/user/dashboard');
   };
 
   return (
@@ -239,7 +239,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                 onMouseLeave={() => setIsToolsDropdownOpen(false)}
               >
                 <button
-                  className={`${styles.navLink} ${styles.dropdownTrigger} ${(isActiveRoute('/tools/pdf') || isActiveRoute('/user/dashboard/pdf')) ? styles.navLinkActive : ''}`}
+                  className={`${styles.navLink} ${styles.dropdownTrigger} ${(isActiveRoute('/tools/pdf') || isActiveRoute('/user/dashboard')) ? styles.navLinkActive : ''}`}
                 >
                   Tools
                   <FiChevronDown
@@ -367,7 +367,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                       <div
                         className={styles.popoverItem}
                         onClick={() => {
-                          navigate('/user/dashboard/bookmark');
+                          navigate('/user/dashboard');
                           setIsProfilePopoverOpen(false);
                         }}
                       >

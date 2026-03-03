@@ -37,7 +37,7 @@ export function usePdfHighlights({
       .then((cols) => {
         if (cancelled) return;
         setColours(cols);
-        if (cols.length > 0) setSelectedColourId(cols[0].id);
+        if (cols.length > 0) setSelectedColourId(prev => prev === null ? cols[0].id : prev);
       })
       .catch(() => {
         // Colours unavailable — silently degrade

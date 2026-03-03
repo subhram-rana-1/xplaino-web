@@ -123,6 +123,7 @@ export const FolderMenu: React.FC<FolderMenuProps> = ({
         top: `${popoverPosition.top}px`,
         right: `${popoverPosition.right}px`,
       }}
+      onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
     >
       <button

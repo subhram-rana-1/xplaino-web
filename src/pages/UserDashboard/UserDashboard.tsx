@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiRefreshCw, FiList, FiGrid, FiArrowUp, FiArrowDown, FiPlus, FiCheck } from 'react-icons/fi';
+import { FiRefreshCw, FiList, FiGrid, FiArrowUp, FiArrowDown, FiPlus, FiCheck, FiCornerDownLeft } from 'react-icons/fi';
 import styles from './UserDashboard.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { getAllFolders, createFolder, deleteFolder, renameFolder } from '@/shared/services/folders.service';
@@ -11,7 +11,6 @@ import { CreateFolderModal } from '@/shared/components/CreateFolderModal';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { DataTable } from '@/shared/components/DataTable';
 import { FolderMenu } from '@/shared/components/FolderMenu';
-import { ActionIcons } from '@/shared/components/ActionIcons';
 
 /**
  * UserDashboard - User dashboard with folder management
@@ -53,7 +52,7 @@ export const UserDashboard: React.FC = () => {
 
     try {
       setIsLoading(true);
-      const response = await getAllFolders(accessToken, 'BOOKMARK');
+      const response = await getAllFolders(accessToken);
       setFolders(response.folders);
       
       if (showSuccessFeedback) {
@@ -92,7 +91,7 @@ export const UserDashboard: React.FC = () => {
   };
 
   const handleFolderClick = (folder: FolderWithSubFolders) => {
-    navigate(`/user/dashboard/bookmark/folder/${folder.id}`, {
+    navigate(`/user/dashboard/folder/${folder.id}`, {
       state: { folder: { id: folder.id, name: folder.name } }
     });
   };
@@ -103,7 +102,7 @@ export const UserDashboard: React.FC = () => {
     }
 
     try {
-      await createFolder(accessToken, name, undefined, 'BOOKMARK');
+      await createFolder(accessToken, name);
       // Refresh folders list to show the newly created folder
       await fetchFolders();
       setToast({ message: 'Folder created successfully!', type: 'success' });
@@ -240,7 +239,7 @@ export const UserDashboard: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.heading}>My bookmarks</h2>
+      <h2 className={styles.heading}>My Folders</h2>
       <div className={styles.header}>
           <div className={styles.headerLeft}>
             <div className={styles.viewToggle}>
@@ -285,7 +284,6 @@ export const UserDashboard: React.FC = () => {
               title="Create folder"
             >
               <FiPlus />
-              <FiPlus />
               <span>Create Folder</span>
             </button>
           </div>
@@ -307,7 +305,7 @@ export const UserDashboard: React.FC = () => {
                   columns={[
                     {
                       key: 'name',
-                      header: 'Folder Name',
+                      header: 'Name',
                       align: 'left',
                       render: (folder) => {
                         const isEditing = editingFolderId === folder.id;
@@ -339,14 +337,14 @@ export const UserDashboard: React.FC = () => {
                     },
                     {
                       key: 'created_at',
-                      header: 'Created At',
+                      header: 'Created On',
                       align: 'left',
                       headerRender: () => (
                         <button
                           className={`${styles.sortButton} ${sortBy === 'created_at' ? styles.sortButtonActive : ''}`}
                           onClick={() => handleSort('created_at')}
                         >
-                          Created At
+                          Created On
                           <span className={styles.sortIcons}>
                             <FiArrowUp className={sortBy === 'created_at' && sortOrder === 'asc' ? styles.sortIconActive : styles.sortIconInactive} />
                             <FiArrowDown className={sortBy === 'created_at' && sortOrder === 'desc' ? styles.sortIconActive : styles.sortIconInactive} />
@@ -391,25 +389,46 @@ export const UserDashboard: React.FC = () => {
                   <div
                     key={folder.id}
                     className={styles.folderCard}
-                    onClick={() => handleFolderClick(folder)}
+                    onClick={() => { if (editingFolderId !== folder.id) handleFolderClick(folder); }}
                     onMouseEnter={() => setHoveredRowId(folder.id)}
                     onMouseLeave={() => setHoveredRowId(null)}
                   >
-                    {hoveredRowId === folder.id && (
-                      <div 
-                        className={styles.folderCardActions}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <ActionIcons
-                          onDelete={() => handleDeleteClick(folder.id)}
-                          onMove={() => {}}
-                          isVisible={true}
-                          showMove={false}
-                        />
-                      </div>
-                    )}
+                    <div
+                      className={styles.folderCardActions}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <FolderMenu
+                        onRename={() => handleRenameClick(folder.id, folder.name)}
+                        onDelete={() => handleDeleteClick(folder.id)}
+                        isVisible={hoveredRowId === folder.id}
+                      />
+                    </div>
                     <FolderIcon size={32} />
-                    <span className={styles.folderCardName}>{folder.name}</span>
+                    {editingFolderId === folder.id ? (
+                      <div className={styles.folderCardEditWrapper} onClick={(e) => e.stopPropagation()}>
+                        <input
+                          ref={editInputRef}
+                          type="text"
+                          value={editingFolderName}
+                          onChange={(e) => setEditingFolderName(e.target.value)}
+                          onKeyDown={(e) => handleFolderNameKeyDown(e, folder.id)}
+                          onBlur={() => handleRenameSubmit(folder.id)}
+                          className={styles.folderCardNameInput}
+                          maxLength={50}
+                        />
+                        <button
+                          className={styles.folderCardConfirmButton}
+                          onMouseDown={(e) => { e.preventDefault(); handleRenameSubmit(folder.id); }}
+                          title="Confirm rename"
+                          aria-label="Confirm rename"
+                          tabIndex={-1}
+                        >
+                          <FiCornerDownLeft size={14} />
+                        </button>
+                      </div>
+                    ) : (
+                      <span className={styles.folderCardName}>{folder.name}</span>
+                    )}
                   </div>
                 ))}
               </div>

@@ -16,6 +16,10 @@ interface PdfSelectionTriggerProps {
   onHighlight: (startText: string, endText: string) => Promise<void>;
   /** Called when the highlight API call fails */
   onError?: (message: string) => void;
+  /** Whether the user is currently logged in */
+  isLoggedIn?: boolean;
+  /** Called when user tries to highlight without being logged in */
+  onLoginRequired?: () => void;
 }
 
 const MAX_ANCHOR_CHARS = 15;
@@ -29,6 +33,8 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
   activeColour,
   onHighlight,
   onError,
+  isLoggedIn = true,
+  onLoginRequired,
 }) => {
   const [selection, setSelection] = useState<SelectionState | null>(null);
   const [isHovering, setIsHovering] = useState(false);
@@ -119,6 +125,12 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
 
   const handleHighlightClick = useCallback(async () => {
     if (!selection || isHighlighting) return;
+
+    if (!isLoggedIn) {
+      onLoginRequired?.();
+      return;
+    }
+
     const { text } = selection;
     const startText = text.slice(0, MAX_ANCHOR_CHARS);
     const endText = text.length > MAX_ANCHOR_CHARS ? text.slice(-MAX_ANCHOR_CHARS) : '';
@@ -133,7 +145,7 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
     } finally {
       setIsHighlighting(false);
     }
-  }, [selection, isHighlighting, onHighlight, clearSelection]);
+  }, [selection, isHighlighting, isLoggedIn, onLoginRequired, onHighlight, clearSelection]);
 
   // Cleanup timers on unmount
   useEffect(() => {
