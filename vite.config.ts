@@ -16,14 +16,14 @@ export default defineConfig({
     allowedHosts: [
       'xplaino.com',
       'www.xplaino.com',
-      '91bd-2401-4900-8fd1-9d0e-157-8426-3db5-b3eb.ngrok-free.app',
+      'cb6d-106-215-147-51.ngrok-free.app',
     ],
   },
   preview: {
     allowedHosts: [
       'xplaino.com',
       'www.xplaino.com',
-      '91bd-2401-4900-8fd1-9d0e-157-8426-3db5-b3eb.ngrok-free.app',
+      'cb6d-106-215-147-51.ngrok-free.app',
     ],
   },
 })

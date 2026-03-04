@@ -820,19 +820,21 @@
     justify-content: space-between;
     padding: 1rem 1.5rem;
     text-align: left;
-    border-bottom: 1px solid var(--white-rgba-10);
+    color: var(--teal);
+    border-bottom: 1px solid var(--teal-rgba-15);
   }
 
   .dropdownMenu {
     position: static;
     transform: none;
-    background-color: var(--white-rgba-10);
+    background-color: var(--teal-rgba-10);
     box-shadow: none;
     margin-top: 0;
     padding: 0;
     opacity: 1;
     visibility: visible;
     display: none;
+    border: none;
     border-radius: 0;
   }
 
@@ -843,14 +845,14 @@
 
   .dropdownItem {
     padding: 0.875rem 1.5rem 0.875rem 3rem;
-    color: var(--white);
-    border-bottom: 1px solid var(--white-rgba-10);
+    color: var(--teal);
+    border-bottom: 1px solid var(--teal-rgba-15);
     font-size: 0.95rem;
   }
 
   .dropdownItem:hover {
-    background-color: var(--white-rgba-20);
-    color: var(--white);
+    background-color: var(--teal-rgba-10);
+    color: var(--teal-dark);
   }
 
   .dropdownItem:last-child {

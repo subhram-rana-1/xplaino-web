@@ -240,6 +240,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
               >
                 <button
                   className={`${styles.navLink} ${styles.dropdownTrigger} ${(isActiveRoute('/tools/pdf') || isActiveRoute('/user/dashboard')) ? styles.navLinkActive : ''}`}
+                  onClick={() => setIsToolsDropdownOpen((v) => !v)}
                 >
                   Tools
                   <FiChevronDown
