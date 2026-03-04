@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styles from './PdfSelectionTrigger.module.css';
 import type { HighlightColour } from '@/shared/services/pdfHighlightService';
+import { normalisePdfText } from './pdfTextNormalise';
 
 interface SelectionState {
   text: string;
@@ -20,7 +21,7 @@ interface PdfSelectionTriggerProps {
   /** Called when user picks a different highlight colour */
   onColourChange: (id: string) => void;
   /** Called with startText and endText when user confirms highlight */
-  onHighlight: (startText: string, endText: string) => Promise<void>;
+  onHighlight: (startText: string, endText: string, colourIdOverride?: string) => Promise<void>;
   /** Called when the highlight API call fails */
   onError?: (message: string) => void;
   /** Whether the user is currently logged in */
@@ -29,10 +30,15 @@ interface PdfSelectionTriggerProps {
   onLoginRequired?: () => void;
   /** Called when user clicks "Write a note" on a text selection */
   onWriteNote?: (startText: string, endText: string, clientY: number) => void;
+  /**
+   * When set, intercepts Highlight and Note clicks instead of performing the action.
+   * Used for public PDFs where the viewer cannot annotate but can make a copy.
+   */
+  onCopyRequired?: () => void;
 }
 
 const ICON_URL = 'https://bmicorrect.com/extension/icons/extension-tooltip-v2.ico';
-const MAX_ANCHOR_CHARS = 15;
+const MAX_ANCHOR_CHARS = 50;
 const WIDTH_ANIMATION_DURATION = 400;
 
 /**
@@ -51,6 +57,7 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
   isLoggedIn = true,
   onLoginRequired,
   onWriteNote,
+  onCopyRequired,
 }) => {
   const [selection, setSelection] = useState<SelectionState | null>(null);
   const [isHovering, setIsHovering] = useState(false);
@@ -58,8 +65,10 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
   const [isClosing, setIsClosing] = useState(false);
   const [animationComplete, setAnimationComplete] = useState(false);
   const [isHighlighting, setIsHighlighting] = useState(false);
-  const [showColorPicker, setShowColorPicker] = useState(false);
-  const [isColorPickerVisible, setIsColorPickerVisible] = useState(false);
+  const [isHighlightBtnHovered, setIsHighlightBtnHovered] = useState(false);
+  const [isColourPanelHovered, setIsColourPanelHovered] = useState(false);
+  const [isColourPanelMounted, setIsColourPanelMounted] = useState(false);
+  const [isColourPanelVisible, setIsColourPanelVisible] = useState(false);
 
   const containerElRef = useRef<HTMLDivElement>(null);
   const buttonGroupRef = useRef<HTMLDivElement>(null);
@@ -68,6 +77,8 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
   const animationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastMeasuredWidthRef = useRef(0);
+  const colourPanelLeaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const colourPanelFadeOutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearSelection = useCallback(() => {
     setSelection(null);
@@ -238,30 +249,78 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
     setShowButtonGroup(true);
   }, []);
 
-  // ── Colour picker handlers ─────────────────────────────────────────────
-  const handleChevronClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowColorPicker((prev) => {
-      const next = !prev;
-      if (next) setIsColorPickerVisible(true);
-      return next;
+  // ── Colour panel hover handlers ────────────────────────────────────────
+  const showColourPanel = useCallback(() => {
+    if (colourPanelLeaveTimerRef.current) clearTimeout(colourPanelLeaveTimerRef.current);
+    if (colourPanelFadeOutTimerRef.current) clearTimeout(colourPanelFadeOutTimerRef.current);
+    setIsColourPanelMounted(true);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => setIsColourPanelVisible(true));
     });
   }, []);
 
-  const handleColourSelect = useCallback((id: string) => {
-    onColourChange(id);
-    setShowColorPicker(false);
-  }, [onColourChange]);
+  const hideColourPanel = useCallback(() => {
+    setIsColourPanelVisible(false);
+    colourPanelFadeOutTimerRef.current = setTimeout(() => setIsColourPanelMounted(false), 220);
+  }, []);
 
-  // Keep colour picker mounted briefly for exit animation
-  useEffect(() => {
-    if (showColorPicker) {
-      setIsColorPickerVisible(true);
-    } else {
-      const t = setTimeout(() => setIsColorPickerVisible(false), 200);
-      return () => clearTimeout(t);
+  const handleHighlightBtnMouseEnter = useCallback(() => {
+    if (colourPanelLeaveTimerRef.current) clearTimeout(colourPanelLeaveTimerRef.current);
+    setIsHighlightBtnHovered(true);
+    showColourPanel();
+  }, [showColourPanel]);
+
+  const handleHighlightBtnMouseLeave = useCallback(() => {
+    colourPanelLeaveTimerRef.current = setTimeout(() => {
+      setIsHighlightBtnHovered(false);
+      if (!isColourPanelHovered) hideColourPanel();
+    }, 120);
+  }, [isColourPanelHovered, hideColourPanel]);
+
+  const handleColourPanelMouseEnter = useCallback(() => {
+    if (colourPanelLeaveTimerRef.current) clearTimeout(colourPanelLeaveTimerRef.current);
+    setIsColourPanelHovered(true);
+  }, []);
+
+  const handleColourPanelMouseLeave = useCallback(() => {
+    colourPanelLeaveTimerRef.current = setTimeout(() => {
+      setIsColourPanelHovered(false);
+      setIsHighlightBtnHovered(false);
+      hideColourPanel();
+    }, 120);
+  }, [hideColourPanel]);
+
+  const handleColourSelect = useCallback(async (id: string) => {
+    if (!selection || isHighlighting) return;
+
+    if (!isLoggedIn) {
+      onLoginRequired?.();
+      return;
     }
-  }, [showColorPicker]);
+
+    if (onCopyRequired) {
+      onCopyRequired();
+      return;
+    }
+
+    onColourChange(id);
+    hideColourPanel();
+
+    const normalisedText = normalisePdfText(selection.text);
+    const startText = normalisedText.slice(0, MAX_ANCHOR_CHARS);
+    const endText = normalisedText.slice(-MAX_ANCHOR_CHARS);
+
+    setIsHighlighting(true);
+    try {
+      await onHighlight(startText, endText, id);
+      window.getSelection()?.removeAllRanges();
+      clearSelection();
+    } catch (err) {
+      onError?.(err instanceof Error ? err.message : 'Failed to save highlight');
+    } finally {
+      setIsHighlighting(false);
+    }
+  }, [selection, isHighlighting, isLoggedIn, onLoginRequired, onCopyRequired, onColourChange, hideColourPanel, onHighlight, clearSelection, onError]);
 
   // ── Action handlers ────────────────────────────────────────────────────
   const handleHighlightClick = useCallback(async () => {
@@ -272,9 +331,14 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
       return;
     }
 
-    const { text } = selection;
-    const startText = text.slice(0, MAX_ANCHOR_CHARS);
-    const endText = text.length > MAX_ANCHOR_CHARS ? text.slice(-MAX_ANCHOR_CHARS) : '';
+    if (onCopyRequired) {
+      onCopyRequired();
+      return;
+    }
+
+    const normalisedText = normalisePdfText(selection.text);
+    const startText = normalisedText.slice(0, MAX_ANCHOR_CHARS);
+    const endText = normalisedText.slice(-MAX_ANCHOR_CHARS);
 
     setIsHighlighting(true);
     try {
@@ -286,7 +350,7 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
     } finally {
       setIsHighlighting(false);
     }
-  }, [selection, isHighlighting, isLoggedIn, onLoginRequired, onHighlight, clearSelection, onError]);
+  }, [selection, isHighlighting, isLoggedIn, onLoginRequired, onCopyRequired, onHighlight, clearSelection, onError]);
 
   const handleCopyClick = useCallback(() => {
     // Try to copy the live DOM selection directly — most reliable for
@@ -320,13 +384,19 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
 
   const handleWriteNoteClick = useCallback(() => {
     if (!selection) return;
-    const { text } = selection;
-    const startText = text.slice(0, MAX_ANCHOR_CHARS);
-    const endText = text.length > MAX_ANCHOR_CHARS ? text.slice(-MAX_ANCHOR_CHARS) : '';
+
+    if (isLoggedIn && onCopyRequired) {
+      onCopyRequired();
+      return;
+    }
+
+    const normalisedText = normalisePdfText(selection.text);
+    const startText = normalisedText.slice(0, MAX_ANCHOR_CHARS);
+    const endText = normalisedText.slice(-MAX_ANCHOR_CHARS);
     onWriteNote?.(startText, endText, selection.y);
     window.getSelection()?.removeAllRanges();
     clearSelection();
-  }, [selection, onWriteNote, clearSelection]);
+  }, [selection, isLoggedIn, onCopyRequired, onWriteNote, clearSelection]);
 
   // Cleanup timers on unmount
   useEffect(() => {
@@ -335,6 +405,8 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
       if (mouseupTimerRef.current) clearTimeout(mouseupTimerRef.current);
       if (animationTimeoutRef.current) clearTimeout(animationTimeoutRef.current);
       if (closingTimeoutRef.current) clearTimeout(closingTimeoutRef.current);
+      if (colourPanelLeaveTimerRef.current) clearTimeout(colourPanelLeaveTimerRef.current);
+      if (colourPanelFadeOutTimerRef.current) clearTimeout(colourPanelFadeOutTimerRef.current);
     };
   }, []);
 
@@ -378,7 +450,7 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
         className={buttonGroupClass}
         onMouseDown={(e) => e.stopPropagation()}
       >
-        {/* Highlight — coloured circle with chevron colour-picker trigger */}
+        {/* Highlight — coloured circle with hover colour panel below */}
         <div className={`${styles.actionButtonWrapper} ${styles.highlightWrapper}`}>
           <button
             type="button"
@@ -386,6 +458,8 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
             onClick={handleHighlightClick}
             disabled={isHighlighting}
             aria-label="Highlight selected text"
+            onMouseEnter={handleHighlightBtnMouseEnter}
+            onMouseLeave={handleHighlightBtnMouseLeave}
           >
             {isHighlighting ? (
               <span className={styles.spinner} aria-hidden="true" />
@@ -396,18 +470,15 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
               />
             )}
           </button>
-          <button
-            type="button"
-            className={styles.chevronBtn}
-            onClick={handleChevronClick}
-            aria-label="Choose highlight colour"
-            onMouseDown={(e) => e.stopPropagation()}
-          >
-            <ChevronDownIcon />
-          </button>
-          {(showColorPicker || isColorPickerVisible) && (
+          {isColourPanelMounted && (
             <div
-              className={`${styles.colorPickerPopover} ${showColorPicker ? styles.colorPickerVisible : styles.colorPickerHidden}`}
+              className={[
+                styles.colorPickerPopover,
+                isColourPanelVisible ? styles.colorPickerVisible : styles.colorPickerHidden,
+                isHighlightBtnHovered && !isColourPanelHovered ? styles.colourPanelDimmed : '',
+              ].filter(Boolean).join(' ')}
+              onMouseEnter={handleColourPanelMouseEnter}
+              onMouseLeave={handleColourPanelMouseLeave}
               onMouseDown={(e) => e.stopPropagation()}
             >
               {highlightColours.map((c) => (
@@ -416,6 +487,7 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
                   type="button"
                   className={`${styles.colourDot} ${c.id === selectedColourId ? styles.colourDotSelected : ''}`}
                   style={{ background: c.hexcode }}
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => handleColourSelect(c.id)}
                   aria-label={`Select colour ${c.hexcode}`}
                 >
@@ -460,20 +532,6 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
 };
 
 // ── Icon components ──────────────────────────────────────────────────────────
-
-function ChevronDownIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <polyline points="6 9 12 15 18 9" />
-    </svg>
-  );
-}
 
 function NoteIcon() {
   return (

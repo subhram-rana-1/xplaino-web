@@ -2,16 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FiArrowLeft, FiRefreshCw, FiPlus, FiCheck } from 'react-icons/fi';
 import { useAuth } from '@/shared/hooks/useAuth';
-import { getAllPdfs, deletePdf, getDownloadUrl } from '@/shared/services/pdf.service';
+import { getAllPdfs, deletePdf, getDownloadUrl, sharePdf, unsharePdf, getPdfShareeList, makePdfPublic, makePdfPrivate } from '@/shared/services/pdf.service';
 import { getAllFolders } from '@/shared/services/folders.service';
 import type { PdfResponse } from '@/shared/types/pdf.types';
-import type { FolderWithSubFolders } from '@/shared/types/folders.types';
+import type { FolderWithSubFolders, ShareeItem } from '@/shared/types/folders.types';
 import { Toast } from '@/shared/components/Toast';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { DataTable, type Column } from '@/shared/components/DataTable';
 import { FolderSelectorPopover } from '@/shared/components/FolderSelectorPopover';
 import { PdfActionIcons } from '../PdfPage/components/PdfActionIcons';
 import { PdfUploadModal } from '@/shared/components/PdfUploadModal';
+import { PdfShareModal } from '@/shared/components/PdfShareModal';
+import { ShareeListModal } from '@/shared/components/ShareeListModal';
 import styles from './FolderPdf.module.css';
 
 /**
@@ -65,6 +67,15 @@ export const FolderPdf: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showFetchSuccess, setShowFetchSuccess] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
+  // Share PDF state — track the full PDF object so we have access_level
+  const [sharePdfEntry, setSharePdfEntry] = useState<PdfResponse | null>(null);
+
+  // Manage PDF sharing state
+  const [manageSharingPdfId, setManageSharingPdfId] = useState<string | null>(null);
+  const [manageSharingPdfName, setManageSharingPdfName] = useState<string>('');
+  const [pdfShareeList, setPdfShareeList] = useState<ShareeItem[]>([]);
+  const [isPdfShareeListLoading, setIsPdfShareeListLoading] = useState(false);
 
   const fetchPdfs = async (showSuccessFeedback = false) => {
     if (!accessToken) return;
@@ -163,6 +174,72 @@ export const FolderPdf: React.FC = () => {
     }
   };
 
+  const handleSharePdfClick = async (pdf: PdfResponse) => {
+    setSharePdfEntry(pdf);
+    // Load sharees in the background so the inline section is populated
+    if (!accessToken) return;
+    setIsPdfShareeListLoading(true);
+    try {
+      const res = await getPdfShareeList(accessToken, pdf.id);
+      setPdfShareeList(res.sharees);
+    } catch {
+      setPdfShareeList([]);
+    } finally {
+      setIsPdfShareeListLoading(false);
+    }
+  };
+
+  const handleSharePdfSubmit = async (email: string) => {
+    if (!accessToken || !sharePdfEntry) return;
+    await sharePdf(accessToken, sharePdfEntry.id, email);
+  };
+
+  const handleMakePdfPublic = async () => {
+    if (!accessToken || !sharePdfEntry) throw new Error('Not authenticated');
+    const updated = await makePdfPublic(accessToken, sharePdfEntry.id);
+    setPdfs((prev) =>
+      prev.map((p) => (p.id === updated.id ? { ...p, access_level: updated.access_level } : p))
+    );
+    setSharePdfEntry((prev) => (prev ? { ...prev, access_level: updated.access_level } : prev));
+    return updated;
+  };
+
+  const handleMakePdfPrivate = async () => {
+    if (!accessToken || !sharePdfEntry) throw new Error('Not authenticated');
+    const updated = await makePdfPrivate(accessToken, sharePdfEntry.id);
+    setPdfs((prev) =>
+      prev.map((p) => (p.id === updated.id ? { ...p, access_level: updated.access_level } : p))
+    );
+    setSharePdfEntry((prev) => (prev ? { ...prev, access_level: updated.access_level } : prev));
+    return updated;
+  };
+
+  const handleManagePdfSharingClick = async (pdf: PdfResponse) => {
+    if (!accessToken) return;
+    setManageSharingPdfId(pdf.id);
+    setManageSharingPdfName(pdf.file_name);
+    setIsPdfShareeListLoading(true);
+    try {
+      const res = await getPdfShareeList(accessToken, pdf.id);
+      setPdfShareeList(res.sharees);
+    } catch (error) {
+      console.error('Error fetching PDF sharee list:', error);
+      setToast({ message: 'Failed to load sharing list', type: 'error' });
+      setManageSharingPdfId(null);
+    } finally {
+      setIsPdfShareeListLoading(false);
+    }
+  };
+
+  const handleUnsharePdf = async (email: string) => {
+    // Works for both the share modal (sharePdfEntry) and manage-sharing modal (manageSharingPdfId)
+    const pdfId = manageSharingPdfId || sharePdfEntry?.id;
+    if (!accessToken || !pdfId) return;
+    await unsharePdf(accessToken, pdfId, email);
+    setPdfShareeList(prev => prev.filter(s => s.email !== email));
+    setToast({ message: `Removed access for ${email}`, type: 'success' });
+  };
+
   const columns: Column<PdfResponse>[] = [
     {
       key: 'file_name',
@@ -194,6 +271,8 @@ export const FolderPdf: React.FC = () => {
             onDelete={() => handleDelete(pdf.id)}
             onBook={() => handleBook(pdf.id)}
             onDownload={() => handleDownload(pdf)}
+            onShare={() => handleSharePdfClick(pdf)}
+            onManageSharing={() => handleManagePdfSharingClick(pdf)}
             isVisible={isHovered}
             canDownload={canDownload}
             className={styles.actionIconsInCell}
@@ -294,6 +373,30 @@ export const FolderPdf: React.FC = () => {
           onCancel={() => setDeleteConfirmPdfId(null)}
         />
       )}
+
+      <PdfShareModal
+        isOpen={!!sharePdfEntry}
+        onClose={() => { setSharePdfEntry(null); setPdfShareeList([]); }}
+        onShare={handleSharePdfSubmit}
+        onMakePublic={handleMakePdfPublic}
+        onMakePrivate={handleMakePdfPrivate}
+        title={`Share "${sharePdfEntry?.file_name ?? ''}"`}
+        accessLevel={sharePdfEntry?.access_level ?? 'PRIVATE'}
+        pdfId={sharePdfEntry?.id ?? ''}
+        isOwner={true}
+        sharees={pdfShareeList}
+        isLoadingSharees={isPdfShareeListLoading}
+        onUnshare={handleUnsharePdf}
+      />
+
+      <ShareeListModal
+        isOpen={!!manageSharingPdfId}
+        onClose={() => { setManageSharingPdfId(null); setManageSharingPdfName(''); setPdfShareeList([]); }}
+        title={`Sharing: "${manageSharingPdfName}"`}
+        sharees={pdfShareeList}
+        isLoading={isPdfShareeListLoading}
+        onUnshare={handleUnsharePdf}
+      />
     </div>
   );
 };

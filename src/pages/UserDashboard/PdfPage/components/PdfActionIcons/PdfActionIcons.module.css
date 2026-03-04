@@ -6,7 +6,9 @@
 
 .deleteButton,
 .bookButton,
-.downloadButton {
+.downloadButton,
+.shareButton,
+.manageSharingButton {
   background: none;
   border: none;
   cursor: pointer;
@@ -82,9 +84,61 @@
   color: var(--teal);
 }
 
+.shareButton {
+  color: var(--text-tertiary);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease, visibility 0.2s ease, all 0.2s ease;
+}
+
+.shareButton.visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.shareButton.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.shareButton:hover {
+  background: var(--button-hover-bg);
+  color: var(--teal);
+}
+
+.manageSharingButton {
+  color: var(--text-tertiary);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease, visibility 0.2s ease, all 0.2s ease;
+}
+
+.manageSharingButton.visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.manageSharingButton.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.manageSharingButton:hover {
+  background: var(--button-hover-bg);
+  color: var(--teal);
+}
+
 .deleteButton svg,
 .bookButton svg,
-.downloadButton svg {
+.downloadButton svg,
+.shareButton svg,
+.manageSharingButton svg {
   width: 18px;
   height: 18px;
   transition: color 0.2s ease;

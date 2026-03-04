@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { FiMoreVertical, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiMoreVertical, FiEdit2, FiTrash2, FiShare2, FiUsers } from 'react-icons/fi';
 import styles from './FolderMenu.module.css';
 
 export interface FolderMenuProps {
   onRename: () => void;
   onDelete: () => void;
+  onShare?: () => void;
+  onManageSharing?: () => void;
   isVisible: boolean;
   className?: string;
 }
@@ -23,6 +25,8 @@ export interface FolderMenuProps {
 export const FolderMenu: React.FC<FolderMenuProps> = ({
   onRename,
   onDelete,
+  onShare,
+  onManageSharing,
   isVisible,
   className = '',
 }) => {
@@ -109,6 +113,18 @@ export const FolderMenu: React.FC<FolderMenuProps> = ({
     onRename();
   };
 
+  const handleShareClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsPopoverOpen(false);
+    onShare?.();
+  };
+
+  const handleManageSharingClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsPopoverOpen(false);
+    onManageSharing?.();
+  };
+
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsPopoverOpen(false);
@@ -135,6 +151,28 @@ export const FolderMenu: React.FC<FolderMenuProps> = ({
         <FiEdit2 />
         <span>Rename</span>
       </button>
+      {onShare && (
+        <button
+          className={styles.popoverButton}
+          onClick={handleShareClick}
+          title="Share folder"
+          aria-label="Share folder"
+        >
+          <FiShare2 />
+          <span>Share</span>
+        </button>
+      )}
+      {onManageSharing && (
+        <button
+          className={styles.popoverButton}
+          onClick={handleManageSharingClick}
+          title="Manage sharing"
+          aria-label="Manage sharing"
+        >
+          <FiUsers />
+          <span>Manage sharing</span>
+        </button>
+      )}
       <button
         className={`${styles.popoverButton} ${styles.popoverButtonDelete}`}
         onClick={handleDeleteClick}

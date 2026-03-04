@@ -470,6 +470,142 @@
   min-height: 200px;
 }
 
+/* Shared sections */
+.sharedSection {
+  margin-top: 3rem;
+}
+
+.sharedHeading {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 1.25rem 0;
+}
+
+.sharedLoading {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  color: var(--text-tertiary);
+  padding: 1rem 0;
+}
+
+/* Shared Folder Grid */
+.sharedFolderGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.sharedFolderCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem 1rem;
+  background: var(--teal-lighter);
+  border: 2px solid transparent;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.sharedFolderCard:hover {
+  transform: scale(1.02);
+  border-color: var(--teal);
+}
+
+.sharedFolderCard svg {
+  color: var(--teal);
+}
+
+.sharedFolderCardName {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-align: center;
+  word-break: break-word;
+}
+
+.sharedFolderCardDate {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  color: var(--text-quaternary);
+  text-align: center;
+}
+
+/* Shared PDF List */
+.sharedPdfList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sharedPdfRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 1.25rem;
+  background: var(--bg-lighter);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  transition: border-color 0.2s;
+}
+
+.sharedPdfRow:hover {
+  border-color: var(--border-dark);
+}
+
+.sharedPdfInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.sharedPdfName {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sharedPdfDate {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  color: var(--text-quaternary);
+}
+
+.sharedPdfViewButton {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4rem 0.875rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  background: none;
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sharedPdfViewButton:hover {
+  color: var(--teal);
+  border-color: var(--teal);
+  background: var(--teal-lighter);
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .dashboard {

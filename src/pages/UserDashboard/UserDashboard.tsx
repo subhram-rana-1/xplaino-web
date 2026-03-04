@@ -1,21 +1,32 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiRefreshCw, FiList, FiGrid, FiArrowUp, FiArrowDown, FiPlus, FiCheck, FiCornerDownLeft } from 'react-icons/fi';
+import { FiRefreshCw, FiList, FiGrid, FiArrowUp, FiArrowDown, FiPlus, FiCheck, FiCornerDownLeft, FiBookOpen } from 'react-icons/fi';
 import styles from './UserDashboard.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
-import { getAllFolders, createFolder, deleteFolder, renameFolder } from '@/shared/services/folders.service';
-import type { FolderWithSubFolders } from '@/shared/types/folders.types';
+import {
+  getAllFolders,
+  createFolder,
+  deleteFolder,
+  renameFolder,
+  shareFolder,
+  unshareFolder,
+  getFolderShareeList,
+  getSharedFolders,
+} from '@/shared/services/folders.service';
+import { getSharedPdfs } from '@/shared/services/pdf.service';
+import type { FolderWithSubFolders, SharedFolderItem, ShareeItem } from '@/shared/types/folders.types';
+import type { SharedPdfItem } from '@/shared/types/pdf.types';
 import { FolderIcon } from '@/shared/components/FolderIcon';
 import { Toast } from '@/shared/components/Toast';
 import { CreateFolderModal } from '@/shared/components/CreateFolderModal';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { DataTable } from '@/shared/components/DataTable';
 import { FolderMenu } from '@/shared/components/FolderMenu';
+import { ShareModal } from '@/shared/components/ShareModal';
+import { ShareeListModal } from '@/shared/components/ShareeListModal';
 
 /**
- * UserDashboard - User dashboard with folder management
- * 
- * @returns JSX element
+ * UserDashboard - User dashboard with folder management and shared-with-me sections
  */
 export const UserDashboard: React.FC = () => {
   const { accessToken } = useAuth();
@@ -33,6 +44,21 @@ export const UserDashboard: React.FC = () => {
   const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
   const [editingFolderName, setEditingFolderName] = useState<string>('');
   const editInputRef = useRef<HTMLInputElement>(null);
+
+  // Share folder state
+  const [shareFolderId, setShareFolderId] = useState<string | null>(null);
+  const [shareFolderName, setShareFolderName] = useState<string>('');
+
+  // Manage sharing (sharee list) state
+  const [manageSharingFolderId, setManageSharingFolderId] = useState<string | null>(null);
+  const [manageSharingFolderName, setManageSharingFolderName] = useState<string>('');
+  const [shareeList, setShareeList] = useState<ShareeItem[]>([]);
+  const [isShareeListLoading, setIsShareeListLoading] = useState(false);
+
+  // Shared-with-me state
+  const [sharedFolders, setSharedFolders] = useState<SharedFolderItem[]>([]);
+  const [sharedPdfs, setSharedPdfs] = useState<SharedPdfItem[]>([]);
+  const [isSharedLoading, setIsSharedLoading] = useState(false);
 
   // Flatten hierarchical folder structure
   const flattenFolders = (folderList: FolderWithSubFolders[]): FolderWithSubFolders[] => {
@@ -54,7 +80,7 @@ export const UserDashboard: React.FC = () => {
       setIsLoading(true);
       const response = await getAllFolders(accessToken);
       setFolders(response.folders);
-      
+
       if (showSuccessFeedback) {
         setShowRefreshSuccess(true);
         setTimeout(() => {
@@ -70,15 +96,35 @@ export const UserDashboard: React.FC = () => {
     }
   };
 
+  const fetchSharedData = async () => {
+    if (!accessToken) return;
+
+    try {
+      setIsSharedLoading(true);
+      const [foldersRes, pdfsRes] = await Promise.all([
+        getSharedFolders(accessToken),
+        getSharedPdfs(accessToken),
+      ]);
+      setSharedFolders(foldersRes.folders);
+      setSharedPdfs(pdfsRes.pdfs);
+    } catch (error) {
+      console.error('Error fetching shared data:', error);
+    } finally {
+      setIsSharedLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (accessToken) {
       fetchFolders();
+      fetchSharedData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken]);
 
   const handleRefresh = () => {
     fetchFolders(true);
+    fetchSharedData();
   };
 
   const handleSort = (field: 'created_at') => {
@@ -96,6 +142,12 @@ export const UserDashboard: React.FC = () => {
     });
   };
 
+  const handleSharedFolderClick = (folder: SharedFolderItem) => {
+    navigate(`/user/dashboard/folder/${folder.id}`, {
+      state: { folder: { id: folder.id, name: folder.name } }
+    });
+  };
+
   const handleCreateFolder = async (name: string) => {
     if (!accessToken) {
       throw new Error('Not authenticated');
@@ -103,7 +155,6 @@ export const UserDashboard: React.FC = () => {
 
     try {
       await createFolder(accessToken, name);
-      // Refresh folders list to show the newly created folder
       await fetchFolders();
       setToast({ message: 'Folder created successfully!', type: 'success' });
       setIsCreateModalOpen(false);
@@ -111,7 +162,7 @@ export const UserDashboard: React.FC = () => {
       console.error('Error creating folder:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to create folder';
       setToast({ message: errorMessage, type: 'error' });
-      throw error; // Re-throw to let modal handle it
+      throw error;
     }
   };
 
@@ -124,8 +175,7 @@ export const UserDashboard: React.FC = () => {
 
     try {
       await deleteFolder(accessToken, deleteConfirmFolderId);
-      
-      // Remove folder from state (handle nested structure)
+
       const removeFolderById = (folderList: FolderWithSubFolders[], id: string): FolderWithSubFolders[] => {
         return folderList
           .filter(folder => folder.id !== id)
@@ -134,7 +184,7 @@ export const UserDashboard: React.FC = () => {
             subFolders: removeFolderById(folder.subFolders || [], id)
           }));
       };
-      
+
       setFolders(prevFolders => removeFolderById(prevFolders, deleteConfirmFolderId));
       setToast({ message: 'Folder deleted successfully', type: 'success' });
       setDeleteConfirmFolderId(null);
@@ -142,7 +192,6 @@ export const UserDashboard: React.FC = () => {
       console.error('Error deleting folder:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to delete folder';
       setToast({ message: errorMessage, type: 'error' });
-      // Close the confirmation modal on error
       setDeleteConfirmFolderId(null);
     }
   };
@@ -161,26 +210,19 @@ export const UserDashboard: React.FC = () => {
 
     try {
       const updatedFolder = await renameFolder(accessToken, folderId, editingFolderName.trim());
-      
-      // Update folder name in state (handle nested structure)
+
       const updateFolderName = (folderList: FolderWithSubFolders[], id: string, newName: string): FolderWithSubFolders[] => {
         return folderList.map(folder => {
           if (folder.id === id) {
-            return {
-              ...folder,
-              name: newName,
-            };
+            return { ...folder, name: newName };
           }
           if (folder.subFolders && folder.subFolders.length > 0) {
-            return {
-              ...folder,
-              subFolders: updateFolderName(folder.subFolders, id, newName),
-            };
+            return { ...folder, subFolders: updateFolderName(folder.subFolders, id, newName) };
           }
           return folder;
         });
       };
-      
+
       setFolders(prevFolders => updateFolderName(prevFolders, folderId, updatedFolder.name));
       setToast({ message: 'Folder renamed successfully', type: 'success' });
       setEditingFolderId(null);
@@ -204,6 +246,54 @@ export const UserDashboard: React.FC = () => {
       editInputRef.current.select();
     }
   }, [editingFolderId]);
+
+  // --- Share handlers ---
+  const handleShareClick = async (folderId: string, folderName: string) => {
+    setShareFolderId(folderId);
+    setShareFolderName(folderName);
+    // Load sharees in the background so the inline section is populated
+    if (!accessToken) return;
+    setIsShareeListLoading(true);
+    try {
+      const res = await getFolderShareeList(accessToken, folderId);
+      setShareeList(res.sharees);
+    } catch {
+      setShareeList([]);
+    } finally {
+      setIsShareeListLoading(false);
+    }
+  };
+
+  const handleShareSubmit = async (email: string) => {
+    if (!accessToken || !shareFolderId) return;
+    await shareFolder(accessToken, shareFolderId, email);
+  };
+
+  const handleManageSharingClick = async (folderId: string, folderName: string) => {
+    if (!accessToken) return;
+    setManageSharingFolderId(folderId);
+    setManageSharingFolderName(folderName);
+    setIsShareeListLoading(true);
+    try {
+      const res = await getFolderShareeList(accessToken, folderId);
+      setShareeList(res.sharees);
+    } catch (error) {
+      console.error('Error fetching sharee list:', error);
+      setToast({ message: 'Failed to load sharing list', type: 'error' });
+      setManageSharingFolderId(null);
+    } finally {
+      setIsShareeListLoading(false);
+    }
+  };
+
+  const handleUnshare = async (email: string) => {
+    // Works for both the share modal (shareFolderId) and manage-sharing modal (manageSharingFolderId)
+    const folderId = manageSharingFolderId || shareFolderId;
+    if (!accessToken || !folderId) return;
+    await unshareFolder(accessToken, folderId, email);
+    setShareeList(prev => prev.filter(s => s.email !== email));
+    setToast({ message: `Removed access for ${email}`, type: 'success' });
+  };
 
   const formatDate = (dateString: string): string => {
     try {
@@ -239,6 +329,7 @@ export const UserDashboard: React.FC = () => {
 
   return (
     <div className={styles.container}>
+      {/* My Folders */}
       <h2 className={styles.heading}>My Folders</h2>
       <div className={styles.header}>
           <div className={styles.headerLeft}>
@@ -264,7 +355,7 @@ export const UserDashboard: React.FC = () => {
               className={`${styles.refreshButton} ${showRefreshSuccess ? styles.refreshButtonSuccess : ''}`}
               onClick={handleRefresh}
               disabled={isLoading}
-              title="Refresh folders"
+              title="Refresh"
             >
               {showRefreshSuccess ? (
                 <>
@@ -310,7 +401,7 @@ export const UserDashboard: React.FC = () => {
                       render: (folder) => {
                         const isEditing = editingFolderId === folder.id;
                         return (
-                          <div 
+                          <div
                             className={styles.folderNameCell}
                             onClick={!isEditing ? () => handleFolderClick(folder) : undefined}
                             style={!isEditing ? { cursor: 'pointer' } : undefined}
@@ -363,6 +454,8 @@ export const UserDashboard: React.FC = () => {
                           <FolderMenu
                             onRename={() => handleRenameClick(folder.id, folder.name)}
                             onDelete={() => handleDeleteClick(folder.id)}
+                            onShare={() => handleShareClick(folder.id, folder.name)}
+                            onManageSharing={() => handleManageSharingClick(folder.id, folder.name)}
                             isVisible={isHovered}
                             className={styles.actionIconsInCell}
                           />
@@ -400,6 +493,8 @@ export const UserDashboard: React.FC = () => {
                       <FolderMenu
                         onRename={() => handleRenameClick(folder.id, folder.name)}
                         onDelete={() => handleDeleteClick(folder.id)}
+                        onShare={() => handleShareClick(folder.id, folder.name)}
+                        onManageSharing={() => handleManageSharingClick(folder.id, folder.name)}
                         isVisible={hoveredRowId === folder.id}
                       />
                     </div>
@@ -436,6 +531,68 @@ export const UserDashboard: React.FC = () => {
           </>
         )}
 
+        {/* Shared Folders Section */}
+        {(sharedFolders.length > 0 || isSharedLoading) && (
+          <div className={styles.sharedSection}>
+            <h2 className={styles.sharedHeading}>Shared Folders</h2>
+            {isSharedLoading ? (
+              <div className={styles.sharedLoading}>Loading shared folders...</div>
+            ) : (
+              <div className={styles.sharedFolderGrid}>
+                {sharedFolders.map((folder) => (
+                  <div
+                    key={folder.id}
+                    className={styles.sharedFolderCard}
+                    onClick={() => handleSharedFolderClick(folder)}
+                    title={`Shared folder: ${folder.name}`}
+                  >
+                    <FolderIcon size={28} />
+                    <span className={styles.sharedFolderCardName}>{folder.name}</span>
+                    <span className={styles.sharedFolderCardDate}>
+                      Shared {new Date(folder.shared_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Shared PDFs Section */}
+        {(sharedPdfs.length > 0 || isSharedLoading) && (
+          <div className={styles.sharedSection}>
+            <h2 className={styles.sharedHeading}>Shared PDFs</h2>
+            {isSharedLoading ? (
+              <div className={styles.sharedLoading}>Loading shared PDFs...</div>
+            ) : (
+              <div className={styles.sharedPdfList}>
+                {sharedPdfs.map((pdf) => (
+                  <div
+                    key={pdf.id}
+                    className={styles.sharedPdfRow}
+                  >
+                    <div className={styles.sharedPdfInfo}>
+                      <span className={styles.sharedPdfName}>{pdf.file_name}</span>
+                      <span className={styles.sharedPdfDate}>
+                        Shared {new Date(pdf.shared_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </span>
+                    </div>
+                    <button
+                      className={styles.sharedPdfViewButton}
+                      onClick={() => window.open(`${window.location.origin}/pdf/${pdf.id}`, '_blank', 'noopener,noreferrer')}
+                      title="View PDF"
+                      aria-label="View PDF"
+                    >
+                      <FiBookOpen size={15} />
+                      <span>View</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {toast && (
           <Toast
             message={toast.message}
@@ -459,9 +616,29 @@ export const UserDashboard: React.FC = () => {
             onCancel={() => setDeleteConfirmFolderId(null)}
           />
         )}
+
+        {/* Share Folder Modal */}
+        <ShareModal
+          isOpen={!!shareFolderId}
+          onClose={() => { setShareFolderId(null); setShareFolderName(''); setShareeList([]); }}
+          onShare={handleShareSubmit}
+          title={`Share "${shareFolderName}"`}
+          sharees={shareeList}
+          isLoadingSharees={isShareeListLoading}
+          onUnshare={handleUnshare}
+        />
+
+        {/* Manage Sharing (Sharee List) Modal */}
+        <ShareeListModal
+          isOpen={!!manageSharingFolderId}
+          onClose={() => { setManageSharingFolderId(null); setManageSharingFolderName(''); setShareeList([]); }}
+          title={`Sharing: "${manageSharingFolderName}"`}
+          sharees={shareeList}
+          isLoading={isShareeListLoading}
+          onUnshare={handleUnshare}
+        />
     </div>
   );
 };
 
 UserDashboard.displayName = 'UserDashboard';
-

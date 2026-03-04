@@ -306,51 +306,10 @@
   pointer-events: none;
 }
 
-/* ─── Chevron button — appears on hover of highlight wrapper ─────────────── */
-.chevronBtn {
-  position: absolute;
-  bottom: -7px;
-  right: -5px;
-  width: 15px;
-  height: 15px;
-  border-radius: 50%;
-  background: var(--sel-primary, #0d8070);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s ease, transform 0.12s ease;
-  z-index: 1;
-}
-
-.highlightWrapper:hover .chevronBtn,
-.chevronBtn:focus-visible {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.buttonGroupVisible .chevronBtn {
-  pointer-events: auto;
-}
-
-.chevronBtn svg {
-  width: 9px;
-  height: 9px;
-  stroke: #ffffff;
-  stroke-width: 3;
-  fill: none;
-  display: block;
-  pointer-events: none;
-}
-
 /* ─── Colour picker popover ──────────────────────────────────────────────── */
 .colorPickerPopover {
   position: absolute;
-  bottom: calc(100% + 8px);
+  top: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%);
   background: #ffffff;
@@ -362,7 +321,7 @@
   flex-direction: row;
   gap: 4px;
   padding: 6px 10px;
-  transform-origin: bottom center;
+  transform-origin: top center;
   transition: opacity 0.18s ease, transform 0.18s ease;
   white-space: nowrap;
 }
@@ -375,8 +334,19 @@
 
 .colorPickerHidden {
   opacity: 0;
-  transform: translateX(-50%) scaleY(0.9) translateY(4px);
+  transform: translateX(-50%) scaleY(0.9) translateY(-4px);
   pointer-events: none;
+}
+
+/* Dimmed state — hovering button but not yet on the panel */
+.colourPanelDimmed {
+  opacity: 0.45;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+/* Individual dots become fully opaque on hover even when panel is dimmed */
+.colourPanelDimmed .colourDot:hover {
+  opacity: 1;
 }
 
 /* ─── Individual colour dot in picker ────────────────────────────────────── */

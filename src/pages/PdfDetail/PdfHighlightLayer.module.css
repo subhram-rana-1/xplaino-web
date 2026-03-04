@@ -3,8 +3,6 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  /* Sits above the text layer (z-index 2) but below annotation layer (z-index 3) */
-  z-index: 2;
   overflow: visible;
 }
 
@@ -19,8 +17,8 @@
   position: absolute;
   inset: 0;
   border-radius: 2px;
-  mix-blend-mode: multiply;
   transition: background 0.2s ease;
+  mix-blend-mode: multiply;
 }
 
 /* ─── Container for menu button + dropdown ───────────────────────────────────── */
@@ -379,4 +377,15 @@
 .noteEditorDeleteNote:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+/* ─── Read-only note icon (non-interactive) ──────────────────────────────────── */
+.noteIconReadOnly {
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.noteIconReadOnly:hover {
+  transform: none;
 }

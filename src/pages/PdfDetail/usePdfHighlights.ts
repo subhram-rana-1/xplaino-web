@@ -18,7 +18,7 @@ interface UsePdfHighlightsReturn {
   selectedColourId: string | null;
   setSelectedColourId: (id: string) => void;
   highlights: PdfHighlight[];
-  createHighlight: (startText: string, endText: string) => Promise<void>;
+  createHighlight: (startText: string, endText: string, colourIdOverride?: string) => Promise<void>;
   deleteHighlight: (id: string) => Promise<void>;
 }
 
@@ -64,9 +64,10 @@ export function usePdfHighlights({
   }, [pdfId, accessToken]);
 
   const createHighlight = useCallback(
-    async (startText: string, endText: string) => {
-      if (!pdfId || !selectedColourId) return;
-      const newHighlight = await apiCreateHighlight(pdfId, selectedColourId, startText, endText);
+    async (startText: string, endText: string, colourIdOverride?: string) => {
+      const colourId = colourIdOverride ?? selectedColourId;
+      if (!pdfId || !colourId) return;
+      const newHighlight = await apiCreateHighlight(pdfId, colourId, startText, endText);
       setHighlights((prev) => [...prev, newHighlight]);
     },
     [pdfId, selectedColourId],

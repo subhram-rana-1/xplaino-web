@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { FiTrash2, FiX } from 'react-icons/fi';
 import type { PdfHighlight, HighlightColour } from '@/shared/services/pdfHighlightService';
 import type { PdfNote } from '@/shared/services/pdfNoteService';
+import { normalisePdfText, buildNormalisedWithIndexMap } from './pdfTextNormalise';
 import styles from './PdfHighlightLayer.module.css';
 
 interface HighlightRect {
@@ -44,6 +45,10 @@ interface PdfHighlightLayerProps {
   userFirstName?: string;
   /** Set by parent when user clicks "Write a note" from the text selection trigger */
   pendingNoteForSelection?: { startText: string; endText: string; clientY: number } | null;
+  /** When true, disables all write actions (delete highlight, create/edit/delete notes). Read-only display only. */
+  readOnly?: boolean;
+  /** Whether the current user is logged in. Used to allow unauthenticated users to open the note editor (auth is checked lazily at save time). */
+  isLoggedIn?: boolean;
 }
 
 function computeHighlightRects(
@@ -59,6 +64,7 @@ function computeHighlightRects(
 
   if (spans.length === 0) return [];
 
+  // Build full concatenated text and per-span character offsets (in original text).
   const spanOffsets: { start: number; end: number; el: HTMLElement }[] = [];
   let fullText = '';
   for (const span of spans) {
@@ -67,25 +73,58 @@ function computeHighlightRects(
     fullText += t;
   }
 
-  const normalise = (s: string) => s.replace(/\s+/g, ' ').trim();
-  const normFull = normalise(fullText);
-  const normStart = normalise(highlight.startText);
-  const normEnd = normalise(highlight.endText || highlight.startText);
+  // Build normalised text and an index map: normToOrig[i] = position in fullText.
+  // This replaces the previous linear-ratio approximation which caused whole-paragraph
+  // highlights when whitespace was unevenly distributed.
+  const { normText: normFull, normToOrig } = buildNormalisedWithIndexMap(fullText);
+  const normStart = normalisePdfText(highlight.startText);
+  const normEnd = normalisePdfText(highlight.endText || highlight.startText);
 
   if (!normStart) return [];
 
-  const startIdx = normFull.indexOf(normStart);
+  const FALLBACK_MIN = 7;
+
+  // Try the full startText anchor first. If it fails (e.g. table cells are
+  // interleaved in the page text layer, splitting the anchor), progressively
+  // shorten the prefix, then try suffix matching as a last resort.
+  let startIdx = normFull.indexOf(normStart);
+  if (startIdx === -1) {
+    for (let len = normStart.length - 1; len >= FALLBACK_MIN; len--) {
+      startIdx = normFull.indexOf(normStart.slice(0, len));
+      if (startIdx !== -1) break;
+    }
+  }
+  if (startIdx === -1) {
+    for (let len = normStart.length - 1; len >= FALLBACK_MIN; len--) {
+      const suffix = normStart.slice(-len);
+      startIdx = normFull.indexOf(suffix);
+      if (startIdx !== -1) break;
+    }
+  }
   if (startIdx === -1) return [];
 
   const endSearchStart = startIdx + normStart.length - normEnd.length;
-  const endIdx =
+  let endIdxEnd =
     normFull.indexOf(normEnd, Math.max(startIdx, endSearchStart)) + normEnd.length;
 
-  if (endIdx <= startIdx) return [];
+  if (endIdxEnd <= startIdx) {
+    endIdxEnd = -1;
+    for (let len = normEnd.length - 1; len >= FALLBACK_MIN; len--) {
+      const suffix = normEnd.slice(-len);
+      const idx = normFull.indexOf(suffix, startIdx);
+      if (idx !== -1) {
+        endIdxEnd = idx + len;
+        break;
+      }
+    }
+  }
+  if (endIdxEnd === -1 || endIdxEnd <= startIdx) return [];
 
-  const ratio = fullText.length / normFull.length;
-  const origStart = Math.floor(startIdx * ratio);
-  const origEnd = Math.min(Math.ceil(endIdx * ratio), fullText.length);
+  // Map normalised indices back to original text positions exactly.
+  const origStart = normToOrig[startIdx] ?? 0;
+  const origEnd = endIdxEnd < normToOrig.length
+    ? normToOrig[endIdxEnd]
+    : fullText.length;
 
   const overlappingSpans = spanOffsets.filter(
     (s) => s.end > origStart && s.start < origEnd,
@@ -93,17 +132,46 @@ function computeHighlightRects(
 
   if (overlappingSpans.length === 0) return [];
 
+  // For each overlapping span, compute a tight DOMRect using the Range API so
+  // that only the highlighted portion of the first and last partial spans is
+  // measured, not their full extent.
+  const tightRects: DOMRect[] = overlappingSpans.map((spanMeta) => {
+    const inSpanStart = Math.max(0, origStart - spanMeta.start);
+    const inSpanEnd = Math.min(spanMeta.end - spanMeta.start, origEnd - spanMeta.start);
+
+    // Only apply Range API when the span is partially covered; fall back to
+    // getBoundingClientRect for fully-covered spans or when the Range fails.
+    const isPartial = inSpanStart > 0 || inSpanEnd < spanMeta.end - spanMeta.start;
+    if (isPartial) {
+      const textNode = spanMeta.el.firstChild;
+      if (textNode && textNode.nodeType === Node.TEXT_NODE) {
+        try {
+          const range = document.createRange();
+          const maxLen = textNode.textContent?.length ?? 0;
+          range.setStart(textNode, Math.min(inSpanStart, maxLen));
+          range.setEnd(textNode, Math.min(inSpanEnd, maxLen));
+          const r = range.getBoundingClientRect();
+          if (r.width > 0 || r.height > 0) return r;
+        } catch {
+          // fall through to getBoundingClientRect
+        }
+      }
+    }
+    return spanMeta.el.getBoundingClientRect();
+  });
+
+  // Group tight rects by line (spans whose tops are within LINE_TOLERANCE px)
+  // and merge each group into a single highlight band.
   const LINE_TOLERANCE = 4;
   const rects: HighlightRect[] = [];
-  let lineSpans: typeof overlappingSpans = [];
+  let lineRects: DOMRect[] = [];
 
   const flush = () => {
-    if (lineSpans.length === 0) return;
-    const clientRects = lineSpans.map((s) => s.el.getBoundingClientRect());
-    const top = Math.min(...clientRects.map((r) => r.top));
-    const bottom = Math.max(...clientRects.map((r) => r.bottom));
-    const left = Math.min(...clientRects.map((r) => r.left));
-    const right = Math.max(...clientRects.map((r) => r.right));
+    if (lineRects.length === 0) return;
+    const top = Math.min(...lineRects.map((r) => r.top));
+    const bottom = Math.max(...lineRects.map((r) => r.bottom));
+    const left = Math.min(...lineRects.map((r) => r.left));
+    const right = Math.max(...lineRects.map((r) => r.right));
     rects.push({
       highlightId,
       x: left - pageContainerRect.left,
@@ -112,20 +180,19 @@ function computeHighlightRects(
       height: bottom - top,
       hexcode,
     });
-    lineSpans = [];
+    lineRects = [];
   };
 
-  for (const spanMeta of overlappingSpans) {
-    const rect = spanMeta.el.getBoundingClientRect();
-    if (lineSpans.length === 0) {
-      lineSpans.push(spanMeta);
+  for (const tightRect of tightRects) {
+    if (lineRects.length === 0) {
+      lineRects.push(tightRect);
     } else {
-      const prevRect = lineSpans[lineSpans.length - 1].el.getBoundingClientRect();
-      if (Math.abs(rect.top - prevRect.top) <= LINE_TOLERANCE) {
-        lineSpans.push(spanMeta);
+      const prev = lineRects[lineRects.length - 1];
+      if (Math.abs(tightRect.top - prev.top) <= LINE_TOLERANCE) {
+        lineRects.push(tightRect);
       } else {
         flush();
-        lineSpans.push(spanMeta);
+        lineRects.push(tightRect);
       }
     }
   }
@@ -146,6 +213,8 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
   onDeleteNote,
   userFirstName,
   pendingNoteForSelection,
+  readOnly = false,
+  isLoggedIn,
 }) => {
   const [rects, setRects] = useState<HighlightRect[]>([]);
   const [activeNoteRects, setActiveNoteRects] = useState<HighlightRect[]>([]);
@@ -187,7 +256,7 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
 
   // Open note editor when parent signals a "Write a note" from text selection
   useEffect(() => {
-    if (!pendingNoteForSelection || !pageContainerEl) return;
+    if ((readOnly && isLoggedIn !== false) || !pendingNoteForSelection || !pageContainerEl) return;
     const pageRect = pageContainerEl.getBoundingClientRect();
     if (
       pendingNoteForSelection.clientY < pageRect.top - 40 ||
@@ -273,9 +342,26 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
       const containerRect = pageContainerEl.getBoundingClientRect();
       const x = e.clientX - containerRect.left;
       const y = e.clientY - containerRect.top;
-      const hit = rects.find(
+
+      // First pass: strict bounds — mouse is directly over a highlight rect.
+      // This always wins to avoid a preceding highlight's buffer zone stealing
+      // hover from a later highlight the mouse is actually on.
+      let hit = rects.find(
         (r) => x >= r.x && x <= r.x + r.width && y >= r.y && y <= r.y + r.height,
       );
+
+      // Second pass: if no strict match, extend the last rect of each highlight
+      // upward and rightward to bridge the gap to the menu button (top:-14px, right:-14px).
+      if (!hit) {
+        const lastIdx = new Map<string, number>();
+        rects.forEach((r, i) => lastIdx.set(r.highlightId, i));
+        const MENU_BUFFER = 16;
+        hit = rects.find((r, i) => {
+          if (lastIdx.get(r.highlightId) !== i) return false;
+          return x >= r.x && x <= r.x + r.width + MENU_BUFFER && y >= r.y - MENU_BUFFER && y <= r.y + r.height;
+        });
+      }
+
       setHoveredHighlightId(hit?.highlightId ?? null);
     };
     const onLeave = () => setHoveredHighlightId(null);
@@ -348,6 +434,8 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
         highlightId: matchedHighlight?.id ?? '',
         noteId,
         y,
+        startText: note.startText,
+        endText: note.endText,
       });
       setNoteContent(note.content);
       setNoteEditorSaved(false);
@@ -393,7 +481,7 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
       setNoteEditorSaved(true);
       closeNoteEditorWithAnimation();
     } catch {
-      // silently degrade
+      closeNoteEditorWithAnimation();
     } finally {
       setIsSavingNote(false);
     }
@@ -460,7 +548,7 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
               style={{ background: isNoteActive ? 'rgba(13, 128, 112, 0.22)' : `${rect.hexcode}55` }}
             />
 
-            {isLastRectForHighlight && (
+            {isLastRectForHighlight && !readOnly && (
               <div ref={isMenuOpen ? menuRef : undefined} className={styles.menuContainer}>
                 <button
                   type="button"
@@ -591,11 +679,11 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
         <button
           key={pos.noteId}
           type="button"
-          className={styles.noteIcon}
+          className={`${styles.noteIcon} ${readOnly ? styles.noteIconReadOnly : ''}`}
           style={{ left: pageWidth + 16, top: pos.y }}
-          aria-label="Edit note"
-          title="Edit note"
-          onClick={() => handleOpenEditNoteEditor(pos.noteId, pos.y)}
+          aria-label={readOnly ? 'View note' : 'Edit note'}
+          title={readOnly ? 'View note' : 'Edit note'}
+          onClick={() => { if (!readOnly) handleOpenEditNoteEditor(pos.noteId, pos.y); }}
         >
           <NoteIcon />
         </button>

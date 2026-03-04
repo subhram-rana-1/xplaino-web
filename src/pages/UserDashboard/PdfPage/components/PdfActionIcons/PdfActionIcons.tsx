@@ -1,11 +1,13 @@
 import React from 'react';
-import { FiTrash2, FiBookOpen, FiDownload } from 'react-icons/fi';
+import { FiTrash2, FiBookOpen, FiDownload, FiShare2, FiUsers } from 'react-icons/fi';
 import styles from './PdfActionIcons.module.css';
 
 export interface PdfActionIconsProps {
   onDelete: () => void;
   onBook: () => void;
   onDownload: () => void;
+  onShare?: () => void;
+  onManageSharing?: () => void;
   isVisible: boolean;
   canDownload?: boolean;
   className?: string;
@@ -19,6 +21,8 @@ export const PdfActionIcons: React.FC<PdfActionIconsProps> = ({
   onDelete,
   onBook,
   onDownload,
+  onShare,
+  onManageSharing,
   isVisible,
   canDownload = true,
   className = '',
@@ -36,6 +40,32 @@ export const PdfActionIcons: React.FC<PdfActionIconsProps> = ({
       >
         <FiBookOpen />
       </button>
+      {onShare && (
+        <button
+          className={`${styles.shareButton} ${isVisible ? styles.visible : styles.hidden}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onShare();
+          }}
+          title="Share PDF"
+          aria-label="Share PDF"
+        >
+          <FiShare2 />
+        </button>
+      )}
+      {onManageSharing && (
+        <button
+          className={`${styles.manageSharingButton} ${isVisible ? styles.visible : styles.hidden}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onManageSharing();
+          }}
+          title="Manage sharing"
+          aria-label="Manage sharing"
+        >
+          <FiUsers />
+        </button>
+      )}
       {canDownload && (
         <button
           className={`${styles.downloadButton} ${isVisible ? styles.visible : styles.hidden}`}

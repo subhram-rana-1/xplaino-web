@@ -65,9 +65,11 @@ function isLoginRequiredError(errorData: any): boolean {
     return false;
   }
   
-  // Check if detail is an object with errorCode
-  if (typeof errorData.detail === 'object' && errorData.detail.errorCode === 'LOGIN_REQUIRED') {
-    return true;
+  if (typeof errorData.detail === 'object') {
+    // camelCase variant: { errorCode: "LOGIN_REQUIRED" }
+    if (errorData.detail.errorCode === 'LOGIN_REQUIRED') return true;
+    // snake_case variant: { error_code: "UNAUTHORIZED" }
+    if (errorData.detail.error_code === 'UNAUTHORIZED') return true;
   }
   
   return false;
@@ -168,14 +170,13 @@ export async function fetchWithAuth(
 ): Promise<Response> {
   // Get current auth state
   const auth = await getAuthFromStorage();
-  
-  if (!auth || !auth.accessToken) {
-    throw new Error('Not authenticated');
-  }
 
-  // Prepare headers with Authorization
+  // Prepare headers; omit Authorization when unauthenticated so the server
+  // can respond with 401/LOGIN_REQUIRED and the normal error path fires.
   const headers = new Headers(options.headers);
-  headers.set('Authorization', `Bearer ${auth.accessToken}`);
+  if (auth?.accessToken) {
+    headers.set('Authorization', `Bearer ${auth.accessToken}`);
+  }
   headers.set('X-Source', 'XPLAINO_WEB');
   
   // For FormData, ensure Content-Type is NOT set so browser auto-sets it with boundary
