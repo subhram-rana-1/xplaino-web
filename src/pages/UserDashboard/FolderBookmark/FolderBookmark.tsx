@@ -266,7 +266,7 @@ export const FolderBookmark: React.FC = () => {
 
   // Get folder data from navigation state if available
   const folder = (location.state as { folder?: { id: string; name: string } })?.folder;
-  const [resolvedFolderName, setResolvedFolderName] = useState<string>(folder?.name || '');
+  const [_resolvedFolderName, setResolvedFolderName] = useState<string>(folder?.name || '');
 
   useEffect(() => {
     if (!folderId || !accessToken) return;
@@ -289,8 +289,6 @@ export const FolderBookmark: React.FC = () => {
       .catch(() => {});
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folderId, accessToken]);
-
-  const folderName = resolvedFolderName;
 
   // Fetch functions
   const fetchParagraphs = useCallback(async (forceRefresh = false, append = false) => {

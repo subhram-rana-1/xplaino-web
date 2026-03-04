@@ -1,4 +1,1 @@
-export { MyBookmarksPage } from './MyBookmarksPage';
-
-
-
+export {};

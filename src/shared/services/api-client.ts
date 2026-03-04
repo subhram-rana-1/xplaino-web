@@ -201,7 +201,7 @@ export async function fetchWithAuth(
       
       // Use global promise to prevent duplicate refreshes
       if (!refreshPromise) {
-        refreshPromise = refreshAccessToken(auth)
+        refreshPromise = refreshAccessToken(auth!)
           .finally(() => {
             // Clear the promise after completion (success or failure)
             refreshPromise = null;

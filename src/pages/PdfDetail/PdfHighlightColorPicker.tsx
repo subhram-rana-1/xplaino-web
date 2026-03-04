@@ -103,29 +103,4 @@ export const PdfHighlightColorPicker: React.FC<PdfHighlightColorPickerProps> = (
   );
 };
 
-function HighlightIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      {/* marker body */}
-      <path d="M9 3h6l3 7H6L9 3z" />
-      {/* tip */}
-      <path d="M12 10v7" />
-      {/* flat base / underline stroke */}
-      <path d="M8 21h8" />
-      {/* chisel tip triangle */}
-      <path d="M10 17l2 4 2-4" />
-    </svg>
-  );
-}
-
 PdfHighlightColorPicker.displayName = 'PdfHighlightColorPicker';

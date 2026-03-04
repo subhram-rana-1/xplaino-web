@@ -412,7 +412,8 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
   const handleOpenNewNoteEditor = useCallback(
     (highlightId: string) => {
       setMenuHighlightId(null);
-      const lastRect = rects.filter((r) => r.highlightId === highlightId).at(-1);
+      const filtered = rects.filter((r) => r.highlightId === highlightId);
+      const lastRect = filtered[filtered.length - 1];
       if (!lastRect) return;
       setNoteEditorState({ mode: 'create', highlightId, noteId: null, y: lastRect.y });
       setNoteContent('');
