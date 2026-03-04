@@ -209,6 +209,32 @@
   margin-top: 0.625rem;
 }
 
+/* Manage Shares button */
+.manageSharesBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.875rem;
+  padding: 0.5rem 0.875rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  background: var(--bg-light);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  justify-content: center;
+}
+
+.manageSharesBtn:hover {
+  color: var(--teal);
+  border-color: var(--teal);
+  background: var(--button-hover-bg);
+}
+
 /* Divider */
 .divider {
   display: flex;

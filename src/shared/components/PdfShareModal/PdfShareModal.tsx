@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiX, FiArrowRight, FiGlobe, FiLock, FiUserMinus, FiUsers, FiLink, FiCheck } from 'react-icons/fi';
+import { FiX, FiArrowRight, FiGlobe, FiLock, FiUserMinus, FiUsers, FiLink, FiCheck, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import type { PdfResponse } from '@/shared/types/pdf.types';
 import type { ShareeItem } from '@/shared/types/folders.types';
 import styles from './PdfShareModal.module.css';
@@ -18,6 +18,7 @@ interface PdfShareModalProps {
   sharees?: ShareeItem[];
   isLoadingSharees?: boolean;
   onUnshare?: (email: string) => Promise<void>;
+  onFetchSharees?: () => Promise<void>;
 }
 
 type SocialPlatform = 'linkedin' | 'twitter' | 'facebook' | 'whatsapp';
@@ -91,8 +92,10 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
   sharees,
   isLoadingSharees,
   onUnshare,
+  onFetchSharees,
 }) => {
   const [email, setEmail] = useState('');
+  const [showSharees, setShowSharees] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [emailSuccess, setEmailSuccess] = useState<string | null>(null);
   const [isEmailLoading, setIsEmailLoading] = useState(false);
@@ -257,6 +260,7 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
       setPendingCopyLink(false);
       setMakePublicError(null);
       setMakePrivateError(null);
+      setShowSharees(false);
       setIsClosing(false);
       onClose();
     }, 300);
@@ -320,6 +324,23 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
                   <div className={styles.errorMessage}>{emailError}</div>
                 )}
               </form>
+
+              {onFetchSharees && (
+                <button
+                  type="button"
+                  className={styles.manageSharesBtn}
+                  onClick={async () => {
+                    if (!showSharees) {
+                      await onFetchSharees();
+                    }
+                    setShowSharees((v) => !v);
+                  }}
+                >
+                  <FiUsers size={14} />
+                  <span>{showSharees ? 'Hide shared list' : 'Manage shares'}</span>
+                  {showSharees ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
+                </button>
+              )}
             </div>
 
             {/* Divider between email and social sections */}
@@ -432,7 +453,7 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
         </div>
 
         {/* People with access section — owners only */}
-        {isOwner && onUnshare !== undefined && (
+        {isOwner && onUnshare !== undefined && (!onFetchSharees || showSharees) && (
           <div className={styles.shareeSection}>
             <div className={styles.shareeDivider}>
               <span className={styles.shareeDividerText}>People with access</span>

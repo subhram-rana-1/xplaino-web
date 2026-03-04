@@ -6,9 +6,9 @@ import 'react-pdf/dist/Page/AnnotationLayer.css';
 import { FiPlus, FiChevronLeft, FiChevronRight, FiChevronDown, FiEyeOff, FiShare2 } from 'react-icons/fi';
 import styles from './PdfDetail.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
-import { getPdfById, getAllPdfs, sharePdf, makePdfPublic, makePdfPrivate } from '@/shared/services/pdf.service';
+import { getPdfById, getAllPdfs, sharePdf, makePdfPublic, makePdfPrivate, getPdfShareeList, unsharePdf } from '@/shared/services/pdf.service';
 import { getAllFolders } from '@/shared/services/folders.service';
-import type { FolderWithSubFolders } from '@/shared/types/folders.types';
+import type { FolderWithSubFolders, ShareeItem } from '@/shared/types/folders.types';
 import { getUserSettings, updateUserSettings } from '@/shared/services/user-settings.service';
 import type { PdfResponse } from '@/shared/types/pdf.types';
 import type { SettingsResponse } from '@/shared/types/user-settings.types';
@@ -238,6 +238,8 @@ export const PdfDetail: React.FC = () => {
   const [isLoginModalClosing, setIsLoginModalClosing] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
+  const [pdfShareeList, setPdfShareeList] = useState<ShareeItem[]>([]);
+  const [isPdfShareeListLoading, setIsPdfShareeListLoading] = useState(false);
 
   // Derived viewer-role booleans
   const isOwner = !!user && pdfDetails !== null && user.id === pdfDetails.created_by;
@@ -262,6 +264,25 @@ export const PdfDetail: React.FC = () => {
     const updated = await makePdfPrivate(accessToken, pdfId);
     setPdfDetails(updated);
     return updated;
+  }, [accessToken, pdfId]);
+
+  const handleFetchSharees = useCallback(async () => {
+    if (!accessToken || !pdfId) return;
+    setIsPdfShareeListLoading(true);
+    try {
+      const res = await getPdfShareeList(accessToken, pdfId);
+      setPdfShareeList(res.sharees);
+    } catch {
+      setPdfShareeList([]);
+    } finally {
+      setIsPdfShareeListLoading(false);
+    }
+  }, [accessToken, pdfId]);
+
+  const handleUnsharePdf = useCallback(async (email: string) => {
+    if (!accessToken || !pdfId) return;
+    await unsharePdf(accessToken, pdfId, email);
+    setPdfShareeList(prev => prev.filter(s => s.email !== email));
   }, [accessToken, pdfId]);
 
   const handleFdNext = useCallback(() => setFdStep(2), []);
@@ -947,7 +968,7 @@ export const PdfDetail: React.FC = () => {
 
       <PdfShareModal
         isOpen={showShareModal}
-        onClose={() => setShowShareModal(false)}
+        onClose={() => { setShowShareModal(false); setPdfShareeList([]); }}
         onShare={handleSharePdfSubmit}
         onMakePublic={handleMakePdfPublic}
         onMakePrivate={handleMakePdfPrivate}
@@ -955,6 +976,10 @@ export const PdfDetail: React.FC = () => {
         accessLevel={pdfDetails?.access_level ?? 'PRIVATE'}
         pdfId={pdfId ?? ''}
         isOwner={isOwner}
+        sharees={pdfShareeList}
+        isLoadingSharees={isPdfShareeListLoading}
+        onUnshare={handleUnsharePdf}
+        onFetchSharees={handleFetchSharees}
       />
 
       <PdfUploadModal
