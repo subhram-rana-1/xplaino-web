@@ -250,18 +250,20 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                 </button>
                 <div className={`${styles.dropdownMenu} ${isToolsDropdownOpen ? styles.dropdownMenuOpen : ''}`}>
                   <button
-                    className={`${styles.dropdownItem} ${styles.dropdownItemButton}`}
+                    className={`${styles.dropdownItem} ${styles.dropdownItemButton} ${styles.extensionItem}`}
                     onClick={handleToolsExtensionClick}
                   >
-                    <SiGooglechrome className={styles.dropdownItemIcon} size={15} />
+                    <SiGooglechrome className={styles.dropdownItemIcon} size={18} />
                     Extension
+                    <span className={styles.dropdownItemTooltip}>Summarise, Ask AI, Translate, Highlight</span>
                   </button>
                   <button
                     className={`${styles.dropdownItem} ${styles.dropdownItemButton}`}
                     onClick={handleToolsPdfClick}
                   >
                     <FiFileText className={styles.dropdownItemIcon} size={15} />
-                    PDF
+                    Chat PDF
+                    <span className={styles.dropdownItemTooltip}>Ask AI, Highlights, Notes</span>
                   </button>
                 </div>
               </div>

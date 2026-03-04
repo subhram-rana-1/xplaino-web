@@ -545,7 +545,8 @@
   transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
   transform: translateX(-50%) translateY(-10px);
   z-index: 1001;
-  padding: 0.5rem 0;
+  padding: 0;
+  overflow: visible;
 }
 
 /* Bridge element to maintain hover when moving from button to dropdown */
@@ -603,6 +604,14 @@
   border: none;
   cursor: pointer;
   text-align: left;
+  position: relative;
+}
+
+.extensionItem {
+  padding: 1rem 1.25rem;
+  font-size: 1.05rem;
+  font-weight: 500;
+  gap: 0.625rem;
 }
 
 .dropdownItemIcon {
@@ -612,6 +621,31 @@
 
 .dropdownItem:hover .dropdownItemIcon {
   opacity: 1;
+}
+
+.dropdownItemTooltip {
+  display: none;
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 10px;
+  background: var(--bg-white);
+  color: var(--text-tertiary);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.5rem 0.875rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-medium);
+  white-space: nowrap;
+  box-shadow: 0 4px 12px var(--shadow-black-10);
+  pointer-events: none;
+  z-index: 1010;
+}
+
+.dropdownItem:hover .dropdownItemTooltip {
+  display: block;
 }
 
 .menuToggle {
@@ -821,6 +855,10 @@
 
   .dropdownItem:last-child {
     border-bottom: none;
+  }
+
+  .dropdownItemTooltip {
+    display: none !important;
   }
 
   .profilePopover {
