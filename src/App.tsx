@@ -33,9 +33,8 @@ const AdminDomainsPage = lazy(() => import('@/pages/Admin/AdminDomainsPage').the
 const AdminCouponPage = lazy(() => import('@/pages/Admin/AdminCouponPage').then((m) => ({ default: m.AdminCouponPage })));
 const PricingAdd = lazy(() => import('@/pages/Admin/components/PricingAdd').then((m) => ({ default: m.PricingAdd })));
 const PricingDetail = lazy(() => import('@/pages/Admin/components/PricingDetail').then((m) => ({ default: m.PricingDetail })));
-const UserDashboardLayout = lazy(() => import('@/pages/UserDashboard/UserDashboardLayout').then((m) => ({ default: m.UserDashboardLayout })));
-const MyBookmarksPage = lazy(() => import('@/pages/UserDashboard/MyBookmarksPage').then((m) => ({ default: m.MyBookmarksPage })));
-const PdfPage = lazy(() => import('@/pages/UserDashboard/PdfPage').then((m) => ({ default: m.PdfPage })));
+const UserDashboard = lazy(() => import('@/pages/UserDashboard').then((m) => ({ default: m.UserDashboard })));
+const FolderDetailLayout = lazy(() => import('@/pages/UserDashboard/FolderDetailLayout').then((m) => ({ default: m.FolderDetailLayout })));
 const FolderBookmarkPage = lazy(() => import('@/pages/UserDashboard/FolderBookmarkPage').then((m) => ({ default: m.FolderBookmarkPage })));
 const FolderPdfPage = lazy(() => import('@/pages/UserDashboard/FolderPdfPage').then((m) => ({ default: m.FolderPdfPage })));
 const PdfDetail = lazy(() => import('@/pages/PdfDetail').then((m) => ({ default: m.PdfDetail })));
@@ -58,7 +57,7 @@ const ToolsPdfRoute: React.FC = () => {
   }
 
   if (isLoggedIn && user?.role !== 'ADMIN' && user?.role !== 'SUPER_ADMIN') {
-    return <Navigate to="/user/dashboard/pdf" replace />;
+    return <Navigate to="/user/dashboard" replace />;
   }
 
   return <ToolsPdfPage />;
@@ -117,32 +116,25 @@ const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: 
                 path="/user/dashboard" 
                 element={
                   <UserProtectedRoute>
-                    <Navigate to="/user/dashboard/bookmark" replace />
+                    <UserDashboard />
                   </UserProtectedRoute>
                 } 
               />
               <Route 
-                path="/user/dashboard/*" 
+                path="/user/dashboard/folder/:folderId" 
                 element={
                   <UserProtectedRoute>
-                    <UserDashboardLayout />
+                    <FolderDetailLayout />
                   </UserProtectedRoute>
                 }
               >
+                <Route index element={<Navigate to="bookmark" replace />} />
                 <Route 
                   path="bookmark" 
-                  element={<MyBookmarksPage />} 
-                />
-                <Route 
-                  path="bookmark/folder/:folderId" 
                   element={<FolderBookmarkPage />} 
                 />
                 <Route 
                   path="pdf" 
-                  element={<PdfPage />} 
-                />
-                <Route 
-                  path="pdf/folder/:folderId" 
                   element={<FolderPdfPage />} 
                 />
               </Route>

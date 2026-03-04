@@ -5,7 +5,6 @@
   margin-left: -4.5rem;
   margin-right: 0;
   margin-bottom: 0;
-  /* Prevent any animations on the container */
   transition: none;
   animation: none;
 }
@@ -44,7 +43,6 @@
   margin: 0 0 2rem 0;
   padding: 0 1.5rem;
   white-space: nowrap;
-  /* Prevent any animations */
   transition: none;
   animation: none;
 }
@@ -54,7 +52,6 @@
   flex-direction: column;
   gap: 0;
   padding: 0;
-  /* Prevent any animations */
   transition: none;
   animation: none;
 }
@@ -96,55 +93,6 @@
 .sidebarButtonActive:hover {
   background-color: var(--teal);
   color: var(--text-on-primary);
-}
-
-.comingSoonTeaser {
-  margin-top: 1.5rem;
-  padding: 1rem 1.25rem;
-  background: var(--bg-white);
-  border: 1px dashed var(--border-light);
-  border-radius: 0.5rem;
-  margin-left: 1rem;
-  margin-right: 1rem;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.comingSoonBadge {
-  display: inline-block;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  color: #7c3aed;
-  background: rgba(124, 58, 237, 0.15);
-  padding: 0.4rem 0.75rem;
-  border-radius: 0.25rem;
-  flex-shrink: 0;
-  animation: comingSoonBadgeScale 2s ease-in-out infinite;
-}
-
-@keyframes comingSoonBadgeScale {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
-}
-
-.comingSoonText {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9375rem;
-  line-height: 1.4;
-  color: var(--text-secondary);
-  margin: 0;
-  min-width: 0;
-  flex: 1 1 auto;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
 }
 
 .content {
@@ -202,7 +150,6 @@
   }
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
   .userDashboard {
     flex-direction: column;
@@ -242,14 +189,6 @@
   .content {
     padding: 1.5rem 1rem;
   }
-
-  .comingSoonTeaser {
-    flex-wrap: wrap;
-  }
-
-  .comingSoonText {
-    white-space: normal;
-  }
 }
 
 @media (max-width: 480px) {
@@ -259,4 +198,3 @@
     margin-bottom: -2rem;
   }
 }
-

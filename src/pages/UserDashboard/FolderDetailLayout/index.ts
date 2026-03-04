@@ -1,0 +1,1 @@
+export { FolderDetailLayout } from './FolderDetailLayout';

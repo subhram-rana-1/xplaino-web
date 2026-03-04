@@ -6,18 +6,24 @@
 
 import { authConfig } from '@/config/auth.config';
 import { fetchWithAuth, extractErrorMessage } from './api-client';
-import type { GetAllFoldersResponse, CreateFolderRequest, CreateFolderResponse, RenameFolderRequest, RenameFolderResponse } from '@/shared/types/folders.types';
+import type {
+  GetAllFoldersResponse,
+  CreateFolderRequest,
+  CreateFolderResponse,
+  RenameFolderRequest,
+  RenameFolderResponse,
+  FolderShareResponse,
+  GetSharedFoldersResponse,
+  GetShareeListResponse,
+} from '@/shared/types/folders.types';
 
 /**
  * Get all folders for the authenticated user
  */
 export async function getAllFolders(
-  _accessToken: string,
-  type?: string
+  _accessToken: string
 ): Promise<GetAllFoldersResponse> {
-  const url = type
-    ? `${authConfig.catenBaseUrl}/api/folders?type=${encodeURIComponent(type)}`
-    : `${authConfig.catenBaseUrl}/api/folders`;
+  const url = `${authConfig.catenBaseUrl}/api/folders`;
   const response = await fetchWithAuth(
     url,
     {
@@ -43,13 +49,11 @@ export async function getAllFolders(
 export async function createFolder(
   _accessToken: string,
   name: string,
-  parentId?: string,
-  type?: string
+  parentId?: string
 ): Promise<CreateFolderResponse> {
   const requestBody: CreateFolderRequest = {
     name,
     ...(parentId && { parentId }),
-    ...(type && { type }),
   };
 
   const response = await fetchWithAuth(
@@ -93,6 +97,99 @@ export async function deleteFolder(
     const errorData = await response.json().catch(() => ({}));
     throw new Error(extractErrorMessage(errorData, 'Failed to delete folder'));
   }
+}
+
+/**
+ * Share a folder with another user by email
+ */
+export async function shareFolder(
+  _accessToken: string,
+  folderId: string,
+  email: string
+): Promise<FolderShareResponse> {
+  const response = await fetchWithAuth(
+    `${authConfig.catenBaseUrl}/api/folders/${folderId}/share`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to share folder'));
+  }
+
+  return response.json() as Promise<FolderShareResponse>;
+}
+
+/**
+ * Unshare a folder from a user by email
+ */
+export async function unshareFolder(
+  _accessToken: string,
+  folderId: string,
+  email: string
+): Promise<void> {
+  const response = await fetchWithAuth(
+    `${authConfig.catenBaseUrl}/api/folders/${folderId}/share`,
+    {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to unshare folder'));
+  }
+}
+
+/**
+ * Get the list of users (sharees) a folder has been shared with
+ */
+export async function getFolderShareeList(
+  _accessToken: string,
+  folderId: string
+): Promise<GetShareeListResponse> {
+  const response = await fetchWithAuth(
+    `${authConfig.catenBaseUrl}/api/folders/${folderId}/share`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to fetch folder sharee list'));
+  }
+
+  return response.json() as Promise<GetShareeListResponse>;
+}
+
+/**
+ * Get all folders shared with the authenticated user
+ */
+export async function getSharedFolders(
+  _accessToken: string
+): Promise<GetSharedFoldersResponse> {
+  const response = await fetchWithAuth(
+    `${authConfig.catenBaseUrl}/api/folders/shared-with-me`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(errorData, 'Failed to fetch shared folders'));
+  }
+
+  return response.json() as Promise<GetSharedFoldersResponse>;
 }
 
 /**

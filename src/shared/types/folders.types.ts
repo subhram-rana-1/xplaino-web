@@ -7,7 +7,6 @@
 export interface FolderWithSubFolders {
   id: string;
   name: string;
-  type: string;
   created_at: string;
   updated_at: string;
   subFolders: FolderWithSubFolders[];
@@ -20,7 +19,6 @@ export interface GetAllFoldersResponse {
 export interface CreateFolderRequest {
   name: string;
   parentId?: string;
-  type?: string;
 }
 
 export interface UserInfo {
@@ -54,5 +52,39 @@ export interface RenameFolderResponse {
   user_id: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface ShareResourceRequest {
+  email: string;
+}
+
+export interface FolderShareResponse {
+  id: string;
+  folder_id: string;
+  shared_to_email: string;
+  created_at: string;
+}
+
+export interface SharedFolderItem {
+  id: string;
+  name: string;
+  parent_id: string | null;
+  user_id: string | null;
+  created_at: string;
+  updated_at: string;
+  shared_at: string;
+}
+
+export interface GetSharedFoldersResponse {
+  folders: SharedFolderItem[];
+}
+
+export interface ShareeItem {
+  email: string;
+  shared_at: string;
+}
+
+export interface GetShareeListResponse {
+  sharees: ShareeItem[];
 }
 

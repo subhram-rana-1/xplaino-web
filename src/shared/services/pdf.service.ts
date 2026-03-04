@@ -13,7 +13,10 @@ import type {
   PresignedUploadRequest,
   PresignedUploadResponse,
   DownloadUrlResponse,
+  PdfShareResponse,
+  GetSharedPdfsResponse,
 } from '@/shared/types/pdf.types';
+import type { GetShareeListResponse } from '@/shared/types/folders.types';
 
 function getErrorMessage(errorData: unknown, fallback: string): string {
   if (errorData && typeof errorData === 'object' && 'detail' in errorData) {
@@ -175,6 +178,172 @@ export async function getDownloadUrl(
 
   const data: DownloadUrlResponse = await response.json();
   return data;
+}
+
+/**
+ * Make a PDF publicly accessible (no authentication required to view)
+ */
+export async function makePdfPublic(
+  _accessToken: string,
+  pdfId: string
+): Promise<PdfResponse> {
+  const response = await fetchWithAuth(
+    `${authConfig.catenBaseUrl}/api/pdf/${pdfId}/make-public`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ detail: 'Failed to make PDF public' }));
+    throw new Error(getErrorMessage(errorData, `Failed to make PDF public with status ${response.status}`));
+  }
+
+  return response.json() as Promise<PdfResponse>;
+}
+
+/**
+ * Make a PDF private (only owner and sharees can view)
+ */
+export async function makePdfPrivate(
+  _accessToken: string,
+  pdfId: string
+): Promise<PdfResponse> {
+  const response = await fetchWithAuth(
+    `${authConfig.catenBaseUrl}/api/pdf/${pdfId}/make-private`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ detail: 'Failed to make PDF private' }));
+    throw new Error(getErrorMessage(errorData, `Failed to make PDF private with status ${response.status}`));
+  }
+
+  return response.json() as Promise<PdfResponse>;
+}
+
+/**
+ * Create a private copy of a PUBLIC PDF under the current user's ownership.
+ * Optionally place the copy in a specific folder.
+ */
+export async function createPdfCopy(
+  _accessToken: string,
+  pdfId: string,
+  folderId?: string
+): Promise<PdfResponse> {
+  const body = folderId ? { folder_id: folderId } : {};
+  const response = await fetchWithAuth(
+    `${authConfig.catenBaseUrl}/api/pdf/${pdfId}/create-copy`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ detail: 'Failed to create PDF copy' }));
+    throw new Error(getErrorMessage(errorData, `Failed to create PDF copy with status ${response.status}`));
+  }
+
+  return response.json() as Promise<PdfResponse>;
+}
+
+/**
+ * Share a PDF with another user by email
+ */
+export async function sharePdf(
+  _accessToken: string,
+  pdfId: string,
+  email: string
+): Promise<PdfShareResponse> {
+  const response = await fetchWithAuth(
+    `${authConfig.catenBaseUrl}/api/pdf/${pdfId}/share`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ detail: 'Failed to share PDF' }));
+    throw new Error(getErrorMessage(errorData, `Failed to share PDF with status ${response.status}`));
+  }
+
+  return response.json() as Promise<PdfShareResponse>;
+}
+
+/**
+ * Unshare a PDF from a user by email
+ */
+export async function unsharePdf(
+  _accessToken: string,
+  pdfId: string,
+  email: string
+): Promise<void> {
+  const response = await fetchWithAuth(
+    `${authConfig.catenBaseUrl}/api/pdf/${pdfId}/share`,
+    {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ detail: 'Failed to unshare PDF' }));
+    throw new Error(getErrorMessage(errorData, `Failed to unshare PDF with status ${response.status}`));
+  }
+}
+
+/**
+ * Get the list of users (sharees) a PDF has been shared with
+ */
+export async function getPdfShareeList(
+  _accessToken: string,
+  pdfId: string
+): Promise<GetShareeListResponse> {
+  const response = await fetchWithAuth(
+    `${authConfig.catenBaseUrl}/api/pdf/${pdfId}/share`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ detail: 'Failed to fetch PDF sharee list' }));
+    throw new Error(getErrorMessage(errorData, `Failed to fetch PDF sharee list with status ${response.status}`));
+  }
+
+  return response.json() as Promise<GetShareeListResponse>;
+}
+
+/**
+ * Get all PDFs shared directly with the authenticated user
+ */
+export async function getSharedPdfs(
+  _accessToken: string
+): Promise<GetSharedPdfsResponse> {
+  const response = await fetchWithAuth(
+    `${authConfig.catenBaseUrl}/api/pdf/shared-with-me`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ detail: 'Failed to fetch shared PDFs' }));
+    throw new Error(getErrorMessage(errorData, `Failed to fetch shared PDFs with status ${response.status}`));
+  }
+
+  return response.json() as Promise<GetSharedPdfsResponse>;
 }
 
 /**

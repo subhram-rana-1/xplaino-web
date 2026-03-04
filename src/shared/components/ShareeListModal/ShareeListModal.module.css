@@ -1,0 +1,248 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.overlay.closing {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+.modal {
+  background: var(--bg-white);
+  border-radius: 30px;
+  width: 100%;
+  max-width: 520px;
+  border: 2px solid var(--border-medium);
+  animation: modalSlideIn 0.3s ease-out;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal.closing {
+  animation: modalSlideOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modalSlideOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-light);
+  flex-shrink: 0;
+}
+
+.title {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+  font-size: 1.25rem;
+}
+
+.closeButton:hover {
+  background: var(--button-hover-bg);
+  color: var(--teal);
+}
+
+.body {
+  padding: 1rem 1.5rem 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.loadingState {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  color: var(--text-tertiary);
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2.5rem 0;
+}
+
+.emptyIcon {
+  width: 2rem;
+  height: 2rem;
+  color: var(--text-quaternary);
+}
+
+.emptyText {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+.shareeList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.shareeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  background: var(--bg-lighter);
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  transition: border-color 0.2s;
+}
+
+.shareeRow:hover {
+  border-color: var(--border-dark);
+}
+
+.shareeInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.shareeEmail {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shareeDate {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  color: var(--text-quaternary);
+}
+
+.unshareButton {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4rem 0.75rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  background: none;
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.unshareButton:hover:not(:disabled) {
+  color: var(--red);
+  border-color: var(--red);
+  background: var(--light-red);
+}
+
+.unshareButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.unshareButton svg {
+  width: 14px;
+  height: 14px;
+}
+
+.removingText {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+}
+
+[data-theme="dark"] .modal {
+  border: 2px solid var(--teal);
+}
+
+@media (max-width: 768px) {
+  .modal {
+    max-width: 100%;
+  }
+
+  .body {
+    padding: 1rem;
+  }
+
+  .shareeRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .unshareButton {
+    align-self: flex-end;
+  }
+}

@@ -1,0 +1,37 @@
+/* ─── Full-page overlay ────────────────────────────────────────────────────── */
+.overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* Use container query units so paragraph font sizes are relative to the page height */
+  container-type: size;
+  /* Appear with a fade-in so the overlay doesn't flash abruptly */
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ─── Individual translated paragraph block ─────────────────────────────── */
+.paragraph {
+  position: absolute;
+  /* Solid white background ensures the translated text covers the original
+     canvas rendering underneath — no ghosting from the PDF's own text. */
+  background: rgba(255, 255, 255, 0.97);
+  /* Small padding so text doesn't hug the box edge */
+  padding: 0.08em 0.12em;
+  /* Font styling to match a clean document look */
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  color: #1a1a1a;
+  line-height: 1.35;
+  /* Allow text to wrap naturally within the bbox width */
+  white-space: normal;
+  word-break: break-word;
+  /* Slight border radius to soften the overlay blocks */
+  border-radius: 2px;
+  /* No pointer events so users can still interact with annotation layer */
+  pointer-events: none;
+}

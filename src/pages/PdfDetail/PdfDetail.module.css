@@ -37,8 +37,27 @@
   flex-direction: column;
   gap: 0.5rem;
   padding: 1rem 0.75rem 0.75rem 0.75rem;
-  border-bottom: 1px solid var(--border-light);
   background: var(--bg-white);
+}
+
+.sidebarPageCount {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-quaternary);
+  padding: 0 0.75rem 0.625rem;
+  letter-spacing: 0.2px;
+}
+
+.sidebarFolderName {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 0 0 0.25rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebarBtn {
@@ -330,10 +349,188 @@
 
 .mainHeader {
   display: flex;
-  align-items: baseline;
-  gap: 1rem;
-  margin: 1.5rem 0 1.25rem 0;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1.5rem 0 0.75rem 0;
   width: 100%;
+}
+
+.mainHeaderTop {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.pdfFilePath {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+}
+
+.pdfFilePathFolder {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.pdfFilePathSeparator {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  color: var(--text-quaternary);
+}
+
+.pdfFilePathFile {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+
+.pdfFileHeading {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 1rem 0;
+  padding: 0;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pdfFilePathFolderLink {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--teal);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+  transition: opacity 0.2s ease;
+}
+
+.pdfFilePathFolderLink:hover {
+  opacity: 0.75;
+}
+
+/* ─── Sticky horizontal toolbar ─────────────────────────────────────────────── */
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg-white);
+  display: flex;
+  flex-direction: column;
+}
+
+.toolbarBody {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  max-height: 60px;
+  overflow: visible;
+  opacity: 1;
+  transition: max-height 0.2s ease, padding 0.2s ease, opacity 0.2s ease;
+}
+
+.toolbarBodyHidden {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+/* Invisible left spacer so the buttons column is truly centered */
+.toolbarSpacer {
+  flex: 1;
+}
+
+/* Centered action buttons */
+.toolbarButtons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Right-side slot that mirrors the spacer width — eye button lives here */
+.toolbarEndActions {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* Eye-off button — hides the toolbar */
+.toolbarHideBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  height: 26px;
+  padding: 0 0.55rem;
+  background: none;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.toolbarHideBtn:hover {
+  background: var(--button-hover-bg);
+  color: var(--text-secondary);
+}
+
+/* Positions the reveal tab; no visible border */
+.toolbarFooter {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+/* Square reveal tab — appears below the toolbar area when toolbar is hidden */
+.toolbarRevealBtn {
+  position: absolute;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  color: var(--text-secondary);
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 0 0 6px 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.toolbarRevealBtn:hover {
+  background-color: var(--button-hover-bg);
+  color: var(--text-dark-gray);
 }
 
 .pdfTitle {
@@ -347,11 +544,31 @@
 
 .pdfBreadcrumb {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin: 0;
   padding: 0;
+}
+
+.pdfBreadcrumbBack {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0;
+  margin-right: 0.75rem;
+  background: none;
+  border: none;
+  color: var(--teal);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.pdfBreadcrumbBack:hover {
+  opacity: 0.75;
 }
 
 .pdfBreadcrumbLink {
@@ -397,6 +614,86 @@
   flex-shrink: 0;
 }
 
+.headerEndActions {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.shareBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--bg-white);
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.shareBtn:hover {
+  background: var(--button-hover-bg);
+  color: var(--teal);
+  border-color: var(--teal);
+}
+
+/* ─── Toggle Original / Translated button ─────────────────────────────────── */
+.toggleViewBtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  border: 1.5px solid var(--brand-teal, #0d9488);
+  background: transparent;
+  color: var(--brand-teal, #0d9488);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  white-space: nowrap;
+}
+
+.toggleViewBtn:hover {
+  background: var(--brand-teal, #0d9488);
+  color: #fff;
+}
+
+/* ─── Chat with PDF button ─────────────────────────────────────────────────── */
+.chatWithPdfBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--teal, #0d8070);
+  background: rgba(11, 116, 103, 0.07);
+  border: 1px solid rgba(11, 116, 103, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+  white-space: nowrap;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.chatWithPdfBtn:hover {
+  background: rgba(11, 116, 103, 0.14);
+  border-color: rgba(11, 116, 103, 0.35);
+}
+
 /* ─── PDF document area ────────────────────────────────────────────────────── */
 .content {
   width: 100%;
@@ -411,6 +708,7 @@
 
 .pageWrapper {
   /* no explicit width — shrinks to canvas size so align-items: center in .document truly centers it */
+  position: relative;
 }
 
 .page {
@@ -602,4 +900,215 @@
   .sidebar {
     display: none;
   }
+}
+
+/* Login required modal overlay */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-overlay);
+  z-index: 9998;
+  animation: overlayFadeIn 0.3s ease-out;
+}
+
+.modalContainer {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  width: 100%;
+  max-width: 500px;
+  padding: 1rem;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+.modalOverlayClosing {
+  animation: overlayFadeOut 0.3s ease-out forwards;
+}
+
+.modalContainerClosing {
+  animation: modalSlideOut 0.3s ease-out forwards;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes overlayFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes modalSlideOut {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+}
+
+/* ─── Feature Discovery Overlay ───────────────────────────────────────────── */
+
+/* Full-screen container — no background; dimming is handled by fdSpotlight's box-shadow */
+.fdOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  cursor: default;
+  animation: fdFadeIn 0.25s ease forwards;
+}
+
+@keyframes fdFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Spotlight: transparent interior (shows buttons at natural color) +
+   box-shadow fills the entire screen outside the rect with a dim layer +
+   teal border draws attention to the highlighted area */
+.fdSpotlight {
+  position: fixed;
+  box-sizing: border-box;
+  border-radius: 10px;
+  background: transparent;
+  border: 3px solid var(--teal);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.52);
+  pointer-events: none;
+  animation: fdSpotlightIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes fdSpotlightIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ── Shared tooltip card styles ────────────────────────────────────────────── */
+.fdTooltip,
+.fdStep2Tooltip {
+  position: fixed;
+  background: var(--bg-white, #ffffff);
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.1rem 1.4rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  max-width: 340px;
+  width: max-content;
+  cursor: default;
+}
+
+/* Step 1 tooltip — anchored just below the spotlight via inline top/left */
+.fdTooltip {
+  transform: translateX(-50%);
+  animation: fdTooltipIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+}
+
+@keyframes fdTooltipIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Small upward-pointing arrow on step 1 tooltip only */
+.fdTooltip::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 7px;
+  background: var(--bg-white, #ffffff);
+  clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+}
+
+/* Step 2: overlay needs its own dark background (no spotlight box-shadow to provide dimming) */
+.fdOverlayDark {
+  background: rgba(0, 0, 0, 0.52);
+}
+
+/* Step 2 tooltip — dead-centre of the viewport, dark surround everywhere else */
+.fdStep2Tooltip {
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  max-width: 340px;
+  animation: fdStep2TooltipIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fdStep2TooltipIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(calc(-50% + 8px));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-50%);
+  }
+}
+
+.fdInstruction {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary, #1a1a1a);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* "OK" button (step 1) and "Got it" button (step 2) share the same teal style */
+.fdNextBtn,
+.fdGotItBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 1.4rem;
+  border-radius: 20px;
+  border: none;
+  background: var(--teal);
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease;
+  white-space: nowrap;
+}
+
+.fdNextBtn:hover,
+.fdGotItBtn:hover {
+  background: var(--teal-dark);
 }
