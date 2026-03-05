@@ -10,6 +10,7 @@ import {
 interface UsePdfNotesOptions {
   pdfId: string | undefined;
   accessToken: string | null;
+  isPublic?: boolean;
 }
 
 interface UsePdfNotesReturn {
@@ -19,13 +20,13 @@ interface UsePdfNotesReturn {
   deleteNote: (noteId: string) => Promise<void>;
 }
 
-export function usePdfNotes({ pdfId, accessToken }: UsePdfNotesOptions): UsePdfNotesReturn {
+export function usePdfNotes({ pdfId, accessToken, isPublic = false }: UsePdfNotesOptions): UsePdfNotesReturn {
   const [notes, setNotes] = useState<PdfNote[]>([]);
 
   useEffect(() => {
-    if (!pdfId || !accessToken) return;
+    if (!pdfId || (!accessToken && !isPublic)) return;
     let cancelled = false;
-    getPdfNotes(pdfId)
+    getPdfNotes(pdfId, accessToken)
       .then((ns) => {
         if (!cancelled) setNotes(ns);
       })
@@ -35,7 +36,7 @@ export function usePdfNotes({ pdfId, accessToken }: UsePdfNotesOptions): UsePdfN
     return () => {
       cancelled = true;
     };
-  }, [pdfId, accessToken]);
+  }, [pdfId, accessToken, isPublic]);
 
   const createNote = useCallback(
     async (startText: string, endText: string, content: string): Promise<PdfNote> => {

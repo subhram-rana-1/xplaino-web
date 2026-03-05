@@ -91,6 +91,54 @@
   flex-shrink: 0;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.headerIconBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.headerIconBtn:hover {
+  background: var(--bg-light);
+  color: var(--teal);
+}
+
+.headerIconBtn:active {
+  transform: scale(0.95);
+}
+
+.headerIconBtn:disabled {
+  cursor: default;
+}
+
+.bookmarkSaved {
+  color: var(--teal);
+  fill: var(--teal);
+}
+
+.bookmarkSaved svg {
+  fill: var(--teal);
+}
+
+.bookmarkSaved:hover {
+  color: var(--teal);
+}
+
 .content {
   flex: 1;
   overflow: hidden;
@@ -100,7 +148,7 @@
   box-sizing: border-box;
 }
 
-/* Slide animations */
+/* Slide animations (fixed mode) */
 .sidePanel.open {
   animation: slideIn 0.3s ease forwards;
 }
@@ -129,5 +177,31 @@
     transform: translateX(100%);
     opacity: 0;
   }
+}
+
+/* ── Inline mode: panel is a flex sibling that pushes content left ── */
+.sidePanelInline {
+  flex-shrink: 0;
+  height: 100%;
+  width: 0;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--bg-white);
+  border-left: 3px solid var(--border-light);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease, min-width 0.3s ease;
+  position: relative;
+}
+
+.sidePanelInline.open {
+  width: var(--panel-width, 560px);
+  min-width: 300px;
+}
+
+.sidePanelInline.slidingOut {
+  width: 0;
+  min-width: 0;
 }
 

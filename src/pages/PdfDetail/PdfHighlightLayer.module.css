@@ -151,7 +151,7 @@
 
 /* ─── Note editor ─────────────────────────────────────────────────────────────── */
 .noteEditor {
-  position: absolute;
+  position: fixed;
   width: 220px;
   background: #fff;
   border: 1px solid #e2e8f0;
@@ -159,7 +159,7 @@
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
   padding: 10px;
   pointer-events: auto;
-  z-index: 20;
+  z-index: 1100;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -388,4 +388,67 @@
 
 .noteIconReadOnly:hover {
   transform: none;
+}
+
+/* ─── Book icon for explained texts (to the left of the page) ────────────────── */
+.explainIcon {
+  position: absolute;
+  width: 31px;
+  height: 31px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1.5px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #0d8070;
+  padding: 0;
+  pointer-events: auto;
+  z-index: 10;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+  animation: noteIconAppear 0.3s ease;
+}
+
+.explainIcon:hover {
+  transform: scale(1.2);
+}
+
+.explainIconActive {
+  border-color: #0d8070;
+}
+
+.explainIconLoading {
+  cursor: default;
+  pointer-events: none;
+  border-color: transparent;
+  opacity: 0.9;
+}
+
+.explainIconLoading:hover {
+  transform: none;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spinnerIcon {
+  animation: spin 0.9s linear infinite;
+  color: #0d8070;
+}
+
+@keyframes textPulse {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+.pulseHighlight {
+  position: absolute;
+  background: rgba(45, 212, 191, 0.25);
+  pointer-events: none;
+  border-radius: 2px;
+  animation: textPulse 0.8s ease-in-out 3;
+  z-index: 5;
 }

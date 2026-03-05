@@ -30,6 +30,8 @@ interface PdfSelectionTriggerProps {
   onLoginRequired?: () => void;
   /** Called when user clicks "Write a note" on a text selection */
   onWriteNote?: (startText: string, endText: string, clientY: number) => void;
+  /** Called when user clicks "Explain" on a text selection */
+  onExplain?: (startText: string, endText: string, selectedText: string, clientY: number) => void;
   /**
    * When set, intercepts Highlight and Note clicks instead of performing the action.
    * Used for public PDFs where the viewer cannot annotate but can make a copy.
@@ -57,6 +59,7 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
   isLoggedIn = true,
   onLoginRequired,
   onWriteNote,
+  onExplain,
   onCopyRequired,
 }) => {
   const [selection, setSelection] = useState<SelectionState | null>(null);
@@ -398,6 +401,16 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
     clearSelection();
   }, [selection, isLoggedIn, onCopyRequired, onWriteNote, clearSelection]);
 
+  const handleExplainClick = useCallback(() => {
+    if (!selection) return;
+    const normalisedText = normalisePdfText(selection.text);
+    const startText = normalisedText.slice(0, MAX_ANCHOR_CHARS);
+    const endText = normalisedText.slice(-MAX_ANCHOR_CHARS);
+    onExplain?.(startText, endText, selection.text, selection.y);
+    window.getSelection()?.removeAllRanges();
+    clearSelection();
+  }, [selection, onExplain, clearSelection]);
+
   // Cleanup timers on unmount
   useEffect(() => {
     return () => {
@@ -526,6 +539,21 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
           </button>
           <span className={styles.tooltip}>Copy selection</span>
         </div>
+
+        {/* Explain */}
+        {onExplain && (
+          <div className={styles.actionButtonWrapper}>
+            <button
+              type="button"
+              className={styles.actionButton}
+              onClick={handleExplainClick}
+              aria-label="Explain selection"
+            >
+              <ExplainIcon />
+            </button>
+            <span className={styles.tooltip}>Explain</span>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -558,6 +586,24 @@ function CopyIcon() {
     >
       <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  );
+}
+
+function ExplainIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {/* Wireframe open book */}
+      <path d="M2 6.5C2 6.5 6 5 12 5s10 1.5 10 1.5V19.5S18 18 12 18 2 19.5 2 19.5V6.5z" />
+      <line x1="12" y1="5" x2="12" y2="18" />
     </svg>
   );
 }

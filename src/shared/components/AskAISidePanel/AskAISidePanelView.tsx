@@ -19,6 +19,8 @@ export interface AskAISidePanelViewProps {
   chatMessages?: Array<{ role: 'user' | 'assistant'; content: string }>;
   /** Streaming text content */
   streamingText?: string;
+  /** Suggested follow-up questions from the API. When non-empty, shown instead of default prompts. */
+  possibleQuestions?: string[];
 }
 
 const DEFAULT_PROMPTS = ['Short summary', 'Descriptive note'];
@@ -40,6 +42,7 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
   isRequesting = false,
   chatMessages = [],
   streamingText = '',
+  possibleQuestions = [],
 }) => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [inputValue, setInputValue] = useState('');
@@ -120,8 +123,8 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
   }, []);
 
   const hasChatHistory = chatMessages.length > 0;
-  // Always show default prompts above input bar
-  const showDefaultPrompts = true;
+  // Default prompts only shown when no API questions exist (FolderBookmark context)
+  const showDefaultPrompts = possibleQuestions.length === 0;
 
   // Memoize ReactMarkdown components
   const markdownComponents = React.useMemo(() => ({
@@ -158,14 +161,14 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
                 )}
               </div>
             ))}
-            
+
             {/* Show loading dots when requesting and no streaming text yet */}
             {isRequesting && !streamingText && (
               <div className={`${styles.message} ${styles.assistantMessage} ${styles.loadingMessage}`}>
                 <LoadingDots size="medium" />
               </div>
             )}
-            
+
             {/* Show streaming assistant response */}
             {streamingText && streamingText.trim().length > 0 && (
               <div className={`${styles.message} ${styles.assistantMessage}`}>
@@ -173,6 +176,23 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
                   {streamingText}
                 </ReactMarkdown>
                 <span className={styles.cursor}>|</span>
+              </div>
+            )}
+
+            {/* Possible questions below the last assistant content (chat history mode) */}
+            {possibleQuestions.length > 0 && !isRequesting && (
+              <div className={styles.suggestedQuestions}>
+                {possibleQuestions.map((question, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    className={styles.questionItem}
+                    onClick={() => onInputSubmitRef.current?.(question)}
+                  >
+                    <PlusIcon className={styles.questionIcon} />
+                    <span className={styles.questionText}>{question}</span>
+                  </button>
+                ))}
               </div>
             )}
           </div>
@@ -193,11 +213,27 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
                 </ReactMarkdown>
               </div>
             )}
+            {/* Possible questions below initial explanation (no chat history yet) */}
+            {possibleQuestions.length > 0 && !isRequesting && (
+              <div className={styles.suggestedQuestions}>
+                {possibleQuestions.map((question, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    className={styles.questionItem}
+                    onClick={() => onInputSubmitRef.current?.(question)}
+                  >
+                    <PlusIcon className={styles.questionIcon} />
+                    <span className={styles.questionText}>{question}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </>
         )}
       </div>
 
-      {/* Default Prompts - positioned above input bar */}
+      {/* Default Prompts - shown only when no API questions are available */}
       {showDefaultPrompts && (
         <div className={styles.defaultPrompts}>
           <span className={styles.promptsContainer}>
@@ -266,6 +302,25 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
     </div>
   );
 };
+
+function PlusIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      aria-hidden="true"
+      className={className}
+    >
+      <line x1="7" y1="2" x2="7" y2="12" />
+      <line x1="2" y1="7" x2="12" y2="7" />
+    </svg>
+  );
+}
 
 AskAISidePanelView.displayName = 'AskAISidePanelView';
 

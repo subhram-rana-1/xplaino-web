@@ -23,8 +23,9 @@ export async function getHighlightColours(): Promise<HighlightColour[]> {
   return data.colours as HighlightColour[];
 }
 
-export async function getPdfHighlights(pdfId: string): Promise<PdfHighlight[]> {
-  const res = await fetchWithAuth(
+export async function getPdfHighlights(pdfId: string, accessToken: string | null = null): Promise<PdfHighlight[]> {
+  const fetcher = accessToken ? fetchWithAuth : fetchPublic;
+  const res = await fetcher(
     `${authConfig.catenBaseUrl}/api/highlight/pdf/${pdfId}?limit=1000`,
   );
   if (!res.ok) {
