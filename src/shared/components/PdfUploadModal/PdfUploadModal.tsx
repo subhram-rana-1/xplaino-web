@@ -502,6 +502,13 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
             )}
 
             <div className={styles.cardBody}>
+              {uploadState === 'idle' && (
+                <div className={styles.scannedNotice}>
+                  <FiInfo size={13} />
+                  Scanned PDFs are not supported. Please upload text-based PDFs only.
+                </div>
+              )}
+
               {/* Processing state */}
               {uploadState === 'processing' && (
                 <div className={styles.processingState}>

@@ -506,6 +506,22 @@
   background: var(--teal-rgba-10);
 }
 
+/* ===== SCANNED PDF NOTICE ===== */
+.scannedNotice {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 0.9rem;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  color: var(--text-medium);
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
 /* ===== ERROR MESSAGE ===== */
 .errorMessage {
   display: flex;

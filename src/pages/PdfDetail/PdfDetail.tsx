@@ -3,10 +3,10 @@ import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/TextLayer.css';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
-import { FiPlus, FiChevronLeft, FiChevronRight, FiChevronDown, FiEyeOff, FiShare2 } from 'react-icons/fi';
+import { FiPlus, FiChevronLeft, FiChevronRight, FiChevronDown, FiEyeOff, FiShare2, FiDownload } from 'react-icons/fi';
 import styles from './PdfDetail.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
-import { getPdfById, getAllPdfs, sharePdf, makePdfPublic, makePdfPrivate, getPdfShareeList, unsharePdf } from '@/shared/services/pdf.service';
+import { getPdfById, getAllPdfs, sharePdf, makePdfPublic, makePdfPrivate, getPdfShareeList, unsharePdf, getDownloadUrl } from '@/shared/services/pdf.service';
 import { getAllFolders } from '@/shared/services/folders.service';
 import type { FolderWithSubFolders, ShareeItem } from '@/shared/types/folders.types';
 import { getUserSettings, updateUserSettings } from '@/shared/services/user-settings.service';
@@ -246,6 +246,37 @@ export const PdfDetail: React.FC = () => {
   const isPublic = pdfDetails?.access_level === 'PUBLIC';
   // Can annotate: owner, or any logged-in user on a private PDF (must be sharee — backend enforces access)
   const canEditAnnotations = isOwner || (isLoggedIn && !isPublic);
+
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownload = useCallback(async () => {
+    if (!pdfDetails || isDownloading) return;
+    const fileUpload = pdfDetails.file_uploads?.[0];
+    if (!fileUpload) return;
+    setIsDownloading(true);
+    try {
+      let url: string;
+      if (accessToken) {
+        const res = await getDownloadUrl(accessToken, fileUpload.id);
+        url = res.download_url;
+      } else {
+        url = fileUpload.s3_url ?? '';
+      }
+      if (!url) throw new Error('No download URL available');
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = pdfDetails.file_name;
+      a.click();
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      setToast({ message: 'Failed to download PDF', type: 'error' });
+    } finally {
+      setIsDownloading(false);
+    }
+  }, [pdfDetails, accessToken, isDownloading]);
 
   const handleSharePdfSubmit = useCallback(async (email: string) => {
     if (!accessToken || !pdfId) return;
@@ -786,6 +817,17 @@ export const PdfDetail: React.FC = () => {
             <div className={styles.headerEndActions}>
               <button
                 type="button"
+                className={styles.downloadBtn}
+                onClick={handleDownload}
+                disabled={isDownloading}
+                title="Download PDF"
+                aria-label="Download PDF"
+              >
+                <FiDownload size={14} />
+                <span>{isDownloading ? 'Downloading…' : 'Download'}</span>
+              </button>
+              <button
+                type="button"
                 className={styles.shareBtn}
                 onClick={() => setShowShareModal(true)}
                 title="Share PDF"
@@ -936,7 +978,7 @@ export const PdfDetail: React.FC = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <p className={styles.fdInstruction}>
-              Highlight any text, add a note and ask anything about it
+              Select any text and Ask AI, highlight text and add personal notes
             </p>
             <button
               type="button"
