@@ -6,7 +6,13 @@ import { useAuth } from '@/shared/hooks/useAuth';
 import { fetchPublic, fetchWithAuth } from '@/shared/services/api-client';
 import { getUnauthenticatedUserId } from '@/shared/services/auth.service';
 import { authConfig } from '@/config/auth.config';
+import { getAllFolders } from '@/shared/services/folders.service';
+import type { FolderWithSubFolders } from '@/shared/types/folders.types';
 import styles from './ToolsPdfPage.module.css';
+
+function flattenFolders(folders: FolderWithSubFolders[]): FolderWithSubFolders[] {
+  return folders.flatMap((f) => [f, ...flattenFolders(f.subFolders || [])]);
+}
 
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
@@ -60,7 +66,7 @@ function isValidDropboxUrl(url: string): boolean {
 }
 
 export const ToolsPdfPage: React.FC = () => {
-  const { isLoggedIn, isLoading } = useAuth();
+  const { isLoggedIn, isLoading, accessToken } = useAuth();
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState<Tab>('local');
@@ -93,6 +99,25 @@ export const ToolsPdfPage: React.FC = () => {
     'Creating PDF record…',
     'Finalising…',
   ];
+
+  // Logged-in users: redirect to the most recently updated folder's PDF tab.
+  useEffect(() => {
+    if (!isLoggedIn || isLoading || !accessToken) return;
+
+    getAllFolders(accessToken)
+      .then((res) => {
+        const all = flattenFolders(res.folders);
+        if (all.length === 0) return;
+        const mostRecent = all.reduce((a, b) =>
+          new Date(b.updated_at) > new Date(a.updated_at) ? b : a
+        );
+        navigate(`/user/dashboard/folder/${mostRecent.id}/pdf`, { replace: true });
+      })
+      .catch(() => {
+        // Silently ignore — stay on the upload page
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoggedIn, isLoading, accessToken]);
 
   // Fetch prior PDFs for unauthenticated users who have an existing unauthenticated user ID.
   useEffect(() => {
