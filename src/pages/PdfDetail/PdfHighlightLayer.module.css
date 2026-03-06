@@ -322,7 +322,6 @@
 
 /* ─── Saved note icons ───────────────────────────────────────────────────────── */
 .noteIcon {
-  position: absolute;
   width: 31px;
   height: 31px;
   border-radius: 50%;
@@ -392,7 +391,6 @@
 
 /* ─── Book icon for explained texts (to the left of the page) ────────────────── */
 .explainIcon {
-  position: absolute;
   width: 31px;
   height: 31px;
   border-radius: 50%;
@@ -451,4 +449,33 @@
   border-radius: 2px;
   animation: textPulse 0.8s ease-in-out 3;
   z-index: 5;
+}
+
+/* ─── Margin icon wrapper + fast CSS tooltip ─────────────────────────────────── */
+.marginIconWrapper {
+  position: absolute;
+  pointer-events: auto;
+  z-index: 10;
+}
+
+.marginTooltip {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.marginIconWrapper:hover .marginTooltip {
+  opacity: 1;
 }

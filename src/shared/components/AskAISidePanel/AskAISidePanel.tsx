@@ -1,7 +1,9 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { FiChevronRight, FiBookmark } from 'react-icons/fi';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { ChevronRight, Bookmark, MousePointerClick, StickyNote, Trash2 } from 'lucide-react';
 import styles from './AskAISidePanel.module.css';
 import { AskAISidePanelView } from './AskAISidePanelView';
+import type { HighlightColour } from '@/shared/services/pdfHighlightService';
+import type { CustomPromptResponse } from '@/shared/types/customPrompt.types';
 
 export interface AskAISidePanelProps {
   /** Whether panel is open */
@@ -36,6 +38,32 @@ export interface AskAISidePanelProps {
   onDeleteChat?: () => void;
   /** Whether this chat has been saved to the backend */
   isChatSaved?: boolean;
+  /** When true, auto-focus the chat textarea (used when opening via Ask AI / Custom prompt) */
+  autoFocusInput?: boolean;
+  /** Called after the textarea has been focused so the parent can reset the flag */
+  onInputFocused?: () => void;
+  /** Called when user clicks "Highlight text" in the panel header */
+  onHighlightText?: () => void;
+  /** Called when user clicks "Add a note" in the panel header */
+  onAddNote?: () => void;
+  /** Available highlight colours for the colour picker */
+  highlightColours?: HighlightColour[];
+  /** Currently selected colour id */
+  selectedColourId?: string | null;
+  /** Called when the user picks a different highlight colour */
+  onHighlightColourChange?: (id: string) => void;
+  /** Hex code of the active highlight colour */
+  activeColour?: string;
+  /** When true, the highlight button is disabled (text already highlighted) */
+  isTextHighlighted?: boolean;
+  /** Called when user clicks "Delete explanation" — clears the entire explanation entry */
+  onDeleteExplanation?: () => void;
+  /** Override the default builtin prompt buttons shown in the panel (e.g. ['Summarise']) */
+  builtinPrompts?: string[];
+  /** User's saved custom prompts to show in the 3-dot popover */
+  customPrompts?: CustomPromptResponse[];
+  /** Called when user clicks "Add custom prompt" in the 3-dot popover */
+  onAddCustomPrompt?: () => void;
 }
 
 const MIN_WIDTH = 300;
@@ -76,10 +104,25 @@ export const AskAISidePanel: React.FC<AskAISidePanelProps> = ({
   onSaveChat,
   onDeleteChat,
   isChatSaved = false,
+  autoFocusInput = false,
+  onInputFocused,
+  onHighlightText,
+  onAddNote,
+  highlightColours = [],
+  selectedColourId = null,
+  onHighlightColourChange,
+  activeColour = '#fbbf24',
+  isTextHighlighted = false,
+  onDeleteExplanation,
+  builtinPrompts,
+  customPrompts,
+  onAddCustomPrompt,
 }) => {
   const isInline = mode === 'inline';
   const [width, setWidth] = useState(getPersistedWidth);
   const [isSlidingOut, setIsSlidingOut] = useState(false);
+  const [isColourPanelOpen, setIsColourPanelOpen] = useState(false);
+  const colourPanelLeaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [bottomPosition, setBottomPosition] = useState(0);
   const [topPosition, setTopPosition] = useState(80);
 
@@ -168,6 +211,24 @@ export const AskAISidePanel: React.FC<AskAISidePanelProps> = ({
     [width],
   );
 
+  // Colour picker hover handlers for the highlight button
+  const handleHighlightBtnMouseEnter = useCallback(() => {
+    if (colourPanelLeaveTimerRef.current) clearTimeout(colourPanelLeaveTimerRef.current);
+    if (highlightColours.length > 0) setIsColourPanelOpen(true);
+  }, [highlightColours.length]);
+
+  const handleHighlightBtnMouseLeave = useCallback(() => {
+    colourPanelLeaveTimerRef.current = setTimeout(() => setIsColourPanelOpen(false), 120);
+  }, []);
+
+  const handleColourPanelMouseEnter = useCallback(() => {
+    if (colourPanelLeaveTimerRef.current) clearTimeout(colourPanelLeaveTimerRef.current);
+  }, []);
+
+  const handleColourPanelMouseLeave = useCallback(() => {
+    colourPanelLeaveTimerRef.current = setTimeout(() => setIsColourPanelOpen(false), 120);
+  }, []);
+
   // Fixed mode: don't render when closed
   if (!isInline && !isOpen) {
     return null;
@@ -204,31 +265,119 @@ export const AskAISidePanel: React.FC<AskAISidePanelProps> = ({
           onClick={handleSlideOut}
           aria-label="Minimize panel"
         >
-          <FiChevronRight size={18} />
+          <ChevronRight size={18} />
         </button>
         <h3 className={styles.headerTitle}>{headerTitle}</h3>
         <div className={styles.headerActions}>
-          {onScrollToText && (
-            <button
-              type="button"
-              className={styles.headerIconBtn}
-              onClick={onScrollToText}
-              aria-label="Scroll to text"
-              title="Go to selected text"
+          {/* Highlight text button */}
+          {onHighlightText && (
+            <div
+              className={styles.headerBtnWrapper}
+              onMouseEnter={handleHighlightBtnMouseEnter}
+              onMouseLeave={handleHighlightBtnMouseLeave}
             >
-              <PointLeftIcon />
-            </button>
+              <button
+                type="button"
+                className={`${styles.headerIconBtn} ${isTextHighlighted ? styles.headerIconBtnDisabled : ''}`}
+                onClick={isTextHighlighted ? undefined : onHighlightText}
+                disabled={isTextHighlighted}
+                aria-label={isTextHighlighted ? 'Already highlighted' : 'Highlight text'}
+              >
+                <span
+                  className={styles.colorCircle}
+                  style={{ background: isTextHighlighted ? '#ccc' : activeColour }}
+                />
+              </button>
+              {isColourPanelOpen && !isTextHighlighted && highlightColours.length > 0 && (
+                <div
+                  className={styles.colourPickerPopover}
+                  onMouseEnter={handleColourPanelMouseEnter}
+                  onMouseLeave={handleColourPanelMouseLeave}
+                >
+                  {highlightColours.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      className={`${styles.colourDot} ${c.id === selectedColourId ? styles.colourDotSelected : ''}`}
+                      style={{ background: c.hexcode }}
+                      onClick={() => { onHighlightColourChange?.(c.id); setIsColourPanelOpen(false); }}
+                      aria-label={`Select colour ${c.hexcode}`}
+                    >
+                      {c.id === selectedColourId && (
+                        <span className={styles.colourCheck} aria-hidden="true">✓</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {!isColourPanelOpen && (
+                <span className={`${styles.headerTooltip} ${styles.headerTooltipAbove}`}>
+                  {isTextHighlighted ? 'Already highlighted' : 'Highlight text'}
+                </span>
+              )}
+            </div>
           )}
+
+          {/* Add a note button */}
+          {onAddNote && (
+            <div className={styles.headerBtnWrapper}>
+              <button
+                type="button"
+                className={styles.headerIconBtn}
+                onClick={onAddNote}
+                aria-label="Add a note"
+              >
+                <StickyNote size={16} />
+              </button>
+              <span className={styles.headerTooltip}>Add a note</span>
+            </div>
+          )}
+
+          {/* Go to selected text */}
+          {onScrollToText && (
+            <div className={styles.headerBtnWrapper}>
+              <button
+                type="button"
+                className={styles.headerIconBtn}
+                onClick={onScrollToText}
+                aria-label="Go to selected text"
+              >
+                <MousePointerClick size={16} />
+              </button>
+              <span className={styles.headerTooltip}>Go to selected text</span>
+            </div>
+          )}
+
+          {/* Save / delete chat */}
           {(onSaveChat || onDeleteChat) && (
-            <button
-              type="button"
-              className={`${styles.headerIconBtn} ${isChatSaved ? styles.bookmarkSaved : ''}`}
-              onClick={isChatSaved ? onDeleteChat : onSaveChat}
-              aria-label={isChatSaved ? 'Delete saved chat' : 'Save chat'}
-              title={isChatSaved ? 'Delete saved chat' : 'Save chat'}
-            >
-              <FiBookmark size={16} />
-            </button>
+            <div className={styles.headerBtnWrapper}>
+              <button
+                type="button"
+                className={`${styles.headerIconBtn} ${isChatSaved ? styles.bookmarkSaved : ''}`}
+                onClick={isChatSaved ? onDeleteChat : onSaveChat}
+                aria-label={isChatSaved ? 'Delete saved chat' : 'Save chat'}
+              >
+                <Bookmark size={16} />
+              </button>
+              <span className={styles.headerTooltip}>
+                {isChatSaved ? 'Delete saved chat' : 'Save chat'}
+              </span>
+            </div>
+          )}
+
+          {/* Delete explanation */}
+          {onDeleteExplanation && (
+            <div className={styles.headerBtnWrapper}>
+              <button
+                type="button"
+                className={styles.headerIconBtn}
+                onClick={onDeleteExplanation}
+                aria-label="Delete explanation"
+              >
+                <Trash2 size={16} />
+              </button>
+              <span className={styles.headerTooltip}>Delete explanation</span>
+            </div>
           )}
         </div>
       </div>
@@ -244,30 +393,17 @@ export const AskAISidePanel: React.FC<AskAISidePanelProps> = ({
           chatMessages={chatMessages}
           streamingText={streamingText}
           possibleQuestions={possibleQuestions}
+          autoFocusInput={autoFocusInput}
+          onInputFocused={onInputFocused}
+          builtinPrompts={builtinPrompts}
+          customPrompts={customPrompts}
+          onAddCustomPrompt={onAddCustomPrompt}
         />
       </div>
     </div>
   );
 };
 
-function PointLeftIcon() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M18 15l-6-6-6 6" transform="rotate(-90 12 12)" />
-      <line x1="6" y1="12" x2="18" y2="12" />
-    </svg>
-  );
-}
 
 AskAISidePanel.displayName = 'AskAISidePanel';
 

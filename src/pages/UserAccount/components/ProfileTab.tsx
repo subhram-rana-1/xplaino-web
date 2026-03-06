@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiLogOut } from 'react-icons/fi';
+import { LogOut } from 'lucide-react';
 import styles from './ProfileTab.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { Toast } from '@/shared/components/Toast';
@@ -75,7 +75,7 @@ export const ProfileTab: React.FC = () => {
           onClick={handleLogout}
           disabled={isLoggingOut}
         >
-          <FiLogOut className={styles.logoutIcon} size={18} />
+          <LogOut className={styles.logoutIcon} size={18} />
           {isLoggingOut ? 'Logging out...' : 'Logout'}
         </button>
       </div>

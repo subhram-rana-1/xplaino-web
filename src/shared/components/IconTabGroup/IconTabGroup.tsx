@@ -1,10 +1,10 @@
 import React, { useRef, useEffect, useLayoutEffect } from 'react';
-import { IconType } from 'react-icons';
+import type { LucideIcon } from 'lucide-react';
 import styles from './IconTabGroup.module.css';
 
 export interface IconTab {
   id: string;
-  icon: IconType;
+  icon: LucideIcon;
   label: string;
 }
 

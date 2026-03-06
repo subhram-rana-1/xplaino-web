@@ -139,6 +139,97 @@
   color: var(--teal);
 }
 
+/* ─── Header button wrapper + fast CSS tooltip ───────────────────────────── */
+.headerBtnWrapper {
+  position: relative;
+}
+
+.headerTooltip {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.headerBtnWrapper:hover .headerTooltip {
+  opacity: 1;
+}
+
+.headerTooltipAbove {
+  top: auto;
+  bottom: calc(100% + 5px);
+}
+
+/* ─── Highlight color circle inside the highlight button ─────────────────── */
+.colorCircle {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  display: block;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1.5px var(--text-tertiary);
+}
+
+.headerIconBtnDisabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ─── Colour picker popover (shown on hover of highlight button) ─────────── */
+.colourPickerPopover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 5px;
+  padding: 6px 8px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  z-index: 10001;
+}
+
+.colourDot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease, border-color 0.1s ease;
+  flex-shrink: 0;
+}
+
+.colourDot:hover {
+  transform: scale(1.2);
+}
+
+.colourDotSelected {
+  border-color: rgba(0, 0, 0, 0.35);
+}
+
+.colourCheck {
+  font-size: 9px;
+  color: rgba(0, 0, 0, 0.6);
+  line-height: 1;
+  pointer-events: none;
+}
+
 .content {
   flex: 1;
   overflow: hidden;

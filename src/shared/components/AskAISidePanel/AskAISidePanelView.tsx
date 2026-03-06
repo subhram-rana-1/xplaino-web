@@ -1,8 +1,15 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { FiArrowUp, FiTrash2, FiSquare } from 'react-icons/fi';
+import { ArrowUp, Trash2, Square, Plus, MoreVertical, BookMarked, ExternalLink } from 'lucide-react';
 import { LoadingDots } from '@/shared/components/LoadingDots';
+import type { CustomPromptResponse } from '@/shared/types/customPrompt.types';
 import styles from './AskAISidePanelView.module.css';
+
+function stripHtml(html: string): string {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || '';
+}
 
 export interface AskAISidePanelViewProps {
   /** The prompt option selected from dropdown */
@@ -21,6 +28,16 @@ export interface AskAISidePanelViewProps {
   streamingText?: string;
   /** Suggested follow-up questions from the API. When non-empty, shown instead of default prompts. */
   possibleQuestions?: string[];
+  /** When true, auto-focus the chat textarea */
+  autoFocusInput?: boolean;
+  /** Called after the textarea has been focused */
+  onInputFocused?: () => void;
+  /** Override the default builtin prompt buttons (default: ['Short summary', 'Descriptive note']) */
+  builtinPrompts?: string[];
+  /** User's saved custom prompts to show in the 3-dot popover */
+  customPrompts?: CustomPromptResponse[];
+  /** Called when user clicks "Add custom prompt" in the 3-dot popover */
+  onAddCustomPrompt?: () => void;
 }
 
 const DEFAULT_PROMPTS = ['Short summary', 'Descriptive note'];
@@ -43,9 +60,17 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
   chatMessages = [],
   streamingText = '',
   possibleQuestions = [],
+  autoFocusInput = false,
+  onInputFocused,
+  builtinPrompts,
+  customPrompts,
+  onAddCustomPrompt,
 }) => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [inputValue, setInputValue] = useState('');
+  const [showPanelPopover, setShowPanelPopover] = useState(false);
+  const panelPopoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
 
@@ -86,6 +111,14 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
     }
   }, [streamingText, chatMessages, shouldAutoScroll]);
 
+  // Auto-focus input when requested (e.g. opened via "Ask AI" button)
+  useEffect(() => {
+    if (autoFocusInput && inputRef.current) {
+      inputRef.current.focus();
+      onInputFocused?.();
+    }
+  }, [autoFocusInput, onInputFocused]);
+
   // Handle input submission
   const onInputSubmitRef = React.useRef(onInputSubmit);
   useEffect(() => {
@@ -123,6 +156,7 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
   }, []);
 
   const hasChatHistory = chatMessages.length > 0;
+  const activeBuiltinPrompts = builtinPrompts ?? DEFAULT_PROMPTS;
   // Default prompts only shown when no API questions exist (FolderBookmark context)
   const showDefaultPrompts = possibleQuestions.length === 0;
 
@@ -237,7 +271,89 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
       {showDefaultPrompts && (
         <div className={styles.defaultPrompts}>
           <span className={styles.promptsContainer}>
-            {DEFAULT_PROMPTS.map((prompt) => (
+            {/* 3-dot button with hover popover */}
+            <div
+              className={styles.panelOptionsWrapper}
+              onMouseEnter={() => {
+                if (panelPopoverTimerRef.current) clearTimeout(panelPopoverTimerRef.current);
+                setShowPanelPopover(true);
+              }}
+              onMouseLeave={() => {
+                panelPopoverTimerRef.current = setTimeout(() => setShowPanelPopover(false), 200);
+              }}
+            >
+              <button
+                type="button"
+                className={styles.panelOptionsButton}
+                aria-label="More prompts"
+              >
+                <MoreVertical size={15} />
+              </button>
+              {showPanelPopover && (
+                <div
+                  className={styles.panelOptionsPopover}
+                  onMouseEnter={() => {
+                    if (panelPopoverTimerRef.current) clearTimeout(panelPopoverTimerRef.current);
+                  }}
+                  onMouseLeave={() => {
+                    panelPopoverTimerRef.current = setTimeout(() => setShowPanelPopover(false), 200);
+                  }}
+                >
+                  {activeBuiltinPrompts.map((prompt) => (
+                    <button
+                      key={prompt}
+                      type="button"
+                      className={styles.panelOptionItem}
+                      onClick={() => { setShowPanelPopover(false); handlePromptClick(prompt); }}
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                  {customPrompts && customPrompts.length > 0 && (
+                    <>
+                      <hr className={styles.panelOptionsSeparator} />
+                      {customPrompts.map((p) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          className={styles.panelOptionItem}
+                          onClick={() => {
+                            setShowPanelPopover(false);
+                            const text = stripHtml(p.description) || p.title;
+                            onInputSubmit?.(text);
+                          }}
+                        >
+                          <BookMarked size={13} />
+                          <span>{p.title}</span>
+                        </button>
+                      ))}
+                    </>
+                  )}
+                  {onAddCustomPrompt && (
+                    <button
+                      type="button"
+                      className={styles.panelOptionItem}
+                      onClick={() => { setShowPanelPopover(false); onAddCustomPrompt(); }}
+                    >
+                      <Plus size={13} />
+                      <span>Add custom prompt</span>
+                    </button>
+                  )}
+                  <a
+                    href="/user/account/custom-prompt"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.panelOptionItem}
+                    onClick={() => setShowPanelPopover(false)}
+                  >
+                    <ExternalLink size={13} />
+                    <span>View all custom prompts</span>
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {activeBuiltinPrompts.map((prompt) => (
               <button
                 key={prompt}
                 type="button"
@@ -255,6 +371,7 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
       <div className={styles.inputBar}>
         <div className={styles.inputWrapper}>
           <input
+            ref={inputRef}
             type="text"
             className={styles.input}
             placeholder="Ask about the explanation"
@@ -272,7 +389,7 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
             onClick={onStopRequest}
             aria-label="Stop request"
           >
-            <FiSquare size={18} />
+            <Square size={18} />
           </button>
         ) : (
           /* Send Button - Disabled when input is empty */
@@ -283,7 +400,7 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
             disabled={!inputValue.trim() || isSubmitting}
             aria-label="Ask question"
           >
-            <FiArrowUp size={18} />
+            <ArrowUp size={18} />
           </button>
         )}
 
@@ -295,7 +412,7 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
             onClick={onClearChat}
             aria-label="Clear chat history"
           >
-            <FiTrash2 size={18} />
+            <Trash2 size={18} />
           </button>
         )}
       </div>
@@ -304,22 +421,7 @@ export const AskAISidePanelView: React.FC<AskAISidePanelViewProps> = ({
 };
 
 function PlusIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 14 14"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      aria-hidden="true"
-      className={className}
-    >
-      <line x1="7" y1="2" x2="7" y2="12" />
-      <line x1="2" y1="7" x2="12" y2="7" />
-    </svg>
-  );
+  return <Plus size={14} aria-hidden="true" className={className} />;
 }
 
 AskAISidePanelView.displayName = 'AskAISidePanelView';

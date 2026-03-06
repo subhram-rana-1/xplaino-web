@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiX } from 'react-icons/fi';
+import { X } from 'lucide-react';
 import styles from './FolderSelectionModal.module.css';
 import type { FolderWithSubFolders } from '@/shared/types/folders.types';
 
@@ -92,7 +92,7 @@ export const FolderSelectionModal: React.FC<FolderSelectionModalProps> = ({
             onClick={handleClose}
             aria-label="Close"
           >
-            <FiX />
+            <X />
           </button>
         </div>
         

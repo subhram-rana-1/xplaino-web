@@ -1,14 +1,14 @@
 import React from 'react';
-import { FiBookOpen, FiFileText, FiBookmark, FiMessageCircle } from 'react-icons/fi';
-import type { IconType } from 'react-icons';
+import { BookOpen, FileText, Bookmark, MessageCircle } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { ScrollReveal } from '@/shared/components/ScrollReveal';
 import styles from './ProblemSection.module.css';
 
-const problemItems: { icon: IconType; text: string }[] = [
-  { icon: FiBookOpen, text: 'You read dozens of articles — but retain very little.' },
-  { icon: FiFileText, text: 'Research papers feel dense, overwhelming, and slow.' },
-  { icon: FiBookmark, text: 'Important insights disappear into bookmarks.' },
-  { icon: FiMessageCircle, text: 'AI chat tools give answers — but don\'t build knowledge.' },
+const problemItems: { icon: LucideIcon; text: string }[] = [
+  { icon: BookOpen, text: 'You read dozens of articles — but retain very little.' },
+  { icon: FileText, text: 'Research papers feel dense, overwhelming, and slow.' },
+  { icon: Bookmark, text: 'Important insights disappear into bookmarks.' },
+  { icon: MessageCircle, text: 'AI chat tools give answers — but don\'t build knowledge.' },
 ];
 
 /**

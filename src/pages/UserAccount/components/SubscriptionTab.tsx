@@ -1,16 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  FiCreditCard, 
-  FiCalendar, 
-  FiClock, 
-  FiAlertCircle,
-  FiRefreshCw,
-  FiXCircle,
-  FiLoader,
-  FiX
-} from 'react-icons/fi';
-import { FaCrown } from 'react-icons/fa';
+import { CreditCard, Calendar, Clock, AlertCircle, RefreshCw, XCircle, Loader2, X, Crown } from 'lucide-react';
 import styles from './SubscriptionTab.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { usePaddle } from '@/shared/hooks/usePaddle';
@@ -264,7 +254,7 @@ export const SubscriptionTab: React.FC = () => {
       <div className={styles.subscriptionTab}>
         <div className={styles.content}>
           <div className={styles.refreshingState}>
-            <FiLoader className={styles.spinnerIcon} size={32} />
+            <Loader2 className={styles.spinnerIcon} size={32} />
             <p>Fetching updated subscription...</p>
           </div>
         </div>
@@ -301,7 +291,7 @@ export const SubscriptionTab: React.FC = () => {
             {/* Ultra Features */}
             <div className={styles.ultraBenefits}>
               <p className={styles.ultraBenefitsTitle}>
-                <FaCrown size={14} />
+                <Crown size={14} />
                 Unlock Ultra features
               </p>
               <ul className={styles.ultraBenefitsList}>
@@ -324,7 +314,7 @@ export const SubscriptionTab: React.FC = () => {
                 onClick={handleUpgradeClick}
                 disabled={checkoutLoading}
               >
-                <FaCrown size={20} />
+                <Crown size={20} />
                 {checkoutLoading ? 'Loading...' : 'Upgrade to Ultra Yearly'}
               </button>
               <Link to="/pricing" className={styles.viewAllPlansLink}>
@@ -394,7 +384,7 @@ export const SubscriptionTab: React.FC = () => {
             </div>
             
             <div className={styles.expiredContent}>
-              <FiAlertCircle className={styles.expiredIcon} size={40} />
+              <AlertCircle className={styles.expiredIcon} size={40} />
               <h3 className={styles.expiredTitle}>Subscription Expired</h3>
               <p className={styles.expiredText}>
                 Renew your subscription to continue enjoying premium features.
@@ -409,7 +399,7 @@ export const SubscriptionTab: React.FC = () => {
 
             <div className={styles.expiredActions}>
               <button className={styles.renewButton}>
-                <FiRefreshCw size={18} />
+                <RefreshCw size={18} />
                 Renew current plan
               </button>
               <Link to="/pricing" className={styles.secondaryButton}>
@@ -460,7 +450,7 @@ export const SubscriptionTab: React.FC = () => {
             {(subscription.current_billing_period_starts_at && subscription.current_billing_period_ends_at) ? (
               <div className={styles.detailRow}>
                 <span className={styles.detailLabel}>
-                  <FiCalendar className={styles.detailIcon} size={18} />
+                  <Calendar className={styles.detailIcon} size={18} />
                   Current Period
                 </span>
                 <span className={styles.detailValue}>
@@ -470,7 +460,7 @@ export const SubscriptionTab: React.FC = () => {
             ) : (previouslyBilledAt && nextBilledAt) && (
               <div className={styles.detailRow}>
                 <span className={styles.detailLabel}>
-                  <FiCalendar className={styles.detailIcon} size={18} />
+                  <Calendar className={styles.detailIcon} size={18} />
                   Current Period
                 </span>
                 <span className={styles.detailValue}>
@@ -483,7 +473,7 @@ export const SubscriptionTab: React.FC = () => {
             {nextBilledAt && statusEnum === SubscriptionStatus.ACTIVE && (
               <div className={styles.detailRow}>
                 <span className={styles.detailLabel}>
-                  <FiClock className={styles.detailIcon} size={18} />
+                  <Clock className={styles.detailIcon} size={18} />
                   Next Billing Date
                 </span>
                 <span className={styles.detailValue}>
@@ -495,7 +485,7 @@ export const SubscriptionTab: React.FC = () => {
             {subscription.created_at && (
               <div className={styles.detailRow}>
                 <span className={styles.detailLabel}>
-                  <FiCreditCard className={styles.detailIcon} size={18} />
+                  <CreditCard className={styles.detailIcon} size={18} />
                   Member Since
                 </span>
                 <span className={styles.detailValue}>
@@ -509,7 +499,7 @@ export const SubscriptionTab: React.FC = () => {
           {!hasNextBillingDate && (
             <div className={styles.cancellationNotice}>
               <h3 className={styles.cancellationHeading}>
-                <FiAlertCircle size={20} />
+                <AlertCircle size={20} />
                 Subscription Cancelled
               </h3>
               <p className={styles.cancellationMessage}>
@@ -540,7 +530,7 @@ export const SubscriptionTab: React.FC = () => {
                 className={styles.cancelButton}
                 onClick={() => setShowCancelConfirm(true)}
               >
-                <FiXCircle size={18} />
+                <XCircle size={18} />
               </button>
             )}
 
@@ -552,7 +542,7 @@ export const SubscriptionTab: React.FC = () => {
                   onClick={handleUpgradeClick}
                   disabled={checkoutLoading}
                 >
-                  <FaCrown size={20} />
+                  <Crown size={20} />
                   {checkoutLoading ? 'Loading...' : `Upgrade to Yearly for ${ultraYearlyPrice?.discountPercentage || ''}% OFF`}
                 </button>
                 {hasNextBillingDate && (
@@ -560,7 +550,7 @@ export const SubscriptionTab: React.FC = () => {
                     className={styles.cancelButton}
                     onClick={() => setShowCancelConfirm(true)}
                   >
-                    <FiXCircle size={18} />
+                    <XCircle size={18} />
                   </button>
                 )}
               </>
@@ -572,7 +562,7 @@ export const SubscriptionTab: React.FC = () => {
                 className={styles.cancelButton}
                 onClick={() => setShowCancelConfirm(true)}
               >
-                <FiXCircle size={18} />
+                <XCircle size={18} />
               </button>
             )}
 
@@ -584,7 +574,7 @@ export const SubscriptionTab: React.FC = () => {
                   onClick={handleUpgradeClick}
                   disabled={checkoutLoading}
                 >
-                  <FaCrown size={20} />
+                  <Crown size={20} />
                   {checkoutLoading ? 'Loading...' : `Upgrade to Yearly for ${ultraYearlyPrice?.discountPercentage || '30'}% OFF`}
                 </button>
                 {hasNextBillingDate && (
@@ -592,7 +582,7 @@ export const SubscriptionTab: React.FC = () => {
                     className={styles.cancelButton}
                     onClick={() => setShowCancelConfirm(true)}
                   >
-                    <FiXCircle size={18} />
+                    <XCircle size={18} />
                   </button>
                 )}
               </>
@@ -609,7 +599,7 @@ export const SubscriptionTab: React.FC = () => {
                     className={styles.cancelButton}
                     onClick={() => setShowCancelConfirm(true)}
                   >
-                    <FiXCircle size={18} />
+                    <XCircle size={18} />
                   </button>
                 )}
               </>
@@ -626,7 +616,7 @@ export const SubscriptionTab: React.FC = () => {
                     className={styles.cancelButton}
                     onClick={() => setShowCancelConfirm(true)}
                   >
-                    <FiXCircle size={18} />
+                    <XCircle size={18} />
                   </button>
                 )}
               </>
@@ -653,7 +643,7 @@ export const SubscriptionTab: React.FC = () => {
               {/* Extra Ultra Features (compared to Plus) */}
               <div className={styles.ultraBenefits}>
                 <p className={styles.ultraBenefitsTitle}>
-                  <FaCrown size={14} />
+                  <Crown size={14} />
                   What's extra in Ultra
                 </p>
                 <ul className={styles.ultraBenefitsList}>
@@ -671,7 +661,7 @@ export const SubscriptionTab: React.FC = () => {
                   onClick={handleUpgradeClick}
                   disabled={checkoutLoading}
                 >
-                  <FaCrown size={20} />
+                  <Crown size={20} />
                   {checkoutLoading ? 'Loading...' : 'Upgrade to Ultra Yearly'}
                 </button>
                 <Link to="/pricing" className={styles.viewAllPlansLink}>
@@ -701,7 +691,7 @@ export const SubscriptionTab: React.FC = () => {
               {/* Ultra Features */}
               <div className={styles.ultraBenefits}>
                 <p className={styles.ultraBenefitsTitle}>
-                  <FaCrown size={14} />
+                  <Crown size={14} />
                   Unlock Ultra features
                 </p>
                 <ul className={styles.ultraBenefitsList}>
@@ -724,7 +714,7 @@ export const SubscriptionTab: React.FC = () => {
                   onClick={handleUpgradeClick}
                   disabled={checkoutLoading}
                 >
-                  <FaCrown size={20} />
+                  <Crown size={20} />
                   {checkoutLoading ? 'Loading...' : 'Upgrade to Ultra Yearly'}
                 </button>
                 <Link to="/pricing" className={styles.viewAllPlansLink}>
@@ -751,7 +741,7 @@ export const SubscriptionTab: React.FC = () => {
               onClick={resetCancelModal}
               aria-label="Close modal"
             >
-              <FiX size={20} />
+              <X size={20} />
             </button>
             <h3>Cancel Subscription</h3>
             <p>We're sorry to see you go. Please let us know why you're canceling so we can improve.</p>

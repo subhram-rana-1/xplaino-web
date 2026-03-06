@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { FiArrowLeft, FiRefreshCw, FiPlus, FiCheck } from 'react-icons/fi';
+import { ArrowLeft, RefreshCw, Plus, Check } from 'lucide-react';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { getAllPdfs, deletePdf, getDownloadUrl, sharePdf, unsharePdf, getPdfShareeList, makePdfPublic, makePdfPrivate } from '@/shared/services/pdf.service';
 import { getAllFolders } from '@/shared/services/folders.service';
@@ -287,7 +287,7 @@ export const FolderPdf: React.FC = () => {
       {/* Breadcrumb */}
       <div className={styles.breadcrumb}>
         <button className={styles.backButton} onClick={() => navigate('/user/dashboard')}>
-          <FiArrowLeft size={16} />
+          <ArrowLeft size={16} />
           <span>Dashboard</span>
         </button>
         <FolderSelectorPopover
@@ -307,12 +307,12 @@ export const FolderPdf: React.FC = () => {
           >
             {showFetchSuccess ? (
               <>
-                <FiCheck />
+                <Check />
                 <span>PDFs fetched</span>
               </>
             ) : (
               <>
-                <FiRefreshCw className={isLoading ? styles.spin : ''} />
+                <RefreshCw className={isLoading ? styles.spin : ''} />
                 <span>Fetch PDFs</span>
               </>
             )}
@@ -322,7 +322,7 @@ export const FolderPdf: React.FC = () => {
             onClick={() => setIsUploadModalOpen(true)}
             title="New PDF"
           >
-            <FiPlus />
+            <Plus />
             <span>New PDF</span>
           </button>
         </div>

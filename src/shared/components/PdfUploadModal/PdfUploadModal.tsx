@@ -1,16 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import {
-  FiUploadCloud,
-  FiFileText,
-  FiLink,
-  FiCheck,
-  FiAlertCircle,
-  FiRefreshCw,
-  FiInfo,
-  FiX,
-} from 'react-icons/fi';
+import { CloudUpload, FileText, Link, Check, AlertCircle, RefreshCw, Info, X } from 'lucide-react';
 import { SiGoogledrive, SiDropbox } from 'react-icons/si';
 import { fetchWithAuth, fetchPublic } from '@/shared/services/api-client';
 import { authConfig } from '@/config/auth.config';
@@ -436,7 +427,7 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
   };
 
   const sourceIcon: Record<UploadedFile['source'], React.ReactNode> = {
-    local: <FiUploadCloud size={13} />,
+    local: <CloudUpload size={13} />,
     drive: <SiGoogledrive size={13} />,
     dropbox: <SiDropbox size={13} />,
   };
@@ -449,7 +440,7 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
       {isDraggingOverViewport && uploadState === 'idle' && (
         <div className={styles.dragOverlay}>
           <div className={styles.dragOverlayInner}>
-            <FiUploadCloud className={styles.dragOverlayIcon} size={56} />
+            <CloudUpload className={styles.dragOverlayIcon} size={56} />
             <p className={styles.dragOverlayTitle}>Drop your PDF here</p>
             <p className={styles.dragOverlaySubtitle}>Release to upload</p>
           </div>
@@ -468,7 +459,7 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
               disabled={isUploading}
               aria-label="Close"
             >
-              <FiX size={18} />
+              <X size={18} />
             </button>
           </div>
 
@@ -481,7 +472,7 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
                   className={`${styles.tab} ${activeTab === 'local' ? styles.tabActive : ''}`}
                   onClick={() => { setActiveTab('local'); setLocalError(null); setLinkError(null); }}
                 >
-                  <FiUploadCloud className={styles.tabIcon} size={15} />
+                  <CloudUpload className={styles.tabIcon} size={15} />
                   Local file
                 </button>
                 <button
@@ -504,7 +495,7 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
             <div className={styles.cardBody}>
               {uploadState === 'idle' && (
                 <div className={styles.scannedNotice}>
-                  <FiInfo size={13} />
+                  <Info size={13} />
                   Scanned PDFs are not supported. Please upload text-based PDFs only.
                 </div>
               )}
@@ -525,12 +516,12 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
               {uploadState === 'success' && uploadedFile && (
                 <div className={styles.successState}>
                   <div className={styles.successCheck}>
-                    <FiCheck size={28} strokeWidth={2.5} />
+                    <Check size={28} strokeWidth={2.5} />
                   </div>
                   <p className={styles.successTitle}>PDF loaded successfully!</p>
                   <div className={styles.fileInfoCard}>
                     <div className={styles.fileInfoIcon}>
-                      <FiFileText size={24} />
+                      <FileText size={24} />
                     </div>
                     <div className={styles.fileInfoDetails}>
                       <div className={styles.fileInfoName}>{uploadedFile.name}</div>
@@ -549,7 +540,7 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
                     </div>
                   </div>
                   <button className={styles.resetButton} onClick={handleReset}>
-                    <FiRefreshCw size={13} />
+                    <RefreshCw size={13} />
                     Upload a different file
                   </button>
                 </div>
@@ -569,7 +560,7 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click(); }}
                   >
                     <div className={styles.dropZoneIcon}>
-                      <FiUploadCloud size={28} />
+                      <CloudUpload size={28} />
                     </div>
                     <p className={styles.dropZoneTitle}>Drag & drop your PDF here</p>
                     <p className={styles.dropZoneSubtitle}>
@@ -581,11 +572,11 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
                       className={styles.browseButton}
                       onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
                     >
-                      <FiFileText size={15} />
+                      <FileText size={15} />
                       Browse file
                     </button>
                     <p className={styles.dropZoneHint}>
-                      <FiInfo size={12} />
+                      <Info size={12} />
                       PDF files only · Max 5 MB
                     </p>
                   </div>
@@ -598,7 +589,7 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
                   />
                   {localError && (
                     <div className={styles.errorMessage}>
-                      <FiAlertCircle size={15} />
+                      <AlertCircle size={15} />
                       {localError}
                     </div>
                   )}
@@ -627,18 +618,18 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
                       onClick={handleDriveSubmit}
                       disabled={!driveUrl.trim()}
                     >
-                      <FiLink size={14} />
+                      <Link size={14} />
                       Load
                     </button>
                   </div>
                   {linkError && (
                     <div className={styles.linkError}>
-                      <FiAlertCircle size={14} />
+                      <AlertCircle size={14} />
                       {linkError}
                     </div>
                   )}
                   <div className={styles.linkHint}>
-                    <FiInfo className={styles.linkHintIcon} size={14} />
+                    <Info className={styles.linkHintIcon} size={14} />
                     <span>
                       Open the file in Google Drive → click <strong>Share</strong> → set to
                       "Anyone with the link" → copy the link and paste it above.
@@ -669,18 +660,18 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
                       onClick={handleDropboxSubmit}
                       disabled={!dropboxUrl.trim()}
                     >
-                      <FiLink size={14} />
+                      <Link size={14} />
                       Load
                     </button>
                   </div>
                   {linkError && (
                     <div className={styles.linkError}>
-                      <FiAlertCircle size={14} />
+                      <AlertCircle size={14} />
                       {linkError}
                     </div>
                   )}
                   <div className={styles.linkHint}>
-                    <FiInfo className={styles.linkHintIcon} size={14} />
+                    <Info className={styles.linkHintIcon} size={14} />
                     <span>
                       Right-click the file in Dropbox → <strong>Share</strong> → copy the
                       link and paste it above.

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { FiMoreVertical, FiEdit2, FiTrash2, FiShare2, FiUsers } from 'react-icons/fi';
+import { MoreVertical, Pencil, Trash2, Share2, Users } from 'lucide-react';
 import styles from './FolderMenu.module.css';
 
 export interface FolderMenuProps {
@@ -148,7 +148,7 @@ export const FolderMenu: React.FC<FolderMenuProps> = ({
         title="Rename folder"
         aria-label="Rename folder"
       >
-        <FiEdit2 />
+        <Pencil />
         <span>Rename</span>
       </button>
       {onShare && (
@@ -158,7 +158,7 @@ export const FolderMenu: React.FC<FolderMenuProps> = ({
           title="Share folder"
           aria-label="Share folder"
         >
-          <FiShare2 />
+          <Share2 />
           <span>Share</span>
         </button>
       )}
@@ -169,7 +169,7 @@ export const FolderMenu: React.FC<FolderMenuProps> = ({
           title="Manage sharing"
           aria-label="Manage sharing"
         >
-          <FiUsers />
+          <Users />
           <span>Manage sharing</span>
         </button>
       )}
@@ -179,7 +179,7 @@ export const FolderMenu: React.FC<FolderMenuProps> = ({
         title="Delete folder"
         aria-label="Delete folder"
       >
-        <FiTrash2 />
+        <Trash2 />
         <span>Delete</span>
       </button>
     </div>
@@ -198,7 +198,7 @@ export const FolderMenu: React.FC<FolderMenuProps> = ({
           title="Folder options"
           aria-label="Folder options"
         >
-          <FiMoreVertical />
+          <MoreVertical />
         </button>
       </div>
       {popoverContent && createPortal(popoverContent, document.body)}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiX } from 'react-icons/fi';
+import { X } from 'lucide-react';
 import { ScrollReveal } from '@/shared/components/ScrollReveal';
 import styles from './PositioningSection.module.css';
 
@@ -43,7 +43,7 @@ export const PositioningSection: React.FC = () => {
                 {extensionsProblems.map((item, index) => (
                   <li key={index} className={styles.problemItem}>
                     <span className={styles.crossIcon} aria-hidden>
-                      <FiX />
+                      <X />
                     </span>
                     {item}
                   </li>

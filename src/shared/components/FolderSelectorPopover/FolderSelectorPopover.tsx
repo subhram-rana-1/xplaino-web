@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { FiChevronDown, FiFolder } from 'react-icons/fi';
+import { ChevronDown, Folder } from 'lucide-react';
 import type { FolderWithSubFolders } from '@/shared/types/folders.types';
 import styles from './FolderSelectorPopover.module.css';
 
@@ -86,7 +86,7 @@ export const FolderSelectorPopover: React.FC<FolderSelectorPopoverProps> = ({
             className={`${styles.folderItem} ${folder.id === currentFolderId ? styles.folderItemActive : ''}`}
             onClick={() => handleSelect(folder)}
           >
-            <FiFolder className={styles.folderIcon} />
+            <Folder className={styles.folderIcon} />
             <span className={styles.folderName}>{folder.name}</span>
           </button>
         ))
@@ -108,7 +108,7 @@ export const FolderSelectorPopover: React.FC<FolderSelectorPopoverProps> = ({
         onClick={() => setIsOpen((prev) => !prev)}
       >
         <span className={styles.triggerValue}>{displayName}</span>
-        <FiChevronDown
+        <ChevronDown
           className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ''}`}
         />
       </button>

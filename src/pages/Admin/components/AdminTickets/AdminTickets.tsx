@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiCopy, FiCheck, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { Copy, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from './AdminTickets.module.css';
 import { getAllIssues } from '@/shared/services/issues.service';
 import type { IssueResponse, GetAllIssuesFilters } from '@/shared/types/issues.types';
@@ -350,9 +350,9 @@ export const AdminTickets: React.FC<AdminTicketsProps> = ({ accessToken }) => {
                           title="Copy ticket ID"
                         >
                           {copiedTicketId === issue.ticket_id ? (
-                            <FiCheck className={styles.checkIcon} />
+                            <Check className={styles.checkIcon} />
                           ) : (
-                            <FiCopy />
+                            <Copy />
                           )}
                         </button>
                         {copiedTicketId === issue.ticket_id && (
@@ -421,7 +421,7 @@ export const AdminTickets: React.FC<AdminTicketsProps> = ({ accessToken }) => {
               onClick={handlePrevious}
               disabled={currentOffset === 0 || isLoading}
             >
-              <FiChevronLeft />
+              <ChevronLeft />
               <span>Previous</span>
             </button>
             <span className={styles.paginationInfo}>
@@ -433,7 +433,7 @@ export const AdminTickets: React.FC<AdminTicketsProps> = ({ accessToken }) => {
               disabled={!hasNext || isLoading}
             >
               <span>Next</span>
-              <FiChevronRight />
+              <ChevronRight />
             </button>
           </div>
         </>

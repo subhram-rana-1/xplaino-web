@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiRefreshCw, FiTrash2, FiEdit } from 'react-icons/fi';
+import { RefreshCw, Trash2, PenLine } from 'lucide-react';
 import styles from './AdminCoupons.module.css';
 import { getAllCoupons, deleteCoupon, type GetAllCouponsFilters } from '@/shared/services/coupon.service';
 import type { CouponResponse } from '@/shared/types/coupon.types';
@@ -284,7 +284,7 @@ export const AdminCoupons: React.FC<AdminCouponsProps> = ({ accessToken }) => {
             disabled={isLoading}
             title="Refresh coupons"
           >
-            <FiRefreshCw className={isLoading ? styles.spin : ''} />
+            <RefreshCw className={isLoading ? styles.spin : ''} />
           </button>
           <button
             className={styles.addButton}
@@ -334,7 +334,7 @@ export const AdminCoupons: React.FC<AdminCouponsProps> = ({ accessToken }) => {
                         title="Edit coupon"
                         aria-label={`Edit ${coupon.code}`}
                       >
-                        <FiEdit />
+                        <PenLine />
                       </button>
                       <button
                         className={styles.deleteButton}
@@ -342,7 +342,7 @@ export const AdminCoupons: React.FC<AdminCouponsProps> = ({ accessToken }) => {
                         title="Delete coupon"
                         aria-label={`Delete ${coupon.code}`}
                       >
-                        <FiTrash2 />
+                        <Trash2 />
                       </button>
                     </div>
                   </div>

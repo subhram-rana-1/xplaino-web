@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FiCopy, FiCheck, FiChevronDown } from 'react-icons/fi';
+import { Copy, Check, ChevronDown } from 'lucide-react';
 import styles from './IssueDetails.module.css';
 import { IssueType, IssueStatus } from '@/shared/types/issues.types';
 import type { IssueResponse, GetIssueByTicketIdResponse } from '@/shared/types/issues.types';
@@ -187,9 +187,9 @@ export const IssueDetails: React.FC<IssueDetailsProps> = ({
                       title="Copy ticket ID"
                     >
                       {copiedTicketId ? (
-                        <FiCheck className={styles.checkIcon} />
+                        <Check className={styles.checkIcon} />
                       ) : (
-                        <FiCopy />
+                        <Copy />
                       )}
                     </button>
                     {copiedTicketId && (
@@ -208,7 +208,7 @@ export const IssueDetails: React.FC<IssueDetailsProps> = ({
                       aria-expanded={isStatusDropdownOpen}
                     >
                       <span>{getStatusLabel(currentStatusDisplay)}</span>
-                      <FiChevronDown />
+                      <ChevronDown />
                     </button>
                     {isStatusDropdownOpen && (
                       <div className={styles.statusDropdown} role="listbox">

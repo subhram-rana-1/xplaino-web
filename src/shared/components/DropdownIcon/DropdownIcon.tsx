@@ -1,5 +1,5 @@
 import React from 'react';
-import { HiChevronDown } from 'react-icons/hi2';
+import { ChevronDown } from 'lucide-react';
 import styles from './DropdownIcon.module.css';
 
 interface DropdownIconProps {
@@ -9,7 +9,7 @@ interface DropdownIconProps {
 
 /**
  * DropdownIcon - Reusable dropdown chevron icon component
- * Uses Heroicons (HiChevronDown) for a modern, professional look
+ * Uses lucide-react ChevronDown icon
  * 
  * @param isOpen - Whether the dropdown is open (rotates icon if true)
  * @param className - Additional CSS classes
@@ -20,7 +20,7 @@ export const DropdownIcon: React.FC<DropdownIconProps> = ({
   className = '' 
 }) => {
   return (
-    <HiChevronDown 
+    <ChevronDown 
       className={`${styles.dropdownIcon} ${isOpen ? styles.dropdownIconOpen : ''} ${className}`}
       aria-hidden="true"
     />

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiRefreshCw } from 'react-icons/fi';
+import { RefreshCw } from 'lucide-react';
 import styles from './AdminPricing.module.css';
 import { getAllPricings, getLivePricings } from '@/shared/services/pricing.service';
 import type { PricingResponse } from '@/shared/types/pricing.types';
@@ -172,7 +172,7 @@ export const AdminPricing: React.FC<AdminPricingProps> = ({ accessToken }) => {
             disabled={isLoading}
             title="Refresh pricing plans"
           >
-            <FiRefreshCw className={isLoading ? styles.spin : ''} />
+            <RefreshCw className={isLoading ? styles.spin : ''} />
           </button>
           <button
             className={styles.addButton}

@@ -1,6 +1,5 @@
 import React from 'react';
-import { HiSparkles } from 'react-icons/hi2';
-import { FiStar, FiGlobe } from 'react-icons/fi';
+import { Sparkles, Star, Globe } from 'lucide-react';
 import { ChromeButton } from '@/shared/components/ChromeButton';
 import styles from './PromoText.module.css';
 
@@ -13,7 +12,7 @@ export const PromoText: React.FC = () => {
   return (
     <div className={styles.promoText}>
       <div className={styles.badge}>
-        <HiSparkles className={styles.badgeIcon} />
+        <Sparkles className={styles.badgeIcon} />
         <span>AI Web Research & Second Brain System</span>
       </div>
       <h1 className={styles.heading}>
@@ -25,7 +24,7 @@ export const PromoText: React.FC = () => {
       <div className={styles.mobileMetrics} aria-label="Social proof">
         <div className={styles.mobileMetric}>
           <span className={styles.mobileMetricValue}>
-            <FiStar aria-hidden />
+            <Star aria-hidden />
             4.9/5
           </span>
           <span className={styles.mobileMetricLabel}>on Chrome Web Store</span>
@@ -33,7 +32,7 @@ export const PromoText: React.FC = () => {
         <div className={styles.mobileMetricDivider} aria-hidden />
         <div className={styles.mobileMetric}>
           <span className={styles.mobileMetricValue}>
-            <FiGlobe aria-hidden />
+            <Globe aria-hidden />
             10+
           </span>
           <span className={styles.mobileMetricLabel}>countries</span>

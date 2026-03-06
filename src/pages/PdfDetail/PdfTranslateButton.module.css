@@ -7,12 +7,10 @@
   flex-shrink: 0;
 }
 
-/* ─── Main "Translate PDF" button ─────────────────────────────────────────── */
+/* ─── Main "Translate PDF" button wrapper ──────────────────────────────────── */
 .translateBtn {
   display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.45rem 0.85rem;
+  align-items: stretch;
   font-family: 'Inter', sans-serif;
   font-size: 0.8125rem;
   font-weight: 600;
@@ -20,22 +18,17 @@
   background: rgba(11, 116, 103, 0.07);
   border: 1px solid rgba(11, 116, 103, 0.2);
   border-radius: 8px;
-  cursor: pointer;
   transition: background 0.18s ease, border-color 0.18s ease;
   white-space: nowrap;
   user-select: none;
   position: relative;
   z-index: 1;
+  overflow: hidden;
 }
 
-.translateBtn:hover:not(:disabled) {
+.translateBtn:hover {
   background: rgba(11, 116, 103, 0.14);
   border-color: rgba(11, 116, 103, 0.35);
-}
-
-.translateBtn:disabled {
-  cursor: default;
-  opacity: 0.75;
 }
 
 .translating {
@@ -46,6 +39,65 @@
 .translated {
   background: rgba(11, 116, 103, 0.12);
   border-color: rgba(11, 116, 103, 0.32);
+}
+
+/* ─── Left part: label + icon ─────────────────────────────────────────────── */
+.translateBtnMain {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.7rem;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.translateBtnMain:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+
+/* ─── Divider between label and chevron ───────────────────────────────────── */
+.btnDivider {
+  display: block;
+  width: 1px;
+  align-self: stretch;
+  background: rgba(11, 116, 103, 0.25);
+  flex-shrink: 0;
+}
+
+/* ─── Chevron button ──────────────────────────────────────────────────────── */
+.chevronBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.45rem;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.chevronBtn:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+
+.chevronBtn:hover:not(:disabled) {
+  background: rgba(11, 116, 103, 0.1);
+}
+
+.chevronIcon {
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
 }
 
 /* ─── Spinner ──────────────────────────────────────────────────────────────── */
