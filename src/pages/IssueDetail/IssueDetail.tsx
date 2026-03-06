@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FiArrowLeft } from 'react-icons/fi';
+import { ArrowLeft } from 'lucide-react';
 import styles from './IssueDetail.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { LoginModal } from '@/shared/components/LoginModal';
@@ -111,7 +111,7 @@ export const IssueDetail: React.FC = () => {
               className={styles.backButton}
               onClick={() => navigate('/user/issues')}
             >
-              <FiArrowLeft />
+              <ArrowLeft />
               <span>Back to Issues</span>
             </button>
           </div>
@@ -127,7 +127,7 @@ export const IssueDetail: React.FC = () => {
           className={styles.backButton}
           onClick={() => navigate('/user/issues')}
         >
-          <FiArrowLeft />
+          <ArrowLeft />
           <span>Back to Issues</span>
         </button>
 

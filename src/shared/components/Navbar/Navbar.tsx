@@ -6,7 +6,7 @@ import logoImageDark from '../../../assets/images/xplaino-brand-white.png';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { useTheme } from '@/shared/hooks/ThemeContext';
 import { Theme } from '@/shared/types/user-settings.types';
-import { FiLogOut, FiUser, FiGrid, FiAlertCircle, FiChevronDown, FiFileText } from 'react-icons/fi';
+import { LogOut, User, LayoutGrid, AlertCircle, ChevronDown, FileText } from 'lucide-react';
 import { SiGooglechrome } from 'react-icons/si';
 import { LoginModal } from '@/shared/components/LoginModal';
 import { Toast } from '@/shared/components/Toast';
@@ -243,7 +243,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                   onClick={() => setIsToolsDropdownOpen((v) => !v)}
                 >
                   Tools
-                  <FiChevronDown
+                  <ChevronDown
                     className={styles.dropdownChevron}
                     size={14}
                     style={{ transition: 'transform 0.2s ease', transform: isToolsDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
@@ -262,7 +262,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                     className={`${styles.dropdownItem} ${styles.dropdownItemButton}`}
                     onClick={handleToolsPdfClick}
                   >
-                    <FiFileText className={styles.dropdownItemIcon} size={15} />
+                    <FileText className={styles.dropdownItemIcon} size={15} />
                     Chat PDF
                     <span className={styles.dropdownItemTooltip}>Ask AI, Highlights, Notes</span>
                   </button>
@@ -333,7 +333,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                           setIsProfilePopoverOpen(false);
                         }}
                       >
-                        <FiUser className={styles.popoverItemIcon} size={16} />
+                        <User className={styles.popoverItemIcon} size={16} />
                         Account
                       </div>
                       <div
@@ -343,7 +343,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                           setIsProfilePopoverOpen(false);
                         }}
                       >
-                        <FiGrid className={styles.popoverItemIcon} size={16} />
+                        <LayoutGrid className={styles.popoverItemIcon} size={16} />
                         Admin Dashboard
                       </div>
                       <button
@@ -351,7 +351,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                         onClick={handleLogout}
                         disabled={isLoggingOut}
                       >
-                        <FiLogOut className={styles.popoverItemIcon} size={16} />
+                        <LogOut className={styles.popoverItemIcon} size={16} />
                         Logout
                       </button>
                     </>
@@ -364,7 +364,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                           setIsProfilePopoverOpen(false);
                         }}
                       >
-                        <FiUser className={styles.popoverItemIcon} size={16} />
+                        <User className={styles.popoverItemIcon} size={16} />
                         Account
                       </div>
                       <div
@@ -374,7 +374,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                           setIsProfilePopoverOpen(false);
                         }}
                       >
-                        <FiGrid className={styles.popoverItemIcon} size={16} />
+                        <LayoutGrid className={styles.popoverItemIcon} size={16} />
                         Dashboard
                       </div>
                       <div
@@ -384,7 +384,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                           setIsProfilePopoverOpen(false);
                         }}
                       >
-                        <FiAlertCircle className={styles.popoverItemIcon} size={16} />
+                        <AlertCircle className={styles.popoverItemIcon} size={16} />
                         My Issues
                       </div>
                       <button
@@ -392,7 +392,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                         onClick={handleLogout}
                         disabled={isLoggingOut}
                       >
-                        <FiLogOut className={styles.popoverItemIcon} size={16} />
+                        <LogOut className={styles.popoverItemIcon} size={16} />
                         Logout
                       </button>
                     </>

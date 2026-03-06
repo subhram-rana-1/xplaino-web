@@ -1,7 +1,6 @@
 import React, { useRef, useCallback } from 'react';
 import { ScrollReveal } from '@/shared/components/ScrollReveal';
-import { FaQuoteLeft } from 'react-icons/fa';
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { Quote, ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from './QuoteTestimonials.module.css';
 
 const SCROLL_STEP = 340;
@@ -93,7 +92,7 @@ export const QuoteTestimonials: React.FC = () => {
               onClick={scrollLeft}
               aria-label="Scroll testimonials left"
             >
-              <FiChevronLeft />
+              <ChevronLeft />
             </button>
             <div
               ref={scrollRef}
@@ -105,7 +104,7 @@ export const QuoteTestimonials: React.FC = () => {
                 {testimonials.map((t, index) => (
                   <article key={index} className={styles.card}>
                     <span className={styles.quoteIcon} aria-hidden>
-                      <FaQuoteLeft />
+                      <Quote />
                     </span>
                     <p className={styles.quote}>{t.quote}</p>
                     <p className={styles.outcome}>{t.outcome}</p>
@@ -133,7 +132,7 @@ export const QuoteTestimonials: React.FC = () => {
               onClick={scrollRight}
               aria-label="Scroll testimonials right"
             >
-              <FiChevronRight />
+              <ChevronRight />
             </button>
           </div>
         </section>

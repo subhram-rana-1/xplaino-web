@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useLocation, useParams, Link, Outlet } from 'react-router-dom';
-import { FiBookmark, FiBookOpen, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { Bookmark, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from './FolderDetailLayout.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { getAllFolders } from '@/shared/services/folders.service';
@@ -71,13 +71,13 @@ export const FolderDetailLayout: React.FC = () => {
         key: 'bookmark',
         label: 'BOOKMARKS',
         path: `/user/dashboard/folder/${folderId}/bookmark`,
-        icon: <FiBookmark />,
+        icon: <Bookmark />,
       },
       {
         key: 'pdf',
         label: 'PDF',
         path: `/user/dashboard/folder/${folderId}/pdf`,
-        icon: <FiBookOpen />,
+        icon: <BookOpen />,
       },
     ],
     [folderId]
@@ -117,7 +117,7 @@ export const FolderDetailLayout: React.FC = () => {
         title={sidebarVisible ? 'Hide sidebar' : 'Show sidebar'}
         aria-label={sidebarVisible ? 'Hide sidebar' : 'Show sidebar'}
       >
-        {sidebarVisible ? <FiChevronLeft size={14} /> : <FiChevronRight size={14} />}
+        {sidebarVisible ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
       </button>
       <div className={styles.content}>
         <Outlet />

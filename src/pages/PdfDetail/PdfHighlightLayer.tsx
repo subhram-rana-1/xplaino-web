@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { FiTrash2, FiX } from 'react-icons/fi';
+import { createPortal } from 'react-dom';
+import { Trash2, X } from 'lucide-react';
 import type { PdfHighlight, HighlightColour } from '@/shared/services/pdfHighlightService';
 import type { PdfNote } from '@/shared/services/pdfNoteService';
 import { normalisePdfText, buildNormalisedWithIndexMap } from './pdfTextNormalise';
@@ -32,6 +33,12 @@ interface NoteEditorState {
   endText?: string;
 }
 
+interface ExplanationItem {
+  id: string;
+  startText: string;
+  endText: string;
+}
+
 interface PdfHighlightLayerProps {
   highlights: PdfHighlight[];
   colours: HighlightColour[];
@@ -49,6 +56,18 @@ interface PdfHighlightLayerProps {
   readOnly?: boolean;
   /** Whether the current user is logged in. Used to allow unauthenticated users to open the note editor (auth is checked lazily at save time). */
   isLoggedIn?: boolean;
+  /** Explained text items to show book icons for */
+  explanations?: ExplanationItem[];
+  /** Currently active explanation id (open in panel) */
+  activeExplanationId?: string | null;
+  /** Called when user clicks a book icon */
+  onExplanationIconClick?: (id: string) => void;
+  /** When set, the matching explanation text range pulses 3x with teal background */
+  pulsingExplanationId?: string | null;
+  /** Called after the pulse animation finishes so the parent can clear the state */
+  onPulseComplete?: () => void;
+  /** When set, opens the note editor anchored to this explanation's computed y position */
+  pendingNoteForExplanationId?: string | null;
 }
 
 function computeHighlightRects(
@@ -215,9 +234,17 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
   pendingNoteForSelection,
   readOnly = false,
   isLoggedIn,
+  explanations = [],
+  activeExplanationId,
+  onExplanationIconClick,
+  pulsingExplanationId,
+  onPulseComplete,
+  pendingNoteForExplanationId,
 }) => {
   const [rects, setRects] = useState<HighlightRect[]>([]);
   const [activeNoteRects, setActiveNoteRects] = useState<HighlightRect[]>([]);
+  const [explainIconPositions, setExplainIconPositions] = useState<{ id: string; y: number }[]>([]);
+  const [explainHighlightRects, setExplainHighlightRects] = useState<{ id: string; rects: HighlightRect[] }[]>([]);
   const [hoveredHighlightId, setHoveredHighlightId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [menuHighlightId, setMenuHighlightId] = useState<string | null>(null);
@@ -275,6 +302,24 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
     setNoteEditorSaved(false);
   }, [pendingNoteForSelection, pageContainerEl]);
 
+  // Open note editor when parent requests it for a specific explanation (from the panel header)
+  useEffect(() => {
+    if (!pendingNoteForExplanationId || readOnly) return;
+    const pos = explainIconPositions.find((p) => p.id === pendingNoteForExplanationId);
+    const explanation = explanations.find((e) => e.id === pendingNoteForExplanationId);
+    if (!pos || !explanation) return;
+    setNoteEditorState({
+      mode: 'create',
+      highlightId: '',
+      noteId: null,
+      y: pos.y,
+      startText: explanation.startText,
+      endText: explanation.endText,
+    });
+    setNoteContent('');
+    setNoteEditorSaved(false);
+  }, [pendingNoteForExplanationId, explainIconPositions, explanations, readOnly]);
+
   // Compute temporary teal rects for selection-based notes (no existing highlight)
   useEffect(() => {
     if (!noteEditorState?.startText || !pageContainerEl) {
@@ -329,10 +374,29 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
         }
       }
       setNoteIconPositions(iconPositions);
+
+      // Compute explanation icon positions and highlight rects
+      const explainIcons: { id: string; y: number }[] = [];
+      const explainHlRects: { id: string; rects: HighlightRect[] }[] = [];
+      for (const explanation of explanations) {
+        const computed = computeHighlightRects(
+          textContainer,
+          pageRect,
+          { startText: explanation.startText, endText: explanation.endText },
+          '#0d8070',
+          explanation.id,
+        );
+        if (computed.length > 0) {
+          explainIcons.push({ id: explanation.id, y: computed[0].y });
+          explainHlRects.push({ id: explanation.id, rects: computed });
+        }
+      }
+      setExplainIconPositions(explainIcons);
+      setExplainHighlightRects(explainHlRects);
     }, 80);
 
     return () => clearTimeout(timer);
-  }, [highlights, colours, notes, pageContainerEl, renderVersion]);
+  }, [highlights, colours, notes, explanations, pageContainerEl, renderVersion]);
 
   // Coordinate-based hover detection
   useEffect(() => {
@@ -501,7 +565,7 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
     }
   }, [noteEditorState, isDeletingNote, onDeleteNote, closeNoteEditorWithAnimation]);
 
-  if (rects.length === 0 && noteIconPositions.length === 0 && !noteEditorState) return null;
+  if (rects.length === 0 && noteIconPositions.length === 0 && !noteEditorState && explainIconPositions.length === 0) return null;
 
   const lastRectIndexByHighlight = new Map<string, number>();
   rects.forEach((rect, i) => lastRectIndexByHighlight.set(rect.highlightId, i));
@@ -583,8 +647,8 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
                       className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`}
                       onClick={() => handleDelete(rect.highlightId)}
                     >
-                      <FiTrash2 size={13} />
-                      <span>Delete</span>
+                      <Trash2 size={13} />
+                        <span>Clear highlight</span>
                     </button>
                   </div>
                 )}
@@ -608,11 +672,14 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
         </div>
       ))}
 
-      {/* Note editor (create or edit) */}
-      {noteEditorState && pageWidth > 0 && (
+      {/* Note editor (create or edit) — rendered in a portal so it escapes overflow clipping */}
+      {noteEditorState && pageWidth > 0 && pageContainerEl && createPortal(
         <div
           className={`${styles.noteEditor} ${noteEditorState.mode === 'create' ? styles.noteEditorCreate : styles.noteEditorEdit} ${noteEditorVisible ? styles.noteEditorVisible : ''}`}
-          style={{ left: pageWidth + 16, top: noteEditorState.y }}
+          style={{
+            left: pageContainerEl.getBoundingClientRect().right + 16,
+            top: pageContainerEl.getBoundingClientRect().top + noteEditorState.y,
+          }}
           onMouseDown={(e) => e.stopPropagation()}
         >
           <div className={styles.noteEditorHeader}>
@@ -623,7 +690,7 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
               disabled={isSavingNote || noteEditorSaved || isDeletingNote}
               aria-label="Close note editor"
             >
-              <FiX size={12} />
+              <X size={12} />
             </button>
             <span>
               {noteEditorState.mode === 'edit'
@@ -653,7 +720,7 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
                 {isDeletingNote ? (
                   <span className={styles.savingSpinner} aria-hidden="true" />
                 ) : (
-                  <FiTrash2 size={12} />
+                  <Trash2 size={12} />
                 )}
               </button>
             )}
@@ -672,23 +739,88 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
               )}
             </button>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
       {/* Saved note icons */}
       {noteIconPositions.map((pos) => (
-        <button
+        <div
           key={pos.noteId}
-          type="button"
-          className={`${styles.noteIcon} ${readOnly ? styles.noteIconReadOnly : ''}`}
+          className={styles.marginIconWrapper}
           style={{ left: pageWidth + 16, top: pos.y }}
-          aria-label={readOnly ? 'View note' : 'Edit note'}
-          title={readOnly ? 'View note' : 'Edit note'}
-          onClick={() => { if (!readOnly) handleOpenEditNoteEditor(pos.noteId, pos.y); }}
         >
-          <NoteIcon />
-        </button>
+          <button
+            type="button"
+            className={`${styles.noteIcon} ${readOnly ? styles.noteIconReadOnly : ''}`}
+            aria-label={readOnly ? 'View note' : 'Edit note'}
+            onClick={() => { if (!readOnly) handleOpenEditNoteEditor(pos.noteId, pos.y); }}
+          >
+            <NoteIcon />
+          </button>
+          <span className={styles.marginTooltip}>{readOnly ? 'View note' : 'Edit note'}</span>
+        </div>
       ))}
+
+      {/* Explanation teal highlight rects (shown when that explanation is active) */}
+      {explainHighlightRects
+        .filter(({ id }) => id === activeExplanationId)
+        .flatMap(({ id, rects: exRects }) =>
+          exRects.map((rect, i) => (
+            <div
+              key={`explain-hl-${id}-${i}`}
+              className={styles.highlightRectWrapper}
+              style={{ left: rect.x, top: rect.y, width: rect.width, height: rect.height }}
+            >
+              <div
+                className={styles.highlightRect}
+                style={{ background: 'rgba(13, 128, 112, 0.22)' }}
+              />
+            </div>
+          ))
+        )}
+
+      {/* Book icons (or spinner) for explained texts (to the left of the page) */}
+      {explainIconPositions.map((pos) => {
+        const isActive = pos.id === activeExplanationId;
+        const explanation = explanations.find((e) => e.id === pos.id);
+        const isLoading = !!(explanation && (explanation as any).isRequesting && !(explanation as any).firstChunkReceived);
+        const isSaved = !!(explanation as any)?.textChatId;
+        const tooltipLabel = isLoading ? 'Generating explanation…' : 'View explanation';
+        return (
+          <div
+            key={pos.id}
+            className={styles.marginIconWrapper}
+            style={{ left: -40, top: pos.y }}
+          >
+            <button
+              type="button"
+              className={`${styles.explainIcon} ${isActive && !isLoading ? styles.explainIconActive : ''} ${isLoading ? styles.explainIconLoading : ''}`}
+              aria-label={tooltipLabel}
+              disabled={isLoading}
+              onClick={isLoading ? undefined : () => onExplanationIconClick?.(pos.id)}
+            >
+              {isLoading ? <SpinnerIcon /> : isSaved ? <FilledBookIcon /> : <BookIcon />}
+            </button>
+            <span className={styles.marginTooltip}>{tooltipLabel}</span>
+          </div>
+        );
+      })}
+
+      {/* Pulsing teal highlight for scroll-to-text */}
+      {pulsingExplanationId &&
+        explainHighlightRects
+          .filter(({ id }) => id === pulsingExplanationId)
+          .flatMap(({ id, rects: exRects }) =>
+            exRects.map((rect, i) => (
+              <div
+                key={`pulse-${id}-${i}`}
+                className={styles.pulseHighlight}
+                style={{ left: rect.x, top: rect.y, width: rect.width, height: rect.height }}
+                onAnimationEnd={i === 0 ? onPulseComplete : undefined}
+              />
+            ))
+          )}
     </div>
   );
 };
@@ -723,6 +855,61 @@ function NoteIconOutline() {
       height="13"
     >
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  );
+}
+
+function BookIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      width="16"
+      height="16"
+    >
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  );
+}
+
+function FilledBookIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      width="16"
+      height="16"
+    >
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  );
+}
+
+function SpinnerIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      width="16"
+      height="16"
+      className={styles.spinnerIcon}
+    >
+      <circle
+        cx="12"
+        cy="12"
+        r="9"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeDasharray="40 20"
+      />
     </svg>
   );
 }

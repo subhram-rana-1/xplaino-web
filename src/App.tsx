@@ -175,6 +175,14 @@ const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: 
                 } 
               />
               <Route 
+                path="/user/account/custom-prompt" 
+                element={
+                  <UserProtectedRoute>
+                    <UserAccount />
+                  </UserProtectedRoute>
+                } 
+              />
+              <Route 
                 path="/admin/dashboard" 
                 element={
                   <AdminProtectedRoute>

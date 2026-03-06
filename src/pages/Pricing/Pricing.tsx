@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
+import { X as XIcon, Check as CheckIcon } from 'lucide-react';
 import styles from './Pricing.module.css';
 import { usePaddle } from '@/shared/hooks/usePaddle';
 import { useAuth } from '@/shared/hooks/useAuth';
@@ -293,9 +294,7 @@ export const Pricing: React.FC = () => {
                     {isIncluded ? (
                       <span className={styles.featureDot}>•</span>
                     ) : (
-                      <svg className={styles.featureCross} width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M3.72 3.72a.75.75 0 011.06 0L8 6.94l3.22-3.22a.75.75 0 111.06 1.06L9.06 8l3.22 3.22a.75.75 0 11-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 01-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 010-1.06z"/>
-                      </svg>
+                      <XIcon className={styles.featureCross} size={14} />
                     )}
                     {feature}
                   </li>
@@ -394,13 +393,9 @@ export const Pricing: React.FC = () => {
                     return (
                       <li key={idx} className={`${styles.featureItem} ${isExcluded ? styles.featureExcluded : ''}`}>
                         {isExcluded ? (
-                          <svg className={styles.featureCross} width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                            <path d="M3.72 3.72a.75.75 0 011.06 0L8 6.94l3.22-3.22a.75.75 0 111.06 1.06L9.06 8l3.22 3.22a.75.75 0 11-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 01-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 010-1.06z"/>
-                          </svg>
+                          <XIcon className={styles.featureCross} size={14} />
                         ) : (
-                          <svg className={styles.featureIcon} width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                            <path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"/>
-                          </svg>
+                          <CheckIcon className={styles.featureIcon} size={16} />
                         )}
                         {feature}
                       </li>

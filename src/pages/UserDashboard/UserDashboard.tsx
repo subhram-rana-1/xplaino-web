@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiRefreshCw, FiList, FiGrid, FiArrowUp, FiArrowDown, FiPlus, FiCheck, FiCornerDownLeft, FiBookOpen } from 'react-icons/fi';
+import { RefreshCw, List, LayoutGrid, ArrowUp, ArrowDown, Plus, Check, CornerDownLeft, BookOpen } from 'lucide-react';
 import styles from './UserDashboard.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import {
@@ -339,14 +339,14 @@ export const UserDashboard: React.FC = () => {
                 onClick={() => setViewMode('grid')}
                 title="Grid view"
               >
-                <FiGrid />
+                <LayoutGrid />
               </button>
               <button
                 className={`${styles.viewButton} ${viewMode === 'list' ? styles.viewButtonActive : ''}`}
                 onClick={() => setViewMode('list')}
                 title="List view"
               >
-                <FiList />
+                <List />
               </button>
             </div>
           </div>
@@ -359,12 +359,12 @@ export const UserDashboard: React.FC = () => {
             >
               {showRefreshSuccess ? (
                 <>
-                  <FiCheck />
+                  <Check />
                   <span>Data fetched</span>
                 </>
               ) : (
                 <>
-                  <FiRefreshCw className={isLoading ? styles.spin : ''} />
+                  <RefreshCw className={isLoading ? styles.spin : ''} />
                   <span>Refresh</span>
                 </>
               )}
@@ -374,7 +374,7 @@ export const UserDashboard: React.FC = () => {
               onClick={() => setIsCreateModalOpen(true)}
               title="Create folder"
             >
-              <FiPlus />
+              <Plus />
               <span>Create Folder</span>
             </button>
           </div>
@@ -437,8 +437,8 @@ export const UserDashboard: React.FC = () => {
                         >
                           Created On
                           <span className={styles.sortIcons}>
-                            <FiArrowUp className={sortBy === 'created_at' && sortOrder === 'asc' ? styles.sortIconActive : styles.sortIconInactive} />
-                            <FiArrowDown className={sortBy === 'created_at' && sortOrder === 'desc' ? styles.sortIconActive : styles.sortIconInactive} />
+                            <ArrowUp className={sortBy === 'created_at' && sortOrder === 'asc' ? styles.sortIconActive : styles.sortIconInactive} />
+                            <ArrowDown className={sortBy === 'created_at' && sortOrder === 'desc' ? styles.sortIconActive : styles.sortIconInactive} />
                           </span>
                         </button>
                       ),
@@ -518,7 +518,7 @@ export const UserDashboard: React.FC = () => {
                           aria-label="Confirm rename"
                           tabIndex={-1}
                         >
-                          <FiCornerDownLeft size={14} />
+                          <CornerDownLeft size={14} />
                         </button>
                       </div>
                     ) : (
@@ -583,7 +583,7 @@ export const UserDashboard: React.FC = () => {
                       title="View PDF"
                       aria-label="View PDF"
                     >
-                      <FiBookOpen size={15} />
+                      <BookOpen size={15} />
                       <span>View</span>
                     </button>
                   </div>

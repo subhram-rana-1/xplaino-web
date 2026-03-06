@@ -11,6 +11,7 @@ import {
 interface UsePdfHighlightsOptions {
   pdfId: string | undefined;
   accessToken: string | null;
+  isPublic?: boolean;
 }
 
 interface UsePdfHighlightsReturn {
@@ -25,6 +26,7 @@ interface UsePdfHighlightsReturn {
 export function usePdfHighlights({
   pdfId,
   accessToken,
+  isPublic = false,
 }: UsePdfHighlightsOptions): UsePdfHighlightsReturn {
   const [colours, setColours] = useState<HighlightColour[]>([]);
   const [selectedColourId, setSelectedColourId] = useState<string | null>(null);
@@ -47,11 +49,11 @@ export function usePdfHighlights({
     };
   }, []);
 
-  // Fetch highlights for this PDF (auth required)
+  // Fetch highlights for this PDF (auth required, or public PDF)
   useEffect(() => {
-    if (!pdfId || !accessToken) return;
+    if (!pdfId || (!accessToken && !isPublic)) return;
     let cancelled = false;
-    getPdfHighlights(pdfId)
+    getPdfHighlights(pdfId, accessToken)
       .then((hs) => {
         if (!cancelled) setHighlights(hs);
       })
@@ -61,7 +63,7 @@ export function usePdfHighlights({
     return () => {
       cancelled = true;
     };
-  }, [pdfId, accessToken]);
+  }, [pdfId, accessToken, isPublic]);
 
   const createHighlight = useCallback(
     async (startText: string, endText: string, colourIdOverride?: string) => {

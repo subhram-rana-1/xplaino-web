@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiRefreshCw } from 'react-icons/fi';
+import { RefreshCw } from 'lucide-react';
 import styles from './ProcessingModal.module.css';
 
 export interface ProcessingModalProps {
@@ -25,7 +25,7 @@ export const ProcessingModal: React.FC<ProcessingModalProps> = ({
     <div className={styles.overlay}>
       <div className={styles.modal}>
         <div className={styles.content}>
-          <FiRefreshCw className={styles.spinner} />
+          <RefreshCw className={styles.spinner} />
           <p className={styles.message}>{message}</p>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiX, FiArrowRight, FiGlobe, FiLock, FiUserMinus, FiUsers, FiLink, FiCheck, FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { X, ArrowRight, Globe, Lock, UserMinus, Users, Link, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import type { PdfResponse } from '@/shared/types/pdf.types';
 import type { ShareeItem } from '@/shared/types/folders.types';
 import styles from './PdfShareModal.module.css';
@@ -284,7 +284,7 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
             disabled={isEmailLoading || isMakingPublic || isMakingPrivate}
             aria-label="Close"
           >
-            <FiX />
+            <X />
           </button>
         </div>
 
@@ -314,7 +314,7 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
                     disabled={isEmailLoading || !email.trim()}
                     aria-label="Share via email"
                   >
-                    <FiArrowRight />
+                    <ArrowRight />
                   </button>
                 </div>
                 {emailSuccess && (
@@ -336,9 +336,9 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
                     setShowSharees((v) => !v);
                   }}
                 >
-                  <FiUsers size={14} />
+                  <Users size={14} />
                   <span>{showSharees ? 'Hide shared list' : 'Manage shares'}</span>
-                  {showSharees ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
+                  {showSharees ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                 </button>
               )}
             </div>
@@ -356,12 +356,12 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
             <div className={styles.accessBadge}>
               {localAccessLevel === 'PUBLIC' ? (
                 <span className={styles.badgePublic}>
-                  <FiGlobe size={13} />
+                  <Globe size={13} />
                   Public — anyone with the link can view
                 </span>
               ) : (
                 <span className={styles.badgePrivate}>
-                  <FiLock size={13} />
+                  <Lock size={13} />
                   Private — only shared users can view
                 </span>
               )}
@@ -376,7 +376,7 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
                 disabled={isMakingPrivate}
                 title="Make this PDF private"
               >
-                <FiLock size={12} />
+                <Lock size={12} />
                 {isMakingPrivate ? 'Making private…' : 'Make private'}
               </button>
             )}
@@ -395,7 +395,7 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
               aria-label="Copy PDF link"
               disabled={isMakingPublic || isMakingPrivate}
             >
-              {linkCopied ? <FiCheck size={18} /> : <FiLink size={18} />}
+              {linkCopied ? <Check size={18} /> : <Link size={18} />}
             </button>
             {SOCIAL_PLATFORMS.map(({ id, label, Icon }) => (
               <button
@@ -414,7 +414,7 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
           {/* Non-owner info message when PDF is still private */}
           {!isOwner && localAccessLevel === 'PRIVATE' && (
             <div className={styles.nonOwnerPrivateNote}>
-              <FiLock size={13} />
+              <Lock size={13} />
               <span>This PDF is private. Ask the owner to make it public before sharing on social media.</span>
             </div>
           )}
@@ -462,7 +462,7 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
               <div className={styles.shareeLoading}>Loading...</div>
             ) : !sharees || sharees.length === 0 ? (
               <div className={styles.shareeEmpty}>
-                <FiUsers className={styles.shareeEmptyIcon} />
+                <Users className={styles.shareeEmptyIcon} />
                 <span>Not shared with anyone yet.</span>
               </div>
             ) : (
@@ -487,7 +487,7 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
                         <span>Removing...</span>
                       ) : (
                         <>
-                          <FiUserMinus size={13} />
+                          <UserMinus size={13} />
                           <span>Remove</span>
                         </>
                       )}

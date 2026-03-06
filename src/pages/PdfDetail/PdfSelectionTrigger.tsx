@@ -1,7 +1,16 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  MessageSquare, Copy, Sparkles, MoreVertical,
+  List, AlignJustify, FileText, Scale, Search, GraduationCap, Plus, BookMarked, ExternalLink,
+} from 'lucide-react';
 import styles from './PdfSelectionTrigger.module.css';
 import type { HighlightColour } from '@/shared/services/pdfHighlightService';
 import { normalisePdfText } from './pdfTextNormalise';
+import type { CustomPromptResponse } from '@/shared/types/customPrompt.types';
+
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
 
 interface SelectionState {
   text: string;
@@ -30,11 +39,23 @@ interface PdfSelectionTriggerProps {
   onLoginRequired?: () => void;
   /** Called when user clicks "Write a note" on a text selection */
   onWriteNote?: (startText: string, endText: string, clientY: number) => void;
+  /** Called when user clicks "Explain" on a text selection */
+  onExplain?: (startText: string, endText: string, selectedText: string, clientY: number) => void;
+  /** Called when user clicks "Ask AI" or "+ Custom prompt" — opens side panel focused on input */
+  onAskAI?: (startText: string, endText: string, selectedText: string, clientY: number) => void;
+  /** Called when user picks a preset prompt from the 3-dot popover */
+  onPromptSelect?: (startText: string, endText: string, selectedText: string, clientY: number, prompt: string) => void;
   /**
    * When set, intercepts Highlight and Note clicks instead of performing the action.
    * Used for public PDFs where the viewer cannot annotate but can make a copy.
    */
   onCopyRequired?: () => void;
+  /** Called when user clicks "Add custom prompt" — opens the create custom prompt modal */
+  onAddCustomPrompt?: () => void;
+  /** User's saved custom prompts to show at the bottom of the 3-dot popover */
+  customPrompts?: CustomPromptResponse[];
+  /** Called when user picks a saved custom prompt — passes the prompt title and text separately */
+  onCustomPromptSelect?: (title: string, startText: string, endText: string, selectedText: string, clientY: number, promptText: string) => void;
 }
 
 const ICON_URL = 'https://bmicorrect.com/extension/icons/extension-tooltip-v2.ico';
@@ -57,7 +78,13 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
   isLoggedIn = true,
   onLoginRequired,
   onWriteNote,
+  onExplain,
+  onAskAI,
+  onPromptSelect,
   onCopyRequired,
+  onAddCustomPrompt,
+  customPrompts,
+  onCustomPromptSelect,
 }) => {
   const [selection, setSelection] = useState<SelectionState | null>(null);
   const [isHovering, setIsHovering] = useState(false);
@@ -79,6 +106,9 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
   const lastMeasuredWidthRef = useRef(0);
   const colourPanelLeaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const colourPanelFadeOutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [showOptionsPopover, setShowOptionsPopover] = useState(false);
+  const optionsHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearSelection = useCallback(() => {
     setSelection(null);
@@ -398,6 +428,69 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
     clearSelection();
   }, [selection, isLoggedIn, onCopyRequired, onWriteNote, clearSelection]);
 
+  const handleExplainClick = useCallback(() => {
+    if (!selection) return;
+    const normalisedText = normalisePdfText(selection.text);
+    const startText = normalisedText.slice(0, MAX_ANCHOR_CHARS);
+    const endText = normalisedText.slice(-MAX_ANCHOR_CHARS);
+    onExplain?.(startText, endText, selection.text, selection.y);
+    window.getSelection()?.removeAllRanges();
+    clearSelection();
+  }, [selection, onExplain, clearSelection]);
+
+  const handleOptionsMouseEnter = useCallback(() => {
+    if (optionsHideTimerRef.current) clearTimeout(optionsHideTimerRef.current);
+    setShowOptionsPopover(true);
+  }, []);
+
+  const handleOptionsMouseLeave = useCallback(() => {
+    optionsHideTimerRef.current = setTimeout(() => setShowOptionsPopover(false), 150);
+  }, []);
+
+  const handleAskAIOptionClick = useCallback(() => {
+    if (!selection) return;
+    setShowOptionsPopover(false);
+    const normalisedText = normalisePdfText(selection.text);
+    const startText = normalisedText.slice(0, MAX_ANCHOR_CHARS);
+    const endText = normalisedText.slice(-MAX_ANCHOR_CHARS);
+    onAskAI?.(startText, endText, selection.text, selection.y);
+    window.getSelection()?.removeAllRanges();
+    clearSelection();
+  }, [selection, onAskAI, clearSelection]);
+
+  const handlePromptOptionClick = useCallback((prompt: string) => {
+    if (!selection) return;
+    setShowOptionsPopover(false);
+    const normalisedText = normalisePdfText(selection.text);
+    const startText = normalisedText.slice(0, MAX_ANCHOR_CHARS);
+    const endText = normalisedText.slice(-MAX_ANCHOR_CHARS);
+    onPromptSelect?.(startText, endText, selection.text, selection.y, prompt);
+    window.getSelection()?.removeAllRanges();
+    clearSelection();
+  }, [selection, onPromptSelect, clearSelection]);
+
+  const handleAddCustomPromptClick = useCallback(() => {
+    setShowOptionsPopover(false);
+    window.getSelection()?.removeAllRanges();
+    clearSelection();
+    onAddCustomPrompt?.();
+  }, [clearSelection, onAddCustomPrompt]);
+
+  const handleCustomPromptOptionClick = useCallback((title: string, promptText: string) => {
+    if (!selection) return;
+    setShowOptionsPopover(false);
+    const normalisedText = normalisePdfText(selection.text);
+    const startText = normalisedText.slice(0, MAX_ANCHOR_CHARS);
+    const endText = normalisedText.slice(-MAX_ANCHOR_CHARS);
+    if (onCustomPromptSelect) {
+      onCustomPromptSelect(title, startText, endText, selection.text, selection.y, promptText);
+    } else {
+      onPromptSelect?.(startText, endText, selection.text, selection.y, promptText);
+    }
+    window.getSelection()?.removeAllRanges();
+    clearSelection();
+  }, [selection, onCustomPromptSelect, onPromptSelect, clearSelection]);
+
   // Cleanup timers on unmount
   useEffect(() => {
     return () => {
@@ -407,6 +500,7 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
       if (closingTimeoutRef.current) clearTimeout(closingTimeoutRef.current);
       if (colourPanelLeaveTimerRef.current) clearTimeout(colourPanelLeaveTimerRef.current);
       if (colourPanelFadeOutTimerRef.current) clearTimeout(colourPanelFadeOutTimerRef.current);
+      if (optionsHideTimerRef.current) clearTimeout(optionsHideTimerRef.current);
     };
   }, []);
 
@@ -450,6 +544,126 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
         className={buttonGroupClass}
         onMouseDown={(e) => e.stopPropagation()}
       >
+        {/* Explain */}
+        {onExplain && (
+          <div className={styles.actionButtonWrapper}>
+            <button
+              type="button"
+              className={styles.actionButton}
+              onClick={handleExplainClick}
+              aria-label="Explain selection"
+            >
+              <ExplainIcon />
+            </button>
+            <span className={styles.tooltip}>Explain</span>
+          </div>
+        )}
+
+        {/* 3-dot options button */}
+        {(onAskAI || onPromptSelect) && (
+          <div
+            className={`${styles.actionButtonWrapper} ${styles.optionsWrapper}`}
+            onMouseEnter={handleOptionsMouseEnter}
+            onMouseLeave={handleOptionsMouseLeave}
+          >
+            <button
+              type="button"
+              className={styles.actionButton}
+              aria-label="More options"
+              aria-haspopup="true"
+              aria-expanded={showOptionsPopover}
+            >
+              <MoreVertical size={17} />
+            </button>
+            <span className={styles.tooltip}>More</span>
+
+            {showOptionsPopover && (
+              <div
+                className={styles.optionsPopover}
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                {onAskAI && (
+                  <button
+                    type="button"
+                    className={styles.optionItem}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={(e) => { e.stopPropagation(); handleAskAIOptionClick(); }}
+                  >
+                    <Sparkles size={15} />
+                    <span>Ask AI</span>
+                  </button>
+                )}
+
+                {onPromptSelect && (
+                  <>
+                    <button type="button" className={styles.optionItem} onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handlePromptOptionClick('What are the key points of this text?'); }}>
+                      <List size={15} /><span>Key points</span>
+                    </button>
+                    <button type="button" className={styles.optionItem} onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handlePromptOptionClick('Convert this text into concise bullet points.'); }}>
+                      <AlignJustify size={15} /><span>Convert to bullet points</span>
+                    </button>
+                    <button type="button" className={styles.optionItem} onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handlePromptOptionClick('Summarize this text in 3-4 sentences.'); }}>
+                      <FileText size={15} /><span>Summarize</span>
+                    </button>
+                    <button type="button" className={styles.optionItem} onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handlePromptOptionClick('What are the key legal implications of this text?'); }}>
+                      <Scale size={15} /><span>Legal implications</span>
+                    </button>
+                    <button type="button" className={styles.optionItem} onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handlePromptOptionClick('What research gaps or open questions does this text raise?'); }}>
+                      <Search size={15} /><span>Research gaps</span>
+                    </button>
+                    <button type="button" className={styles.optionItem} onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handlePromptOptionClick('Create concise study notes from this text.'); }}>
+                      <GraduationCap size={15} /><span>Create study notes</span>
+                    </button>
+                  </>
+                )}
+
+                {customPrompts && customPrompts.length > 0 && (
+                  <>
+                    <hr className={styles.optionsSeparator} />
+                    {customPrompts.map(p => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        className={styles.optionItem}
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCustomPromptOptionClick(p.title, stripHtml(p.description) || p.title);
+                        }}
+                      >
+                        <BookMarked size={15} />
+                        <span>{p.title}</span>
+                      </button>
+                    ))}
+                  </>
+                )}
+
+                <button
+                  type="button"
+                  className={`${styles.optionItem} ${styles.optionItemCustom}`}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={(e) => { e.stopPropagation(); handleAddCustomPromptClick(); }}
+                >
+                  <Plus size={15} />
+                  <span>Add custom prompt</span>
+                </button>
+
+                <a
+                  href="/user/account/custom-prompt"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${styles.optionItem} ${styles.optionItemLink}`}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ExternalLink size={15} />
+                  <span>View all custom prompts</span>
+                </a>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Highlight — coloured circle with hover colour panel below */}
         <div className={`${styles.actionButtonWrapper} ${styles.highlightWrapper}`}>
           <button
@@ -534,32 +748,15 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
 // ── Icon components ──────────────────────────────────────────────────────────
 
 function NoteIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    </svg>
-  );
+  return <MessageSquare size={17} aria-hidden="true" />;
 }
 
 function CopyIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-    </svg>
-  );
+  return <Copy size={17} aria-hidden="true" />;
+}
+
+function ExplainIcon() {
+  return <Sparkles size={17} aria-hidden="true" />;
 }
 
 PdfSelectionTrigger.displayName = 'PdfSelectionTrigger';

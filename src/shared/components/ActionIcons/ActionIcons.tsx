@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiTrash2, FiFolder } from 'react-icons/fi';
+import { Trash2, Folder } from 'lucide-react';
 import styles from './ActionIcons.module.css';
 
 export interface ActionIconsProps {
@@ -28,7 +28,7 @@ export const ActionIcons: React.FC<ActionIconsProps> = ({
         title="Delete"
         aria-label="Delete"
       >
-        <FiTrash2 />
+        <Trash2 />
       </button>
       {showMove && (
         <button
@@ -40,7 +40,7 @@ export const ActionIcons: React.FC<ActionIconsProps> = ({
           title="Move to folder"
           aria-label="Move to folder"
         >
-          <FiFolder />
+          <Folder />
         </button>
       )}
     </div>

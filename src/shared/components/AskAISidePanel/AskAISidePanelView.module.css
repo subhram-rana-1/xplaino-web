@@ -126,6 +126,8 @@
   color: var(--text-dark);
   align-self: flex-end;
   border-radius: 20px 20px 0 20px;
+  width: fit-content;
+  max-width: 85%;
 }
 
 .assistantMessage {
@@ -150,13 +152,75 @@
   }
 }
 
+/* Suggested questions from API — rendered inline below assistant messages */
+.suggestedQuestions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1.5px solid var(--border-light);
+  animation: fadeInSlideUp 0.25s ease-out;
+}
+
+@keyframes fadeInSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.questionItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+  width: 100%;
+}
+
+.questionItem:hover {
+  background: rgba(13, 128, 112, 0.07);
+}
+
+.questionIcon {
+  color: var(--teal-light);
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+}
+
+.questionItem:hover .questionIcon {
+  color: var(--teal);
+}
+
+.questionText {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  transition: color 0.15s ease;
+}
+
+.questionItem:hover .questionText {
+  color: var(--teal);
+}
+
 /* Default Prompts - positioned above input bar */
 .defaultPrompts {
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 12px 16px;
-  align-items: flex-start;
+  align-items: flex-end;
   background: var(--bg-white);
   flex-shrink: 0;
 }
@@ -166,6 +230,7 @@
   flex-direction: row;
   gap: 8px;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .promptButton {
@@ -348,5 +413,76 @@
   justify-content: center;
   padding: 20px;
   margin-top: 16px;
+}
+
+/* Panel 3-dot prompt popover */
+.panelOptionsWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.panelOptionsButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--border-dark);
+  background: var(--bg-white);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.panelOptionsButton:hover {
+  background: var(--button-hover-bg);
+  color: var(--teal);
+  border-color: var(--teal);
+}
+
+.panelOptionsPopover {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  min-width: 200px;
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+  padding: 4px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.panelOptionItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: left;
+  text-decoration: none;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+.panelOptionItem:hover {
+  background: var(--button-hover-bg);
+  color: var(--teal);
+}
+
+.panelOptionsSeparator {
+  border: none;
+  border-top: 1px solid var(--border-light);
+  margin: 4px 0;
 }
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiX, FiUserMinus, FiUsers } from 'react-icons/fi';
+import { X, UserMinus, Users } from 'lucide-react';
 import type { ShareeItem } from '@/shared/types/folders.types';
 import styles from './ShareeListModal.module.css';
 
@@ -71,7 +71,7 @@ export const ShareeListModal: React.FC<ShareeListModalProps> = ({
             className={styles.closeButton}
             aria-label="Close"
           >
-            <FiX />
+            <X />
           </button>
         </div>
 
@@ -80,7 +80,7 @@ export const ShareeListModal: React.FC<ShareeListModalProps> = ({
             <div className={styles.loadingState}>Loading shared list...</div>
           ) : sharees.length === 0 ? (
             <div className={styles.emptyState}>
-              <FiUsers className={styles.emptyIcon} />
+              <Users className={styles.emptyIcon} />
               <p className={styles.emptyText}>Not shared with anyone yet.</p>
             </div>
           ) : (
@@ -104,7 +104,7 @@ export const ShareeListModal: React.FC<ShareeListModalProps> = ({
                       <span className={styles.removingText}>Removing...</span>
                     ) : (
                       <>
-                        <FiUserMinus />
+                        <UserMinus />
                         <span>Remove</span>
                       </>
                     )}

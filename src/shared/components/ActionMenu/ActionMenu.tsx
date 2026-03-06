@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { FiMoreVertical, FiTrash2 } from 'react-icons/fi';
+import { MoreVertical, Trash2 } from 'lucide-react';
 import styles from './ActionMenu.module.css';
 
 export interface ActionMenuProps {
@@ -199,7 +199,7 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
         title="Delete"
         aria-label="Delete"
       >
-        <FiTrash2 />
+        <Trash2 />
         <span>Delete</span>
       </button>
     </div>
@@ -218,7 +218,7 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
           title="Actions"
           aria-label="Actions"
         >
-          <FiMoreVertical />
+          <MoreVertical />
         </button>
       </div>
       {popoverContent && createPortal(popoverContent, document.body)}

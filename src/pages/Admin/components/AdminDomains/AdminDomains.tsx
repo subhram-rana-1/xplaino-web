@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiRefreshCw, FiTrash2 } from 'react-icons/fi';
+import { RefreshCw, Trash2 } from 'lucide-react';
 import styles from './AdminDomains.module.css';
 import { getAllDomains, deleteDomain } from '@/shared/services/domain.service';
 import type { DomainResponse } from '@/shared/types/domain.types';
@@ -118,7 +118,7 @@ export const AdminDomains: React.FC<AdminDomainsProps> = ({ accessToken }) => {
           disabled={isLoading}
           title="Refresh domains"
         >
-          <FiRefreshCw className={isLoading ? styles.spin : ''} />
+          <RefreshCw className={isLoading ? styles.spin : ''} />
         </button>
         <button
           className={styles.addButton}
@@ -154,7 +154,7 @@ export const AdminDomains: React.FC<AdminDomainsProps> = ({ accessToken }) => {
                   title="Delete domain"
                   aria-label={`Delete ${domain.url}`}
                 >
-                  <FiTrash2 />
+                  <Trash2 />
                 </button>
                 <h2 className={styles.cardTitle}>{domain.url}</h2>
               </div>

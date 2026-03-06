@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { FiRefreshCw } from 'react-icons/fi';
+import { RefreshCw } from 'lucide-react';
 import styles from './CouponEdit.module.css';
 import { updateCoupon, getCouponById } from '@/shared/services/coupon.service';
 import type { CouponResponse, UpdateCouponRequest, CouponStatus } from '@/shared/types/coupon.types';
@@ -330,7 +330,7 @@ export const CouponEdit: React.FC = () => {
           disabled={isLoading || isSubmitting}
           title="Refresh coupon details"
         >
-          <FiRefreshCw className={isLoading ? styles.spin : ''} />
+          <RefreshCw className={isLoading ? styles.spin : ''} />
         </button>
       </div>
 

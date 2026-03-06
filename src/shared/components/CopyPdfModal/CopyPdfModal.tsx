@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiX, FiFolder, FiFolderPlus, FiCheck, FiCopy, FiCornerDownLeft } from 'react-icons/fi';
+import { X, Folder, FolderPlus, Check, Copy, CornerDownLeft } from 'lucide-react';
 import type { FolderWithSubFolders } from '@/shared/types/folders.types';
 import { createFolder } from '@/shared/services/folders.service';
 import { createPdfCopy } from '@/shared/services/pdf.service';
@@ -103,7 +103,7 @@ export const CopyPdfModal: React.FC<CopyPdfModalProps> = ({
         {/* Header */}
         <div className={styles.header}>
           <div className={styles.headerIcon}>
-            <FiCopy size={18} />
+            <Copy size={18} />
           </div>
           <div className={styles.headerText}>
             <h2 className={styles.title}>Can't annotate a public PDF</h2>
@@ -118,7 +118,7 @@ export const CopyPdfModal: React.FC<CopyPdfModalProps> = ({
             disabled={isLoading}
             aria-label="Close"
           >
-            <FiX />
+            <X />
           </button>
         </div>
 
@@ -136,10 +136,10 @@ export const CopyPdfModal: React.FC<CopyPdfModalProps> = ({
                   style={{ paddingLeft: `${1 + depth * 1}rem` }}
                   onClick={() => handleFolderSelect(folder.id)}
                 >
-                  <FiFolder size={15} className={styles.folderIcon} />
+                  <Folder size={15} className={styles.folderIcon} />
                   <span className={styles.folderName}>{folder.name}</span>
                   {selectedFolderId === folder.id && !newFolderName && (
-                    <FiCheck size={14} className={styles.checkIcon} />
+                    <Check size={14} className={styles.checkIcon} />
                   )}
                 </button>
               </li>
@@ -148,7 +148,7 @@ export const CopyPdfModal: React.FC<CopyPdfModalProps> = ({
 
           {/* Create new folder */}
           <div className={styles.newFolderSection}>
-            <FiFolderPlus size={15} className={styles.newFolderIcon} />
+            <FolderPlus size={15} className={styles.newFolderIcon} />
             <input
               type="text"
               className={styles.newFolderInput}
@@ -167,7 +167,7 @@ export const CopyPdfModal: React.FC<CopyPdfModalProps> = ({
             />
             {newFolderName.trim() && (
               <span className={styles.enterHint}>
-                <FiCornerDownLeft size={11} />
+                <CornerDownLeft size={11} />
                 <span>Enter</span>
               </span>
             )}
@@ -187,7 +187,7 @@ export const CopyPdfModal: React.FC<CopyPdfModalProps> = ({
             {isLoading ? (
               <span className={styles.spinner} aria-hidden="true" />
             ) : (
-              <FiCopy size={14} />
+              <Copy size={14} />
             )}
             {isLoading ? 'Creating copy…' : 'Make a copy'}
           </button>

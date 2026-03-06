@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiRefreshCw, FiLayers, FiSun, FiMoon } from 'react-icons/fi';
+import { RefreshCw, Layers, Sun, Moon } from 'lucide-react';
 import styles from './SettingsTab.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { useTheme } from '@/shared/hooks/useTheme';
@@ -179,8 +179,8 @@ export const SettingsTab: React.FC = () => {
               </label>
               <IconTabGroup
                 tabs={[
-                  { id: PageTranslationView.REPLACE, icon: FiRefreshCw, label: 'Replace' },
-                  { id: PageTranslationView.APPEND, icon: FiLayers, label: 'Append' },
+                  { id: PageTranslationView.REPLACE, icon: RefreshCw, label: 'Replace' },
+                  { id: PageTranslationView.APPEND, icon: Layers, label: 'Append' },
                 ]}
                 activeTabId={pageTranslationView}
                 onTabChange={handlePageTranslationViewChange}
@@ -198,8 +198,8 @@ export const SettingsTab: React.FC = () => {
               </label>
               <IconTabGroup
                 tabs={[
-                  { id: Theme.LIGHT, icon: FiSun, label: 'Light' },
-                  { id: Theme.DARK, icon: FiMoon, label: 'Dark' },
+                  { id: Theme.LIGHT, icon: Sun, label: 'Light' },
+                  { id: Theme.DARK, icon: Moon, label: 'Dark' },
                 ]}
                 activeTabId={theme}
                 onTabChange={handleThemeChange}

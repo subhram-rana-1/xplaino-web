@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiTrash2, FiBookOpen, FiDownload, FiShare2, FiUsers } from 'react-icons/fi';
+import { Trash2, BookOpen, Download, Share2, Users } from 'lucide-react';
 import styles from './PdfActionIcons.module.css';
 
 export interface PdfActionIconsProps {
@@ -38,7 +38,7 @@ export const PdfActionIcons: React.FC<PdfActionIconsProps> = ({
         title="View PDF"
         aria-label="View PDF"
       >
-        <FiBookOpen />
+        <BookOpen />
       </button>
       {onShare && (
         <button
@@ -50,7 +50,7 @@ export const PdfActionIcons: React.FC<PdfActionIconsProps> = ({
           title="Share PDF"
           aria-label="Share PDF"
         >
-          <FiShare2 />
+          <Share2 />
         </button>
       )}
       {onManageSharing && (
@@ -63,7 +63,7 @@ export const PdfActionIcons: React.FC<PdfActionIconsProps> = ({
           title="Manage sharing"
           aria-label="Manage sharing"
         >
-          <FiUsers />
+          <Users />
         </button>
       )}
       {canDownload && (
@@ -76,7 +76,7 @@ export const PdfActionIcons: React.FC<PdfActionIconsProps> = ({
           title="Download"
           aria-label="Download"
         >
-          <FiDownload />
+          <Download />
         </button>
       )}
       <button
@@ -88,7 +88,7 @@ export const PdfActionIcons: React.FC<PdfActionIconsProps> = ({
         title="Delete"
         aria-label="Delete"
       >
-        <FiTrash2 />
+        <Trash2 />
       </button>
     </div>
   );

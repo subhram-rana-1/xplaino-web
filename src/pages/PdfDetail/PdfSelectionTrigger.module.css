@@ -386,3 +386,78 @@
   font-weight: 700;
   line-height: 1;
 }
+
+/* ─── Options / 3-dot popover ────────────────────────────────────────────── */
+.optionsWrapper {
+  position: relative;
+}
+
+.optionsPopover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--sel-bg, #ffffff);
+  border: 1.5px solid var(--sel-border, #d1d5db);
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  z-index: 10001;
+  min-width: 210px;
+  padding: 4px 0;
+  display: flex;
+  flex-direction: column;
+  animation: popoverEmerge 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popoverEmerge {
+  from { opacity: 0; transform: scale(0.92) translateY(-4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.optionItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1a1a1a;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  width: 100%;
+  transition: background 0.1s ease;
+}
+
+.optionItem svg {
+  color: var(--sel-primary-light, #14a08a);
+  flex-shrink: 0;
+}
+
+.optionItem:hover {
+  background: var(--sel-hover-bg, #e0f2ef);
+}
+
+.optionItemCustom {
+  color: var(--sel-primary, #0d8070);
+  font-style: italic;
+}
+
+.optionItemLink {
+  color: var(--sel-primary, #0d8070);
+  text-decoration: none;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.optionItemLink:hover {
+  background: var(--sel-hover-bg, #e0f2ef);
+  opacity: 1;
+}
+
+.optionsSeparator {
+  margin: 4px 10px;
+  border: none;
+  border-top: 1px solid var(--sel-border, #d1d5db);
+}

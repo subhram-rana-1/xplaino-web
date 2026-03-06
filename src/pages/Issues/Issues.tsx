@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FiCopy, FiCheck, FiPlus, FiRefreshCw } from 'react-icons/fi';
+import { Copy, Check, Plus, RefreshCw } from 'lucide-react';
 import styles from './Issues.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { LoginModal } from '@/shared/components/LoginModal';
@@ -182,11 +182,11 @@ export const Issues: React.FC = () => {
               disabled={state.isLoading}
               title="Refresh tickets"
             >
-              <FiRefreshCw className={state.isLoading ? styles.spin : ''} />
+              <RefreshCw className={state.isLoading ? styles.spin : ''} />
               <span>Refresh tickets</span>
             </button>
             <Link to="/report-issue" className={styles.reportButton} title="Report an issue">
-              <FiPlus />
+              <Plus />
               <span>Report issue</span>
             </Link>
           </div>
@@ -238,9 +238,9 @@ export const Issues: React.FC = () => {
                           title="Copy ticket ID"
                         >
                           {copiedTicketId === issue.ticket_id ? (
-                            <FiCheck className={styles.checkIcon} />
+                            <Check className={styles.checkIcon} />
                           ) : (
-                            <FiCopy />
+                            <Copy />
                           )}
                         </button>
                         {copiedTicketId === issue.ticket_id && (

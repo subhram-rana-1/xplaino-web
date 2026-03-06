@@ -1,20 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  FiUploadCloud,
-  FiFileText,
-  FiLink,
-  FiCheck,
-  FiAlertCircle,
-  FiRefreshCw,
-  FiArrowRight,
-  FiInfo,
-  FiBookOpen,
-  FiMessageCircle,
-  FiBookmark,
-  FiLayers,
-  FiFolder,
-} from 'react-icons/fi';
+import { CloudUpload, FileText, Link, Check, AlertCircle, RefreshCw, ArrowRight, Info, BookOpen, MessageCircle, Bookmark, Layers, Folder } from 'lucide-react';
 import { SiGoogledrive, SiDropbox } from 'react-icons/si';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { fetchPublic, fetchWithAuth } from '@/shared/services/api-client';
@@ -454,7 +440,7 @@ export const ToolsPdfPage: React.FC = () => {
   };
 
   const sourceIcon: Record<UploadedFile['source'], React.ReactNode> = {
-    local: <FiUploadCloud size={13} />,
+    local: <CloudUpload size={13} />,
     drive: <SiGoogledrive size={13} />,
     dropbox: <SiDropbox size={13} />,
   };
@@ -465,7 +451,7 @@ export const ToolsPdfPage: React.FC = () => {
       {isDraggingOverViewport && pageState === 'idle' && (
         <div className={styles.dragOverlay}>
           <div className={styles.dragOverlayInner}>
-            <FiUploadCloud className={styles.dragOverlayIcon} size={56} />
+            <CloudUpload className={styles.dragOverlayIcon} size={56} />
             <p className={styles.dragOverlayTitle}>Drop your PDF here</p>
             <p className={styles.dragOverlaySubtitle}>Release to upload</p>
           </div>
@@ -501,7 +487,7 @@ export const ToolsPdfPage: React.FC = () => {
                 tabIndex={0}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/pdf/${pdf.id}`); }}
               >
-                <FiFileText className={styles.pdfSidebarItemIcon} size={14} />
+                <FileText className={styles.pdfSidebarItemIcon} size={14} />
                 <span className={styles.pdfSidebarItemName}>{pdf.file_name}</span>
               </li>
             ))}
@@ -518,27 +504,27 @@ export const ToolsPdfPage: React.FC = () => {
         {[
           {
             label: 'Summarise PDF',
-            icon: <FiFileText size={22} />,
+            icon: <FileText size={22} />,
           },
           {
             label: 'Get citations for every answer',
-            icon: <FiBookOpen size={22} />,
+            icon: <BookOpen size={22} />,
           },
           {
             label: 'Ask anything about your PDF',
-            icon: <FiMessageCircle size={22} />,
+            icon: <MessageCircle size={22} />,
           },
           {
             label: 'Highlight & bookmark content',
-            icon: <FiBookmark size={22} />,
+            icon: <Bookmark size={22} />,
           },
           {
             label: 'Conversations saved on the PDF',
-            icon: <FiLayers size={22} />,
+            icon: <Layers size={22} />,
           },
           {
             label: 'Save to dashboard & chat later',
-            icon: <FiFolder size={22} />,
+            icon: <Folder size={22} />,
           },
         ].map((item) => (
           <div key={item.label} className={styles.featureItem}>
@@ -554,7 +540,7 @@ export const ToolsPdfPage: React.FC = () => {
           </p>
           <button className={styles.featuresCtaButton} onClick={handleCtaClick}>
             {isLoggedIn ? 'Go to Dashboard' : 'Sign up free — it\'s free'}
-            <FiArrowRight size={14} />
+            <ArrowRight size={14} />
           </button>
         </div>
       </div>
@@ -568,7 +554,7 @@ export const ToolsPdfPage: React.FC = () => {
               className={`${styles.tab} ${activeTab === 'local' ? styles.tabActive : ''}`}
               onClick={() => { setActiveTab('local'); setLocalError(null); setLinkError(null); }}
             >
-              <FiUploadCloud className={styles.tabIcon} size={15} />
+              <CloudUpload className={styles.tabIcon} size={15} />
               Local file
             </button>
             <button
@@ -605,12 +591,12 @@ export const ToolsPdfPage: React.FC = () => {
           {pageState === 'success' && uploadedFile && (
             <div className={styles.successState}>
               <div className={styles.successCheck}>
-                <FiCheck size={28} strokeWidth={2.5} />
+                <Check size={28} strokeWidth={2.5} />
               </div>
               <p className={styles.successTitle}>PDF loaded successfully!</p>
               <div className={styles.fileInfoCard}>
                 <div className={styles.fileInfoIcon}>
-                  <FiFileText size={24} />
+                  <FileText size={24} />
                 </div>
                 <div className={styles.fileInfoDetails}>
                   <div className={styles.fileInfoName}>{uploadedFile.name}</div>
@@ -629,7 +615,7 @@ export const ToolsPdfPage: React.FC = () => {
                 </div>
               </div>
               <button className={styles.resetButton} onClick={handleReset}>
-                <FiRefreshCw size={13} />
+                <RefreshCw size={13} />
                 Upload a different file
               </button>
             </div>
@@ -649,7 +635,7 @@ export const ToolsPdfPage: React.FC = () => {
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click(); }}
               >
                 <div className={styles.dropZoneIcon}>
-                  <FiUploadCloud size={28} />
+                  <CloudUpload size={28} />
                 </div>
                 <p className={styles.dropZoneTitle}>Drag & drop your PDF here</p>
                 <p className={styles.dropZoneSubtitle}>
@@ -661,11 +647,11 @@ export const ToolsPdfPage: React.FC = () => {
                   className={styles.browseButton}
                   onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
                 >
-                  <FiFileText size={15} />
+                  <FileText size={15} />
                   Browse file
                 </button>
                 <p className={styles.dropZoneHint}>
-                  <FiInfo size={12} />
+                  <Info size={12} />
                   PDF files only · Max 5 MB
                 </p>
               </div>
@@ -678,7 +664,7 @@ export const ToolsPdfPage: React.FC = () => {
               />
               {localError && (
                 <div className={styles.errorMessage}>
-                  <FiAlertCircle size={15} />
+                  <AlertCircle size={15} />
                   {localError}
                 </div>
               )}
@@ -707,18 +693,18 @@ export const ToolsPdfPage: React.FC = () => {
                   onClick={handleDriveSubmit}
                   disabled={!driveUrl.trim()}
                 >
-                  <FiLink size={14} />
+                  <Link size={14} />
                   Load
                 </button>
               </div>
               {linkError && (
                 <div className={styles.linkError}>
-                  <FiAlertCircle size={14} />
+                  <AlertCircle size={14} />
                   {linkError}
                 </div>
               )}
               <div className={styles.linkHint}>
-                <FiInfo className={styles.linkHintIcon} size={14} />
+                <Info className={styles.linkHintIcon} size={14} />
                 <span>
                   Open the file in Google Drive → click <strong>Share</strong> → set to
                   "Anyone with the link" → copy the link and paste it above.
@@ -749,18 +735,18 @@ export const ToolsPdfPage: React.FC = () => {
                   onClick={handleDropboxSubmit}
                   disabled={!dropboxUrl.trim()}
                 >
-                  <FiLink size={14} />
+                  <Link size={14} />
                   Load
                 </button>
               </div>
               {linkError && (
                 <div className={styles.linkError}>
-                  <FiAlertCircle size={14} />
+                  <AlertCircle size={14} />
                   {linkError}
                 </div>
               )}
               <div className={styles.linkHint}>
-                <FiInfo className={styles.linkHintIcon} size={14} />
+                <Info className={styles.linkHintIcon} size={14} />
                 <span>
                   Right-click the file in Dropbox → <strong>Share</strong> → copy the
                   link and paste it above.

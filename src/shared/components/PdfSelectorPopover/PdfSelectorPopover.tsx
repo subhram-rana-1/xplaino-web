@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { FiChevronDown, FiFileText } from 'react-icons/fi';
+import { ChevronDown, FileText } from 'lucide-react';
 import { getAllPdfs } from '@/shared/services/pdf.service';
 import type { PdfResponse } from '@/shared/types/pdf.types';
 import styles from './PdfSelectorPopover.module.css';
@@ -105,7 +105,7 @@ export const PdfSelectorPopover: React.FC<PdfSelectorPopoverProps> = ({
             onClick={() => handleSelect(pdf)}
             title={pdf.file_name}
           >
-            <FiFileText className={styles.pdfIcon} />
+            <FileText className={styles.pdfIcon} />
             <span className={styles.pdfName}>
               {pdf.file_name.length > 22 ? `${pdf.file_name.slice(0, 22)}...` : pdf.file_name}
             </span>
@@ -128,7 +128,7 @@ export const PdfSelectorPopover: React.FC<PdfSelectorPopoverProps> = ({
         onClick={handleOpen}
       >
         <span className={styles.triggerValue}>{displayPdfName}</span>
-        <FiChevronDown className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ''}`} />
+        <ChevronDown className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ''}`} />
       </button>
       {popoverContent && createPortal(popoverContent, document.body)}
     </div>

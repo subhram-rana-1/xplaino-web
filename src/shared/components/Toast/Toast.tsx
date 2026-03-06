@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { FiX } from 'react-icons/fi';
+import { X } from 'lucide-react';
 import styles from './Toast.module.css';
 
 export interface ToastProps {
@@ -26,7 +26,7 @@ export const Toast: React.FC<ToastProps> = ({ message, onClose, duration = 3000,
         onClick={onClose}
         aria-label="Close toast"
       >
-        <FiX size={18} />
+        <X size={18} />
       </button>
     </div>
   );

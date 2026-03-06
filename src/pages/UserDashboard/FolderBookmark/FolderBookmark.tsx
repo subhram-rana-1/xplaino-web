@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { FiArrowLeft, FiRefreshCw, FiExternalLink, FiCopy, FiCheck, FiInfo, FiX, FiGlobe, FiEye, FiEyeOff, FiBookOpen, FiPlus, FiChevronDown, FiTrash2 } from 'react-icons/fi';
+import { ArrowLeft, RefreshCw, ExternalLink, Copy, Check, Info, X, Globe, Eye, EyeOff, BookOpen, Plus, ChevronDown, Trash2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { SiYoutube, SiLinkedin, SiX, SiReddit, SiFacebook, SiInstagram } from 'react-icons/si';
 import styles from './FolderBookmark.module.css';
@@ -174,7 +174,7 @@ export const FolderBookmark: React.FC = () => {
     const iconProps = { size: 20, className: styles.typeIcon };
     switch (type.toUpperCase()) {
       case 'WEBPAGE':
-        return <FiGlobe {...iconProps} />;
+        return <Globe {...iconProps} />;
       case 'YOUTUBE':
         return <SiYoutube {...iconProps} />;
       case 'LINKEDIN':
@@ -188,7 +188,7 @@ export const FolderBookmark: React.FC = () => {
       case 'INSTAGRAM':
         return <SiInstagram {...iconProps} />;
       default:
-        return <FiGlobe {...iconProps} />;
+        return <Globe {...iconProps} />;
     }
   };
 
@@ -1506,7 +1506,7 @@ export const FolderBookmark: React.FC = () => {
                                 title="Hide name column"
                                 aria-label="Hide name column"
                               >
-                                <FiEyeOff />
+                                <EyeOff />
                               </button>
                             )}
                           </div>
@@ -1530,7 +1530,7 @@ export const FolderBookmark: React.FC = () => {
                     }}
                     title="Copy content"
                   >
-                    {copiedParagraphId === para.id ? <FiCheck /> : <FiCopy />}
+                    {copiedParagraphId === para.id ? <Check /> : <Copy />}
                   </button>
                   <div 
                     className={styles.contentCellClickable}
@@ -1562,7 +1562,7 @@ export const FolderBookmark: React.FC = () => {
                           className={styles.iconLink}
                           title={para.source_url}
                               >
-                                <FiExternalLink />
+                                <ExternalLink />
                               </a>
                             ) : (
                               <span className={styles.noSource}>—</span>
@@ -1579,7 +1579,7 @@ export const FolderBookmark: React.FC = () => {
                       handleInfoIconClick(paraId, formatDate(para.created_at), para.source_url || 'No source', e);
                                 }}
                               >
-                                <FiInfo className={styles.infoIcon} />
+                                <Info className={styles.infoIcon} />
                               </div>
                   <ActionMenu
                     onDelete={() => handleDeleteClick('paragraph', para.id, para.name || undefined)}
@@ -1629,7 +1629,7 @@ export const FolderBookmark: React.FC = () => {
                         title="Show name column"
                         aria-label="Show name column"
                       >
-                        <FiEye />
+                        <Eye />
                         <span>Show Name</span>
                       </button>
                     )}
@@ -1660,7 +1660,7 @@ export const FolderBookmark: React.FC = () => {
                             onClick={handleResetAskAI}
                             aria-label="Remove chat"
                           >
-                            <FiTrash2 size={18} />
+                            <Trash2 size={18} />
                           </button>
                           {resetButtonRef.current && (
                             <OnHoverMessage
@@ -1754,7 +1754,7 @@ export const FolderBookmark: React.FC = () => {
                     }}
                     title="Copy URL"
                   >
-                    {copiedLinkId === link.id ? <FiCheck /> : <FiCopy />}
+                    {copiedLinkId === link.id ? <Check /> : <Copy />}
                   </button>
                   <a 
                     href={fullUrl} 
@@ -1804,7 +1804,7 @@ export const FolderBookmark: React.FC = () => {
                       title="View summary"
                       aria-label="View summary"
                     >
-                      <FiBookOpen className={styles.summaryIcon} />
+                      <BookOpen className={styles.summaryIcon} />
                     </button>
                   ) : (
                     <span className={styles.noSummary}>—</span>
@@ -1821,7 +1821,7 @@ export const FolderBookmark: React.FC = () => {
                       handleInfoIconClick(linkId, formatDate(link.created_at), link.url || 'No source', e);
                     }}
                   >
-                    <FiInfo className={styles.infoIcon} />
+                    <Info className={styles.infoIcon} />
                   </div>
                   <ActionMenu
                     onDelete={() => handleDeleteClick('link', link.id, link.name || undefined)}
@@ -1868,7 +1868,7 @@ export const FolderBookmark: React.FC = () => {
                   title="Filter by type"
                 >
                   <span>Filter types</span>
-                  <FiChevronDown className={`${styles.filterChevron} ${isTypeFilterOpen ? styles.filterChevronOpen : ''}`} />
+                  <ChevronDown className={`${styles.filterChevron} ${isTypeFilterOpen ? styles.filterChevronOpen : ''}`} />
                 </button>
                 {(isTypeFilterOpen || isTypeFilterClosing) && (
                   <div className={`${styles.typeFilterDropdown} ${isTypeFilterClosing ? styles.typeFilterDropdownClosing : ''}`}>
@@ -1890,7 +1890,7 @@ export const FolderBookmark: React.FC = () => {
                 onClick={() => setIsAddLinkModalOpen(true)}
                 title="Add new link"
               >
-                <FiPlus />
+                <Plus />
                 <span>Add link</span>
               </button>
             </div>
@@ -1946,7 +1946,7 @@ export const FolderBookmark: React.FC = () => {
                     onClick={() => handleCopyWord(word.word, word.id)}
                     title="Copy word"
                   >
-                    {copiedWordId === word.id ? <FiCheck /> : <FiCopy />}
+                    {copiedWordId === word.id ? <Check /> : <Copy />}
                   </button>
                   <span>{word.word}</span>
                 </div>
@@ -1977,7 +1977,7 @@ export const FolderBookmark: React.FC = () => {
                       className={styles.iconLink}
                       title={word.sourceUrl}
                     >
-                      <FiExternalLink />
+                      <ExternalLink />
                     </a>
                   ) : (
                     <span className={styles.noSource}>—</span>
@@ -1994,7 +1994,7 @@ export const FolderBookmark: React.FC = () => {
                       handleInfoIconClick(wordId, formatDate(word.createdAt), word.sourceUrl || 'No source', e);
                     }}
                   >
-                    <FiInfo className={styles.infoIcon} />
+                    <Info className={styles.infoIcon} />
                   </div>
                   <ActionMenu
                     onDelete={() => handleDeleteClick('word', word.id)}
@@ -2095,7 +2095,7 @@ export const FolderBookmark: React.FC = () => {
                             title={image.sourceUrl}
                             onClick={(e) => handleImageSourceClick(e, image.sourceUrl, image.imageUrl)}
                           >
-                            <FiExternalLink />
+                            <ExternalLink />
                           </a>
                         )}
                         {/* Info icon on top left (shown on hover) */}
@@ -2111,7 +2111,7 @@ export const FolderBookmark: React.FC = () => {
                             handleInfoIconClick(image.id, formatDate(image.createdAt), image.sourceUrl || 'No source', e);
                           }}
                         >
-                          <FiInfo className={styles.infoIcon} />
+                          <Info className={styles.infoIcon} />
                         </div>
                         {/* Action menu on bottom right (shown on hover) */}
                         <div className={styles.imageCardActions}>
@@ -2159,7 +2159,7 @@ export const FolderBookmark: React.FC = () => {
                           title={selectedImage.sourceUrl}
                           onClick={(e) => handleImageSourceClick(e, selectedImage.sourceUrl, selectedImage.url)}
                         >
-                          <FiExternalLink />
+                          <ExternalLink />
                         </a>
                       )}
                       {selectedImage.id && (
@@ -2184,7 +2184,7 @@ export const FolderBookmark: React.FC = () => {
                             }
                           }}
                         >
-                          <FiInfo className={styles.infoIcon} />
+                          <Info className={styles.infoIcon} />
                         </div>
                       )}
                       <button
@@ -2192,7 +2192,7 @@ export const FolderBookmark: React.FC = () => {
                         onClick={handleCloseImageModal}
                         aria-label="Close"
                       >
-                        <FiX />
+                        <X />
                       </button>
                     </div>
                   </div>
@@ -2243,7 +2243,7 @@ export const FolderBookmark: React.FC = () => {
               className={styles.breadcrumbBack}
               onClick={() => navigate('/user/dashboard')}
             >
-              <FiArrowLeft size={16} />
+              <ArrowLeft size={16} />
               <span>Dashboard</span>
             </button>
             <FolderSelectorPopover
@@ -2261,12 +2261,12 @@ export const FolderBookmark: React.FC = () => {
             >
               {showRefreshSuccess ? (
                 <>
-                  <FiCheck />
+                  <Check />
                   <span>Data fetched</span>
                 </>
               ) : (
                 <>
-                  <FiRefreshCw
+                  <RefreshCw
                     className={isRefreshingAll ? styles.spin : ''}
                   />
                   <span>Fetch all</span>
@@ -2368,7 +2368,7 @@ export const FolderBookmark: React.FC = () => {
                     className={styles.paragraphModalSource}
                     title={selectedParagraph.source_url}
                   >
-                    <FiExternalLink />
+                    <ExternalLink />
                   </a>
                 )}
                 <button
@@ -2379,14 +2379,14 @@ export const FolderBookmark: React.FC = () => {
                   }}
                   title="Copy paragraph"
                 >
-                  {copiedParagraphId === selectedParagraph.id ? <FiCheck /> : <FiCopy />}
+                  {copiedParagraphId === selectedParagraph.id ? <Check /> : <Copy />}
                 </button>
                 <button
                   className={styles.paragraphModalClose}
                   onClick={handleCloseParagraphModal}
                   aria-label="Close"
                 >
-                  <FiX />
+                  <X />
                 </button>
               </div>
             </div>
@@ -2434,7 +2434,7 @@ export const FolderBookmark: React.FC = () => {
                 onClick={handleCloseSummaryModal}
                 aria-label="Close"
               >
-                <FiX />
+                <X />
               </button>
             </div>
             <div className={styles.summaryModalContent}>
@@ -2463,7 +2463,7 @@ export const FolderBookmark: React.FC = () => {
                 onClick={handleCloseAddLinkModal}
                 aria-label="Close"
               >
-                <FiX />
+                <X />
               </button>
             </div>
             <div className={styles.addLinkModalBody}>

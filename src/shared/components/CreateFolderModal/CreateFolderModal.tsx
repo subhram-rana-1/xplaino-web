@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiX, FiArrowRight } from 'react-icons/fi';
+import { X, ArrowRight } from 'lucide-react';
 import styles from './CreateFolderModal.module.css';
 
 interface CreateFolderModalProps {
@@ -100,7 +100,7 @@ export const CreateFolderModal: React.FC<CreateFolderModalProps> = ({
             disabled={isLoading}
             aria-label="Close"
           >
-            <FiX />
+            <X />
           </button>
         </div>
 
@@ -123,7 +123,7 @@ export const CreateFolderModal: React.FC<CreateFolderModalProps> = ({
               disabled={isLoading || !folderName.trim()}
               aria-label="Create folder"
             >
-              <FiArrowRight />
+              <ArrowRight />
             </button>
           </div>
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '@/shared/hooks/useAuth';
-import { FiX } from 'react-icons/fi';
+import { X } from 'lucide-react';
 import styles from './LoginModal.module.css';
 import loginStyles from '../../../pages/Login/Login.module.css';
 
@@ -58,7 +58,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ actionText, onClose }) =
               onClick={onClose}
               aria-label="Close modal"
             >
-              <FiX size={20} />
+              <X size={20} />
             </button>
           )}
           <p className={styles.actionText}>Sign in to {actionText}</p>

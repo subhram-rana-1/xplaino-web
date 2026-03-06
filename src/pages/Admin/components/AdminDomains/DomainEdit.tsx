@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { FiRefreshCw } from 'react-icons/fi';
+import { RefreshCw } from 'lucide-react';
 import styles from './DomainEdit.module.css';
 import { updateDomain, getDomainById } from '@/shared/services/domain.service';
 import type { DomainResponse, UpdateDomainRequest, DomainStatus } from '@/shared/types/domain.types';
@@ -243,7 +243,7 @@ export const DomainEdit: React.FC = () => {
           disabled={isLoading || isSubmitting}
           title="Refresh domain details"
         >
-          <FiRefreshCw className={isLoading ? styles.spin : ''} />
+          <RefreshCw className={isLoading ? styles.spin : ''} />
         </button>
       </div>
 
