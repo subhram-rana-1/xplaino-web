@@ -15,7 +15,6 @@ import type { SettingsResponse } from '@/shared/types/user-settings.types';
 import { Toast } from '@/shared/components/Toast';
 import { PdfUploadModal } from '@/shared/components/PdfUploadModal';
 import { LoginModal } from '@/shared/components/LoginModal';
-import { PdfTranslateButton } from './PdfTranslateButton';
 import { PdfTranslationOverlay } from './PdfTranslationOverlay';
 import { usePdfTranslation } from './usePdfTranslation';
 import { usePdfHighlights } from './usePdfHighlights';
@@ -207,7 +206,7 @@ export const PdfDetail: React.FC = () => {
 
   // Translation
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
-  const [isTranslationActive, setIsTranslationActive] = useState(false);
+  const [isTranslationActive] = useState(false);
   const [showOriginal, setShowOriginal] = useState(false);
   const [userSettings, setUserSettings] = useState<SettingsResponse | null>(null);
   const mainAreaRef = useRef<HTMLDivElement>(null);
@@ -893,7 +892,7 @@ export const PdfDetail: React.FC = () => {
   const { notes: pdfNotes, createNote, updateNote, deleteNote } = usePdfNotes({ pdfId, accessToken: accessToken ?? null, isPublic });
 
   // Translation hook
-  const { pageTranslations, resetTranslation } = usePdfTranslation({
+  const { pageTranslations } = usePdfTranslation({
     pdfDoc: isTranslationActive ? pdfDoc : null,
     numPages,
     targetLanguage: isTranslationActive ? selectedLanguage : null,
@@ -1256,35 +1255,6 @@ export const PdfDetail: React.FC = () => {
   const handleNewPdf = () => {
     setIsUploadModalOpen(true);
   };
-
-  const handleTranslate = useCallback(() => {
-    if (!selectedLanguage) return;
-    resetTranslation();
-    setIsTranslationActive(true);
-    setShowOriginal(false);
-  }, [selectedLanguage, resetTranslation]);
-
-  const handleLanguageChange = useCallback(async (code: string | null) => {
-    setSelectedLanguage(code);
-    if (isTranslationActive) {
-      resetTranslation();
-      setIsTranslationActive(false);
-    }
-    // Persist language to user settings, preserving other fields
-    if (accessToken && userSettings) {
-      try {
-        const updated = await updateUserSettings(accessToken, {
-          nativeLanguage: (code as import('@/shared/types/user-settings.types').NativeLanguage | null),
-          pageTranslationView: userSettings.pageTranslationView,
-          theme: userSettings.theme,
-          highlighter: userSettings.highlighter ?? null,
-        });
-        setUserSettings(updated);
-      } catch {
-        // Non-critical – settings persist locally even if PATCH fails
-      }
-    }
-  }, [isTranslationActive, resetTranslation, accessToken, userSettings]);
 
   const handleHighlightColourChange = useCallback(async (id: string) => {
     setSelectedColourId(id);
