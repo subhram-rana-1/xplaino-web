@@ -345,6 +345,8 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0 0.75rem 2rem 0.75rem;
+  position: relative;
+  z-index: 1;
 }
 
 .mainHeader {
@@ -697,6 +699,58 @@
   color: #fff;
 }
 
+/* ─── Zoom controls ────────────────────────────────────────────────────────── */
+.zoomControls {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.zoomBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  user-select: none;
+}
+
+.zoomBtn:hover:not(:disabled) {
+  background: var(--button-hover-bg);
+  color: var(--text-primary);
+}
+
+.zoomBtn:disabled {
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+}
+
+.zoomLevel {
+  min-width: 38px;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-left: 1px solid var(--border-light);
+  border-right: 1px solid var(--border-light);
+  padding: 0 2px;
+  line-height: 26px;
+  user-select: none;
+}
+
 /* ─── Chat with PDF button ─────────────────────────────────────────────────── */
 .chatWithPdfBtn {
   display: inline-flex;
@@ -725,18 +779,18 @@
 /* ─── PDF document area ────────────────────────────────────────────────────── */
 .content {
   width: 100%;
+  overflow-x: auto;
 }
 
 .document {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  align-items: center;
 }
 
 .pageWrapper {
-  /* no explicit width — shrinks to canvas size so align-items: center in .document truly centers it */
   position: relative;
+  margin: 0 auto;
 }
 
 .page {
@@ -909,10 +963,6 @@
   .sidebar {
     width: 140px;
     min-width: 140px;
-  }
-
-  .sidebarToggle {
-    display: none;
   }
 
   .mainArea {

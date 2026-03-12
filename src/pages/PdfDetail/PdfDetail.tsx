@@ -101,6 +101,10 @@ export const PdfDetail: React.FC = () => {
 
   const [sidebarVisible, setSidebarVisible] = useState(getStoredPdfSidebarVisible);
   const [toolbarVisible, setToolbarVisible] = useState(getStoredToolbarVisible);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const ZOOM_STEP = 0.25;
+  const ZOOM_MIN = 0.5;
+  const ZOOM_MAX = 2;
   // 0 = not showing, 1 = step 1 (toolbar spotlight), 2 = step 2 (highlight instruction)
   const [fdStep, setFdStep] = useState<0 | 1 | 2>(() => isFeatureDiscoverySeen() ? 0 : 1);
   const toolbarButtonsRef = useRef<HTMLDivElement>(null);
@@ -1430,7 +1434,7 @@ export const PdfDetail: React.FC = () => {
 
       <div className={styles.mainArea} ref={mainAreaRef}>
 
-        {/* ── Sticky horizontal toolbar ── */}
+        {/* ── Sticky horizontal toolbar ── (temporarily hidden)
         <div className={styles.toolbar}>
           <div className={`${styles.toolbarBody} ${!toolbarVisible ? styles.toolbarBodyHidden : ''}`}>
             <div className={styles.toolbarSpacer} />
@@ -1477,6 +1481,29 @@ export const PdfDetail: React.FC = () => {
                   {showOriginal ? 'Translated' : 'Original'}
                 </button>
               )}
+              <div className={styles.zoomControls}>
+                <button
+                  type="button"
+                  className={styles.zoomBtn}
+                  onClick={() => setZoomLevel(z => Math.max(ZOOM_MIN, parseFloat((z - ZOOM_STEP).toFixed(2))))}
+                  disabled={zoomLevel <= ZOOM_MIN}
+                  title="Zoom out"
+                  aria-label="Zoom out"
+                >
+                  −
+                </button>
+                <span className={styles.zoomLevel}>{Math.round(zoomLevel * 100)}%</span>
+                <button
+                  type="button"
+                  className={styles.zoomBtn}
+                  onClick={() => setZoomLevel(z => Math.min(ZOOM_MAX, parseFloat((z + ZOOM_STEP).toFixed(2))))}
+                  disabled={zoomLevel >= ZOOM_MAX}
+                  title="Zoom in"
+                  aria-label="Zoom in"
+                >
+                  +
+                </button>
+              </div>
             </div>
             <div className={styles.toolbarEndActions}>
               <button
@@ -1505,6 +1532,7 @@ export const PdfDetail: React.FC = () => {
             )}
           </div>
         </div>
+        ── end toolbar ── */}
 
         <div className={styles.mainHeader}>
           <div className={styles.mainHeaderTop}>
@@ -1629,7 +1657,7 @@ export const PdfDetail: React.FC = () => {
                         renderTextLayer={!isPageTranslated || showOriginal}
                         renderAnnotationLayer={true}
                         className={styles.page}
-                        width={containerWidth ?? undefined}
+                        width={containerWidth ? Math.round(containerWidth * zoomLevel) : undefined}
                         onRenderSuccess={() => {
                           setPageRenderVersions((prev) => ({
                             ...prev,

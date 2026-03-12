@@ -100,6 +100,18 @@
 
 /* ── Forms ───────────────────────────────────────────────────────────────── */
 
+.createHint {
+  margin: 0;
+  padding: 0.55rem 0.85rem;
+  border-radius: 8px;
+  background: var(--teal-lighter, #e0f2f1);
+  border-left: 3px solid var(--teal, #009688);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--teal-dark, #00796b);
+}
+
 .createForm,
 .editForm {
   display: flex;

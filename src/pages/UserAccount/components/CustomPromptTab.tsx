@@ -375,6 +375,9 @@ export const CustomPromptTab: React.FC = () => {
             {/* Create Form */}
             {showCreateForm && (
               <form className={styles.createForm} onSubmit={handleCreate}>
+                <p className={styles.createHint}>
+                  This is a sample custom prompt — feel free to edit the title and content below and write your own.
+                </p>
                 <input
                   className={styles.input}
                   placeholder="Prompt title"

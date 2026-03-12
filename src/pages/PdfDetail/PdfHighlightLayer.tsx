@@ -677,7 +677,10 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
         <div
           className={`${styles.noteEditor} ${noteEditorState.mode === 'create' ? styles.noteEditorCreate : styles.noteEditorEdit} ${noteEditorVisible ? styles.noteEditorVisible : ''}`}
           style={{
-            left: pageContainerEl.getBoundingClientRect().right + 16,
+            left: Math.min(
+              pageContainerEl.getBoundingClientRect().right + 16,
+              window.innerWidth - 236
+            ),
             top: pageContainerEl.getBoundingClientRect().top + noteEditorState.y,
           }}
           onMouseDown={(e) => e.stopPropagation()}

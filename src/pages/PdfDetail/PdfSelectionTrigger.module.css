@@ -402,6 +402,8 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
   z-index: 10001;
   min-width: 210px;
+  max-height: 50vh;
+  overflow-y: auto;
   padding: 4px 0;
   display: flex;
   flex-direction: column;
