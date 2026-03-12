@@ -440,40 +440,23 @@
   margin-left: 0.5rem;
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
-  border: 2px solid var(--white-rgba-95);
-  background: linear-gradient(135deg, var(--yellow), var(--yellow));
-  color: var(--text-dark);
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
   font-family: 'Inter', sans-serif;
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
   cursor: pointer;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-  box-shadow: 0 0 0 1px var(--shadow-black-10), 0 4px 10px var(--shadow-black-25);
-  animation: miniPulse 1.6s ease-in-out infinite;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
-.miniCouponLabel {
-  opacity: 0.9;
-}
-
-.miniCouponText {
-  padding-left: 0.35rem;
-  border-left: 1px solid var(--shadow-black-10);
-}
-
-@keyframes miniPulse {
-  0%, 100% {
-    transform: translateY(0);
-    box-shadow: 0 0 0 1px var(--shadow-black-10), 0 4px 10px var(--shadow-black-25);
-  }
-  50% {
-    transform: translateY(-1px);
-    box-shadow: 0 0 0 1px var(--yellow), 0 6px 14px var(--yellow);
-  }
+.miniCouponBadge:hover {
+  background: rgba(251, 191, 36, 0.25);
+  border-color: rgba(251, 191, 36, 0.7);
 }
 
 .navLinks {

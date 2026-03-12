@@ -223,8 +223,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                 navigate('/pricing');
               }}
             >
-              <span className={styles.miniCouponLabel}>Deal</span>
-              <span className={styles.miniCouponText}>View offer</span>
+              Limited offer 30% Off!
             </button>
           )}
         </div>

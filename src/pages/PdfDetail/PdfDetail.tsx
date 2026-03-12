@@ -3,7 +3,7 @@ import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/TextLayer.css';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
-import { Plus, ChevronLeft, ChevronRight, ChevronDown, EyeOff, Share2, Download, MessageCircle } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, Eye, EyeOff, Share2, Download, MessageCircle } from 'lucide-react';
 import styles from './PdfDetail.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { getPdfById, getAllPdfs, sharePdf, makePdfPublic, makePdfPrivate, getPdfShareeList, unsharePdf, getDownloadUrl } from '@/shared/services/pdf.service';
@@ -98,6 +98,8 @@ export const PdfDetail: React.FC = () => {
   const navigate = useNavigate();
   const { accessToken, isLoggedIn, isLoading: authLoading, user } = useAuth();
   const userFirstName = user?.firstName || user?.name?.split(' ')[0];
+
+  const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform);
 
   const [sidebarVisible, setSidebarVisible] = useState(getStoredPdfSidebarVisible);
   const [toolbarVisible, setToolbarVisible] = useState(getStoredToolbarVisible);
@@ -986,6 +988,20 @@ export const PdfDetail: React.FC = () => {
     setFdStep(0);
   }, []);
 
+  // Cmd+B (Mac) / Ctrl+B (others) toggles the Chat with PDF panel
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const modifierHeld = isMac ? e.metaKey : e.ctrlKey;
+      if (modifierHeld && e.key === 'b') {
+        e.preventDefault();
+        setPanelMode('chat-with-pdf');
+        setIsExplainPanelOpen((open) => !open);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMac]);
+
   // Compute spotlight bounding rect for step 1 once the toolbar buttons are in the DOM.
   // Uses multiple strategies to catch the coupon banner appearing asynchronously:
   //  1. Immediate compute
@@ -1307,6 +1323,37 @@ export const PdfDetail: React.FC = () => {
   const sidebar = (
     <aside className={`${styles.sidebar} ${!sidebarVisible ? styles.sidebarHidden : ''}`}>
       <div className={styles.sidebarButtons}>
+        {isLoggedIn && (
+          <>
+            <button
+              className={styles.pdfBreadcrumbBack}
+              onClick={() => navigate('/user/dashboard')}
+            >
+              ← Dashboard
+            </button>
+            <div className={styles.sidebarDropdowns}>
+              <FolderSelectorPopover
+                folders={allFolders}
+                currentFolderId={folderId || pdfDetails?.folder_id || undefined}
+                onSelect={handleFolderSelect}
+              />
+              <PdfSelectorPopover
+                folderId={folderId || pdfDetails?.folder_id || undefined}
+                currentPdfId={pdfId}
+                currentPdfName={pdfDetails?.file_name}
+                accessToken={accessToken}
+                onSelect={(pdf) => {
+                  const effectiveFolderId = folderId || pdfDetails?.folder_id;
+                  const params = new URLSearchParams({
+                    ...(effectiveFolderId ? { folderId: effectiveFolderId } : {}),
+                    ...(resolvedFolderName ? { folderName: resolvedFolderName } : {}),
+                  });
+                  navigate(`/pdf/${pdf.id}${params.toString() ? `?${params}` : ''}`);
+                }}
+              />
+            </div>
+          </>
+        )}
         <button className={styles.sidebarBtn} onClick={handleNewPdf} title="New PDF">
           <Plus size={15} />
           <span>New PDF</span>
@@ -1434,12 +1481,12 @@ export const PdfDetail: React.FC = () => {
 
       <div className={styles.mainArea} ref={mainAreaRef}>
 
-        {/* ── Sticky horizontal toolbar ── (temporarily hidden)
         <div className={styles.toolbar}>
-          <div className={`${styles.toolbarBody} ${!toolbarVisible ? styles.toolbarBodyHidden : ''}`}>
+          {/* Entire toolbar row — collapses as one unit */}
+          <div className={`${styles.toolbarRow} ${!toolbarVisible ? styles.toolbarRowHidden : ''}`}>
             <div className={styles.toolbarSpacer} />
             <div className={styles.toolbarButtons} ref={toolbarButtonsRef}>
-              <PdfTranslateButton
+              {/* <PdfTranslateButton
                 selectedLanguage={selectedLanguage}
                 onLanguageChange={handleLanguageChange}
                 onTranslate={handleTranslate}
@@ -1454,7 +1501,7 @@ export const PdfDetail: React.FC = () => {
                   Object.values(pageTranslations).some((s) => s.status === 'translated') &&
                   !Object.values(pageTranslations).some((s) => s.status === 'translating')
                 }
-              />
+              /> */}
               <button
                 type="button"
                 className={styles.chatWithPdfBtn}
@@ -1470,6 +1517,7 @@ export const PdfDetail: React.FC = () => {
               >
                 <ChatIcon />
                 <span>Chat with PDF</span>
+                <kbd className={styles.chatWithPdfKbd}>{isMac ? '⌘B' : 'Ctrl+B'}</kbd>
               </button>
               {isTranslationActive && Object.values(pageTranslations).some((s) => s.status === 'translated') && (
                 <button
@@ -1481,13 +1529,14 @@ export const PdfDetail: React.FC = () => {
                   {showOriginal ? 'Translated' : 'Original'}
                 </button>
               )}
+            </div>
+            <div className={styles.toolbarEndActions}>
               <div className={styles.zoomControls}>
                 <button
                   type="button"
                   className={styles.zoomBtn}
                   onClick={() => setZoomLevel(z => Math.max(ZOOM_MIN, parseFloat((z - ZOOM_STEP).toFixed(2))))}
                   disabled={zoomLevel <= ZOOM_MIN}
-                  title="Zoom out"
                   aria-label="Zoom out"
                 >
                   −
@@ -1498,100 +1547,66 @@ export const PdfDetail: React.FC = () => {
                   className={styles.zoomBtn}
                   onClick={() => setZoomLevel(z => Math.min(ZOOM_MAX, parseFloat((z + ZOOM_STEP).toFixed(2))))}
                   disabled={zoomLevel >= ZOOM_MAX}
-                  title="Zoom in"
                   aria-label="Zoom in"
                 >
                   +
                 </button>
               </div>
-            </div>
-            <div className={styles.toolbarEndActions}>
-              <button
-                type="button"
-                className={styles.toolbarHideBtn}
-                onClick={() => setToolbarVisible(false)}
-                title="Hide toolbar"
-                aria-label="Hide toolbar"
-              >
-                <EyeOff size={14} />
-                <span>Hide toolbar</span>
-              </button>
+              <div className={styles.iconBtnWrapper}>
+                <button
+                  type="button"
+                  className={styles.iconBtn}
+                  onClick={() => setToolbarVisible(false)}
+                  aria-label="Hide toolbar"
+                >
+                  <EyeOff size={14} />
+                </button>
+                <span className={styles.iconBtnTooltip}>Hide toolbar</span>
+              </div>
+              <div className={styles.iconBtnWrapper}>
+                <button
+                  type="button"
+                  className={styles.iconBtn}
+                  onClick={handleDownload}
+                  disabled={isDownloading}
+                  aria-label="Download PDF"
+                >
+                  <Download size={16} />
+                </button>
+                <span className={styles.iconBtnTooltip}>Download</span>
+              </div>
+              <div className={styles.iconBtnWrapper}>
+                <button
+                  type="button"
+                  className={styles.iconBtn}
+                  onClick={() => setShowShareModal(true)}
+                  aria-label="Share PDF"
+                >
+                  <Share2 size={16} />
+                </button>
+                <span className={styles.iconBtnTooltip}>Share</span>
+              </div>
             </div>
           </div>
-          <div className={styles.toolbarFooter}>
-            {!toolbarVisible && (
+
+        </div>
+
+        {/* Show-toolbar button — sticks at top-right of scroll area */}
+        {!toolbarVisible && (
+          <div className={styles.toolbarRevealFixed}>
+            <div className={styles.iconBtnWrapper}>
               <button
                 type="button"
-                className={styles.toolbarRevealBtn}
+                className={styles.iconBtn}
                 onClick={() => setToolbarVisible(true)}
-                title="Show toolbar"
                 aria-label="Show toolbar"
               >
-                <ChevronDown size={14} />
+                <Eye size={14} />
               </button>
-            )}
-          </div>
-        </div>
-        ── end toolbar ── */}
-
-        <div className={styles.mainHeader}>
-          <div className={styles.mainHeaderTop}>
-            <div className={styles.pdfBreadcrumb}>
-              {isLoggedIn && (
-                <>
-                  <button
-                    className={styles.pdfBreadcrumbBack}
-                    onClick={() => navigate('/user/dashboard')}
-                  >
-                    ← Dashboard
-                  </button>
-                  <FolderSelectorPopover
-                    folders={allFolders}
-                    currentFolderId={folderId || pdfDetails?.folder_id || undefined}
-                    onSelect={handleFolderSelect}
-                  />
-                  <PdfSelectorPopover
-                    folderId={folderId || pdfDetails?.folder_id || undefined}
-                    currentPdfId={pdfId}
-                    currentPdfName={pdfDetails?.file_name}
-                    accessToken={accessToken}
-                    onSelect={(pdf) => {
-                      const effectiveFolderId = folderId || pdfDetails?.folder_id;
-                      const params = new URLSearchParams({
-                        ...(effectiveFolderId ? { folderId: effectiveFolderId } : {}),
-                        ...(resolvedFolderName ? { folderName: resolvedFolderName } : {}),
-                      });
-                      navigate(`/pdf/${pdf.id}${params.toString() ? `?${params}` : ''}`);
-                    }}
-                  />
-                </>
-              )}
-            </div>
-            <div className={styles.headerEndActions}>
-              <button
-                type="button"
-                className={styles.downloadBtn}
-                onClick={handleDownload}
-                disabled={isDownloading}
-                title="Download PDF"
-                aria-label="Download PDF"
-              >
-                <Download size={14} />
-                <span>{isDownloading ? 'Downloading…' : 'Download'}</span>
-              </button>
-              <button
-                type="button"
-                className={styles.shareBtn}
-                onClick={() => setShowShareModal(true)}
-                title="Share PDF"
-                aria-label="Share PDF"
-              >
-                <Share2 size={14} />
-                <span>Share</span>
-              </button>
+              <span className={`${styles.iconBtnTooltip} ${styles.iconBtnTooltipLeft}`}>Show toolbar</span>
             </div>
           </div>
-        </div>
+        )}
 
         {pdfDetails && (
           <h2 className={styles.pdfFileHeading}>
