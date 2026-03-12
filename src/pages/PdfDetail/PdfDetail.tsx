@@ -26,6 +26,7 @@ import { PdfSelectorPopover } from '@/shared/components/PdfSelectorPopover';
 import { PdfShareModal } from '@/shared/components/PdfShareModal';
 import { CopyPdfModal } from '@/shared/components/CopyPdfModal';
 import { AskAISidePanel } from '@/shared/components/AskAISidePanel';
+import { PdfChatPanel } from './PdfChatPanel';
 import { CreateCustomPromptModal } from '@/shared/components/CreateCustomPromptModal';
 import { simplifyText, askAboutText } from '@/shared/services/simplify.service';
 import type { ChatMessage } from '@/shared/services/simplify.service';
@@ -255,10 +256,7 @@ export const PdfDetail: React.FC = () => {
   const explanationsRef = useRef<TextExplanation[]>([]);
 
   const [panelMode, setPanelMode] = useState<'text-explanation' | 'chat-with-pdf'>('text-explanation');
-  const [chatWithPdfMessages, setChatWithPdfMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
-  const [chatWithPdfStreaming, setChatWithPdfStreaming] = useState('');
-  const [isChatWithPdfRequesting, setIsChatWithPdfRequesting] = useState(false);
-  const chatWithPdfAbortRef = useRef<AbortController | null>(null);
+  const [chatSelectedText, setChatSelectedText] = useState<string | undefined>(undefined);
 
   const updateExplanation = useCallback((id: string, updater: (e: TextExplanation) => TextExplanation) => {
     setExplanations((prev) => {
@@ -591,61 +589,17 @@ export const PdfDetail: React.FC = () => {
     [handlePromptFromSelection],
   );
 
-  const handleChatWithPdfSubmit = useCallback(async (question: string) => {
-    if (isChatWithPdfRequesting) return;
-
-    chatWithPdfAbortRef.current?.abort();
-    const abortController = new AbortController();
-    chatWithPdfAbortRef.current = abortController;
-
-    setChatWithPdfMessages((prev) => [...prev, { role: 'user', content: question }]);
-    setIsChatWithPdfRequesting(true);
-    setChatWithPdfStreaming('');
-
-    try {
-      const generator = askAboutText(
-        {
-          question,
-          chat_history: chatWithPdfMessages.concat({ role: 'user', content: question }),
-          initial_context: '',
-          context_type: 'TEXT',
-          languageCode: null,
-        },
-        abortController.signal,
-      );
-
-      for await (const event of generator) {
-        if (event.type === 'chunk') {
-          setChatWithPdfStreaming(event.accumulatedText);
-        } else if (event.type === 'complete') {
-          setChatWithPdfStreaming('');
-          setChatWithPdfMessages(event.chatHistory);
-          setIsChatWithPdfRequesting(false);
-        } else if (event.type === 'error') {
-          setChatWithPdfStreaming('');
-          setIsChatWithPdfRequesting(false);
-          setToast({ message: event.errorMessage || 'Failed to process request', type: 'error' });
-        }
-      }
-    } catch (err) {
-      if ((err as Error)?.name === 'AbortError') return;
-      setChatWithPdfStreaming('');
-      setIsChatWithPdfRequesting(false);
-      setToast({ message: 'Failed to process request', type: 'error' });
-    }
-  }, [isChatWithPdfRequesting, chatWithPdfMessages]);
-
-  const handleChatWithPdfStop = useCallback(() => {
-    chatWithPdfAbortRef.current?.abort();
-    setIsChatWithPdfRequesting(false);
-    setChatWithPdfStreaming('');
+  const handleScrollToPage = useCallback((pageNumber: number) => {
+    const pageEl = contentRef.current?.querySelector(
+      `[data-page="${pageNumber}"]`,
+    );
+    pageEl?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
 
-  const handleClearChatWithPdf = useCallback(() => {
-    chatWithPdfAbortRef.current?.abort();
-    setChatWithPdfMessages([]);
-    setChatWithPdfStreaming('');
-    setIsChatWithPdfRequesting(false);
+  const handleSendToChatFromSelection = useCallback((text: string) => {
+    setChatSelectedText(text);
+    setPanelMode('chat-with-pdf');
+    setIsExplainPanelOpen(true);
   }, []);
 
   const handleAskFollowUp = useCallback(
@@ -1606,6 +1560,7 @@ export const PdfDetail: React.FC = () => {
               onAddCustomPrompt={() => setShowCreatePromptModal(true)}
               customPrompts={userCustomPrompts}
               onCustomPromptSelect={handleCustomPromptFromSelection}
+              onChatWithSelection={handleSendToChatFromSelection}
             />
           )}
           {downloadUrl && (
@@ -1686,19 +1641,14 @@ export const PdfDetail: React.FC = () => {
 
       {/* ── Side panel: Text Explanation or Chat with PDF ── */}
       {panelMode === 'chat-with-pdf' ? (
-        <AskAISidePanel
+        <PdfChatPanel
           isOpen={isExplainPanelOpen}
           onClose={handleCloseExplainPanel}
-          onInputSubmit={handleChatWithPdfSubmit}
-          onStopRequest={handleChatWithPdfStop}
-          onClearChat={handleClearChatWithPdf}
-          isRequesting={isChatWithPdfRequesting}
-          chatMessages={chatWithPdfMessages}
-          streamingText={chatWithPdfStreaming}
-          possibleQuestions={[]}
-          headerTitle="Chat with PDF"
-          mode="inline"
-          builtinPrompts={['Summarise']}
+          pdfId={pdfId!}
+          accessToken={accessToken}
+          onScrollToPage={handleScrollToPage}
+          selectedText={chatSelectedText}
+          onClearSelectedText={() => setChatSelectedText(undefined)}
         />
       ) : (
         <AskAISidePanel
