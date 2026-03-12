@@ -3,7 +3,7 @@ import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/TextLayer.css';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
-import { Plus, ChevronLeft, ChevronRight, ChevronDown, EyeOff, Share2, Download, MessageCircle } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, Share2, Download } from 'lucide-react';
 import styles from './PdfDetail.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { getPdfById, getAllPdfs, sharePdf, makePdfPublic, makePdfPrivate, getPdfShareeList, unsharePdf, getDownloadUrl } from '@/shared/services/pdf.service';
@@ -15,7 +15,6 @@ import type { SettingsResponse } from '@/shared/types/user-settings.types';
 import { Toast } from '@/shared/components/Toast';
 import { PdfUploadModal } from '@/shared/components/PdfUploadModal';
 import { LoginModal } from '@/shared/components/LoginModal';
-import { PdfTranslateButton } from './PdfTranslateButton';
 import { PdfTranslationOverlay } from './PdfTranslationOverlay';
 import { usePdfTranslation } from './usePdfTranslation';
 import { usePdfHighlights } from './usePdfHighlights';
@@ -100,11 +99,8 @@ export const PdfDetail: React.FC = () => {
   const userFirstName = user?.firstName || user?.name?.split(' ')[0];
 
   const [sidebarVisible, setSidebarVisible] = useState(getStoredPdfSidebarVisible);
-  const [toolbarVisible, setToolbarVisible] = useState(getStoredToolbarVisible);
-  const [zoomLevel, setZoomLevel] = useState(1);
-  const ZOOM_STEP = 0.25;
-  const ZOOM_MIN = 0.5;
-  const ZOOM_MAX = 2;
+  const [toolbarVisible] = useState(getStoredToolbarVisible);
+  const [zoomLevel] = useState(1);
   // 0 = not showing, 1 = step 1 (toolbar spotlight), 2 = step 2 (highlight instruction)
   const [fdStep, setFdStep] = useState<0 | 1 | 2>(() => isFeatureDiscoverySeen() ? 0 : 1);
   const toolbarButtonsRef = useRef<HTMLDivElement>(null);
@@ -205,8 +201,8 @@ export const PdfDetail: React.FC = () => {
 
   // Translation
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
-  const [isTranslationActive, setIsTranslationActive] = useState(false);
-  const [showOriginal, setShowOriginal] = useState(false);
+  const [isTranslationActive] = useState(false);
+  const [showOriginal] = useState(false);
   const [userSettings, setUserSettings] = useState<SettingsResponse | null>(null);
   const mainAreaRef = useRef<HTMLDivElement>(null);
 
@@ -891,7 +887,7 @@ export const PdfDetail: React.FC = () => {
   const { notes: pdfNotes, createNote, updateNote, deleteNote } = usePdfNotes({ pdfId, accessToken: accessToken ?? null, isPublic });
 
   // Translation hook
-  const { pageTranslations, resetTranslation } = usePdfTranslation({
+  const { pageTranslations } = usePdfTranslation({
     pdfDoc: isTranslationActive ? pdfDoc : null,
     numPages,
     targetLanguage: isTranslationActive ? selectedLanguage : null,
@@ -1240,35 +1236,6 @@ export const PdfDetail: React.FC = () => {
   const handleNewPdf = () => {
     setIsUploadModalOpen(true);
   };
-
-  const handleTranslate = useCallback(() => {
-    if (!selectedLanguage) return;
-    resetTranslation();
-    setIsTranslationActive(true);
-    setShowOriginal(false);
-  }, [selectedLanguage, resetTranslation]);
-
-  const handleLanguageChange = useCallback(async (code: string | null) => {
-    setSelectedLanguage(code);
-    if (isTranslationActive) {
-      resetTranslation();
-      setIsTranslationActive(false);
-    }
-    // Persist language to user settings, preserving other fields
-    if (accessToken && userSettings) {
-      try {
-        const updated = await updateUserSettings(accessToken, {
-          nativeLanguage: (code as import('@/shared/types/user-settings.types').NativeLanguage | null),
-          pageTranslationView: userSettings.pageTranslationView,
-          theme: userSettings.theme,
-          highlighter: userSettings.highlighter ?? null,
-        });
-        setUserSettings(updated);
-      } catch {
-        // Non-critical – settings persist locally even if PATCH fails
-      }
-    }
-  }, [isTranslationActive, resetTranslation, accessToken, userSettings]);
 
   const handleHighlightColourChange = useCallback(async (id: string) => {
     setSelectedColourId(id);
@@ -1882,9 +1849,5 @@ export const PdfDetail: React.FC = () => {
     </div>
   );
 };
-
-function ChatIcon() {
-  return <MessageCircle size={16} aria-hidden="true" />;
-}
 
 PdfDetail.displayName = 'PdfDetail';
