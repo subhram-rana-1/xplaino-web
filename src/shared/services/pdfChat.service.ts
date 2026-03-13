@@ -3,10 +3,12 @@ import { fetchWithAuth, fetchPublic, ApiError, extractErrorMessage } from './api
 import type {
   PdfContentPreprocessResponse,
   PdfChatSessionResponse,
+  PaginatedPdfChatMessagesResponse,
   PdfChatSSEEvent,
   PdfChatSSEChunk,
   PdfChatSSEComplete,
   PdfChatSSEError,
+  PdfChatSSERename,
 } from '@/shared/types/pdfChat.types';
 
 const BASE = () => `${authConfig.catenBaseUrl}/api/pdf-chat`;
@@ -162,7 +164,32 @@ export async function clearChatSessionMessages(
   return response.json();
 }
 
-// 8. POST /sessions/{id}/ask (SSE streaming)
+// 8. GET /sessions/{id}/chats (paginated)
+export async function getSessionChats(
+  accessToken: string | null,
+  sessionId: string,
+  limit = 50,
+  offset = 0,
+): Promise<PaginatedPdfChatMessagesResponse> {
+  const fetcher = getFetcher(accessToken);
+  const params = new URLSearchParams({
+    limit: String(limit),
+    offset: String(offset),
+  });
+  const response = await fetcher(`${BASE()}/sessions/${sessionId}/chats?${params}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(getErrorMessage(errorData, 'Failed to get session chats'));
+  }
+
+  return response.json();
+}
+
+// 9. POST /sessions/{id}/ask (SSE streaming)
 async function* readSSEStream(
   response: Response,
   signal?: AbortSignal,
@@ -211,7 +238,8 @@ async function* readSSEStream(
 export type AskPdfYield =
   | { type: 'chunk'; chunk: string; accumulated: string }
   | { type: 'complete'; answer: string; citations: PdfChatSSEComplete['citations']; possibleQuestions: string[] }
-  | { type: 'error'; errorCode: string; errorMessage: string };
+  | { type: 'error'; errorCode: string; errorMessage: string }
+  | { type: 'session_rename'; sessionName: string };
 
 export async function* askPdf(
   accessToken: string | null,
@@ -219,6 +247,7 @@ export async function* askPdf(
   question: string,
   selectedText?: string,
   signal?: AbortSignal,
+  rename?: boolean,
 ): AsyncGenerator<AskPdfYield, void, unknown> {
   const fetcher = getFetcher(accessToken);
   const response = await fetcher(`${BASE()}/sessions/${sessionId}/ask`, {
@@ -228,6 +257,7 @@ export async function* askPdf(
       pdf_chat_session_id: sessionId,
       question,
       selected_text: selectedText || undefined,
+      ...(rename ? { rename: true } : {}),
     }),
     signal,
   });
@@ -247,17 +277,18 @@ export async function* askPdf(
 
   for await (const raw of readSSEStream(response, signal)) {
     if ('type' in raw) {
-      const typed = raw as PdfChatSSEComplete | PdfChatSSEError;
-      if (typed.type === 'complete') {
+      const typed = raw as PdfChatSSEComplete | PdfChatSSEError | PdfChatSSERename;
+      if (typed.type === 'session_rename') {
+        yield { type: 'session_rename', sessionName: (typed as PdfChatSSERename).sessionName };
+      } else if (typed.type === 'complete') {
         yield {
           type: 'complete',
-          answer: typed.answer,
+          answer: (typed as PdfChatSSEComplete).answer,
           citations: (typed as PdfChatSSEComplete).citations ?? [],
           possibleQuestions: (typed as PdfChatSSEComplete).possibleQuestions ?? [],
         };
         return;
-      }
-      if (typed.type === 'error') {
+      } else if (typed.type === 'error') {
         yield {
           type: 'error',
           errorCode: (typed as PdfChatSSEError).error_code,

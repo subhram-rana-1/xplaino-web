@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import type {
   PdfContentPreprocessResponse,
   PdfChatSessionResponse,
+  PdfChatMessageResponse,
   PreprocessStatus,
   ChatMessage,
 } from '@/shared/types/pdfChat.types';
@@ -13,6 +14,7 @@ import {
   renameChatSession,
   deleteChatSession,
   clearChatSessionMessages,
+  getSessionChats,
   askPdf,
 } from '@/shared/services/pdfChat.service';
 
@@ -27,6 +29,7 @@ export interface UsePdfChatReturn {
   activeSession: PdfChatSessionResponse | null;
 
   messages: ChatMessage[];
+  messagesBySession: Record<string, ChatMessage[]>;
   streamingText: string;
   possibleQuestions: string[];
   isRequesting: boolean;
@@ -61,6 +64,7 @@ export function usePdfChat(
   const abortRef = useRef<AbortController | null>(null);
   const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasInitiatedRef = useRef(false);
+  const loadedSessionsRef = useRef<Set<string>>(new Set());
 
   const activeSession = sessions.find((s) => s.id === activeSessionId) ?? null;
   const messages = activeSessionId ? (messagesBySession[activeSessionId] ?? []) : [];
@@ -72,6 +76,27 @@ export function usePdfChat(
       return { ...prev, [sessionId]: next };
     });
   }, []);
+
+  const convertApiMessages = useCallback((apiMessages: PdfChatMessageResponse[]): ChatMessage[] => {
+    return apiMessages.map((m) => ({
+      role: m.who === 'USER' ? 'user' as const : 'assistant' as const,
+      content: m.chat,
+      citations: m.citations ?? undefined,
+    }));
+  }, []);
+
+  const loadSessionMessages = useCallback(async (sessionId: string) => {
+    if (loadedSessionsRef.current.has(sessionId)) return;
+    try {
+      const result = await getSessionChats(accessToken, sessionId, 100, 0);
+      const reversed = [...result.messages].reverse();
+      const converted = convertApiMessages(reversed);
+      setMessagesForSession(sessionId, converted);
+      loadedSessionsRef.current.add(sessionId);
+    } catch {
+      // silently fail — messages will load on retry or next switch
+    }
+  }, [accessToken, convertApiMessages, setMessagesForSession]);
 
   // --- Preprocessing ---
 
@@ -140,6 +165,7 @@ export function usePdfChat(
       setSessions(list);
       if (list.length > 0 && !activeSessionId) {
         setActiveSessionId(list[0].id);
+        loadSessionMessages(list[0].id);
       }
       if (list.length === 0) {
         const newSession = await createChatSession(accessToken, preprocessId);
@@ -149,7 +175,7 @@ export function usePdfChat(
     } catch {
       // silently fail — user can retry
     }
-  }, [accessToken, activeSessionId]);
+  }, [accessToken, activeSessionId, loadSessionMessages]);
 
   useEffect(() => {
     if (preprocessStatus === 'COMPLETED' && preprocessRecord) {
@@ -177,7 +203,8 @@ export function usePdfChat(
     setPossibleQuestions([]);
     setIsRequesting(false);
     abortRef.current?.abort();
-  }, []);
+    loadSessionMessages(sessionId);
+  }, [loadSessionMessages]);
 
   const handleRenameSession = useCallback(async (sessionId: string, name: string) => {
     try {
@@ -197,11 +224,13 @@ export function usePdfChat(
         delete next[sessionId];
         return next;
       });
+      loadedSessionsRef.current.delete(sessionId);
 
       if (activeSessionId === sessionId) {
         const remaining = sessions.filter((s) => s.id !== sessionId);
         if (remaining.length > 0) {
           setActiveSessionId(remaining[0].id);
+          loadSessionMessages(remaining[0].id);
         } else if (preprocessRecord) {
           const newSession = await createChatSession(accessToken, preprocessRecord.id);
           setSessions([newSession]);
@@ -211,7 +240,7 @@ export function usePdfChat(
     } catch {
       // handled upstream
     }
-  }, [accessToken, activeSessionId, sessions, preprocessRecord]);
+  }, [accessToken, activeSessionId, sessions, preprocessRecord, loadSessionMessages]);
 
   const handleClearChat = useCallback(async () => {
     if (!activeSessionId) return;
@@ -220,6 +249,7 @@ export function usePdfChat(
       setMessagesForSession(activeSessionId, []);
       setStreamingText('');
       setPossibleQuestions([]);
+      loadedSessionsRef.current.delete(activeSessionId);
     } catch {
       // handled upstream
     }
@@ -234,6 +264,8 @@ export function usePdfChat(
     const controller = new AbortController();
     abortRef.current = controller;
 
+    const shouldRename = activeSession?.name === 'Untitled';
+
     setMessagesForSession(activeSessionId, (prev) => [
       ...prev,
       { role: 'user', content: question, selectedText },
@@ -243,10 +275,14 @@ export function usePdfChat(
     setPossibleQuestions([]);
 
     try {
-      const generator = askPdf(accessToken, activeSessionId, question, selectedText, controller.signal);
+      const generator = askPdf(accessToken, activeSessionId, question, selectedText, controller.signal, shouldRename);
 
       for await (const event of generator) {
-        if (event.type === 'chunk') {
+        if (event.type === 'session_rename') {
+          setSessions((prev) =>
+            prev.map((s) => s.id === activeSessionId ? { ...s, name: event.sessionName } : s),
+          );
+        } else if (event.type === 'chunk') {
           setStreamingText(event.accumulated);
         } else if (event.type === 'complete') {
           setStreamingText('');
@@ -274,7 +310,7 @@ export function usePdfChat(
         { role: 'assistant', content: `Error: ${(err as Error).message || 'Something went wrong'}` },
       ]);
     }
-  }, [activeSessionId, isRequesting, accessToken, setMessagesForSession]);
+  }, [activeSessionId, activeSession, isRequesting, accessToken, setMessagesForSession]);
 
   const handleStopRequest = useCallback(() => {
     abortRef.current?.abort();
@@ -313,6 +349,7 @@ export function usePdfChat(
     sessions,
     activeSession,
     messages,
+    messagesBySession,
     streamingText,
     possibleQuestions,
     isRequesting,

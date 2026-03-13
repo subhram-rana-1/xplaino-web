@@ -205,31 +205,29 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
   return (
     <nav className={styles.navbar}>
       <div className={styles.container}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Link to="/" className={styles.brand}>
-            <img 
-              src={logoImage} 
-              alt="Xplaino Logo" 
-              className={styles.logo}
-            />
-          </Link>
-          {showMiniCoupon && (
-            <button
-              type="button"
-              className={styles.miniCouponBadge}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                navigate('/pricing');
-              }}
-            >
-              Limited offer 30% Off!
-            </button>
-          )}
-        </div>
+        <Link to="/" className={styles.brand}>
+          <img
+            src={logoImage}
+            alt="Xplaino Logo"
+            className={styles.logo}
+          />
+        </Link>
 
         {!hideNavButtons && (
           <div className={styles.navCenter}>
+            {showMiniCoupon && (
+              <button
+                type="button"
+                className={styles.miniCouponBadge}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  navigate('/pricing');
+                }}
+              >
+                Limited offer 30% Off!
+              </button>
+            )}
             <div className={`${styles.navLinks} ${isMenuOpen ? styles.navLinksOpen : ''}`}>
               <div
                 className={styles.dropdownContainer}
@@ -294,22 +292,12 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
         <div className={styles.navRight}>
           {isLoggedIn ? (
             <div className={styles.userSection} ref={profilePopoverRef}>
-              {user?.picture ? (
-                <img 
-                  src={user.picture} 
-                  alt={user.name || 'User'} 
-                  className={styles.profilePicture}
-                  onClick={handleProfileClick}
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <div 
-                  className={styles.profilePicturePlaceholder}
-                  onClick={handleProfileClick}
-                >
-                  {(user?.firstName?.[0] || user?.name?.[0] || 'U').toUpperCase()}
-                </div>
-              )}
+              <div 
+                className={styles.profilePicturePlaceholder}
+                onClick={handleProfileClick}
+              >
+                {(user?.firstName?.[0] || user?.name?.[0] || 'U').toUpperCase()}
+              </div>
               <div className={`${styles.profilePopover} ${isProfilePopoverOpen ? styles.profilePopoverOpen : ''}`}>
                   <div className={styles.popoverHeader}>
                     <span className={styles.popoverHeaderName}>

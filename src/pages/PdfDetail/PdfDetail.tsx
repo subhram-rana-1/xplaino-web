@@ -1639,6 +1639,19 @@ export const PdfDetail: React.FC = () => {
         </div>
       </div>
 
+      {/* ── Chat panel toggle — only shown when panel is closed ── */}
+      {panelMode === 'chat-with-pdf' && !isExplainPanelOpen && (
+        <button
+          type="button"
+          className={`${styles.chatPanelToggle} ${styles.chatPanelToggleCollapsed}`}
+          onClick={() => setIsExplainPanelOpen(true)}
+          title="Show chat"
+          aria-label="Show chat"
+        >
+          <ChevronLeft size={14} />
+        </button>
+      )}
+
       {/* ── Side panel: Text Explanation or Chat with PDF ── */}
       {panelMode === 'chat-with-pdf' ? (
         <PdfChatPanel

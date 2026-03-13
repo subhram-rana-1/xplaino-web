@@ -1,16 +1,17 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import ReactMarkdown from 'react-markdown';
 import {
-  ChevronRight,
-  ChevronDown,
   Plus,
   Trash2,
   Square,
   ArrowUp,
-  Pencil,
   X,
   MessageCircle,
-  Check,
+  ChevronRight,
+  List,
+  MoreHorizontal,
+  Pencil,
 } from 'lucide-react';
 import { LoadingDots } from '@/shared/components/LoadingDots';
 import { usePdfChat } from './usePdfChat';
@@ -43,6 +44,70 @@ function getPersistedWidth(): number {
   return DEFAULT_WIDTH;
 }
 
+// Replaces [Chunk N] / [Chunk N, page P] citation markers with [k](citation:N) markdown links,
+// skipping content inside fenced code blocks and inline code spans.
+function buildCitedText(text: string): string {
+  const seen = new Map<number, number>();
+  let counter = 0;
+  const parts = text.split(/(```[\s\S]*?```|`[^`\n]+`)/g);
+  return parts
+    .map((part, i) => {
+      if (i % 2 === 1) return part;
+      return part.replace(/\[Chunk\s+(\d+)(?:[^\]]*)\]/g, (_, chunkSeq) => {
+        const n = parseInt(chunkSeq, 10);
+        if (!seen.has(n)) seen.set(n, ++counter);
+        return `[${seen.get(n)}](#citation:${n})`;
+      });
+    })
+    .join('');
+}
+
+function makeMarkdownComponents(
+  citations: PdfChatCitationItem[],
+  onCitClick: (c: PdfChatCitationItem) => void,
+) {
+  return {
+    h1: ({ children }: any) => <h1 className={styles.markdownH1}>{children}</h1>,
+    h2: ({ children }: any) => <h2 className={styles.markdownH2}>{children}</h2>,
+    h3: ({ children }: any) => <h3 className={styles.markdownH3}>{children}</h3>,
+    p: ({ children }: any) => <p className={styles.markdownP}>{children}</p>,
+    ul: ({ children }: any) => <ul className={styles.markdownUl}>{children}</ul>,
+    ol: ({ children }: any) => <ol className={styles.markdownOl}>{children}</ol>,
+    li: ({ children }: any) => <li className={styles.markdownLi}>{children}</li>,
+    strong: ({ children }: any) => <strong className={styles.markdownStrong}>{children}</strong>,
+    em: ({ children }: any) => <em className={styles.markdownEm}>{children}</em>,
+    code: ({ children }: any) => <code className={styles.markdownCode}>{children}</code>,
+    a: ({ href, children }: any) => {
+      const citPrefix = '#citation:';
+      if (href?.startsWith(citPrefix)) {
+        const chunkSeq = parseInt(href.slice(citPrefix.length), 10);
+        const cit = citations.find((c) => c.chunkSequence === chunkSeq);
+        return (
+          <button
+            type="button"
+            className={styles.inlineCitationBadge}
+            onClick={(e: React.MouseEvent) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('[Citation click]', { href, chunkSeq, cit, citationsCount: citations.length });
+              if (cit) onCitClick(cit);
+            }}
+          >
+            {children}
+            {cit && (
+              <span className={styles.citationTooltip}>
+                {cit.pageNumber && <span className={styles.citationPage}>Page {cit.pageNumber}</span>}
+                {cit.content.length > 200 ? cit.content.slice(0, 200) + '...' : cit.content}
+              </span>
+            )}
+          </button>
+        );
+      }
+      return <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>;
+    },
+  };
+}
+
 export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
   isOpen,
   onClose,
@@ -53,16 +118,19 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
   onClearSelectedText,
 }) => {
   const [width, setWidth] = useState(getPersistedWidth);
-  const [isSlidingOut, setIsSlidingOut] = useState(false);
-  const [sessionDropdownOpen, setSessionDropdownOpen] = useState(false);
   const [renamingSessionId, setRenamingSessionId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [inputValue, setInputValue] = useState('');
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+  const [sessionListDropdownOpen, setSessionListDropdownOpen] = useState(false);
+  const [hiddenSessionIds, setHiddenSessionIds] = useState<Set<string>>(new Set());
+  const [confirmDeleteSessionId, setConfirmDeleteSessionId] = useState<string | null>(null);
+  const [openMenuSessionId, setOpenMenuSessionId] = useState<string | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
 
   const chatAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const sessionListRef = useRef<HTMLDivElement>(null);
 
   const chat = usePdfChat(pdfId, accessToken, isOpen);
 
@@ -93,27 +161,6 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
     window.addEventListener('mouseup', handleMouseUp);
   }, [width]);
 
-  // --- Slide out ---
-  const handleSlideOut = useCallback(() => {
-    setIsSlidingOut(true);
-    setTimeout(() => {
-      onClose();
-      setIsSlidingOut(false);
-    }, 300);
-  }, [onClose]);
-
-  // --- Close dropdown on outside click ---
-  useEffect(() => {
-    if (!sessionDropdownOpen) return;
-    const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setSessionDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [sessionDropdownOpen]);
-
   // --- Auto-scroll ---
   const SCROLL_THRESHOLD = 5;
   useEffect(() => {
@@ -132,6 +179,19 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
       chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
     }
   }, [chat.streamingText, chat.messages, shouldAutoScroll]);
+
+  useEffect(() => {
+    if (!sessionListDropdownOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (sessionListRef.current && !sessionListRef.current.contains(e.target as Node)) {
+        setSessionListDropdownOpen(false);
+        setOpenMenuSessionId(null);
+        setMenuPosition(null);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [sessionListDropdownOpen]);
 
   // --- Submit ---
   const handleSubmit = useCallback(() => {
@@ -161,7 +221,6 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
   const startRename = useCallback((session: PdfChatSessionResponse) => {
     setRenamingSessionId(session.id);
     setRenameValue(session.name);
-    setSessionDropdownOpen(false);
   }, []);
 
   const confirmRename = useCallback(() => {
@@ -179,43 +238,55 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
 
   // --- Citation click ---
   const handleCitationClick = useCallback((citation: PdfChatCitationItem) => {
-    if (citation.pageNumber && onScrollToPage) {
+    console.log('[handleCitationClick]', { pageNumber: citation.pageNumber, chunkSequence: citation.chunkSequence, hasOnScrollToPage: !!onScrollToPage });
+    if (citation.pageNumber != null && onScrollToPage) {
       onScrollToPage(citation.pageNumber);
     }
   }, [onScrollToPage]);
 
-  // --- Markdown components ---
-  const markdownComponents = useMemo(() => ({
-    h1: ({ children }: any) => <h1 className={styles.markdownH1}>{children}</h1>,
-    h2: ({ children }: any) => <h2 className={styles.markdownH2}>{children}</h2>,
-    h3: ({ children }: any) => <h3 className={styles.markdownH3}>{children}</h3>,
-    p: ({ children }: any) => <p className={styles.markdownP}>{children}</p>,
-    ul: ({ children }: any) => <ul className={styles.markdownUl}>{children}</ul>,
-    ol: ({ children }: any) => <ol className={styles.markdownOl}>{children}</ol>,
-    li: ({ children }: any) => <li className={styles.markdownLi}>{children}</li>,
-    strong: ({ children }: any) => <strong className={styles.markdownStrong}>{children}</strong>,
-    em: ({ children }: any) => <em className={styles.markdownEm}>{children}</em>,
-    code: ({ children }: any) => <code className={styles.markdownCode}>{children}</code>,
-  }), []);
-
-  // --- Group sessions by owner_label for shared PDFs ---
-  const groupedSessions = useMemo(() => {
-    const groups: Record<string, PdfChatSessionResponse[]> = {};
-    for (const session of chat.sessions) {
-      const label = session.owner_label || 'My Sessions';
-      if (!groups[label]) groups[label] = [];
-      groups[label].push(session);
-    }
-    return groups;
-  }, [chat.sessions]);
+  // Stable components for streaming (no citations available yet)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const streamingMarkdownComponents = useMemo(() => makeMarkdownComponents([], () => {}), []);
 
   const hasChatHistory = chat.messages.length > 0;
   const showPrompts = !hasChatHistory && !chat.isRequesting && chat.possibleQuestions.length === 0;
 
+  const visibleSessions = useMemo(
+    () => chat.sessions.filter((s) => !hiddenSessionIds.has(s.id)),
+    [chat.sessions, hiddenSessionIds],
+  );
+
+  const hideTab = useCallback((sessionId: string) => {
+    const sessionMessages = chat.messagesBySession[sessionId] ?? [];
+    if (sessionMessages.length === 0) {
+      chat.deleteSession(sessionId);
+      return;
+    }
+    setHiddenSessionIds((prev) => {
+      const next = new Set(prev);
+      next.add(sessionId);
+      return next;
+    });
+    if (chat.activeSession?.id === sessionId) {
+      const remaining = visibleSessions.filter((s) => s.id !== sessionId);
+      if (remaining.length > 0) {
+        chat.switchSession(remaining[0].id);
+      }
+    }
+  }, [chat, visibleSessions]);
+
+  const showTab = useCallback((sessionId: string) => {
+    setHiddenSessionIds((prev) => {
+      const next = new Set(prev);
+      next.delete(sessionId);
+      return next;
+    });
+    chat.switchSession(sessionId);
+  }, [chat]);
+
   const panelClasses = [
     styles.panel,
     isOpen ? styles.panelOpen : '',
-    isSlidingOut ? styles.panelSlidingOut : '',
   ].filter(Boolean).join(' ');
 
   return (
@@ -225,124 +296,165 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
     >
       <div className={styles.resizeHandle} onMouseDown={handleResizeStart} />
 
-      {/* ── Header ── */}
-      <div className={styles.header}>
-        <button
-          type="button"
-          className={styles.slideOutBtn}
-          onClick={handleSlideOut}
-          aria-label="Close panel"
-        >
-          <ChevronRight size={18} />
-        </button>
-        <h3 className={styles.headerTitle}>Chat with PDF</h3>
-        <div className={styles.headerSpacer} />
-        <div className={styles.headerActions}>
-          {hasChatHistory && (
-            <div className={styles.headerBtnWrapper}>
-              <button
-                type="button"
-                className={styles.headerIconBtn}
-                onClick={chat.clearChat}
-                aria-label="Clear chat"
-              >
-                <Trash2 size={16} />
-              </button>
-              <span className={styles.headerTooltip}>Clear chat</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ── Session bar ── */}
+      {/* ── Chrome-style session tabs ── */}
       {chat.preprocessStatus === 'COMPLETED' && (
-        <div className={styles.sessionBar}>
-          <div className={styles.sessionSelector} ref={dropdownRef}>
-            {renamingSessionId === chat.activeSession?.id ? (
-              <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                <input
-                  className={styles.renameInput}
-                  value={renameValue}
-                  onChange={(e) => setRenameValue(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') confirmRename();
-                    if (e.key === 'Escape') cancelRename();
-                  }}
-                  autoFocus
-                />
-                <button type="button" className={styles.sessionItemBtn} onClick={confirmRename}>
-                  <Check size={14} />
-                </button>
-                <button type="button" className={styles.sessionItemBtn} onClick={cancelRename}>
-                  <X size={14} />
-                </button>
-              </div>
-            ) : (
+        <div className={styles.tabBar}>
+          <div className={styles.tabBarLeft} ref={sessionListRef}>
+            <div className={styles.tooltipWrap}>
               <button
                 type="button"
-                className={styles.sessionSelectorBtn}
-                onClick={() => setSessionDropdownOpen((v) => !v)}
+                className={styles.tabBarBtn}
+                onClick={onClose}
+                aria-label="Close panel"
               >
-                <span className={styles.sessionSelectorBtnText}>
-                  {chat.activeSession?.name || 'Select session'}
-                </span>
-                <ChevronDown size={14} />
+                <ChevronRight size={14} />
               </button>
-            )}
-
-            {sessionDropdownOpen && (
-              <div className={styles.sessionDropdown}>
-                {Object.entries(groupedSessions).map(([label, sessions]) => (
-                  <div key={label}>
-                    {Object.keys(groupedSessions).length > 1 && (
-                      <div className={styles.sessionGroupLabel}>{label}</div>
-                    )}
-                    {sessions.map((session) => (
+              <span className={`${styles.tooltip} ${styles.tooltipLeft}`}>Close panel</span>
+            </div>
+            <div className={styles.tooltipWrap}>
+              <button
+                type="button"
+                className={`${styles.tabBarBtn} ${sessionListDropdownOpen ? styles.tabBarBtnActive : ''}`}
+                onClick={() => setSessionListDropdownOpen((v) => !v)}
+                aria-label="All sessions"
+              >
+                <List size={14} />
+              </button>
+              <span className={`${styles.tooltip} ${styles.tooltipLeft}`}>All sessions</span>
+            </div>
+            {sessionListDropdownOpen && (
+              <div className={styles.sessionListDropdown}>
+                <div className={styles.sessionListScrollable}>
+                  {chat.sessions.map((session) => {
+                    const isHidden = hiddenSessionIds.has(session.id);
+                    return (
                       <div
                         key={session.id}
-                        className={`${styles.sessionItem} ${session.id === chat.activeSession?.id ? styles.sessionItemActive : ''}`}
+                        className={`${styles.sessionListItem} ${session.id === chat.activeSession?.id ? styles.sessionListItemActive : ''} ${isHidden ? styles.sessionListItemHidden : ''}`}
                         onClick={() => {
-                          chat.switchSession(session.id);
-                          setSessionDropdownOpen(false);
+                          if (isHidden) {
+                            showTab(session.id);
+                          } else {
+                            chat.switchSession(session.id);
+                          }
+                          setSessionListDropdownOpen(false);
                         }}
                       >
-                        <span className={styles.sessionItemName}>{session.name}</span>
-                        <div className={styles.sessionItemActions}>
+                        <span className={styles.sessionListItemName}>{session.name}</span>
+                        <div className={styles.sessionListMenuWrap}>
                           <button
                             type="button"
-                            className={styles.sessionItemBtn}
-                            onClick={(e) => { e.stopPropagation(); startRename(session); }}
-                            aria-label="Rename"
+                            className={styles.sessionListMenuBtn}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (openMenuSessionId === session.id) {
+                                setOpenMenuSessionId(null);
+                                setMenuPosition(null);
+                              } else {
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setMenuPosition({ top: rect.bottom + 4, left: rect.left });
+                                setOpenMenuSessionId(session.id);
+                              }
+                            }}
+                            aria-label="Session options"
                           >
-                            <Pencil size={12} />
-                          </button>
-                          <button
-                            type="button"
-                            className={`${styles.sessionItemBtn} ${styles.sessionItemDeleteBtn}`}
-                            onClick={(e) => { e.stopPropagation(); chat.deleteSession(session.id); setSessionDropdownOpen(false); }}
-                            aria-label="Delete"
-                          >
-                            <Trash2 size={12} />
+                            <MoreHorizontal size={14} />
                           </button>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ))}
+                    );
+                  })}
+                </div>
+                <div
+                  className={styles.sessionListNewChat}
+                  onClick={() => {
+                    chat.createSession();
+                    setSessionListDropdownOpen(false);
+                  }}
+                >
+                  <Plus size={14} />
+                  <span>New chat</span>
+                </div>
               </div>
             )}
           </div>
+          <div className={styles.tabList}>
+            {visibleSessions.map((session) => (
+              <div
+                key={session.id}
+                className={`${styles.tab} ${session.id === chat.activeSession?.id ? styles.tabActive : ''}`}
+                onClick={() => chat.switchSession(session.id)}
+                onDoubleClick={() => startRename(session)}
+              >
+                {renamingSessionId === session.id ? (
+                  <input
+                    className={styles.tabRenameInput}
+                    value={renameValue}
+                    onChange={(e) => setRenameValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') confirmRename();
+                      if (e.key === 'Escape') cancelRename();
+                    }}
+                    onBlur={confirmRename}
+                    onClick={(e) => e.stopPropagation()}
+                    autoFocus
+                  />
+                ) : (
+                  <span className={styles.tabName}>{session.name}</span>
+                )}
+                {visibleSessions.length > 1 && renamingSessionId !== session.id && (
+                  <button
+                    type="button"
+                    className={styles.tabClose}
+                    onClick={(e) => { e.stopPropagation(); hideTab(session.id); }}
+                    aria-label="Close tab"
+                  >
+                    <X size={12} />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+          <div className={styles.tabBarActions}>
+            <div className={styles.tooltipWrap}>
+              <button
+                type="button"
+                className={styles.tabBarBtn}
+                onClick={chat.createSession}
+                aria-label="New chat session"
+              >
+                <Plus size={14} />
+              </button>
+              <span className={`${styles.tooltip} ${styles.tooltipRight}`}>New chat</span>
+            </div>
+          </div>
+        </div>
+      )}
 
-          <div className={styles.headerBtnWrapper}>
-            <button
-              type="button"
-              className={styles.newSessionBtn}
-              onClick={chat.createSession}
-              aria-label="New chat session"
-            >
-              <Plus size={16} />
-            </button>
-            <span className={styles.headerTooltip}>New chat</span>
+      {/* ── Delete session confirmation dialog ── */}
+      {confirmDeleteSessionId && (
+        <div className={styles.confirmOverlay}>
+          <div className={styles.confirmDialog}>
+            <p className={styles.confirmText}>Delete this session permanently?</p>
+            <div className={styles.confirmActions}>
+              <button
+                type="button"
+                className={styles.confirmDeleteBtn}
+                onClick={() => {
+                  chat.deleteSession(confirmDeleteSessionId);
+                  setConfirmDeleteSessionId(null);
+                }}
+              >
+                Delete
+              </button>
+              <button
+                type="button"
+                className={styles.confirmCancelBtn}
+                onClick={() => setConfirmDeleteSessionId(null)}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -385,27 +497,11 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
                       </span>
                     )}
                     {msg.role === 'assistant' ? (
-                      <>
-                        <ReactMarkdown components={markdownComponents}>{msg.content}</ReactMarkdown>
-                        {msg.citations && msg.citations.length > 0 && (
-                          <div className={styles.citationsRow}>
-                            {msg.citations.map((cit, ci) => (
-                              <button
-                                key={ci}
-                                type="button"
-                                className={styles.citationBadge}
-                                onClick={() => handleCitationClick(cit)}
-                              >
-                                {ci + 1}
-                                <span className={styles.citationTooltip}>
-                                  {cit.pageNumber && <span className={styles.citationPage}>Page {cit.pageNumber}</span>}
-                                  {cit.content.length > 200 ? cit.content.slice(0, 200) + '...' : cit.content}
-                                </span>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </>
+                      <ReactMarkdown
+                        components={makeMarkdownComponents(msg.citations ?? [], handleCitationClick)}
+                      >
+                        {buildCitedText(msg.content)}
+                      </ReactMarkdown>
                     ) : (
                       msg.content
                     )}
@@ -420,7 +516,7 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
 
                 {chat.streamingText && chat.streamingText.trim().length > 0 && (
                   <div className={`${styles.message} ${styles.assistantMessage}`}>
-                    <ReactMarkdown components={markdownComponents}>{chat.streamingText}</ReactMarkdown>
+                    <ReactMarkdown components={streamingMarkdownComponents}>{buildCitedText(chat.streamingText)}</ReactMarkdown>
                     <span className={styles.cursor}>|</span>
                   </div>
                 )}
@@ -461,7 +557,7 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
 
             {!hasChatHistory && chat.streamingText && chat.streamingText.trim().length > 0 && (
               <div style={{ padding: '8px 0' }}>
-                <ReactMarkdown components={markdownComponents}>{chat.streamingText}</ReactMarkdown>
+                <ReactMarkdown components={streamingMarkdownComponents}>{buildCitedText(chat.streamingText)}</ReactMarkdown>
                 <span className={styles.cursor}>|</span>
               </div>
             )}
@@ -524,18 +620,60 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
               </button>
             )}
             {hasChatHistory && !chat.isRequesting && (
-              <button
-                type="button"
-                className={styles.clearButton}
-                onClick={chat.clearChat}
-                aria-label="Clear chat"
-              >
-                <Trash2 size={18} />
-              </button>
+              <div className={styles.tooltipWrap}>
+                <button
+                  type="button"
+                  className={styles.clearButton}
+                  onClick={chat.clearChat}
+                  aria-label="Clear chat"
+                >
+                  <Trash2 size={18} />
+                </button>
+                <span className={`${styles.tooltip} ${styles.tooltipAbove}`}>Clear chat</span>
+              </div>
             )}
           </div>
         </>
       )}
+      {openMenuSessionId && menuPosition && (() => {
+        const activeMenuSession = chat.sessions.find((s) => s.id === openMenuSessionId);
+        if (!activeMenuSession) return null;
+        return createPortal(
+          <div
+            className={styles.sessionListContextMenu}
+            style={{ position: 'fixed', top: menuPosition.top, left: menuPosition.left }}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className={`${styles.sessionListContextMenuItem} ${styles.sessionListContextMenuItemRename}`}
+              onClick={() => {
+                startRename(activeMenuSession);
+                setOpenMenuSessionId(null);
+                setMenuPosition(null);
+                setSessionListDropdownOpen(false);
+              }}
+            >
+              <Pencil size={13} />
+              <span>Rename session</span>
+            </button>
+            <button
+              type="button"
+              className={`${styles.sessionListContextMenuItem} ${styles.sessionListContextMenuItemDelete}`}
+              onClick={() => {
+                setConfirmDeleteSessionId(activeMenuSession.id);
+                setOpenMenuSessionId(null);
+                setMenuPosition(null);
+                setSessionListDropdownOpen(false);
+              }}
+            >
+              <Trash2 size={13} />
+              <span>Delete session</span>
+            </button>
+          </div>,
+          document.body,
+        );
+      })()}
     </div>
   );
 };

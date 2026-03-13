@@ -19,10 +19,6 @@
   min-width: 300px;
 }
 
-.panelSlidingOut {
-  width: 0;
-  min-width: 0;
-}
 
 /* ── Resize handle ── */
 .resizeHandle {
@@ -50,223 +46,131 @@
   height: 70px;
 }
 
-/* ── Header ── */
-.header {
+/* ── Chrome-style session tab bar ── */
+.tabBar {
   display: flex;
-  align-items: center;
-  padding: 0.75rem 1rem;
+  align-items: stretch;
   border-bottom: 1px solid var(--border-light);
   flex-shrink: 0;
-  width: 100%;
-  box-sizing: border-box;
-  gap: 8px;
+  background: var(--bg-white);
+  min-height: 32px;
 }
 
-.slideOutBtn {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: transparent;
-  border: none;
-  color: var(--text-tertiary);
-  cursor: pointer;
+.tabList {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  padding: 0;
-  flex-shrink: 0;
-}
-
-.slideOutBtn:hover {
-  background: var(--bg-light);
-  color: var(--teal);
-}
-
-.headerTitle {
-  font-family: 'Inter', sans-serif;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--teal);
-  margin: 0;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.headerSpacer {
+  align-items: stretch;
   flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-.headerActions {
+.tabList::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
   display: flex;
   align-items: center;
   gap: 4px;
-  flex-shrink: 0;
-}
-
-.headerIconBtn {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
+  padding: 0 10px;
+  min-width: 0;
+  max-width: 180px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--text-secondary);
   background: transparent;
   border: none;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  padding: 0;
-}
-
-.headerIconBtn:hover {
-  background: var(--bg-light);
-  color: var(--teal);
-}
-
-.headerIconBtn:active {
-  transform: scale(0.95);
-}
-
-.headerBtnWrapper {
+  border-right: 1px solid var(--border-light);
   position: relative;
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+  user-select: none;
 }
 
-.headerTooltip {
-  position: absolute;
-  top: calc(100% + 5px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: #1a1a1a;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 500;
-  padding: 3px 7px;
-  border-radius: 4px;
-  white-space: nowrap;
-  pointer-events: none;
-  z-index: 10000;
-  opacity: 0;
-  transition: opacity 0.15s ease;
+.tab:hover {
+  background: var(--bg-white);
+  color: var(--text-dark);
 }
 
-.headerBtnWrapper:hover .headerTooltip {
+.tab:hover .tabClose {
   opacity: 1;
 }
 
-/* ── Session picker bar ── */
-.sessionBar {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--border-light);
-  flex-shrink: 0;
-  background: var(--bg-white);
-}
-
-.sessionSelector {
-  flex: 1;
-  position: relative;
-}
-
-.sessionSelectorBtn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  width: 100%;
-  padding: 6px 10px;
-  border: 1px solid var(--border-default);
-  border-radius: 8px;
-  background: var(--bg-white);
-  cursor: pointer;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  color: var(--text-dark);
-  transition: border-color 0.15s ease;
-}
-
-.sessionSelectorBtn:hover {
-  border-color: var(--teal);
-}
-
-.sessionSelectorBtnText {
-  flex: 1;
-  text-align: left;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.sessionDropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  background: var(--bg-white);
-  border: 1px solid var(--border-light);
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-  z-index: 200;
-  max-height: 280px;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--teal-light) transparent;
-}
-
-.sessionGroupLabel {
-  padding: 6px 12px 2px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.sessionItem {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: background 0.12s ease;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  color: var(--text-dark);
-}
-
-.sessionItem:hover {
-  background: var(--bg-light);
-}
-
-.sessionItemActive {
+.tabActive {
   background: var(--teal-rgba-10);
   color: var(--teal);
   font-weight: 500;
 }
 
-.sessionItemName {
-  flex: 1;
+.tabActive::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--teal);
+}
+
+.tabName {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  line-height: 32px;
 }
 
-.sessionItemActions {
-  display: flex;
-  gap: 2px;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-}
-
-.sessionItem:hover .sessionItemActions {
-  opacity: 1;
-}
-
-.sessionItemBtn {
-  width: 24px;
-  height: 24px;
+.tabClose {
+  width: 18px;
+  height: 18px;
   border-radius: 4px;
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: all 0.12s ease;
+}
+
+.tabClose:hover {
+  background: var(--light-red, rgba(239, 68, 68, 0.1));
+  color: var(--red, #ef4444);
+}
+
+.tabRenameInput {
+  width: 100%;
+  min-width: 60px;
+  padding: 2px 6px;
+  border: 1px solid var(--teal);
+  border-radius: 4px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--text-dark);
+  background: var(--bg-white);
+  outline: none;
+}
+
+.tabBarActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 6px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--border-light);
+}
+
+.tabBarBtn {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
   background: transparent;
   border: none;
   color: var(--text-tertiary);
@@ -278,22 +182,156 @@
   transition: all 0.12s ease;
 }
 
-.sessionItemBtn:hover {
-  background: var(--bg-light);
+.tabBarBtn:hover {
+  background: var(--bg-white);
   color: var(--teal);
 }
 
-.sessionItemDeleteBtn:hover {
-  background: var(--light-red);
-  color: var(--red);
+.tabBarBtnDanger:hover {
+  background: var(--light-red, rgba(239, 68, 68, 0.1));
+  color: var(--red, #ef4444);
 }
 
-.newSessionBtn {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+.tabBarBtnActive {
+  background: var(--bg-white);
+  color: var(--teal);
+}
+
+/* ── Tooltip wrapper ── */
+.tooltipWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.tooltip {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+  z-index: 10000;
+}
+
+.tooltipWrap:hover > .tooltip {
+  opacity: 1;
+}
+
+.tooltipAbove {
+  top: auto;
+  bottom: calc(100% + 4px);
+}
+
+.tooltipRight {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+.tooltipLeft {
+  left: 0;
+  transform: none;
+}
+
+/* ── Left section of tab bar (ChevronDown dropdown) ── */
+.tabBarLeft {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border-light);
+}
+
+/* ── Session list dropdown ── */
+.sessionListDropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 220px;
+  max-width: 300px;
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sessionListScrollable {
+  max-height: 240px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--teal-light) transparent;
+}
+
+.sessionListScrollable::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sessionListScrollable::-webkit-scrollbar-track {
   background: transparent;
-  border: 1px solid var(--border-default);
+}
+
+.sessionListScrollable::-webkit-scrollbar-thumb {
+  background-color: var(--teal-light);
+  border-radius: 3px;
+}
+
+.sessionListItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text-dark);
+  transition: background 0.12s ease;
+}
+
+.sessionListItem:hover {
+  background: var(--bg-light);
+}
+
+.sessionListItem:hover .sessionListDeleteBtn {
+  opacity: 1;
+}
+
+.sessionListItemActive {
+  background: var(--teal-rgba-10);
+  color: var(--teal);
+  font-weight: 500;
+}
+
+.sessionListItemHidden {
+  opacity: 0.5;
+}
+
+.sessionListItemName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sessionListDeleteBtn {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
   color: var(--text-tertiary);
   cursor: pointer;
   display: flex;
@@ -301,26 +339,106 @@
   justify-content: center;
   padding: 0;
   flex-shrink: 0;
-  transition: all 0.15s ease;
+  opacity: 0;
+  transition: all 0.12s ease;
 }
 
-.newSessionBtn:hover {
-  border-color: var(--teal);
-  color: var(--teal);
-  background: var(--teal-rgba-10);
+.sessionListDeleteBtn:hover {
+  background: var(--light-red, rgba(239, 68, 68, 0.1));
+  color: var(--red, #ef4444);
 }
 
-/* ── Session rename inline input ── */
-.renameInput {
-  flex: 1;
-  padding: 4px 8px;
-  border: 1px solid var(--teal);
-  border-radius: 6px;
+.sessionListMenuWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.sessionListMenuBtn {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: all 0.12s ease;
+}
+
+.sessionListItem:hover .sessionListMenuBtn,
+.sessionListMenuBtn:focus {
+  opacity: 1;
+}
+
+.sessionListMenuBtn:hover {
+  background: var(--bg-light);
+  color: var(--text-dark);
+}
+
+.sessionListContextMenu {
+  min-width: 160px;
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 4px;
+}
+
+.sessionListContextMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
   font-family: 'Inter', sans-serif;
   font-size: 13px;
   color: var(--text-dark);
-  background: var(--bg-white);
-  outline: none;
+  border-radius: 6px;
+  text-align: left;
+  width: 100%;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.sessionListContextMenuItemRename:hover {
+  background: var(--teal-rgba-10);
+  color: var(--teal);
+}
+
+.sessionListContextMenuItemDelete:hover {
+  background: var(--light-red, rgba(239, 68, 68, 0.1));
+  color: var(--red, #ef4444);
+}
+
+.sessionListNewChat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--teal);
+  border-top: 1px solid var(--border-light);
+  transition: background 0.12s ease;
+  flex-shrink: 0;
+}
+
+.sessionListNewChat:hover {
+  background: var(--teal-rgba-10);
 }
 
 /* ── Preprocessing state ── */
@@ -463,36 +581,29 @@
   text-overflow: ellipsis;
 }
 
-/* ── Citations ── */
-.citationsRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 10px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border-light);
-}
-
-.citationBadge {
+/* ── Inline citation badges ── */
+.inlineCitationBadge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 24px;
-  height: 24px;
-  padding: 0 6px;
-  border-radius: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
   background: var(--teal-rgba-10);
   border: 1px solid var(--teal-light);
   color: var(--teal);
   font-family: 'Inter', sans-serif;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s ease;
+  margin: 0 2px;
+  vertical-align: middle;
   position: relative;
+  transition: all 0.15s ease;
+  line-height: 1;
 }
 
-.citationBadge:hover {
+.inlineCitationBadge:hover {
   background: var(--teal);
   color: #fff;
   border-color: var(--teal);
@@ -836,3 +947,79 @@
 .markdownStrong { font-weight: 600; color: var(--text-dark); }
 .markdownEm { font-style: italic; }
 .markdownCode { background: var(--teal-rgba-10); padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 13px; color: var(--teal); }
+
+/* ── Delete confirmation dialog ── */
+.confirmOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 500;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirmDialog {
+  background: var(--bg-white);
+  border: 1px solid var(--teal-light);
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 280px;
+  width: 100%;
+  animation: fadeInSlideUp 0.15s ease-out;
+}
+
+.confirmText {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-dark);
+  margin: 0;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.confirmActions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.confirmDeleteBtn {
+  padding: 6px 18px;
+  border: none;
+  border-radius: 8px;
+  background: var(--red, #ef4444);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.confirmDeleteBtn:hover {
+  background: var(--red-dark, #dc2626);
+}
+
+.confirmCancelBtn {
+  padding: 6px 18px;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  background: var(--bg-white);
+  color: var(--text-secondary);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.confirmCancelBtn:hover {
+  background: var(--bg-light);
+  color: var(--text-dark);
+}

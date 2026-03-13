@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CloudUpload, FileText, Link, Check, AlertCircle, RefreshCw, ArrowRight, Info, BookOpen, MessageCircle, Bookmark, Layers, Folder } from 'lucide-react';
+import { CloudUpload, FileText, Link, Check, AlertCircle, RefreshCw, ArrowRight, Info, BookOpen, MessageCircle, Bookmark, Layers, Folder, Monitor } from 'lucide-react';
 import { SiGoogledrive, SiDropbox } from 'react-icons/si';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { fetchPublic, fetchWithAuth } from '@/shared/services/api-client';
@@ -62,6 +62,48 @@ function isValidDropboxUrl(url: string): boolean {
     );
   } catch {
     return false;
+  }
+}
+
+/**
+ * Converts any Google Drive share/view URL to a direct-download URL.
+ * Supports formats:
+ *   https://drive.google.com/file/d/{id}/view
+ *   https://drive.google.com/open?id={id}
+ *   https://drive.google.com/uc?id={id}
+ * Returns null if the file ID cannot be extracted.
+ */
+function getDriveDirectUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    // /file/d/{id}/...
+    const pathMatch = parsed.pathname.match(/\/file\/d\/([^/]+)/);
+    if (pathMatch) {
+      return `https://drive.google.com/uc?export=download&id=${pathMatch[1]}`;
+    }
+    // ?id=... or open?id=...
+    const idParam = parsed.searchParams.get('id');
+    if (idParam) {
+      return `https://drive.google.com/uc?export=download&id=${idParam}`;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Converts a Dropbox share link to a direct-download URL.
+ * Forces dl=1 so the browser receives the raw file instead of the preview page.
+ */
+function getDropboxDirectUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    parsed.searchParams.set('dl', '1');
+    // Remove the rlkey param that sometimes causes issues with direct downloads
+    return parsed.toString();
+  } catch {
+    return url;
   }
 }
 
@@ -261,23 +303,168 @@ export const ToolsPdfPage: React.FC = () => {
     [isUploading, isLoggedIn, navigate, processingMessages]
   );
 
-  // Mock flow for Drive / Dropbox (no S3 integration yet)
-  const simulateProcess = useCallback((file: UploadedFile) => {
-    setPageState('processing');
-    setProcessingMsg(processingMessages[0]);
+  // Real upload flow for Drive / Dropbox links
+  const uploadFromUrl = useCallback(
+    async (shareUrl: string, source: 'drive' | 'dropbox', fileName: string) => {
+      if (isUploading) return;
 
-    let idx = 0;
-    const interval = setInterval(() => {
-      idx = (idx + 1) % processingMessages.length;
-      setProcessingMsg(processingMessages[idx]);
-    }, 900);
+      setIsUploading(true);
+      setPageState('processing');
+      const sourceLabel = source === 'drive' ? 'Google Drive' : 'Dropbox';
+      const urlMessages = [
+        `Downloading from ${sourceLabel}…`,
+        'Uploading to secure storage…',
+        'Creating PDF record…',
+        'Finalising…',
+      ];
+      setProcessingMsg(urlMessages[0]);
 
-    setTimeout(() => {
-      clearInterval(interval);
-      setUploadedFile(file);
-      setPageState('success');
-    }, 2400);
-  }, [processingMessages]);
+      const apiFetch = isLoggedIn ? fetchWithAuth : fetchPublic;
+
+      let msgIdx = 0;
+      const interval = setInterval(() => {
+        msgIdx = (msgIdx + 1) % urlMessages.length;
+        setProcessingMsg(urlMessages[msgIdx]);
+      }, 900);
+
+      const stopProcessing = (error?: string) => {
+        clearInterval(interval);
+        setIsUploading(false);
+        if (error) {
+          setPageState('idle');
+          setLinkError(error);
+        }
+      };
+
+      try {
+        // Step 0 — convert share URL to direct download URL and fetch the PDF blob
+        const directUrl =
+          source === 'drive'
+            ? getDriveDirectUrl(shareUrl)
+            : getDropboxDirectUrl(shareUrl);
+
+        if (!directUrl) {
+          stopProcessing('Could not parse the file link. Please check the URL and try again.');
+          return;
+        }
+
+        let blob: Blob;
+        try {
+          const fetchRes = await fetch(directUrl);
+          if (!fetchRes.ok) {
+            stopProcessing(`Failed to download the file (HTTP ${fetchRes.status}). Make sure the link is publicly accessible.`);
+            return;
+          }
+          blob = await fetchRes.blob();
+        } catch {
+          stopProcessing(
+            `Could not download the file from ${sourceLabel}. Make sure the link is set to "Anyone with the link can view" and try again.`
+          );
+          return;
+        }
+
+        // Validate it's a PDF
+        const isPdf =
+          blob.type === 'application/pdf' ||
+          blob.type === 'application/octet-stream' ||
+          fileName.toLowerCase().endsWith('.pdf');
+        if (!isPdf) {
+          stopProcessing('The link does not point to a PDF file. Please check the URL and try again.');
+          return;
+        }
+
+        // Validate size
+        if (blob.size > MAX_FILE_SIZE_BYTES) {
+          stopProcessing('File is too large. Maximum allowed size is 5 MB.');
+          return;
+        }
+
+        // Step 1 — get presigned upload URL
+        const presignedRes = await apiFetch(
+          `${authConfig.catenBaseUrl}/api/file-upload/presigned-upload`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file_name: fileName,
+              file_type: 'PDF',
+              entity_type: 'PDF',
+            }),
+          }
+        );
+
+        if (!presignedRes.ok) {
+          const err = await presignedRes.json().catch(() => ({}));
+          if (err?.detail?.errorCode === 'LOGIN_REQUIRED') {
+            stopProcessing();
+            setPageState('idle');
+            window.dispatchEvent(new CustomEvent('loginRequired', { detail: { message: 'upload PDFs' } }));
+            return;
+          }
+          const msg = err?.detail?.error_message || err?.detail || 'Failed to get upload URL.';
+          stopProcessing(typeof msg === 'string' ? msg : 'Failed to get upload URL.');
+          return;
+        }
+
+        const presignedData = await presignedRes.json();
+        const { upload_url, file_upload_id, content_type } = presignedData;
+
+        // Step 2 — PUT blob directly to S3
+        const s3Res = await fetch(upload_url, {
+          method: 'PUT',
+          headers: { 'Content-Type': content_type },
+          body: blob,
+        });
+
+        if (!s3Res.ok) {
+          stopProcessing('Failed to upload file to storage. Please try again.');
+          return;
+        }
+
+        // Step 3 — create PDF record
+        const createPdfRes = await apiFetch(
+          `${authConfig.catenBaseUrl}/api/pdf/create-pdf`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ file_name: fileName }),
+          }
+        );
+
+        if (!createPdfRes.ok) {
+          const err = await createPdfRes.json().catch(() => ({}));
+          const msg = err?.detail?.error_message || err?.detail || 'Failed to create PDF record.';
+          stopProcessing(typeof msg === 'string' ? msg : 'Failed to create PDF record.');
+          return;
+        }
+
+        const pdfData = await createPdfRes.json();
+        const pdfId: string = pdfData.id;
+
+        // Step 4 — link file upload to the PDF record
+        const updateEntityRes = await apiFetch(
+          `${authConfig.catenBaseUrl}/api/file-upload/${file_upload_id}/entity`,
+          {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ entity_id: pdfId }),
+          }
+        );
+
+        if (!updateEntityRes.ok) {
+          console.warn('Failed to link file upload to PDF record, continuing.');
+        }
+
+        // Step 5 — navigate to PDF page
+        clearInterval(interval);
+        setIsUploading(false);
+        navigate(`/pdf/${pdfId}`);
+      } catch {
+        stopProcessing('Something went wrong. Please try again.');
+      }
+    },
+    [isUploading, isLoggedIn, navigate]
+  );
 
   const handleFile = useCallback(
     (file: File) => {
@@ -381,19 +568,6 @@ export const ToolsPdfPage: React.FC = () => {
     return () => document.removeEventListener('paste', handlePaste);
   }, [handleFile]);
 
-  const checkUrlFileSize = async (url: string): Promise<boolean> => {
-    try {
-      const res = await fetch(url, { method: 'HEAD', mode: 'cors' });
-      const contentLength = res.headers.get('Content-Length');
-      if (contentLength && parseInt(contentLength, 10) > MAX_FILE_SIZE_BYTES) {
-        return false; // too large
-      }
-    } catch {
-      // CORS or network error — can't verify, allow through
-    }
-    return true;
-  };
-
   const handleDriveSubmit = async () => {
     setLinkError(null);
     const url = driveUrl.trim();
@@ -405,13 +579,10 @@ export const ToolsPdfPage: React.FC = () => {
       setLinkError('Invalid Google Drive URL. Make sure the link is from drive.google.com.');
       return;
     }
-    const sizeOk = await checkUrlFileSize(url);
-    if (!sizeOk) {
-      setLinkError('This file appears to be larger than 5 MB and cannot be loaded.');
-      return;
-    }
-    const fileName = url.split('/').filter(Boolean).pop() || 'document.pdf';
-    simulateProcess({ name: fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`, size: 0, source: 'drive' });
+    // Extract a sensible file name from the URL path (the actual file name is unknown until download)
+    const rawName = url.split('/').filter(Boolean).pop() || 'document';
+    const fileName = rawName.toLowerCase().endsWith('.pdf') ? rawName : `${rawName}.pdf`;
+    uploadFromUrl(url, 'drive', fileName);
   };
 
   const handleDropboxSubmit = async () => {
@@ -425,18 +596,10 @@ export const ToolsPdfPage: React.FC = () => {
       setLinkError('Invalid Dropbox URL. Make sure the link is from dropbox.com.');
       return;
     }
-    const sizeOk = await checkUrlFileSize(url);
-    if (!sizeOk) {
-      setLinkError('This file appears to be larger than 5 MB and cannot be loaded.');
-      return;
-    }
     const pathParts = new URL(url).pathname.split('/').filter(Boolean);
-    const fileName = pathParts[pathParts.length - 1] || 'document';
-    simulateProcess({
-      name: fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`,
-      size: 0,
-      source: 'dropbox',
-    });
+    const rawName = pathParts[pathParts.length - 1] || 'document';
+    const fileName = rawName.toLowerCase().endsWith('.pdf') ? rawName : `${rawName}.pdf`;
+    uploadFromUrl(url, 'dropbox', fileName);
   };
 
   const handleReset = () => {
@@ -482,6 +645,15 @@ export const ToolsPdfPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Mobile — desktop-optimised notice */}
+      <div className={styles.mobileNotice}>
+        <Monitor className={styles.mobileNoticeIcon} aria-hidden />
+        <div>
+          <p className={styles.mobileNoticeTitle}>Best experienced on Desktop</p>
+          <p className={styles.mobileNoticeText}>For the full PDF experience — chat, highlights, notes and more — open this page on a desktop browser.</p>
+        </div>
+      </div>
 
       {/* Hero */}
       <div className={styles.hero}>
@@ -564,7 +736,7 @@ export const ToolsPdfPage: React.FC = () => {
             You can do a lot more!
           </p>
           <button className={styles.featuresCtaButton} onClick={handleCtaClick}>
-            {isLoggedIn ? 'Go to Dashboard' : 'Sign up free — it\'s free'}
+            {isLoggedIn ? 'Go to Dashboard' : 'Sign up for free'}
             <ArrowRight size={14} />
           </button>
         </div>
@@ -573,6 +745,7 @@ export const ToolsPdfPage: React.FC = () => {
       {/* Card */}
       <div className={styles.card}>
         {/* Tabs */}
+        {/* TODO: Re-enable tabs once Drive/Dropbox backend proxy is implemented
         {pageState === 'idle' && (
           <div className={styles.tabs}>
             <button
@@ -598,6 +771,7 @@ export const ToolsPdfPage: React.FC = () => {
             </button>
           </div>
         )}
+        */}
 
         <div className={styles.cardBody}>
           {/* Processing state */}
@@ -696,7 +870,7 @@ export const ToolsPdfPage: React.FC = () => {
             </>
           )}
 
-          {/* Idle — Google Drive tab */}
+          {/* TODO: Re-enable once backend proxy is implemented (CORS blocks direct browser fetch)
           {pageState === 'idle' && activeTab === 'drive' && (
             <div className={styles.linkSection}>
               <p className={styles.linkLabel}>Google Drive PDF link</p>
@@ -738,7 +912,6 @@ export const ToolsPdfPage: React.FC = () => {
             </div>
           )}
 
-          {/* Idle — Dropbox tab */}
           {pageState === 'idle' && activeTab === 'dropbox' && (
             <div className={styles.linkSection}>
               <p className={styles.linkLabel}>Dropbox PDF link</p>
@@ -779,6 +952,7 @@ export const ToolsPdfPage: React.FC = () => {
               </div>
             </div>
           )}
+          */}
         </div>
 
       </div>

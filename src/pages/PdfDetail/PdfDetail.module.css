@@ -278,6 +278,41 @@
   margin-left: 0;
 }
 
+/* ─── Chat panel toggle (mirror of sidebar toggle, right side) ─────────────── */
+.chatPanelToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 1.5rem;
+  margin-right: -1px;
+  color: var(--text-secondary);
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-right: none;
+  border-radius: 6px 0 0 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  position: sticky;
+  top: 1.5rem;
+  z-index: 101;
+}
+
+.chatPanelToggle:hover {
+  background-color: var(--button-hover-bg);
+  color: var(--text-dark-gray);
+}
+
+.chatPanelToggleCollapsed {
+  border-right: none;
+  border-radius: 6px 0 0 6px;
+  margin-right: 0;
+}
+
 /* ─── Refresh banner (top right, after viewport size increase) ───────────────── */
 .refreshBanner {
   position: fixed;

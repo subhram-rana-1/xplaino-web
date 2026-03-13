@@ -35,6 +35,14 @@ export interface PdfChatMessageResponse {
   created_at: string;
 }
 
+export interface PaginatedPdfChatMessagesResponse {
+  messages: PdfChatMessageResponse[];
+  total: number;
+  limit: number;
+  offset: number;
+  has_more: boolean;
+}
+
 export interface PdfChatSSEChunk {
   chunk: string;
   accumulated: string;
@@ -53,7 +61,12 @@ export interface PdfChatSSEError {
   error_message: string;
 }
 
-export type PdfChatSSEEvent = PdfChatSSEChunk | PdfChatSSEComplete | PdfChatSSEError;
+export interface PdfChatSSERename {
+  type: 'session_rename';
+  sessionName: string;
+}
+
+export type PdfChatSSEEvent = PdfChatSSEChunk | PdfChatSSEComplete | PdfChatSSEError | PdfChatSSERename;
 
 export interface UpsertPreprocessRequest {
   pdf_id: string;
@@ -71,6 +84,7 @@ export interface AskPdfRequest {
   pdf_chat_session_id: string;
   question: string;
   selected_text?: string;
+  rename?: boolean;
 }
 
 export interface ChatMessage {
