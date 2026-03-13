@@ -12,7 +12,16 @@ import {
   List,
   MoreHorizontal,
   Pencil,
+  ExternalLink,
+  EyeOff,
+  Share2,
+  BookMarked,
+  Loader2,
+  FileText,
 } from 'lucide-react';
+import { deleteCustomPrompt, setCustomPromptHidden, shareCustomPrompt } from '@/shared/services/customPrompt.service';
+import type { CustomPromptResponse } from '@/shared/types/customPrompt.types';
+import { CreateCustomPromptModal } from '@/shared/components/CreateCustomPromptModal/CreateCustomPromptModal';
 import { LoadingDots } from '@/shared/components/LoadingDots';
 import { usePdfChat } from './usePdfChat';
 import type { PdfChatCitationItem, PdfChatSessionResponse } from '@/shared/types/pdfChat.types';
@@ -26,6 +35,14 @@ export interface PdfChatPanelProps {
   onScrollToPage?: (pageNumber: number) => void;
   selectedText?: string;
   onClearSelectedText?: () => void;
+  /** A prompt that should be auto-submitted to the chat as soon as the session is ready. */
+  pendingPrompt?: string;
+  onClearPendingPrompt?: () => void;
+  /** Called when the user clicks the ref button next to a quoted selection — scrolls + pulses the text in the PDF. */
+  onScrollToSelectedText?: (text: string) => void;
+  customPrompts?: CustomPromptResponse[];
+  onCreatePrompt?: () => void;
+  onCustomPromptsChanged?: (prompts: CustomPromptResponse[]) => void;
 }
 
 const MIN_WIDTH = 300;
@@ -44,17 +61,25 @@ function getPersistedWidth(): number {
   return DEFAULT_WIDTH;
 }
 
-// Replaces [Chunk N] / [Chunk N, page P] citation markers with [k](citation:N) markdown links,
+// Replaces citation markers with [k](#citation:N) markdown links,
 // skipping content inside fenced code blocks and inline code spans.
+// Handles two strict formats:
+//   [Chunk N]  / [Chunk N, page P] — legacy format the context is labelled with
+//   [N] / [N:P]                    — primary format emitted by the LLM
+// Bare "[digits followed by non-citation text]" like "[10 patients]" are NOT matched.
 function buildCitedText(text: string): string {
   const seen = new Map<number, number>();
   let counter = 0;
   const parts = text.split(/(```[\s\S]*?```|`[^`\n]+`)/g);
+  // Two strict alternations:
+  //   \[Chunk\s+(\d+)[^\]]*\]  — matches "[Chunk N ...]" (legacy)
+  //   \[(\d+)(?::\d+)?\]       — matches "[N]" or "[N:P]" (LLM output, digits only)
+  const CITATION_RE = /\[Chunk\s+(\d+)[^\]]*\]|\[(\d+)(?::\d+)?\]/g;
   return parts
     .map((part, i) => {
       if (i % 2 === 1) return part;
-      return part.replace(/\[Chunk\s+(\d+)(?:[^\]]*)\]/g, (_, chunkSeq) => {
-        const n = parseInt(chunkSeq, 10);
+      return part.replace(CITATION_RE, (_, g1, g2) => {
+        const n = parseInt(g1 ?? g2, 10);
         if (!seen.has(n)) seen.set(n, ++counter);
         return `[${seen.get(n)}](#citation:${n})`;
       });
@@ -81,7 +106,13 @@ function makeMarkdownComponents(
       const citPrefix = '#citation:';
       if (href?.startsWith(citPrefix)) {
         const chunkSeq = parseInt(href.slice(citPrefix.length), 10);
-        const cit = citations.find((c) => c.chunkSequence === chunkSeq);
+        // First try exact chunkSequence match; fall back to 1-based index because the
+        // LLM often renumbers citations sequentially ([1], [2]…) rather than using the
+        // actual chunk_sequence values stored in the citations array.
+        let cit = citations.find((c) => c.chunkSequence === chunkSeq);
+        if (!cit && chunkSeq >= 1 && chunkSeq <= citations.length) {
+          cit = citations[chunkSeq - 1];
+        }
         return (
           <button
             type="button"
@@ -116,6 +147,12 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
   onScrollToPage,
   selectedText,
   onClearSelectedText,
+  pendingPrompt,
+  onClearPendingPrompt,
+  onScrollToSelectedText,
+  customPrompts = [],
+  onCreatePrompt,
+  onCustomPromptsChanged,
 }) => {
   const [width, setWidth] = useState(getPersistedWidth);
   const [renamingSessionId, setRenamingSessionId] = useState<string | null>(null);
@@ -125,14 +162,39 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
   const [sessionListDropdownOpen, setSessionListDropdownOpen] = useState(false);
   const [hiddenSessionIds, setHiddenSessionIds] = useState<Set<string>>(new Set());
   const [confirmDeleteSessionId, setConfirmDeleteSessionId] = useState<string | null>(null);
+  const [deletingSessionId, setDeletingSessionId] = useState<string | null>(null);
   const [openMenuSessionId, setOpenMenuSessionId] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
+  const [customPromptMenuOpen, setCustomPromptMenuOpen] = useState(false);
+  const [customPromptActionMenuId, setCustomPromptActionMenuId] = useState<string | null>(null);
+  const [customPromptActionMenuPos, setCustomPromptActionMenuPos] = useState<{ top: number; right: number } | null>(null);
+  const [editingPrompt, setEditingPrompt] = useState<CustomPromptResponse | null>(null);
+  const [confirmDeletePromptId, setConfirmDeletePromptId] = useState<string | null>(null);
+  const [sharingPrompt, setSharingPrompt] = useState<CustomPromptResponse | null>(null);
+  const [shareUserId, setShareUserId] = useState('');
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
 
   const chatAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const sessionListRef = useRef<HTMLDivElement>(null);
+  const customPromptMenuRef = useRef<HTMLDivElement>(null);
 
   const chat = usePdfChat(pdfId, accessToken, isOpen);
+
+  // Auto-submit a pending prompt (from preset/custom prompts picked on text selection)
+  // as soon as the session is ready and not already processing a request.
+  useEffect(() => {
+    if (
+      !pendingPrompt ||
+      chat.preprocessStatus !== 'COMPLETED' ||
+      !chat.activeSession ||
+      chat.isRequesting
+    ) return;
+    chat.askQuestion(pendingPrompt, selectedText || undefined);
+    onClearSelectedText?.();
+    onClearPendingPrompt?.();
+  }, [pendingPrompt, chat.preprocessStatus, chat.activeSession, chat.isRequesting]);
 
   // --- Resize ---
   const handleResizeStart = useCallback((e: React.MouseEvent) => {
@@ -163,22 +225,36 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
 
   // --- Auto-scroll ---
   const SCROLL_THRESHOLD = 5;
+
+  const checkIfAtBottom = useCallback((element: HTMLDivElement): boolean => {
+    const { scrollTop, scrollHeight, clientHeight } = element;
+    return scrollTop >= scrollHeight - clientHeight - SCROLL_THRESHOLD;
+  }, []);
+
   useEffect(() => {
     const container = chatAreaRef.current;
     if (!container) return;
     const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = container;
-      setShouldAutoScroll(scrollTop >= scrollHeight - clientHeight - SCROLL_THRESHOLD);
+      if (checkIfAtBottom(container)) {
+        setShouldAutoScroll(true);
+      } else {
+        setShouldAutoScroll(false);
+      }
     };
     container.addEventListener('scroll', handleScroll, { passive: true });
     return () => container.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [checkIfAtBottom]);
 
   useEffect(() => {
-    if (chatAreaRef.current && shouldAutoScroll && (chat.streamingText || chat.messages.length > 0)) {
+    if (chatAreaRef.current && shouldAutoScroll) {
       chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
     }
   }, [chat.streamingText, chat.messages, shouldAutoScroll]);
+
+  // Reset auto-scroll to true whenever the active session changes
+  useEffect(() => {
+    setShouldAutoScroll(true);
+  }, [chat.activeSession?.id]);
 
   useEffect(() => {
     if (!sessionListDropdownOpen) return;
@@ -192,6 +268,24 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [sessionListDropdownOpen]);
+
+  useEffect(() => {
+    if (!customPromptMenuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (customPromptMenuRef.current && !customPromptMenuRef.current.contains(e.target as Node)) {
+        setCustomPromptMenuOpen(false);
+        setCustomPromptActionMenuId(null);
+        setCustomPromptActionMenuPos(null);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [customPromptMenuOpen]);
+
+  const closeActionMenu = () => {
+    setCustomPromptActionMenuId(null);
+    setCustomPromptActionMenuPos(null);
+  };
 
   // --- Submit ---
   const handleSubmit = useCallback(() => {
@@ -211,9 +305,15 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
   }, [handleSubmit]);
 
   // --- Prompt click ---
-  const handlePromptClick = useCallback((prompt: string) => {
+  const stripHtml = (html: string): string => {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return (tmp.textContent ?? tmp.innerText ?? '').replace(/\s+/g, ' ').trim();
+  };
+
+  const handlePromptClick = useCallback((displayText: string, apiContent?: string) => {
     setShouldAutoScroll(true);
-    chat.askQuestion(prompt, selectedText || undefined);
+    chat.askQuestion(displayText, selectedText || undefined, apiContent);
     onClearSelectedText?.();
   }, [chat, selectedText, onClearSelectedText]);
 
@@ -249,7 +349,7 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
   const streamingMarkdownComponents = useMemo(() => makeMarkdownComponents([], () => {}), []);
 
   const hasChatHistory = chat.messages.length > 0;
-  const showPrompts = !hasChatHistory && !chat.isRequesting && chat.possibleQuestions.length === 0;
+  const promptsDisabled = chat.isRequesting;
 
   const visibleSessions = useMemo(
     () => chat.sessions.filter((s) => !hiddenSessionIds.has(s.id)),
@@ -322,8 +422,7 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
               </button>
               <span className={`${styles.tooltip} ${styles.tooltipLeft}`}>All sessions</span>
             </div>
-            {sessionListDropdownOpen && (
-              <div className={styles.sessionListDropdown}>
+            <div className={`${styles.sessionListDropdown} ${sessionListDropdownOpen ? styles.sessionListDropdownOpen : ''}`}>
                 <div className={styles.sessionListScrollable}>
                   {chat.sessions.map((session) => {
                     const isHidden = hiddenSessionIds.has(session.id);
@@ -376,7 +475,6 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
                   <span>New chat</span>
                 </div>
               </div>
-            )}
           </div>
           <div className={styles.tabList}>
             {visibleSessions.map((session) => (
@@ -440,16 +538,22 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
               <button
                 type="button"
                 className={styles.confirmDeleteBtn}
-                onClick={() => {
-                  chat.deleteSession(confirmDeleteSessionId);
+                disabled={deletingSessionId === confirmDeleteSessionId}
+                onClick={async () => {
+                  setDeletingSessionId(confirmDeleteSessionId);
+                  await chat.deleteSession(confirmDeleteSessionId);
+                  setDeletingSessionId(null);
                   setConfirmDeleteSessionId(null);
                 }}
               >
-                Delete
+                {deletingSessionId === confirmDeleteSessionId
+                  ? <Loader2 size={14} className={styles.spinRed} />
+                  : 'Delete'}
               </button>
               <button
                 type="button"
                 className={styles.confirmCancelBtn}
+                disabled={deletingSessionId === confirmDeleteSessionId}
                 onClick={() => setConfirmDeleteSessionId(null)}
               >
                 Cancel
@@ -492,8 +596,20 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
                     className={`${styles.message} ${msg.role === 'user' ? styles.userMessage : styles.assistantMessage}`}
                   >
                     {msg.role === 'user' && msg.selectedText && (
-                      <span className={styles.selectedTextQuote}>
-                        &ldquo;{msg.selectedText.length > 120 ? msg.selectedText.slice(0, 120) + '...' : msg.selectedText}&rdquo;
+                      <span className={styles.selectedTextQuoteWrapper}>
+                        <span className={styles.selectedTextQuote}>
+                          &ldquo;{msg.selectedText.length > 120 ? msg.selectedText.slice(0, 120) + '...' : msg.selectedText}&rdquo;
+                        </span>
+                        {onScrollToSelectedText && (
+                          <button
+                            type="button"
+                            className={styles.refButton}
+                            title="Go to text in PDF"
+                            onClick={() => onScrollToSelectedText(msg.selectedText!)}
+                          >
+                            <FileText size={11} />
+                          </button>
+                        )}
                       </span>
                     )}
                     {msg.role === 'assistant' ? (
@@ -563,17 +679,100 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
             )}
           </div>
 
-          {/* Builtin prompts */}
-          {showPrompts && (
-            <div className={styles.promptRow}>
-              <button type="button" className={styles.promptPill} onClick={() => handlePromptClick('Summarise this document')}>
+          {/* Builtin prompts + custom prompt controls */}
+          <div className={`${styles.promptRow} ${promptsDisabled ? styles.promptRowDisabled : ''}`}>
+              {/* + create prompt button */}
+              <div className={styles.tooltipWrap}>
+                <button
+                  type="button"
+                  className={styles.promptAddBtn}
+                  onClick={onCreatePrompt}
+                  aria-label="Create prompt"
+                >
+                  <Plus size={13} />
+                </button>
+                <span className={`${styles.tooltip} ${styles.tooltipAbove}`}>Create prompt</span>
+              </div>
+
+              {/* ... custom prompts button — right next to + */}
+              {customPrompts.length > 0 && (
+                <div className={styles.customPromptMenuWrap} ref={customPromptMenuRef}>
+                  <div className={styles.tooltipWrap}>
+                    <button
+                      type="button"
+                      className={`${styles.promptAddBtn} ${customPromptMenuOpen ? styles.promptAddBtnActive : ''}`}
+                      onClick={() => { setCustomPromptMenuOpen((v) => !v); setCustomPromptActionMenuId(null); setCustomPromptActionMenuPos(null); }}
+                      aria-label="Custom prompts"
+                    >
+                      <MoreHorizontal size={13} />
+                    </button>
+                    <span className={`${styles.tooltip} ${styles.tooltipAbove}`}>Custom prompts</span>
+                  </div>
+
+                  <div className={`${styles.customPromptDropdown} ${customPromptMenuOpen ? styles.customPromptDropdownOpen : ''}`}>
+                      <div className={styles.customPromptDropdownList}>
+                        {customPrompts.map((p) => (
+                          <div key={p.id} className={styles.customPromptItem}>
+                            <button
+                              type="button"
+                              className={styles.customPromptItemTitle}
+                              onClick={() => {
+                                handlePromptClick(p.title, p.description ? stripHtml(p.description) : p.title);
+                                setCustomPromptMenuOpen(false);
+                              }}
+                            >
+                              <BookMarked size={13} />
+                              <span>{p.title}</span>
+                            </button>
+                            <button
+                              type="button"
+                              className={styles.customPromptItemMenuBtn}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                const isOpening = customPromptActionMenuId !== p.id;
+                                setCustomPromptActionMenuId(isOpening ? p.id : null);
+                                setCustomPromptActionMenuPos(isOpening ? { top: rect.bottom + 4, right: window.innerWidth - rect.right } : null);
+                              }}
+                              aria-label="Prompt options"
+                            >
+                              <MoreHorizontal size={13} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <div className={styles.customPromptDropdownFooter}>
+                        <button
+                          type="button"
+                          className={styles.customPromptFooterBtn}
+                          onClick={() => { onCreatePrompt?.(); setCustomPromptMenuOpen(false); }}
+                        >
+                          <Plus size={13} />
+                          <span>Add prompt</span>
+                        </button>
+                        <a
+                          href="/user/account/custom-prompt"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.customPromptFooterBtn}
+                          onClick={() => setCustomPromptMenuOpen(false)}
+                        >
+                          <ExternalLink size={13} />
+                          <span>Manage custom prompts</span>
+                        </a>
+                      </div>
+                    </div>
+                </div>
+              )}
+
+              {/* Builtin pills */}
+              <button type="button" className={styles.promptPill} disabled={promptsDisabled} onClick={() => handlePromptClick('Summarise this document')}>
                 Summarise
               </button>
-              <button type="button" className={styles.promptPill} onClick={() => handlePromptClick('What are the key takeaways from this document?')}>
+              <button type="button" className={styles.promptPill} disabled={promptsDisabled} onClick={() => handlePromptClick('What are the key takeaways from this document?')}>
                 Key takeaways
               </button>
             </div>
-          )}
 
           {/* Selected text indicator */}
           {selectedText && (
@@ -635,6 +834,57 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
           </div>
         </>
       )}
+      {customPromptActionMenuId && customPromptActionMenuPos && (() => {
+        const activePrompt = customPrompts.find((p) => p.id === customPromptActionMenuId);
+        if (!activePrompt) return null;
+        return createPortal(
+          <div
+            className={styles.customPromptActionMenu}
+            style={{ position: 'fixed', top: customPromptActionMenuPos.top, right: customPromptActionMenuPos.right }}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className={styles.customPromptActionItem}
+              onClick={() => { setEditingPrompt(activePrompt); closeActionMenu(); }}
+            >
+              <Pencil size={13} />
+              <span>Edit</span>
+            </button>
+            <button
+              type="button"
+              className={styles.customPromptActionItem}
+              onClick={async () => {
+                try {
+                  await setCustomPromptHidden(activePrompt.id, true);
+                  onCustomPromptsChanged?.(customPrompts.filter((x) => x.id !== activePrompt.id));
+                } catch { /* noop */ }
+                closeActionMenu();
+              }}
+            >
+              <EyeOff size={13} />
+              <span>Hide</span>
+            </button>
+            <button
+              type="button"
+              className={styles.customPromptActionItem}
+              onClick={() => { setSharingPrompt(activePrompt); setShareUserId(''); setShareError(null); closeActionMenu(); }}
+            >
+              <Share2 size={13} />
+              <span>Share</span>
+            </button>
+            <button
+              type="button"
+              className={`${styles.customPromptActionItem} ${styles.customPromptActionItemDanger}`}
+              onClick={() => { setConfirmDeletePromptId(activePrompt.id); closeActionMenu(); }}
+            >
+              <Trash2 size={13} />
+              <span>Delete</span>
+            </button>
+          </div>,
+          document.body,
+        );
+      })()}
       {openMenuSessionId && menuPosition && (() => {
         const activeMenuSession = chat.sessions.find((s) => s.id === openMenuSessionId);
         if (!activeMenuSession) return null;
@@ -674,6 +924,102 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
           document.body,
         );
       })()}
+
+      {/* Edit prompt modal */}
+      <CreateCustomPromptModal
+        isOpen={!!editingPrompt}
+        existingPrompt={editingPrompt}
+        onClose={() => setEditingPrompt(null)}
+        onUpdated={(updated) => {
+          onCustomPromptsChanged?.(customPrompts.map((p) => p.id === updated.id ? updated : p));
+          setEditingPrompt(null);
+        }}
+      />
+
+      {/* Share prompt modal */}
+      {sharingPrompt && createPortal(
+        <div className={styles.confirmOverlay} onMouseDown={() => { setSharingPrompt(null); setShareUserId(''); setShareError(null); }}>
+          <div className={styles.confirmDialog} onMouseDown={(e) => e.stopPropagation()}>
+            <p className={styles.confirmTitle}>Share &ldquo;{sharingPrompt.title}&rdquo;</p>
+            <p className={styles.confirmBody}>Enter the user ID of the person you want to share this prompt with.</p>
+            <input
+              className={styles.confirmInput}
+              type="text"
+              placeholder="Enter email to share with"
+              value={shareUserId}
+              onChange={(e) => setShareUserId(e.target.value)}
+              autoFocus
+            />
+            {shareError && <p className={styles.confirmError}>{shareError}</p>}
+            <div className={styles.confirmActions}>
+              <button
+                type="button"
+                className={styles.confirmCancelBtn}
+                onClick={() => { setSharingPrompt(null); setShareUserId(''); setShareError(null); }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={styles.confirmPrimaryBtn}
+                disabled={!shareUserId.trim() || shareLoading}
+                onClick={async () => {
+                  if (!shareUserId.trim()) return;
+                  try {
+                    setShareLoading(true);
+                    setShareError(null);
+                    await shareCustomPrompt(sharingPrompt.id, { sharedToUserId: shareUserId.trim() });
+                    setSharingPrompt(null);
+                    setShareUserId('');
+                  } catch (err) {
+                    setShareError(err instanceof Error ? err.message : 'Failed to share prompt');
+                  } finally {
+                    setShareLoading(false);
+                  }
+                }}
+              >
+                {shareLoading && <Loader2 size={13} className={styles.spin} />}
+                Share
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )}
+
+      {/* Delete prompt confirmation */}
+      {confirmDeletePromptId && createPortal(
+        <div className={styles.confirmOverlay} onMouseDown={() => setConfirmDeletePromptId(null)}>
+          <div className={styles.confirmDialog} onMouseDown={(e) => e.stopPropagation()}>
+            <p className={styles.confirmTitle}>Delete prompt?</p>
+            <p className={styles.confirmBody}>This action cannot be undone.</p>
+            <div className={styles.confirmActions}>
+              <button
+                type="button"
+                className={styles.confirmCancelBtn}
+                onClick={() => setConfirmDeletePromptId(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={styles.confirmDangerBtn}
+                onClick={async () => {
+                  try {
+                    await deleteCustomPrompt(confirmDeletePromptId);
+                    onCustomPromptsChanged?.(customPrompts.filter((x) => x.id !== confirmDeletePromptId));
+                  } catch { /* noop */ }
+                  setConfirmDeletePromptId(null);
+                }}
+              >
+                <Trash2 size={13} />
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )}
     </div>
   );
 };

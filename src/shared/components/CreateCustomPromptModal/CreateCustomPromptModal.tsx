@@ -4,12 +4,12 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { X, Loader2, Bold, Italic, List, ListOrdered } from 'lucide-react';
 import styles from './CreateCustomPromptModal.module.css';
-import { createCustomPrompt } from '@/shared/services/customPrompt.service';
+import { createCustomPrompt, updateCustomPrompt } from '@/shared/services/customPrompt.service';
 import type { CustomPromptResponse } from '@/shared/types/customPrompt.types';
 import { Toast } from '@/shared/components/Toast';
 
 export const EXAMPLE_PROMPT_HTML = 
-`<p>Analyze the selected text as a research professional and provide:</p>
+`<p>Analyze as a research professional and provide:</p>
 <ul>
 <li><strong>Key Findings</strong>: Extract the main conclusions and contributions</li>
 <li><strong>Methodology Notes</strong>: Identify the research approach and study design</li>
@@ -97,41 +97,58 @@ export interface CreateCustomPromptModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreated?: (prompt: CustomPromptResponse) => void;
+  existingPrompt?: CustomPromptResponse | null;
+  onUpdated?: (prompt: CustomPromptResponse) => void;
 }
 
 export const CreateCustomPromptModal: React.FC<CreateCustomPromptModalProps> = ({
   isOpen,
   onClose,
   onCreated,
+  existingPrompt,
+  onUpdated,
 }) => {
+  const isEditMode = !!existingPrompt;
+
   const [title, setTitle] = useState('Research Analysis Framework');
   const [description, setDescription] = useState(EXAMPLE_PROMPT_HTML);
   const [editorKey, setEditorKey] = useState(0);
-  const [creating, setCreating] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  // Reset form when modal opens
+  // Seed form from existingPrompt when editing, or reset to defaults when creating
   useEffect(() => {
     if (isOpen) {
-      setTitle('Research Analysis Framework');
-      setDescription(EXAMPLE_PROMPT_HTML);
+      if (existingPrompt) {
+        setTitle(existingPrompt.title);
+        setDescription(existingPrompt.description ?? '');
+      } else {
+        setTitle('Research Analysis Framework');
+        setDescription(EXAMPLE_PROMPT_HTML);
+      }
       setEditorKey(k => k + 1);
     }
-  }, [isOpen]);
+  }, [isOpen, existingPrompt]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
     try {
-      setCreating(true);
-      const created = await createCustomPrompt({ title: title.trim(), description });
-      setToast({ message: 'Prompt created', type: 'success' });
-      onCreated?.(created);
+      setSaving(true);
+      if (isEditMode && existingPrompt) {
+        const updated = await updateCustomPrompt(existingPrompt.id, { title: title.trim(), description });
+        setToast({ message: 'Prompt updated', type: 'success' });
+        onUpdated?.(updated);
+      } else {
+        const created = await createCustomPrompt({ title: title.trim(), description });
+        setToast({ message: 'Prompt created', type: 'success' });
+        onCreated?.(created);
+      }
       onClose();
     } catch (err) {
-      setToast({ message: err instanceof Error ? err.message : 'Failed to create prompt', type: 'error' });
+      setToast({ message: err instanceof Error ? err.message : `Failed to ${isEditMode ? 'update' : 'create'} prompt`, type: 'error' });
     } finally {
-      setCreating(false);
+      setSaving(false);
     }
   };
 
@@ -141,7 +158,7 @@ export const CreateCustomPromptModal: React.FC<CreateCustomPromptModalProps> = (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.panel} onClick={e => e.stopPropagation()}>
         <div className={styles.header}>
-          <h2 className={styles.title}>New Custom Prompt</h2>
+          <h2 className={styles.title}>{isEditMode ? 'Edit Prompt' : 'New Custom Prompt'}</h2>
           <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="Close">
             <X size={18} />
           </button>
@@ -163,12 +180,14 @@ export const CreateCustomPromptModal: React.FC<CreateCustomPromptModalProps> = (
 
           <div className={styles.field}>
             <label className={styles.label}>Description</label>
-            <p className={styles.hint}>
-              This is an example for a research professional — edit or replace it with your own prompt.
-            </p>
+            {!isEditMode && (
+              <p className={styles.hint}>
+                This is an example for a research professional — edit or replace it with your own prompt.
+              </p>
+            )}
             <RichTextEditor
               key={editorKey}
-              initialContent={EXAMPLE_PROMPT_HTML}
+              initialContent={isEditMode ? (existingPrompt?.description ?? '') : EXAMPLE_PROMPT_HTML}
               placeholder="Prompt description / content…"
               onChange={setDescription}
             />
@@ -178,9 +197,9 @@ export const CreateCustomPromptModal: React.FC<CreateCustomPromptModalProps> = (
             <button type="button" className={styles.cancelBtn} onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className={styles.saveBtn} disabled={creating || !title.trim()}>
-              {creating && <Loader2 size={14} className={styles.spin} />}
-              Create Prompt
+            <button type="submit" className={styles.saveBtn} disabled={saving || !title.trim()}>
+              {saving && <Loader2 size={14} className={styles.spin} />}
+              {isEditMode ? 'Save Changes' : 'Create Prompt'}
             </button>
           </div>
         </form>

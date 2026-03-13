@@ -131,6 +131,7 @@ export const CustomPromptTab: React.FC = () => {
   const [myLoading, setMyLoading] = useState(true);
   const [myLoadingMore, setMyLoadingMore] = useState(false);
   const [mySectionOpen, setMySectionOpen] = useState(true);
+  const [hiddenSectionOpen, setHiddenSectionOpen] = useState(false);
 
   // Create form
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -410,14 +411,14 @@ export const CustomPromptTab: React.FC = () => {
                 <Loader2 size={20} className={styles.spin} />
                 <span>Loading prompts…</span>
               </div>
-            ) : myPrompts.length === 0 ? (
+            ) : myPrompts.filter(p => !p.isHidden).length === 0 && !showCreateForm ? (
               <div className={styles.emptyState}>
                 No prompts yet. Create your first one above.
               </div>
             ) : (
               <div className={styles.cardList}>
-                {myPrompts.map(prompt => (
-                  <div key={prompt.id} className={`${styles.card} ${prompt.isHidden ? styles.cardHidden : ''}`}>
+                {myPrompts.filter(p => !p.isHidden).map(prompt => (
+                  <div key={prompt.id} className={styles.card}>
                     {editingId === prompt.id ? (
                       <form className={styles.editForm} onSubmit={handleSaveEdit}>
                         <input
@@ -448,7 +449,6 @@ export const CustomPromptTab: React.FC = () => {
                         <div className={styles.cardTop}>
                           <div className={styles.cardTitleRow}>
                             <span className={styles.cardTitle}>{prompt.title}</span>
-                            {prompt.isHidden && <span className={styles.hiddenBadge}>Hidden</span>}
                           </div>
                           <div className={styles.cardActions}>
                             <button
@@ -461,14 +461,14 @@ export const CustomPromptTab: React.FC = () => {
                             </button>
                             <button
                               className={styles.iconBtn}
-                              title={prompt.isHidden ? 'Unhide' : 'Hide'}
+                              title="Hide"
                               onClick={() => handleToggleHide(prompt)}
                               disabled={hidingId === prompt.id}
                               type="button"
                             >
                               {hidingId === prompt.id
                                 ? <Loader2 size={15} className={styles.spin} />
-                                : prompt.isHidden ? <Eye size={15} /> : <EyeOff size={15} />}
+                                : <EyeOff size={15} />}
                             </button>
                             <button
                               className={styles.iconBtn}
@@ -504,6 +504,56 @@ export const CustomPromptTab: React.FC = () => {
                     )}
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Hidden prompts subsection */}
+            {!myLoading && myPrompts.some(p => p.isHidden) && (
+              <div className={styles.hiddenSubsection}>
+                <button
+                  type="button"
+                  className={styles.hiddenSubsectionHeader}
+                  onClick={() => setHiddenSectionOpen(o => !o)}
+                >
+                  <EyeOff size={13} />
+                  <span>Hidden ({myPrompts.filter(p => p.isHidden).length})</span>
+                  {hiddenSectionOpen ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                </button>
+                {hiddenSectionOpen && (
+                  <div className={styles.hiddenSubsectionBody}>
+                    {myPrompts.filter(p => p.isHidden).map(prompt => (
+                      <div key={prompt.id} className={`${styles.card} ${styles.cardHidden}`}>
+                        <div className={styles.cardTop}>
+                          <div className={styles.cardTitleRow}>
+                            <span className={styles.cardTitle}>{prompt.title}</span>
+                          </div>
+                          <div className={styles.cardActions}>
+                            <button
+                              className={styles.iconBtn}
+                              title="Unhide"
+                              onClick={() => handleToggleHide(prompt)}
+                              disabled={hidingId === prompt.id}
+                              type="button"
+                            >
+                              {hidingId === prompt.id
+                                ? <Loader2 size={15} className={styles.spin} />
+                                : <Eye size={15} />}
+                            </button>
+                          </div>
+                        </div>
+                        {prompt.description && (
+                          <div
+                            className={styles.cardDescriptionHtml}
+                            dangerouslySetInnerHTML={{ __html: prompt.description }}
+                          />
+                        )}
+                        <span className={styles.cardMeta}>
+                          {new Date(prompt.updatedAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -618,10 +668,9 @@ export const CustomPromptTab: React.FC = () => {
               </button>
             </div>
             <form onSubmit={handleShare}>
-              <label className={styles.modalLabel}>Recipient User ID</label>
               <input
                 className={styles.input}
-                placeholder="Enter user ID to share with"
+                placeholder="Enter email to share with"
                 value={shareUserId}
                 onChange={e => setShareUserId(e.target.value)}
                 required

@@ -31,6 +31,7 @@ export interface PdfChatMessageResponse {
   pdf_chat_session_id: string;
   who: 'USER' | 'SYSTEM';
   chat: string;
+  selected_text?: string | null;
   citations: PdfChatCitationItem[] | null;
   created_at: string;
 }

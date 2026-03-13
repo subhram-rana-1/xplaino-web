@@ -327,6 +327,48 @@
   color: var(--text-tertiary);
 }
 
+/* ── Hidden prompts nested subsection ───────────────────────────────────── */
+
+.hiddenSubsection {
+  border: 1px solid var(--border-light, #ebebeb);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.hiddenSubsectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--bg-light, #f9f9f9);
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-align: left;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.hiddenSubsectionHeader:hover {
+  background: var(--border-light, #ebebeb);
+  color: var(--text-secondary);
+}
+
+.hiddenSubsectionHeader span {
+  flex: 1;
+}
+
+.hiddenSubsectionBody {
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 1px solid var(--border-light, #ebebeb);
+}
+
 /* ── States ──────────────────────────────────────────────────────────────── */
 
 .emptyState {

@@ -20,6 +20,16 @@ import {
 
 const POLL_INTERVAL = 3000;
 
+const lastSessionKey = (pdfId: string) => `pdf-chat-last-session-${pdfId}`;
+
+const saveLastSession = (pdfId: string, sessionId: string) => {
+  try { localStorage.setItem(lastSessionKey(pdfId), sessionId); } catch { /* noop */ }
+};
+
+const readLastSession = (pdfId: string): string | null => {
+  try { return localStorage.getItem(lastSessionKey(pdfId)); } catch { return null; }
+};
+
 export interface UsePdfChatReturn {
   preprocessStatus: PreprocessStatus | null;
   preprocessError: string | null;
@@ -39,7 +49,7 @@ export interface UsePdfChatReturn {
   renameSession: (sessionId: string, name: string) => Promise<void>;
   deleteSession: (sessionId: string) => Promise<void>;
   clearChat: () => Promise<void>;
-  askQuestion: (question: string, selectedText?: string) => Promise<void>;
+  askQuestion: (question: string, selectedText?: string, apiQuestion?: string) => Promise<void>;
   stopRequest: () => void;
   retryPreprocess: () => void;
 }
@@ -65,6 +75,10 @@ export function usePdfChat(
   const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasInitiatedRef = useRef(false);
   const loadedSessionsRef = useRef<Set<string>>(new Set());
+  // Tracks which session ID is currently streaming. Set to null when the stream
+  // ends or the user switches away, so in-flight chunk events don't bleed into
+  // a different session's view.
+  const streamingSessionRef = useRef<string | null>(null);
 
   const activeSession = sessions.find((s) => s.id === activeSessionId) ?? null;
   const messages = activeSessionId ? (messagesBySession[activeSessionId] ?? []) : [];
@@ -81,6 +95,7 @@ export function usePdfChat(
     return apiMessages.map((m) => ({
       role: m.who === 'USER' ? 'user' as const : 'assistant' as const,
       content: m.chat,
+      selectedText: m.selected_text ?? undefined,
       citations: m.citations ?? undefined,
     }));
   }, []);
@@ -164,18 +179,21 @@ export function usePdfChat(
       const list = await listChatSessions(accessToken, preprocessId);
       setSessions(list);
       if (list.length > 0 && !activeSessionId) {
-        setActiveSessionId(list[0].id);
-        loadSessionMessages(list[0].id);
+        const savedId = pdfId ? readLastSession(pdfId) : null;
+        const target = (savedId && list.find((s) => s.id === savedId)) ? savedId : list[0].id;
+        setActiveSessionId(target);
+        loadSessionMessages(target);
       }
       if (list.length === 0) {
         const newSession = await createChatSession(accessToken, preprocessId);
         setSessions([newSession]);
         setActiveSessionId(newSession.id);
+        if (pdfId) saveLastSession(pdfId, newSession.id);
       }
     } catch {
       // silently fail — user can retry
     }
-  }, [accessToken, activeSessionId, loadSessionMessages]);
+  }, [accessToken, activeSessionId, pdfId, loadSessionMessages]);
 
   useEffect(() => {
     if (preprocessStatus === 'COMPLETED' && preprocessRecord) {
@@ -192,19 +210,31 @@ export function usePdfChat(
       setSessions((prev) => [newSession, ...prev]);
       setActiveSessionId(newSession.id);
       setPossibleQuestions([]);
+      if (pdfId) saveLastSession(pdfId, newSession.id);
     } catch {
       // handled upstream
     }
-  }, [accessToken, preprocessRecord]);
+  }, [accessToken, pdfId, preprocessRecord]);
 
   const handleSwitchSession = useCallback((sessionId: string) => {
+    // If a stream was in progress for the current session, its data is now
+    // incomplete (the complete event may never fire after the abort). Remove
+    // it from the loaded-sessions cache so that when the user returns we make
+    // a fresh API call and show whatever the backend persisted.
+    if (isRequesting && activeSessionId) {
+      loadedSessionsRef.current.delete(activeSessionId);
+    }
+    // Prevent in-flight chunk events for the old session from updating streamingText
+    // after the switch (abort propagation is async).
+    streamingSessionRef.current = null;
     setActiveSessionId(sessionId);
     setStreamingText('');
     setPossibleQuestions([]);
     setIsRequesting(false);
     abortRef.current?.abort();
     loadSessionMessages(sessionId);
-  }, [loadSessionMessages]);
+    if (pdfId) saveLastSession(pdfId, sessionId);
+  }, [pdfId, loadSessionMessages, isRequesting, activeSessionId]);
 
   const handleRenameSession = useCallback(async (sessionId: string, name: string) => {
     try {
@@ -257,12 +287,17 @@ export function usePdfChat(
 
   // --- Ask question (SSE) ---
 
-  const handleAskQuestion = useCallback(async (question: string, selectedText?: string) => {
+  const handleAskQuestion = useCallback(async (question: string, selectedText?: string, apiQuestion?: string) => {
     if (!activeSessionId || isRequesting) return;
 
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
+
+    // Record which session this stream belongs to so we can guard UI-only state
+    // updates (streamingText, isRequesting) against leaking into a different session
+    // if the user switches away before the stream finishes.
+    streamingSessionRef.current = activeSessionId;
 
     const shouldRename = activeSession?.name === 'Untitled';
 
@@ -275,7 +310,7 @@ export function usePdfChat(
     setPossibleQuestions([]);
 
     try {
-      const generator = askPdf(accessToken, activeSessionId, question, selectedText, controller.signal, shouldRename);
+      const generator = askPdf(accessToken, activeSessionId, apiQuestion ?? question, selectedText, controller.signal, shouldRename);
 
       for await (const event of generator) {
         if (event.type === 'session_rename') {
@@ -283,36 +318,52 @@ export function usePdfChat(
             prev.map((s) => s.id === activeSessionId ? { ...s, name: event.sessionName } : s),
           );
         } else if (event.type === 'chunk') {
-          setStreamingText(event.accumulated);
+          // Only update the shared streamingText when still viewing this session.
+          if (streamingSessionRef.current === activeSessionId) {
+            setStreamingText(event.accumulated);
+          }
         } else if (event.type === 'complete') {
-          setStreamingText('');
+          // Always commit the answer to the originating session's message list.
           setMessagesForSession(activeSessionId, (prev) => [
             ...prev,
             { role: 'assistant', content: event.answer, citations: event.citations },
           ]);
           setPossibleQuestions(event.possibleQuestions);
-          setIsRequesting(false);
+          // Only clear the shared streaming UI state when still on this session.
+          if (streamingSessionRef.current === activeSessionId) {
+            setStreamingText('');
+            setIsRequesting(false);
+            streamingSessionRef.current = null;
+          }
         } else if (event.type === 'error') {
-          setStreamingText('');
-          setIsRequesting(false);
+          // Always commit the error message to the originating session.
           setMessagesForSession(activeSessionId, (prev) => [
             ...prev,
             { role: 'assistant', content: `Error: ${event.errorMessage}` },
           ]);
+          if (streamingSessionRef.current === activeSessionId) {
+            setStreamingText('');
+            setIsRequesting(false);
+            streamingSessionRef.current = null;
+          }
         }
       }
     } catch (err) {
       if ((err as Error)?.name === 'AbortError') return;
-      setStreamingText('');
-      setIsRequesting(false);
       setMessagesForSession(activeSessionId, (prev) => [
         ...prev,
         { role: 'assistant', content: `Error: ${(err as Error).message || 'Something went wrong'}` },
       ]);
+      if (streamingSessionRef.current === activeSessionId) {
+        setStreamingText('');
+        setIsRequesting(false);
+        streamingSessionRef.current = null;
+      }
     }
   }, [activeSessionId, activeSession, isRequesting, accessToken, setMessagesForSession]);
 
   const handleStopRequest = useCallback(() => {
+    streamingSessionRef.current = null;
     abortRef.current?.abort();
     setIsRequesting(false);
     if (streamingText) {

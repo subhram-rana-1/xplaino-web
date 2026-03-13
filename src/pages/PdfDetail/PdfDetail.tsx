@@ -25,22 +25,11 @@ import { FolderSelectorPopover } from '@/shared/components/FolderSelectorPopover
 import { PdfSelectorPopover } from '@/shared/components/PdfSelectorPopover';
 import { PdfShareModal } from '@/shared/components/PdfShareModal';
 import { CopyPdfModal } from '@/shared/components/CopyPdfModal';
-import { AskAISidePanel } from '@/shared/components/AskAISidePanel';
 import { PdfChatPanel } from './PdfChatPanel';
 import { CreateCustomPromptModal } from '@/shared/components/CreateCustomPromptModal';
-import { simplifyText, askAboutText } from '@/shared/services/simplify.service';
-import type { ChatMessage } from '@/shared/services/simplify.service';
 import { listCustomPrompts } from '@/shared/services/customPrompt.service';
 import type { CustomPromptResponse } from '@/shared/types/customPrompt.types';
-import { extractSurroundingContext, computeTextStartIndex } from './pdfTextContext';
-import {
-  createPdfTextChat,
-  appendPdfTextChatMessages,
-  getAllPdfTextChats,
-  getPdfTextChatHistory,
-  deletePdfTextChat,
-} from '@/shared/services/pdfTextChat.service';
-import type { ChatWho } from '@/shared/types/pdfTextChat.types';
+import { normalisePdfText } from './pdfTextNormalise';
 
 // PDF.js worker: use same version as react-pdf's pdfjs-dist (5.4.296)
 pdfjs.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@5.4.296/build/pdf.worker.min.mjs';
@@ -230,360 +219,39 @@ export const PdfDetail: React.FC = () => {
     clientY: number;
   } | null>(null);
 
-  // ── Text explanation (Explain feature) ────────────────────────────────────
-  interface TextExplanation {
-    id: string;
-    textChatId: string | null;
-    startText: string;
-    endText: string;
-    selectedText: string;
-    surroundingContext: string;
-    startPageNumber: number;
-    endPageNumber: number;
-    streamingText: string;
-    chatMessages: ChatMessage[];
-    isRequesting: boolean;
-    firstChunkReceived: boolean;
-    possibleQuestions: string[];
-    abortController: AbortController | null;
-  }
-
-  const [explanations, setExplanations] = useState<TextExplanation[]>([]);
-  const [activeExplanationId, setActiveExplanationId] = useState<string | null>(null);
   const [isExplainPanelOpen, setIsExplainPanelOpen] = useState(false);
-  const [pulsingExplanationId, setPulsingExplanationId] = useState<string | null>(null);
-  const [focusChatInput, setFocusChatInput] = useState(false);
-  const explanationsRef = useRef<TextExplanation[]>([]);
-
-  const [panelMode, setPanelMode] = useState<'text-explanation' | 'chat-with-pdf'>('text-explanation');
   const [chatSelectedText, setChatSelectedText] = useState<string | undefined>(undefined);
-
-  const updateExplanation = useCallback((id: string, updater: (e: TextExplanation) => TextExplanation) => {
-    setExplanations((prev) => {
-      const next = prev.map((e) => e.id === id ? updater(e) : e);
-      explanationsRef.current = next;
-      return next;
-    });
-  }, []);
+  const [pendingChatPrompt, setPendingChatPrompt] = useState<string | undefined>(undefined);
 
   const handleExplainFromSelection = useCallback(
-    (startText: string, endText: string, selectedText: string, clientY: number) => {
-      setActivePanelTitle('Text Explanation');
-      const pageContainerEl = (() => {
-        if (!contentRef.current) return null;
-        const pages = contentRef.current.querySelectorAll('[data-page]');
-        for (const page of pages) {
-          const rect = page.getBoundingClientRect();
-          if (clientY >= rect.top - 40 && clientY <= rect.bottom + 40) {
-            return page as HTMLElement;
-          }
-        }
-        return null;
-      })();
-
-      const pageNumber = pageContainerEl
-        ? Number(pageContainerEl.getAttribute('data-page')) || 1
-        : 1;
-
-      const surroundingContext = extractSurroundingContext(
-        selectedText, startText, endText, pageContainerEl,
-      );
-      const textStartIndex = computeTextStartIndex(startText, pageContainerEl);
-
-      const id = `explain-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const abortController = new AbortController();
-
-      const newExplanation: TextExplanation = {
-        id,
-        textChatId: null,
-        startText,
-        endText,
-        selectedText,
-        surroundingContext,
-        startPageNumber: pageNumber,
-        endPageNumber: pageNumber,
-        streamingText: '',
-        chatMessages: [],
-        isRequesting: true,
-        firstChunkReceived: false,
-        possibleQuestions: [],
-        abortController,
-      };
-
-      setExplanations((prev) => {
-        const next = [...prev, newExplanation];
-        explanationsRef.current = next;
-        return next;
-      });
-
-      // Start SSE streaming
-      (async () => {
-        try {
-          const generator = simplifyText(
-            [{
-              textStartIndex,
-              textLength: selectedText.length,
-              text: surroundingContext,
-              previousSimplifiedTexts: [],
-              languageCode: null,
-            }],
-            abortController.signal,
-          );
-
-          for await (const event of generator) {
-            if (event.type === 'chunk') {
-              const isFirst = !explanationsRef.current.find((e) => e.id === id)?.firstChunkReceived;
-              updateExplanation(id, (e) => ({
-                ...e,
-                streamingText: event.accumulatedText,
-                firstChunkReceived: true,
-              }));
-              if (isFirst) {
-                setActiveExplanationId(id);
-                setIsExplainPanelOpen(true);
-                setPanelMode('text-explanation');
-              }
-            } else if (event.type === 'complete') {
-              updateExplanation(id, (e) => ({
-                ...e,
-                streamingText: '',
-                chatMessages: [
-                  ...e.chatMessages,
-                  { role: 'assistant', content: event.simplifiedText },
-                ],
-                isRequesting: false,
-                possibleQuestions: event.possibleQuestions,
-                abortController: null,
-              }));
-              if (!explanationsRef.current.find((e) => e.id === id)?.firstChunkReceived) {
-                setActiveExplanationId(id);
-                setIsExplainPanelOpen(true);
-                setPanelMode('text-explanation');
-              }
-            } else if (event.type === 'error') {
-              const hadChunk = explanationsRef.current.find((e) => e.id === id)?.firstChunkReceived;
-              if (hadChunk) {
-                updateExplanation(id, (e) => ({
-                  ...e,
-                  streamingText: '',
-                  isRequesting: false,
-                  abortController: null,
-                }));
-              } else {
-                setExplanations((prev) => {
-                  const next = prev.filter((e) => e.id !== id);
-                  explanationsRef.current = next;
-                  return next;
-                });
-              }
-              setToast({ message: event.errorMessage || 'Failed to explain text', type: 'error' });
-            }
-          }
-        } catch (err) {
-          if ((err as Error)?.name === 'AbortError') {
-            // Remove explanation if it never produced a first chunk (aborted during spinner)
-            const hadChunk = explanationsRef.current.find((e) => e.id === id)?.firstChunkReceived;
-            if (!hadChunk) {
-              setExplanations((prev) => {
-                const next = prev.filter((e) => e.id !== id);
-                explanationsRef.current = next;
-                return next;
-              });
-            }
-            return;
-          }
-          const hadChunk = explanationsRef.current.find((e) => e.id === id)?.firstChunkReceived;
-          if (hadChunk) {
-            updateExplanation(id, (e) => ({
-              ...e,
-              streamingText: '',
-              isRequesting: false,
-              abortController: null,
-            }));
-          } else {
-            setExplanations((prev) => {
-              const next = prev.filter((e) => e.id !== id);
-              explanationsRef.current = next;
-              return next;
-            });
-          }
-          setToast({ message: 'Failed to explain text', type: 'error' });
-        }
-      })();
+    (_startText: string, _endText: string, selectedText: string, _clientY: number) => {
+      setChatSelectedText(selectedText);
+      setPendingChatPrompt('Simplify this text');
+      setIsExplainPanelOpen(true);
     },
-    [updateExplanation],
+    [],
   );
 
   const handleAskAIFromSelection = useCallback(
-    (startText: string, endText: string, selectedText: string, clientY: number) => {
-      setActivePanelTitle('Text Explanation');
-      const pageContainerEl = (() => {
-        if (!contentRef.current) return null;
-        const pages = contentRef.current.querySelectorAll('[data-page]');
-        for (const page of pages) {
-          const rect = page.getBoundingClientRect();
-          if (clientY >= rect.top - 40 && clientY <= rect.bottom + 40) {
-            return page as HTMLElement;
-          }
-        }
-        return null;
-      })();
-
-      const pageNumber = pageContainerEl
-        ? Number(pageContainerEl.getAttribute('data-page')) || 1
-        : 1;
-
-      const surroundingContext = extractSurroundingContext(
-        selectedText, startText, endText, pageContainerEl,
-      );
-
-      const id = `explain-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-
-      const newExplanation: TextExplanation = {
-        id,
-        textChatId: null,
-        startText,
-        endText,
-        selectedText,
-        surroundingContext,
-        startPageNumber: pageNumber,
-        endPageNumber: pageNumber,
-        streamingText: '',
-        chatMessages: [],
-        isRequesting: false,
-        firstChunkReceived: true,
-        possibleQuestions: [],
-        abortController: null,
-      };
-
-      setExplanations((prev) => {
-        const next = [...prev, newExplanation];
-        explanationsRef.current = next;
-        return next;
-      });
-
-      setActiveExplanationId(id);
+    (_startText: string, _endText: string, selectedText: string, _clientY: number) => {
+      setChatSelectedText(selectedText);
+      setPendingChatPrompt(undefined);
       setIsExplainPanelOpen(true);
-      setFocusChatInput(true);
-      setPanelMode('text-explanation');
     },
     [],
   );
 
   const handlePromptFromSelection = useCallback(
-    (startText: string, endText: string, selectedText: string, clientY: number, prompt: string) => {
-      const pageContainerEl = (() => {
-        if (!contentRef.current) return null;
-        const pages = contentRef.current.querySelectorAll('[data-page]');
-        for (const page of pages) {
-          const rect = page.getBoundingClientRect();
-          if (clientY >= rect.top - 40 && clientY <= rect.bottom + 40) {
-            return page as HTMLElement;
-          }
-        }
-        return null;
-      })();
-
-      const pageNumber = pageContainerEl
-        ? Number(pageContainerEl.getAttribute('data-page')) || 1
-        : 1;
-
-      const surroundingContext = extractSurroundingContext(
-        selectedText, startText, endText, pageContainerEl,
-      );
-
-      const id = `explain-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const abortController = new AbortController();
-
-      const newExplanation: TextExplanation = {
-        id,
-        textChatId: null,
-        startText,
-        endText,
-        selectedText,
-        surroundingContext,
-        startPageNumber: pageNumber,
-        endPageNumber: pageNumber,
-        streamingText: '',
-        chatMessages: [],
-        isRequesting: true,
-        firstChunkReceived: true,
-        possibleQuestions: [],
-        abortController,
-      };
-
-      setExplanations((prev) => {
-        const next = [...prev, newExplanation];
-        explanationsRef.current = next;
-        return next;
-      });
-
-      setActiveExplanationId(id);
+    (_startText: string, _endText: string, selectedText: string, _clientY: number, prompt: string) => {
+      setChatSelectedText(selectedText);
+      setPendingChatPrompt(prompt);
       setIsExplainPanelOpen(true);
-      setPanelMode('text-explanation');
-
-      // Stream AI response immediately with the preset prompt
-      (async () => {
-        try {
-          const generator = askAboutText(
-            {
-              question: prompt,
-              chat_history: [],
-              initial_context: surroundingContext,
-              context_type: 'TEXT',
-              languageCode: null,
-            },
-            abortController.signal,
-          );
-
-          updateExplanation(id, (e) => ({
-            ...e,
-            chatMessages: [...e.chatMessages, { role: 'user', content: prompt }],
-          }));
-
-          for await (const event of generator) {
-            if (event.type === 'chunk') {
-              updateExplanation(id, (e) => ({
-                ...e,
-                streamingText: event.accumulatedText,
-              }));
-            } else if (event.type === 'complete') {
-              updateExplanation(id, (e) => ({
-                ...e,
-                streamingText: '',
-                chatMessages: event.chatHistory,
-                isRequesting: false,
-                possibleQuestions: event.possibleQuestions,
-                abortController: null,
-              }));
-            } else if (event.type === 'error') {
-              updateExplanation(id, (e) => ({
-                ...e,
-                streamingText: '',
-                isRequesting: false,
-                abortController: null,
-              }));
-              setToast({ message: event.errorMessage || 'Failed to process prompt', type: 'error' });
-            }
-          }
-        } catch (err) {
-          if ((err as Error)?.name === 'AbortError') return;
-          updateExplanation(id, (e) => ({
-            ...e,
-            streamingText: '',
-            isRequesting: false,
-            abortController: null,
-          }));
-          setToast({ message: 'Failed to process prompt', type: 'error' });
-        }
-      })();
     },
-    [updateExplanation],
+    [],
   );
 
   const handleCustomPromptFromSelection = useCallback(
-    (title: string, startText: string, endText: string, selectedText: string, clientY: number, promptText: string) => {
-      setActivePanelTitle(title);
+    (_title: string, startText: string, endText: string, selectedText: string, clientY: number, promptText: string) => {
       handlePromptFromSelection(startText, endText, selectedText, clientY, promptText);
     },
     [handlePromptFromSelection],
@@ -596,213 +264,66 @@ export const PdfDetail: React.FC = () => {
     pageEl?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
 
-  const handleSendToChatFromSelection = useCallback((text: string) => {
-    setChatSelectedText(text);
-    setPanelMode('chat-with-pdf');
-    setIsExplainPanelOpen(true);
+  const handleScrollToSelectedText = useCallback((text: string) => {
+    if (!contentRef.current || !text) return;
+    // Normalise using the same Unicode-aware function used for highlight anchors so that
+    // ligatures, smart quotes, fullwidth chars, zero-width chars, etc. all match correctly.
+    const needle = normalisePdfText(text).toLowerCase().slice(0, 80);
+    if (!needle) return;
+
+    // Build a concatenated text buffer per page, tracking which span each char belongs to
+    const pages = contentRef.current.querySelectorAll<HTMLElement>('[data-page]');
+    let matchSpan: HTMLElement | null = null;
+
+    for (const page of pages) {
+      const spans = Array.from(page.querySelectorAll<HTMLElement>('.react-pdf__Page__textContent span'));
+      if (!spans.length) continue;
+
+      let buf = '';
+      const charSpan: HTMLElement[] = [];
+      for (const span of spans) {
+        const t = normalisePdfText(span.textContent ?? '');
+        for (const ch of t) {
+          buf += ch;
+          charSpan.push(span);
+        }
+      }
+
+      const idx = buf.toLowerCase().indexOf(needle);
+      if (idx !== -1) {
+        matchSpan = charSpan[idx] ?? null;
+        break;
+      }
+    }
+
+    if (!matchSpan) return;
+
+    matchSpan.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Pulse twice: add class → remove → add again → remove
+    const PULSE_CLASS = 'xplaino-text-pulse';
+    const pulse = () => {
+      matchSpan!.classList.add(PULSE_CLASS);
+      setTimeout(() => {
+        matchSpan!.classList.remove(PULSE_CLASS);
+        setTimeout(() => {
+          matchSpan!.classList.add(PULSE_CLASS);
+          setTimeout(() => matchSpan!.classList.remove(PULSE_CLASS), 400);
+        }, 200);
+      }, 400);
+    };
+    // Slight delay to let smooth scroll start before pulsing
+    setTimeout(pulse, 450);
   }, []);
 
-  const handleAskFollowUp = useCallback(
-    async (question: string) => {
-      if (!activeExplanationId) return;
-      const explanation = explanationsRef.current.find((e) => e.id === activeExplanationId);
-      if (!explanation) return;
-
-      const abortController = new AbortController();
-
-      // Lazily recompute surroundingContext from the live PDF DOM if it was not
-      // persisted (happens for chats reloaded from the backend after a page reload).
-      let initialContext = explanation.surroundingContext;
-      if (!initialContext) {
-        const pageContainerEl = pageRefs.current[explanation.startPageNumber - 1] ?? null;
-        const recomputed = extractSurroundingContext(
-          explanation.startText,
-          explanation.startText,
-          explanation.endText,
-          pageContainerEl,
-        );
-        initialContext = recomputed;
-        // Cache it so subsequent follow-ups in the same session don't recompute.
-        updateExplanation(activeExplanationId, (e) => ({ ...e, surroundingContext: recomputed }));
-      }
-
-      updateExplanation(activeExplanationId, (e) => ({
-        ...e,
-        chatMessages: [...e.chatMessages, { role: 'user', content: question }],
-        streamingText: '',
-        isRequesting: true,
-        abortController,
-      }));
-
-      try {
-        const generator = askAboutText(
-          {
-            question,
-            chat_history: explanation.chatMessages,
-            initial_context: initialContext,
-            context_type: 'TEXT',
-            languageCode: null,
-          },
-          abortController.signal,
-        );
-
-        for await (const event of generator) {
-          if (event.type === 'chunk') {
-            updateExplanation(activeExplanationId, (e) => ({
-              ...e,
-              streamingText: event.accumulatedText,
-            }));
-          } else if (event.type === 'complete') {
-            updateExplanation(activeExplanationId, (e) => ({
-              ...e,
-              streamingText: '',
-              chatMessages: event.chatHistory,
-              isRequesting: false,
-              possibleQuestions: event.possibleQuestions,
-              abortController: null,
-            }));
-
-            const currentExplanation = explanationsRef.current.find((e) => e.id === activeExplanationId);
-            if (currentExplanation?.textChatId && accessToken && pdfId) {
-              const lastAssistant = [...event.chatHistory].reverse().find((m) => m.role === 'assistant');
-              if (lastAssistant) {
-                appendPdfTextChatMessages(accessToken, pdfId, currentExplanation.textChatId, {
-                  chats: [
-                    { who: 'USER', content: question },
-                    { who: 'SYSTEM', content: lastAssistant.content },
-                  ],
-                }).catch((err) => console.error('Failed to append text chat messages:', err));
-              }
-            }
-          } else if (event.type === 'error') {
-            updateExplanation(activeExplanationId, (e) => ({
-              ...e,
-              streamingText: '',
-              isRequesting: false,
-              abortController: null,
-            }));
-            setToast({ message: event.errorMessage || 'Failed to get answer', type: 'error' });
-          }
-        }
-      } catch (err) {
-        if ((err as Error)?.name === 'AbortError') return;
-        updateExplanation(activeExplanationId, (e) => ({
-          ...e,
-          streamingText: '',
-          isRequesting: false,
-          abortController: null,
-        }));
-        setToast({ message: 'Failed to get answer', type: 'error' });
-      }
-    },
-    [activeExplanationId, updateExplanation, accessToken, pdfId],
-  );
-
-  const handleStopExplainRequest = useCallback(() => {
-    if (!activeExplanationId) return;
-    const explanation = explanationsRef.current.find((e) => e.id === activeExplanationId);
-    explanation?.abortController?.abort();
-    updateExplanation(activeExplanationId, (e) => ({
-      ...e,
-      isRequesting: false,
-      abortController: null,
-    }));
-  }, [activeExplanationId, updateExplanation]);
+  const handleSendToChatFromSelection = useCallback((text: string) => {
+    setChatSelectedText(text);
+    setIsExplainPanelOpen(true);
+  }, []);
 
   const handleCloseExplainPanel = useCallback(() => {
     setIsExplainPanelOpen(false);
   }, []);
-
-  const handleClearExplainChat = useCallback(() => {
-    if (!activeExplanationId) return;
-
-    const explanation = explanationsRef.current.find((e) => e.id === activeExplanationId);
-    if (explanation?.textChatId && accessToken && pdfId) {
-      deletePdfTextChat(accessToken, pdfId, explanation.textChatId)
-        .catch((err) => console.error('Failed to delete text chat:', err));
-    }
-
-    setExplanations((prev) => {
-      const next = prev.filter((e) => e.id !== activeExplanationId);
-      explanationsRef.current = next;
-      return next;
-    });
-    setActiveExplanationId(null);
-    setIsExplainPanelOpen(false);
-  }, [activeExplanationId, accessToken, pdfId]);
-
-  const handleExplanationIconClick = useCallback((id: string) => {
-    setActiveExplanationId(id);
-    setIsExplainPanelOpen(true);
-  }, []);
-
-  const handleScrollToExplanationText = useCallback(() => {
-    if (!activeExplanationId) return;
-    const explanation = explanationsRef.current.find((e) => e.id === activeExplanationId);
-    if (!explanation) return;
-
-    const pageIndex = explanation.startPageNumber - 1;
-    const el = pageRefs.current[pageIndex];
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      setTimeout(() => {
-        setPulsingExplanationId(activeExplanationId);
-      }, 500);
-    }
-  }, [activeExplanationId]);
-
-  const handlePulseComplete = useCallback(() => {
-    setPulsingExplanationId(null);
-  }, []);
-
-  const handleDeleteExplainChat = useCallback(async () => {
-    if (!activeExplanationId || !accessToken || !pdfId) return;
-    const explanation = explanationsRef.current.find((e) => e.id === activeExplanationId);
-    if (!explanation?.textChatId) return;
-    try {
-      await deletePdfTextChat(accessToken, pdfId, explanation.textChatId);
-      updateExplanation(activeExplanationId, (e) => ({ ...e, textChatId: null }));
-      setToast({ message: 'Chat deleted', type: 'success' });
-    } catch (err) {
-      console.error('Failed to delete text chat:', err);
-      setToast({ message: 'Failed to delete chat', type: 'error' });
-    }
-  }, [activeExplanationId, accessToken, pdfId, updateExplanation]);
-
-  const handleSaveExplainChat = useCallback(async () => {
-    if (!activeExplanationId || !accessToken || !pdfId) return;
-    const explanation = explanationsRef.current.find((e) => e.id === activeExplanationId);
-    if (!explanation || explanation.textChatId) return;
-
-    const truncate = (s: string, max: number) => s.slice(0, max);
-
-    try {
-      const chats = explanation.chatMessages.map((m) => ({
-        who: (m.role === 'user' ? 'USER' : 'SYSTEM') as ChatWho,
-        content: m.content,
-      }));
-
-      const result = await createPdfTextChat(accessToken, pdfId, {
-        start_text_pdf_page_number: explanation.startPageNumber,
-        end_text_pdf_page_number: explanation.endPageNumber,
-        start_text: truncate(explanation.startText, 50),
-        end_text: truncate(explanation.endText, 50),
-        chats: chats.length > 0 ? chats : undefined,
-      });
-
-      updateExplanation(activeExplanationId, (e) => ({
-        ...e,
-        textChatId: result.chat.id,
-      }));
-
-      setToast({ message: 'Chat saved', type: 'success' });
-    } catch (err) {
-      console.error('Failed to save text chat:', err);
-      setToast({ message: 'Failed to save chat', type: 'error' });
-    }
-  }, [activeExplanationId, accessToken, pdfId, updateExplanation]);
-
-  const activeExplanation = explanations.find((e) => e.id === activeExplanationId) ?? null;
 
   const handleWriteNoteFromSelection = useCallback(
     (startText: string, endText: string, clientY: number) => {
@@ -829,18 +350,6 @@ export const PdfDetail: React.FC = () => {
     deleteHighlight,
   } = usePdfHighlights({ pdfId, accessToken: accessToken ?? null, isPublic });
 
-  const handleHighlightFromPanel = useCallback(() => {
-    if (!activeExplanation) return;
-    createHighlight(activeExplanation.startText, activeExplanation.endText);
-  }, [activeExplanation, createHighlight]);
-
-  const [pendingNoteExplanationId, setPendingNoteExplanationId] = useState<string | null>(null);
-
-  const handleAddNoteFromPanel = useCallback(() => {
-    if (!activeExplanationId) return;
-    setPendingNoteExplanationId(activeExplanationId);
-    setTimeout(() => setPendingNoteExplanationId(null), 100);
-  }, [activeExplanationId]);
 
   // Notes
   const { notes: pdfNotes, createNote, updateNote, deleteNote } = usePdfNotes({ pdfId, accessToken: accessToken ?? null, isPublic });
@@ -863,8 +372,6 @@ export const PdfDetail: React.FC = () => {
   const [isPdfShareeListLoading, setIsPdfShareeListLoading] = useState(false);
   const [showCreatePromptModal, setShowCreatePromptModal] = useState(false);
   const [userCustomPrompts, setUserCustomPrompts] = useState<CustomPromptResponse[]>([]);
-  const [activePanelTitle, setActivePanelTitle] = useState('Text Explanation');
-
   const [isDownloading, setIsDownloading] = useState(false);
 
   const handleDownload = useCallback(async () => {
@@ -947,7 +454,6 @@ export const PdfDetail: React.FC = () => {
       const modifierHeld = isMac ? e.metaKey : e.ctrlKey;
       if (modifierHeld && e.key === 'b') {
         e.preventDefault();
-        setPanelMode('chat-with-pdf');
         setIsExplainPanelOpen((open) => !open);
       }
     };
@@ -1105,64 +611,6 @@ export const PdfDetail: React.FC = () => {
     };
   }, [authLoading, isLoggedIn, accessToken, pdfId]);
 
-  // Load saved text chat conversations from the backend
-  useEffect(() => {
-    if (!pdfId || (!accessToken && !isPublic) || viewState !== 'ready') return;
-
-    let cancelled = false;
-
-    const roleFromWho = (who: ChatWho): 'user' | 'assistant' =>
-      who === 'USER' ? 'user' : 'assistant';
-
-    (async () => {
-      try {
-        const { chats } = await getAllPdfTextChats(accessToken ?? null, pdfId);
-        if (cancelled || chats.length === 0) return;
-
-        const hydrated: TextExplanation[] = await Promise.all(
-          chats.map(async (chat) => {
-            const historyRes = await getPdfTextChatHistory(accessToken ?? null, pdfId, chat.id, 0, 200);
-            const messages: ChatMessage[] = historyRes.messages
-              .slice()
-              .reverse()
-              .map((m) => ({ role: roleFromWho(m.who), content: m.content }));
-
-            return {
-              id: chat.id,
-              textChatId: chat.id,
-              startText: chat.start_text,
-              endText: chat.end_text,
-              selectedText: '',
-              surroundingContext: '',
-              startPageNumber: chat.start_text_pdf_page_number,
-              endPageNumber: chat.end_text_pdf_page_number,
-              streamingText: '',
-              chatMessages: messages,
-              isRequesting: false,
-              firstChunkReceived: true,
-              possibleQuestions: [],
-              abortController: null,
-            };
-          }),
-        );
-
-        if (cancelled) return;
-
-        setExplanations((prev) => {
-          const existingIds = new Set(prev.map((e) => e.textChatId).filter(Boolean));
-          const newOnes = hydrated.filter((h) => !existingIds.has(h.textChatId));
-          if (newOnes.length === 0) return prev;
-          const next = [...prev, ...newOnes];
-          explanationsRef.current = next;
-          return next;
-        });
-      } catch (err) {
-        console.error('Failed to load saved text chats:', err);
-      }
-    })();
-
-    return () => { cancelled = true; };
-  }, [pdfId, accessToken, isPublic, viewState]);
 
   // Resolve folder name from API when only folderId is available (no folderName query param)
   useEffect(() => {
@@ -1399,6 +847,17 @@ export const PdfDetail: React.FC = () => {
 
   return (
     <div className={styles.wrapper}>
+      {/* Global keyframes for the "scroll-to-selected-text" pulse effect. */}
+      <style>{`
+        @keyframes xplainoPulse {
+          0%   { background: transparent; border-radius: 2px; }
+          40%  { background: rgba(13, 128, 112, 0.35); border-radius: 2px; }
+          100% { background: transparent; border-radius: 2px; }
+        }
+        .xplaino-text-pulse {
+          animation: xplainoPulse 0.4s ease-in-out;
+        }
+      `}</style>
       {refreshBanner}
       {sidebar}
       {sidebarToggle}
@@ -1426,23 +885,16 @@ export const PdfDetail: React.FC = () => {
                   !Object.values(pageTranslations).some((s) => s.status === 'translating')
                 }
               /> */}
-              <button
+              {!isExplainPanelOpen && <button
                 type="button"
                 className={styles.chatWithPdfBtn}
-                onClick={() => {
-                  if (isExplainPanelOpen && panelMode === 'chat-with-pdf') {
-                    handleCloseExplainPanel();
-                  } else {
-                    setPanelMode('chat-with-pdf');
-                    setIsExplainPanelOpen(true);
-                  }
-                }}
+                onClick={() => setIsExplainPanelOpen(true)}
                 title="Chat with PDF"
               >
                 <ChatIcon />
                 <span>Chat with PDF</span>
                 <kbd className={styles.chatWithPdfKbd}>{isMac ? '⌘B' : 'Ctrl+B'}</kbd>
-              </button>
+              </button>}
               {isTranslationActive && Object.values(pageTranslations).some((s) => s.status === 'translated') && (
                 <button
                   type="button"
@@ -1620,12 +1072,12 @@ export const PdfDetail: React.FC = () => {
                           pendingNoteForSelection={pendingNoteSelection}
                           readOnly={!canEditAnnotations}
                           isLoggedIn={isLoggedIn}
-                          explanations={explanations}
-                          activeExplanationId={isExplainPanelOpen ? activeExplanationId : null}
-                          onExplanationIconClick={handleExplanationIconClick}
-                          pulsingExplanationId={pulsingExplanationId}
-                          onPulseComplete={handlePulseComplete}
-                          pendingNoteForExplanationId={pendingNoteExplanationId}
+                          explanations={[]}
+                          activeExplanationId={null}
+                          onExplanationIconClick={() => {}}
+                          pulsingExplanationId={null}
+                          onPulseComplete={() => {}}
+                          pendingNoteForExplanationId={null}
                         />
                       )}
                       {!showOriginal && translatedParagraphs && (
@@ -1640,7 +1092,7 @@ export const PdfDetail: React.FC = () => {
       </div>
 
       {/* ── Chat panel toggle — only shown when panel is closed ── */}
-      {panelMode === 'chat-with-pdf' && !isExplainPanelOpen && (
+      {!isExplainPanelOpen && (
         <button
           type="button"
           className={`${styles.chatPanelToggle} ${styles.chatPanelToggleCollapsed}`}
@@ -1652,48 +1104,22 @@ export const PdfDetail: React.FC = () => {
         </button>
       )}
 
-      {/* ── Side panel: Text Explanation or Chat with PDF ── */}
-      {panelMode === 'chat-with-pdf' ? (
-        <PdfChatPanel
-          isOpen={isExplainPanelOpen}
-          onClose={handleCloseExplainPanel}
-          pdfId={pdfId!}
-          accessToken={accessToken}
-          onScrollToPage={handleScrollToPage}
-          selectedText={chatSelectedText}
-          onClearSelectedText={() => setChatSelectedText(undefined)}
-        />
-      ) : (
-        <AskAISidePanel
-          isOpen={isExplainPanelOpen}
-          onClose={handleCloseExplainPanel}
-          onInputSubmit={handleAskFollowUp}
-          onStopRequest={handleStopExplainRequest}
-          onClearChat={handleClearExplainChat}
-          isRequesting={activeExplanation?.isRequesting ?? false}
-          chatMessages={activeExplanation?.chatMessages ?? []}
-          streamingText={activeExplanation?.streamingText ?? ''}
-          possibleQuestions={activeExplanation?.possibleQuestions ?? []}
-          headerTitle={activePanelTitle}
-          mode="inline"
-          onScrollToText={handleScrollToExplanationText}
-          onSaveChat={handleSaveExplainChat}
-          onDeleteChat={handleDeleteExplainChat}
-          isChatSaved={!!activeExplanation?.textChatId}
-          autoFocusInput={focusChatInput}
-          onInputFocused={() => setFocusChatInput(false)}
-          onHighlightText={canEditAnnotations ? handleHighlightFromPanel : undefined}
-          onAddNote={canEditAnnotations ? handleAddNoteFromPanel : undefined}
-          highlightColours={highlightColours}
-          selectedColourId={selectedColourId}
-          onHighlightColourChange={canEditAnnotations ? handleHighlightColourChange : undefined}
-          activeColour={highlightColours.find((c) => c.id === selectedColourId)?.hexcode ?? '#fbbf24'}
-          isTextHighlighted={highlights.some((h) => h.startText === activeExplanation?.startText)}
-          onDeleteExplanation={handleClearExplainChat}
-          customPrompts={userCustomPrompts}
-          onAddCustomPrompt={() => setShowCreatePromptModal(true)}
-        />
-      )}
+      {/* ── Side panel: Chat with PDF ── */}
+      <PdfChatPanel
+        isOpen={isExplainPanelOpen}
+        onClose={handleCloseExplainPanel}
+        pdfId={pdfId!}
+        accessToken={accessToken}
+        onScrollToPage={handleScrollToPage}
+        onScrollToSelectedText={handleScrollToSelectedText}
+        selectedText={chatSelectedText}
+        onClearSelectedText={() => setChatSelectedText(undefined)}
+        pendingPrompt={pendingChatPrompt}
+        onClearPendingPrompt={() => setPendingChatPrompt(undefined)}
+        customPrompts={userCustomPrompts}
+        onCreatePrompt={() => setShowCreatePromptModal(true)}
+        onCustomPromptsChanged={(prompts) => setUserCustomPrompts(prompts)}
+      />
 
       {/* ── Feature discovery step 1: toolbar spotlight ── */}
       {fdStep === 1 && viewState === 'ready' && spotlightRect && (

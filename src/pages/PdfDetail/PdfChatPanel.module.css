@@ -267,6 +267,16 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.sessionListDropdownOpen {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 .sessionListScrollable {
@@ -565,9 +575,16 @@
 }
 
 /* ── Selected text quote in user message ── */
-.selectedTextQuote {
-  display: block;
+.selectedTextQuoteWrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
   margin-bottom: 8px;
+}
+
+.selectedTextQuote {
+  flex: 1;
+  display: block;
   padding: 6px 10px;
   border-left: 3px solid var(--teal-light);
   background: rgba(13, 128, 112, 0.05);
@@ -579,6 +596,28 @@
   max-height: 60px;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.refButton {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: var(--teal-rgba-10);
+  border: 1px solid var(--teal-light);
+  color: var(--teal);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.refButton:hover {
+  background: var(--teal);
+  color: #fff;
+  border-color: var(--teal);
 }
 
 /* ── Inline citation badges ── */
@@ -631,7 +670,7 @@
   text-align: left;
 }
 
-.citationBadge:hover .citationTooltip {
+.inlineCitationBadge:hover .citationTooltip {
   opacity: 1;
 }
 
@@ -721,9 +760,10 @@
 /* ── Builtin prompt pills above input ── */
 .promptRow {
   display: flex;
+  align-items: center;
   gap: 8px;
   padding: 8px 16px 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-end;
   flex-shrink: 0;
 }
@@ -732,7 +772,7 @@
   display: inline-flex;
   align-items: center;
   padding: 6px 14px;
-  border: 2px solid var(--border-dark);
+  border: 1px solid var(--border-dark);
   background: var(--bg-white);
   cursor: pointer;
   border-radius: 9999px;
@@ -743,10 +783,213 @@
   white-space: nowrap;
 }
 
-.promptPill:hover {
+.promptPill:hover:not(:disabled) {
   background: var(--button-hover-bg);
   color: var(--teal);
   border-color: var(--teal);
+}
+
+.promptPill:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.promptRowDisabled .promptAddBtn {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* ── Custom prompt add / menu buttons ── */
+.promptAddBtn {
+  width: 26px;
+  height: 26px;
+  border-radius: 9999px;
+  background: transparent;
+  border: 1px solid var(--border-dark);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  transition: all 0.12s ease;
+}
+
+.promptAddBtn:hover,
+.promptAddBtnActive {
+  background: var(--button-hover-bg);
+  color: var(--teal);
+  border-color: var(--teal);
+}
+
+/* ── Custom prompt dropdown container (relative anchor) ── */
+.customPromptMenuWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* ── Custom prompt dropdown panel ── */
+.customPromptDropdown {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  z-index: 500;
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  min-width: 220px;
+  max-width: 280px;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.customPromptDropdownOpen {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.customPromptDropdownList {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+/* ── Individual custom prompt row ── */
+.customPromptItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px 0 0;
+}
+
+.customPromptItemTitle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: left;
+  min-width: 0;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.customPromptItemTitle:hover {
+  background: var(--button-hover-bg);
+  color: var(--teal);
+}
+
+.customPromptItemTitle span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.customPromptItemMenuBtn {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  transition: all 0.1s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.customPromptItem:hover .customPromptItemMenuBtn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.customPromptItemMenuBtn:hover {
+  background: var(--button-hover-bg);
+  color: var(--teal);
+}
+
+/* ── Per-prompt action sub-menu (rendered via portal with position:fixed) ── */
+.customPromptActionMenu {
+  z-index: 9999;
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  min-width: 150px;
+  padding: 4px 0;
+  overflow: hidden;
+}
+
+.customPromptActionItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: left;
+  text-decoration: none;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.customPromptActionItem:hover {
+  background: var(--button-hover-bg);
+  color: var(--teal);
+}
+
+.customPromptActionItemDanger:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+}
+
+/* ── Footer buttons inside dropdown ── */
+.customPromptDropdownFooter {
+  border-top: 1px solid var(--border-light);
+  padding: 4px 0;
+}
+
+.customPromptFooterBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: left;
+  text-decoration: none;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.customPromptFooterBtn:hover {
+  background: var(--button-hover-bg);
+  color: var(--teal);
 }
 
 /* ── Input bar ── */
@@ -948,12 +1191,12 @@
 .markdownEm { font-style: italic; }
 .markdownCode { background: var(--teal-rgba-10); padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 13px; color: var(--teal); }
 
-/* ── Delete confirmation dialog ── */
+/* ── Confirm / share dialogs (portaled to body) ── */
 .confirmOverlay {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  z-index: 500;
-  background: rgba(0, 0, 0, 0.25);
+  z-index: 9000;
+  background: rgba(0, 0, 0, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1022,4 +1265,108 @@
 .confirmCancelBtn:hover {
   background: var(--bg-light);
   color: var(--text-dark);
+}
+
+.confirmTitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0;
+  text-align: center;
+}
+
+.confirmBody {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.confirmInput {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text-dark);
+  background: var(--bg-white);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.confirmInput:focus {
+  border-color: var(--teal);
+}
+
+.confirmError {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--red, #ef4444);
+  margin: 0;
+  text-align: center;
+}
+
+.confirmPrimaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 18px;
+  border: none;
+  border-radius: 8px;
+  background: var(--teal);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.confirmPrimaryBtn:hover:not(:disabled) {
+  background: var(--teal-dark, var(--teal));
+  opacity: 0.9;
+}
+
+.confirmPrimaryBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.confirmDangerBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 18px;
+  border: none;
+  border-radius: 8px;
+  background: var(--red, #ef4444);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.confirmDangerBtn:hover {
+  background: var(--red-dark, #dc2626);
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+.spinRed {
+  animation: spin 0.8s linear infinite;
+  color: #fff;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

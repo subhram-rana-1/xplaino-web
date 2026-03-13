@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { HighlightedCoupon } from '@/shared/components/HighlightedCoupon';
 import { ChromeTryFeaturesButton } from '@/shared/components/ChromeButton/ChromeTryFeaturesButton';
 import styles from './GettingStarted.module.css';
@@ -55,6 +55,53 @@ const WorkflowDiagram: React.FC = () => (
  *
  * @returns JSX element
  */
+/** Full card — shown to users who haven't installed the extension yet */
+const PdfCtaCard: React.FC = () => {
+  const navigate = useNavigate();
+
+  return (
+    <div className={styles.pdfCtaCard}>
+      <div className={styles.pdfCtaIconCircle}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#0f766e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M14 2v6h6M9 13h6M9 17h4" stroke="#0f766e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </div>
+      <div className={styles.pdfCtaTextBlock}>
+        <div className={styles.pdfCtaTitleRow}>
+          <span className={styles.pdfCtaTitle}>Try PDF AI Chat</span>
+          <span className={styles.pdfNoExtBadge}>No extension needed</span>
+        </div>
+        <div className={styles.pdfCtaSubtitle}>
+          Chat, highlight, comment &amp; collaborate with your team — no extension needed.
+        </div>
+      </div>
+      <button className={styles.pdfCtaButton} onClick={() => navigate('/tools/pdf')}>
+        Try it free
+        <span className={styles.pdfCtaArrow}>→</span>
+      </button>
+    </div>
+  );
+};
+
+/** Subtle discovery nudge — shown to users who already have the extension */
+const PdfFeatureNudge: React.FC = () => {
+  const navigate = useNavigate();
+
+  return (
+    <div className={styles.featureNudge}>
+      <span className={styles.featureNudgeLabel}>Also available on Xplaino</span>
+      <div className={styles.featureChips}>
+        <button className={styles.featureChipActive} onClick={() => navigate('/tools/pdf')}>
+          <span className={styles.featureChipPrimary}>Try PDF for Free!</span>
+          <span className={styles.featureChipSub}>Chat, Highlight, Personal Notes, Team Collaboration</span>
+          <span className={styles.featureChipArrow}>→</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
 export const GettingStarted: React.FC = () => {
   const location = useLocation();
 
@@ -112,11 +159,21 @@ export const GettingStarted: React.FC = () => {
         </aside>
         <div className={styles.mainCenter}>
           <div className={styles.centerContent}>
-            {!hideInstallExtensionButton && (
-              <div className={styles.installExtensionWrapper}>
-                <ChromeTryFeaturesButton />
-              </div>
-            )}
+            <div className={styles.ctaSection}>
+              {!hideInstallExtensionButton ? (
+                <>
+                  <ChromeTryFeaturesButton />
+                  <div className={styles.ctaDividerRow}>
+                    <span className={styles.ctaDividerLine} />
+                    <span className={styles.ctaDividerText}>or skip the extension</span>
+                    <span className={styles.ctaDividerLine} />
+                  </div>
+                  <PdfCtaCard />
+                </>
+              ) : (
+                <PdfFeatureNudge />
+              )}
+            </div>
             <header className={styles.headerSection}>
               <h1 className={styles.title}>Lets try the extension here first</h1>
               <span className={styles.sampleBadge}>Sample article for practice</span>
