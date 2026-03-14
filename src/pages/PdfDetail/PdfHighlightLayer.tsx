@@ -846,10 +846,7 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
           ref={noteEditorRef}
           className={`${styles.noteEditor} ${noteEditorState.mode === 'create' ? styles.noteEditorCreate : styles.noteEditorEdit} ${noteEditorVisible ? styles.noteEditorVisible : ''}`}
           style={{
-            left: Math.min(
-              noteEditorPageRect.right - 228,
-              window.innerWidth - 236
-            ),
+            right: Math.max(8, window.innerWidth - (noteEditorPageRect.left + pageWidth + 300)),
             top: noteEditorPageRect.top + noteEditorState.y,
           }}
           onMouseDown={(e) => e.stopPropagation()}
@@ -862,7 +859,7 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
               disabled={isSavingNote || noteEditorSaved || isDeletingNote}
               aria-label="Close note editor"
             >
-              <X size={12} />
+              <X size={15} />
             </button>
             <span>
               {noteEditorState.mode === 'edit'
@@ -892,7 +889,7 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
                 {isDeletingNote ? (
                   <span className={styles.savingSpinner} aria-hidden="true" />
                 ) : (
-                  <Trash2 size={12} />
+                  <Trash2 size={15} />
                 )}
               </button>
             )}
