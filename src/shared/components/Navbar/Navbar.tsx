@@ -3,11 +3,12 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import styles from './Navbar.module.css';
 import logoImageLight from '../../../assets/images/xplaino-brand-white.png';
 import logoImageDark from '../../../assets/images/xplaino-brand-white.png';
+import chromeExtensionIcon from '../../../assets/images/google-chrome-icon.png';
+import pdfToolIcon from '../../../assets/images/pdf.webp';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { useTheme } from '@/shared/hooks/ThemeContext';
 import { Theme } from '@/shared/types/user-settings.types';
-import { LogOut, User, LayoutGrid, AlertCircle, ChevronDown, FileText } from 'lucide-react';
-import { SiGooglechrome } from 'react-icons/si';
+import { LogOut, User, LayoutGrid, AlertCircle, ChevronDown } from 'lucide-react';
 import { LoginModal } from '@/shared/components/LoginModal';
 import { Toast } from '@/shared/components/Toast';
 
@@ -240,6 +241,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                   onClick={() => setIsToolsDropdownOpen((v) => !v)}
                 >
                   Tools
+                  <span className={styles.freeBadge}>FREE</span>
                   <ChevronDown
                     className={styles.dropdownChevron}
                     size={14}
@@ -248,20 +250,24 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                 </button>
                 <div className={`${styles.dropdownMenu} ${isToolsDropdownOpen ? styles.dropdownMenuOpen : ''}`}>
                   <button
-                    className={`${styles.dropdownItem} ${styles.dropdownItemButton} ${styles.extensionItem}`}
+                    className={`${styles.dropdownItem} ${styles.dropdownItemButton}`}
                     onClick={handleToolsExtensionClick}
                   >
-                    <SiGooglechrome className={styles.dropdownItemIcon} size={18} />
-                    Extension
-                    <span className={styles.dropdownItemTooltip}>Summarise, Ask AI, Translate, Highlight</span>
+                    <img src={chromeExtensionIcon} alt="" aria-hidden className={styles.dropdownItemImgIcon} />
+                    <span className={styles.dropdownItemContent}>
+                      <span className={styles.dropdownItemTitle}>Extension</span>
+                      <span className={styles.dropdownItemDesc}>Summarise, Ask AI, Translate &amp; more on any webpage</span>
+                    </span>
                   </button>
                   <button
                     className={`${styles.dropdownItem} ${styles.dropdownItemButton}`}
                     onClick={handleToolsPdfClick}
                   >
-                    <FileText className={styles.dropdownItemIcon} size={15} />
-                    Chat PDF
-                    <span className={styles.dropdownItemTooltip}>Chat with PDF, Highlights, Notes, Collaborate</span>
+                    <img src={pdfToolIcon} alt="" aria-hidden className={styles.dropdownItemImgIcon} />
+                    <span className={styles.dropdownItemContent}>
+                      <span className={styles.dropdownItemTitle}>Study PDF</span>
+                      <span className={styles.dropdownItemDesc}>Chat, highlight, take notes &amp; collaborate on PDFs</span>
+                    </span>
                   </button>
                 </div>
               </div>

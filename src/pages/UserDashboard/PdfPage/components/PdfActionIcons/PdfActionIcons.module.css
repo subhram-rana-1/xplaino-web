@@ -26,6 +26,11 @@
   background: var(--button-hover-bg);
 }
 
+.deleteBtn:hover {
+  color: var(--red);
+  background: var(--light-red);
+}
+
 /* 3-dot more button */
 .moreBtn {
   display: flex;

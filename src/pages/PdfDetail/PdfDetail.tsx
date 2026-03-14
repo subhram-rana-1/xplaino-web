@@ -3,10 +3,10 @@ import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/TextLayer.css';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
-import { Plus, ChevronLeft, ChevronRight, Eye, EyeOff, Share2, Download, MessageCircle } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, Eye, EyeOff, Share2, Download, MessageCircle, Trash2, Users } from 'lucide-react';
 import styles from './PdfDetail.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
-import { getPdfById, getAllPdfs, sharePdf, makePdfPublic, makePdfPrivate, getPdfShareeList, unsharePdf, getDownloadUrl } from '@/shared/services/pdf.service';
+import { getPdfById, getAllPdfs, sharePdf, makePdfPublic, makePdfPrivate, getPdfShareeList, unsharePdf, getDownloadUrl, deletePdf } from '@/shared/services/pdf.service';
 import { getAllFolders } from '@/shared/services/folders.service';
 import type { FolderWithSubFolders, ShareeItem } from '@/shared/types/folders.types';
 import { getUserSettings, updateUserSettings } from '@/shared/services/user-settings.service';
@@ -24,12 +24,14 @@ import { PdfHighlightLayer } from './PdfHighlightLayer';
 import { FolderSelectorPopover } from '@/shared/components/FolderSelectorPopover';
 import { PdfSelectorPopover } from '@/shared/components/PdfSelectorPopover';
 import { PdfShareModal } from '@/shared/components/PdfShareModal';
+import { ShareeListModal } from '@/shared/components/ShareeListModal';
 import { CopyPdfModal } from '@/shared/components/CopyPdfModal';
 import { PdfChatPanel } from './PdfChatPanel';
 import { CreateCustomPromptModal } from '@/shared/components/CreateCustomPromptModal';
 import { listCustomPrompts } from '@/shared/services/customPrompt.service';
 import type { CustomPromptResponse } from '@/shared/types/customPrompt.types';
 import { normalisePdfText } from './pdfTextNormalise';
+import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 
 // PDF.js worker: use same version as react-pdf's pdfjs-dist (5.4.296)
 pdfjs.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@5.4.296/build/pdf.worker.min.mjs';
@@ -367,12 +369,15 @@ export const PdfDetail: React.FC = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isLoginModalClosing, setIsLoginModalClosing] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showManageSharingModal, setShowManageSharingModal] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [pdfShareeList, setPdfShareeList] = useState<ShareeItem[]>([]);
   const [isPdfShareeListLoading, setIsPdfShareeListLoading] = useState(false);
   const [showCreatePromptModal, setShowCreatePromptModal] = useState(false);
   const [userCustomPrompts, setUserCustomPrompts] = useState<CustomPromptResponse[]>([]);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDownload = useCallback(async () => {
     if (!pdfDetails || isDownloading) return;
@@ -403,6 +408,22 @@ export const PdfDetail: React.FC = () => {
     }
   }, [pdfDetails, accessToken, isDownloading]);
 
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!pdfId || !accessToken) return;
+    setIsDeleting(true);
+    try {
+      await deletePdf(accessToken, pdfId);
+      setShowDeleteConfirm(false);
+      navigate(`/user/dashboard/folder/${folderId}/pdf`, { state: { folderName } });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete PDF';
+      setToast({ message: errorMessage, type: 'error' });
+      setShowDeleteConfirm(false);
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [pdfId, accessToken, folderId, folderName, navigate]);
+
   const handleSharePdfSubmit = useCallback(async (email: string) => {
     if (!accessToken || !pdfId) return;
     await sharePdf(accessToken, pdfId, email);
@@ -425,6 +446,20 @@ export const PdfDetail: React.FC = () => {
   const handleFetchSharees = useCallback(async () => {
     if (!accessToken || !pdfId) return;
     setIsPdfShareeListLoading(true);
+    try {
+      const res = await getPdfShareeList(accessToken, pdfId);
+      setPdfShareeList(res.sharees);
+    } catch {
+      setPdfShareeList([]);
+    } finally {
+      setIsPdfShareeListLoading(false);
+    }
+  }, [accessToken, pdfId]);
+
+  const handleOpenManageSharing = useCallback(async () => {
+    if (!accessToken || !pdfId) return;
+    setIsPdfShareeListLoading(true);
+    setShowManageSharingModal(true);
     try {
       const res = await getPdfShareeList(accessToken, pdfId);
       setPdfShareeList(res.sharees);
@@ -932,12 +967,23 @@ export const PdfDetail: React.FC = () => {
                 <button
                   type="button"
                   className={styles.iconBtn}
-                  onClick={() => setToolbarVisible(false)}
-                  aria-label="Hide toolbar"
+                  onClick={() => setShowShareModal(true)}
+                  aria-label="Share PDF"
                 >
-                  <EyeOff size={14} />
+                  <Share2 size={16} />
                 </button>
-                <span className={styles.iconBtnTooltip}>Hide toolbar</span>
+                <span className={styles.iconBtnTooltip}>Share</span>
+              </div>
+              <div className={styles.iconBtnWrapper}>
+                <button
+                  type="button"
+                  className={styles.iconBtn}
+                  onClick={handleOpenManageSharing}
+                  aria-label="Manage sharing"
+                >
+                  <Users size={16} />
+                </button>
+                <span className={styles.iconBtnTooltip}>Manage sharing</span>
               </div>
               <div className={styles.iconBtnWrapper}>
                 <button
@@ -955,12 +1001,23 @@ export const PdfDetail: React.FC = () => {
                 <button
                   type="button"
                   className={styles.iconBtn}
-                  onClick={() => setShowShareModal(true)}
-                  aria-label="Share PDF"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  aria-label="Delete PDF"
                 >
-                  <Share2 size={16} />
+                  <Trash2 size={16} />
                 </button>
-                <span className={styles.iconBtnTooltip}>Share</span>
+                <span className={styles.iconBtnTooltip}>Delete</span>
+              </div>
+              <div className={styles.iconBtnWrapper}>
+                <button
+                  type="button"
+                  className={styles.iconBtn}
+                  onClick={() => setToolbarVisible(false)}
+                  aria-label="Hide toolbar"
+                >
+                  <EyeOff size={14} />
+                </button>
+                <span className={styles.iconBtnTooltip}>Hide toolbar</span>
               </div>
             </div>
           </div>
@@ -1211,6 +1268,15 @@ export const PdfDetail: React.FC = () => {
         onFetchSharees={handleFetchSharees}
       />
 
+      <ShareeListModal
+        isOpen={showManageSharingModal}
+        onClose={() => { setShowManageSharingModal(false); setPdfShareeList([]); }}
+        title={`Sharing: "${pdfDetails?.file_name ?? ''}"`}
+        sharees={pdfShareeList}
+        isLoading={isPdfShareeListLoading}
+        onUnshare={handleUnsharePdf}
+      />
+
       <PdfUploadModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
@@ -1252,6 +1318,16 @@ export const PdfDetail: React.FC = () => {
         isOpen={showCreatePromptModal}
         onClose={() => setShowCreatePromptModal(false)}
         onCreated={(newPrompt) => setUserCustomPrompts(prev => [newPrompt, ...prev])}
+      />
+
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Delete PDF"
+        message="Are you sure you want to delete this PDF? This action cannot be undone."
+        confirmText={isDeleting ? 'Deleting...' : 'Delete'}
+        cancelText="Cancel"
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setShowDeleteConfirm(false)}
       />
     </div>
   );

@@ -1240,3 +1240,36 @@
 .fdGotItBtn:hover {
   background: var(--teal-dark);
 }
+
+.moreMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--surface-elevated, #fff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  min-width: 130px;
+  z-index: 10000;
+}
+
+.moreMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  background: none;
+  border: none;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--red, #ef4444);
+  transition: background-color 0.12s ease;
+}
+
+.moreMenuItem:hover {
+  background: var(--red-hover-bg, rgba(239, 68, 68, 0.08));
+}
