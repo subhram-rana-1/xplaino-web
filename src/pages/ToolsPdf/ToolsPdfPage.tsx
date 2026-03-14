@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CloudUpload, FileText, Link, Check, AlertCircle, RefreshCw, ArrowRight, Info, BookOpen, MessageCircle, Bookmark, Layers, Folder, Monitor } from 'lucide-react';
+import { CloudUpload, FileText, Link, Check, AlertCircle, RefreshCw, ArrowRight, Info, BookOpen, MessageCircle, Bookmark, Layers, Folder, Monitor, MessageSquare, BookMarked, Highlighter, Users } from 'lucide-react';
 import { SiGoogledrive, SiDropbox } from 'react-icons/si';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { fetchPublic, fetchWithAuth } from '@/shared/services/api-client';
@@ -658,13 +658,9 @@ export const ToolsPdfPage: React.FC = () => {
       {/* Hero */}
       <div className={styles.hero}>
         <h1 className={styles.heroTitle}>
-          Analyze any PDF with{' '}
-          <span className={styles.heroTitleAccent}>AI</span>
+          Everything you need to master{' '}
+          <span className={styles.heroTitleAccent}>any PDF</span>
         </h1>
-        <p className={styles.heroSubtitle}>
-          Upload a PDF from your device, Google Drive, or Dropbox — and let AI
-          break it down for you instantly.
-        </p>
       </div>
 
       {/* Outer row: sidebar (conditional, leftmost) + inner two-column layout */}
@@ -697,32 +693,24 @@ export const ToolsPdfPage: React.FC = () => {
 
       {/* Feature list — left column */}
       <div className={styles.featuresColumn}>
-        <p className={styles.featuresHeading}>What you can do</p>
+        <p className={styles.featuresHeading}>One PDF tool. Endless possibilities.</p>
         {[
           {
-            label: 'Summarise PDF',
-            icon: <FileText size={22} />,
+            label: 'Chat with PDF',
+            icon: <MessageSquare size={22} />,
           },
           {
-            label: 'Get citations for every answer',
-            icon: <BookOpen size={22} />,
+            label: 'save conversations and insights',
+            icon: <BookMarked size={22} />,
           },
           {
-            label: 'Ask anything about your PDF',
-            icon: <MessageCircle size={22} />,
+            label: 'Highlight, save personal notes',
+            icon: <Highlighter size={22} />,
           },
           {
-            label: 'Highlight & bookmark content',
-            icon: <Bookmark size={22} />,
-          },
-          {
-            label: 'Conversations saved on the PDF',
-            icon: <Layers size={22} />,
-          },
-          {
-            label: 'Save to dashboard & chat later',
-            icon: <Folder size={22} />,
-          },
+            label: 'Team collaboration',
+            icon: <Users size={22} />,
+          }
         ].map((item) => (
           <div key={item.label} className={styles.featureItem}>
             <div className={styles.featureItemIcon}>{item.icon}</div>
@@ -957,6 +945,34 @@ export const ToolsPdfPage: React.FC = () => {
 
       </div>
 
+
+      {/* Extension promo — right column */}
+      <div className={styles.extensionPromo}>
+        <div className={styles.extensionPromoCard}>
+          <span className={styles.extensionPromoNewBadge}>NEW · Beta</span>
+          <p className={styles.extensionPromoHeading}>Also try our Extension</p>
+          {[
+            { label: 'Chat with webpages', icon: <MessageSquare size={16} /> },
+            { label: 'Save conversations and insights', icon: <BookMarked size={16} /> },
+            { label: 'Bookmark page, text, image, words', icon: <BookMarked size={16} /> },
+            { label: 'Team collaboration', icon: <Users size={16} /> },
+          ].map((item) => (
+            <div key={item.label} className={styles.extensionPromoFeature}>
+              <div className={styles.extensionPromoFeatureIcon}>{item.icon}</div>
+              <p className={styles.extensionPromoFeatureLabel}>{item.label}</p>
+            </div>
+          ))}
+          <a
+            href="https://chromewebstore.google.com/detail/xplaino/nmphalmbdmddagbllhjnfnmodfmbnlkp"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.extensionPromoButton}
+          >
+            Try Extension for Free
+            <ArrowRight size={14} />
+          </a>
+        </div>
+      </div>
 
       </div>{/* end mainRow */}
 

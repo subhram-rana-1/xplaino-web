@@ -178,16 +178,16 @@ export const HighlightedCoupon: React.FC<HighlightedCouponProps> = ({ onDismiss,
             >
               Claim Offer
             </button>
-            <button
-              type="button"
-              className={styles.dismissBtn}
-              onClick={handleDismiss}
-              aria-label="Dismiss banner"
-            >
-              ✕
-            </button>
           </div>
         </div>
+        <button
+          type="button"
+          className={styles.dismissBtn}
+          onClick={handleDismiss}
+          aria-label="Dismiss banner"
+        >
+          ✕
+        </button>
         <div className={styles.shimmer}></div>
       </div>
     </div>

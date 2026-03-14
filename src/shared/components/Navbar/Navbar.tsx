@@ -261,7 +261,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                   >
                     <FileText className={styles.dropdownItemIcon} size={15} />
                     Chat PDF
-                    <span className={styles.dropdownItemTooltip}>Ask AI, Highlights, Notes</span>
+                    <span className={styles.dropdownItemTooltip}>Chat with PDF, Highlights, Notes, Collaborate</span>
                   </button>
                 </div>
               </div>
