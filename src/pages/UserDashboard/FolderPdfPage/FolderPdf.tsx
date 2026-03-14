@@ -271,7 +271,7 @@ export const FolderPdf: React.FC = () => {
     },
     {
       key: 'actions',
-      header: 'CHAT PDF',
+      header: '',
       align: 'left',
       render: (pdf) => {
         const isHovered = hoveredRowId === pdf.id;
