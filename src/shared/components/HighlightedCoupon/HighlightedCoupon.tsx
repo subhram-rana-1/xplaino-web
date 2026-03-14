@@ -60,9 +60,10 @@ const getFomoExpiry = (): number => {
  *
  * @returns JSX element or null if no discounts available
  */
-export const HighlightedCoupon: React.FC<HighlightedCouponProps> = ({ onDismiss: _onDismiss, placement = 'banner' }) => {
+export const HighlightedCoupon: React.FC<HighlightedCouponProps> = ({ onDismiss, placement = 'banner' }) => {
   const { monthlyPrices, yearlyPrices, isLoading, error } = usePaddle();
   const [timeRemaining, setTimeRemaining] = useState<string>('');
+  const [dismissed, setDismissed] = useState(false);
   const navigate = useNavigate();
 
   // Compute the best (maximum) discount across all Paddle prices
@@ -126,8 +127,12 @@ export const HighlightedCoupon: React.FC<HighlightedCouponProps> = ({ onDismiss:
     navigate('/pricing');
   };
 
-  // Don't render if loading, error, or no discounts available
-  if (isLoading || error || !bestDeal) {
+  const handleDismiss = () => {
+    setDismissed(true);
+    onDismiss?.();
+  };
+
+  if (dismissed || isLoading || error || !bestDeal) {
     return null;
   }
 
@@ -175,6 +180,14 @@ export const HighlightedCoupon: React.FC<HighlightedCouponProps> = ({ onDismiss:
             </button>
           </div>
         </div>
+        <button
+          type="button"
+          className={styles.dismissBtn}
+          onClick={handleDismiss}
+          aria-label="Dismiss banner"
+        >
+          ✕
+        </button>
         <div className={styles.shimmer}></div>
       </div>
     </div>

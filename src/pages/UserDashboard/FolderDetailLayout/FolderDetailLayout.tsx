@@ -69,13 +69,13 @@ export const FolderDetailLayout: React.FC = () => {
     () => [
       {
         key: 'bookmark',
-        label: 'BOOKMARKS',
+        label: 'Bookmarks',
         path: `/user/dashboard/folder/${folderId}/bookmark`,
         icon: <Bookmark />,
       },
       {
         key: 'pdf',
-        label: 'PDF',
+        label: 'Pdf',
         path: `/user/dashboard/folder/${folderId}/pdf`,
         icon: <BookOpen />,
       },

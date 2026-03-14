@@ -56,6 +56,8 @@ interface PdfSelectionTriggerProps {
   customPrompts?: CustomPromptResponse[];
   /** Called when user picks a saved custom prompt — passes the prompt title and text separately */
   onCustomPromptSelect?: (title: string, startText: string, endText: string, selectedText: string, clientY: number, promptText: string) => void;
+  /** Called when user clicks "Chat with PDF" — sends selected text to the RAG chat panel */
+  onChatWithSelection?: (selectedText: string) => void;
 }
 
 const ICON_URL = 'https://bmicorrect.com/extension/icons/extension-tooltip-v2.ico';
@@ -85,6 +87,7 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
   onAddCustomPrompt,
   customPrompts,
   onCustomPromptSelect,
+  onChatWithSelection,
 }) => {
   const [selection, setSelection] = useState<SelectionState | null>(null);
   const [isHovering, setIsHovering] = useState(false);
@@ -476,6 +479,14 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
     onAddCustomPrompt?.();
   }, [clearSelection, onAddCustomPrompt]);
 
+  const handleChatWithSelectionClick = useCallback(() => {
+    if (!selection) return;
+    setShowOptionsPopover(false);
+    onChatWithSelection?.(selection.text);
+    window.getSelection()?.removeAllRanges();
+    clearSelection();
+  }, [selection, onChatWithSelection, clearSelection]);
+
   const handleCustomPromptOptionClick = useCallback((title: string, promptText: string) => {
     if (!selection) return;
     setShowOptionsPopover(false);
@@ -591,6 +602,18 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
                   >
                     <Sparkles size={15} />
                     <span>Ask AI</span>
+                  </button>
+                )}
+
+                {onChatWithSelection && (
+                  <button
+                    type="button"
+                    className={styles.optionItem}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={(e) => { e.stopPropagation(); handleChatWithSelectionClick(); }}
+                  >
+                    <MessageSquare size={15} />
+                    <span>Chat with PDF</span>
                   </button>
                 )}
 

@@ -129,6 +129,222 @@
   margin-bottom: 0.5rem;
 }
 
+/* Two-path CTA section */
+.ctaSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.ctaDividerRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 0.25rem;
+}
+
+.ctaDividerLine {
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.ctaDividerText {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+/* PDF CTA card — mirrors ChromeTryFeaturesButton style */
+.pdfCtaCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f0fdf9 0%, #ecfeff 100%);
+  border: 1px solid rgba(15, 118, 110, 0.2);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.pdfCtaIconCircle {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.15);
+}
+
+.pdfCtaTextBlock {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.pdfCtaTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pdfCtaTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.pdfNoExtBadge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #0f766e;
+  background: #ccfbf1;
+  border: 1px solid #99f6e4;
+  border-radius: 9999px;
+  padding: 0.15rem 0.5rem;
+  white-space: nowrap;
+}
+
+.pdfCtaSubtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.pdfCtaButton {
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 0.4rem 0.9rem;
+  border-radius: 9999px;
+  border: none;
+  background: #0f766e;
+  color: #ecfeff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background 0.15s ease;
+}
+
+.pdfCtaButton:hover {
+  background: #115e59;
+}
+
+.pdfCtaArrow {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 640px) {
+  .pdfCtaCard {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pdfCtaButton {
+    margin-left: 0;
+  }
+}
+
+/* Subtle feature discovery nudge for users who already have the extension */
+.featureNudge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 1rem;
+  background: var(--bg-lighter, #f8fafc);
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+.featureNudgeLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.featureChips {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.featureChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.featureChipActive {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  padding: 0.35rem 2rem 0.35rem 0.75rem;
+  border-radius: 10px;
+  background: #ccfbf1;
+  border: 1px solid #99f6e4;
+  color: #0f766e;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  position: relative;
+}
+
+.featureChipActive:hover {
+  background: #99f6e4;
+  border-color: #5eead4;
+}
+
+.featureChipPrimary {
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.featureChipSub {
+  font-size: 0.72rem;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.featureChipArrow {
+  position: absolute;
+  right: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.85rem;
+}
+
+
 .headerSection {
   display: flex;
   flex-direction: column;

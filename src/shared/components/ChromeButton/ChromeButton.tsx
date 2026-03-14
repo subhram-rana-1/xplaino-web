@@ -32,7 +32,7 @@ export const ChromeButton: React.FC<ChromeButtonProps> = ({ stackedLabel = false
             <span className={styles.buttonLineSecondary}>It's Free</span>
           </>
         ) : (
-          <span className={styles.buttonLinePrimary}>Install Chrome Extension — It's Free</span>
+          <span className={styles.buttonLinePrimary}>Try Extension for Free</span>
         )}
       </span>
     </button>

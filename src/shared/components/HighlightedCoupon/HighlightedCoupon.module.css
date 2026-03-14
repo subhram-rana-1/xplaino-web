@@ -481,6 +481,34 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
+.dismissBtn {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 0;
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: color 0.15s ease, opacity 0.15s ease;
+  flex-shrink: 0;
+  z-index: 3;
+}
+
+.dismissBtn:hover {
+  background: none;
+  color: white;
+  opacity: 0.75;
+}
+
 .closeButton {
   position: absolute;
   top: 50%;

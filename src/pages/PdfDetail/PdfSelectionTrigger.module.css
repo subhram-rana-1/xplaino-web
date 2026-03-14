@@ -18,8 +18,8 @@
 
 /* ─── Xplaino Icon Button (teal dot with .ico) ───────────────────────────── */
 .xplainoIconButton {
-  width: 20px;
-  height: 20px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: transparent;
   border: none;
@@ -57,8 +57,8 @@
 }
 
 .xplainoIcon {
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   object-fit: contain;
   display: block;
   pointer-events: none;
