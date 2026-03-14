@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CloudUpload, FileText, Link, Check, AlertCircle, RefreshCw, ArrowRight, Info, BookOpen, MessageCircle, Bookmark, Layers, Folder, Monitor, MessageSquare, BookMarked, Highlighter, Users } from 'lucide-react';
+import { CloudUpload, FileText, Link, Check, AlertCircle, RefreshCw, ArrowRight, Info, BookOpen, MessageCircle, Bookmark, Layers, Folder, Monitor, MessageSquare, NotebookPen, Highlighter, Users } from 'lucide-react';
 import { SiGoogledrive, SiDropbox } from 'react-icons/si';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { fetchPublic, fetchWithAuth } from '@/shared/services/api-client';
@@ -134,6 +134,11 @@ export const ToolsPdfPage: React.FC = () => {
   const [unauthPdfs, setUnauthPdfs] = useState<UnauthPdf[]>([]);
   const [unauthPdfsLoading, setUnauthPdfsLoading] = useState(false);
 
+  // Recent PDFs row overflow detection
+  const [viewAllOpen, setViewAllOpen] = useState(false);
+  const [visibleCount, setVisibleCount] = useState<number | null>(null);
+  const recentRowRef = useRef<HTMLDivElement>(null);
+
   // Processing message cycling
   const [processingMsg, setProcessingMsg] = useState('Uploading to secure storage…');
   const processingMessages = [
@@ -185,6 +190,48 @@ export const ToolsPdfPage: React.FC = () => {
 
     fetchUnauthPdfs();
   }, [isLoggedIn, isLoading]);
+
+  // Detect overflow in the recent PDFs row and compute how many chips fit
+  useEffect(() => {
+    if (!recentRowRef.current || unauthPdfs.length === 0) return;
+
+    const measure = () => {
+      const row = recentRowRef.current;
+      if (!row) return;
+
+      // Temporarily show all chips to measure
+      const chips = Array.from(row.querySelectorAll<HTMLElement>('[data-pdf-chip]'));
+      const viewAllBtn = row.querySelector<HTMLElement>('[data-view-all-btn]');
+      const rowWidth = row.clientWidth;
+
+      // Sum widths of label + gap to know remaining space
+      const label = row.querySelector<HTMLElement>('[data-recent-label]');
+      const gap = 8; // 0.5rem gap
+      let usedWidth = label ? label.offsetWidth + gap : 0;
+      const viewAllWidth = viewAllBtn ? viewAllBtn.offsetWidth + gap : 60 + gap;
+
+      let count = 0;
+      for (const chip of chips) {
+        const chipWidth = chip.offsetWidth + gap;
+        if (usedWidth + chipWidth + viewAllWidth > rowWidth) break;
+        usedWidth += chipWidth;
+        count++;
+      }
+
+      const allFit = count >= chips.length;
+      setVisibleCount(allFit ? unauthPdfs.length : count);
+    };
+
+    // Run after paint so elements have their rendered sizes
+    const frame = requestAnimationFrame(measure);
+    const observer = new ResizeObserver(measure);
+    if (recentRowRef.current) observer.observe(recentRowRef.current);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [unauthPdfs]);
 
   // Real upload flow for local files
   const uploadLocalFile = useCallback(
@@ -663,30 +710,35 @@ export const ToolsPdfPage: React.FC = () => {
         </h1>
       </div>
 
-      {/* Outer row: sidebar (conditional, leftmost) + inner two-column layout */}
-      <div className={styles.outerRow}>
-
-      {/* PDF history sidebar — leftmost, outside the features+card container */}
+      {/* Recent PDFs row — shown below hero for unauthenticated users with prior uploads */}
       {!unauthPdfsLoading && unauthPdfs.length > 0 && (
-        <div className={styles.pdfSidebar}>
-          <p className={styles.pdfSidebarHeading}>Your PDFs</p>
-          <ul className={styles.pdfSidebarList}>
-            {unauthPdfs.map((pdf) => (
-              <li
-                key={pdf.id}
-                className={styles.pdfSidebarItem}
-                onClick={() => navigate(`/pdf/${pdf.id}`)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/pdf/${pdf.id}`); }}
-              >
-                <FileText className={styles.pdfSidebarItemIcon} size={14} />
-                <span className={styles.pdfSidebarItemName}>{pdf.file_name}</span>
-              </li>
-            ))}
-          </ul>
+        <div className={styles.recentPdfsRow} ref={recentRowRef}>
+          <span className={styles.recentPdfsLabel} data-recent-label>Your PDFs</span>
+          {(visibleCount === null ? unauthPdfs : unauthPdfs.slice(0, visibleCount)).map((pdf) => (
+            <button
+              key={pdf.id}
+              className={styles.recentPdfChip}
+              data-pdf-chip
+              onClick={() => window.open(`/pdf/${pdf.id}`, '_blank')}
+            >
+              <FileText size={13} />
+              <span>{pdf.file_name}</span>
+            </button>
+          ))}
+          {visibleCount !== null && visibleCount < unauthPdfs.length && (
+            <button
+              className={styles.viewAllBtn}
+              data-view-all-btn
+              onClick={() => setViewAllOpen(true)}
+            >
+              View all
+            </button>
+          )}
         </div>
       )}
+
+      {/* Outer row: inner two-column layout */}
+      <div className={styles.outerRow}>
 
       {/* Inner row: feature list + upload card */}
       <div className={styles.mainRow}>
@@ -701,7 +753,7 @@ export const ToolsPdfPage: React.FC = () => {
           },
           {
             label: 'save conversations and insights',
-            icon: <BookMarked size={22} />,
+            icon: <NotebookPen size={22} />,
           },
           {
             label: 'Highlight, save personal notes',
@@ -953,8 +1005,8 @@ export const ToolsPdfPage: React.FC = () => {
           <p className={styles.extensionPromoHeading}>Also try our Extension</p>
           {[
             { label: 'Chat with webpages', icon: <MessageSquare size={16} /> },
-            { label: 'Save conversations and insights', icon: <BookMarked size={16} /> },
-            { label: 'Bookmark page, text, image, words', icon: <BookMarked size={16} /> },
+            { label: 'Save conversations and insights', icon: <NotebookPen size={16} /> },
+            { label: 'Bookmark page, text, image, words', icon: <Bookmark size={16} /> },
             { label: 'Team collaboration', icon: <Users size={16} /> },
           ].map((item) => (
             <div key={item.label} className={styles.extensionPromoFeature}>
@@ -977,6 +1029,33 @@ export const ToolsPdfPage: React.FC = () => {
       </div>{/* end mainRow */}
 
       </div>{/* end outerRow */}
+
+      {/* View all PDFs modal */}
+      {viewAllOpen && (
+        <div className={styles.viewAllOverlay} onClick={() => setViewAllOpen(false)}>
+          <div className={styles.viewAllModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.viewAllModalHeader}>
+              <p className={styles.viewAllModalTitle}>Your PDFs</p>
+              <button className={styles.viewAllModalClose} onClick={() => setViewAllOpen(false)}>✕</button>
+            </div>
+            <ul className={styles.viewAllList}>
+              {unauthPdfs.map((pdf) => (
+                <li
+                  key={pdf.id}
+                  className={styles.viewAllItem}
+                  onClick={() => window.open(`/pdf/${pdf.id}`, '_blank')}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') window.open(`/pdf/${pdf.id}`, '_blank'); }}
+                >
+                  <FileText size={15} className={styles.viewAllItemIcon} />
+                  <span className={styles.viewAllItemName}>{pdf.file_name}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
