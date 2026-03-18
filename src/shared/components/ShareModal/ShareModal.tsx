@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, ArrowRight, UserMinus, Users } from 'lucide-react';
 import type { ShareeItem } from '@/shared/types/folders.types';
 import styles from './ShareModal.module.css';
@@ -11,6 +11,7 @@ interface ShareModalProps {
   sharees?: ShareeItem[];
   isLoadingSharees?: boolean;
   onUnshare?: (email: string) => Promise<void>;
+  onFetchSuggestedEmails?: () => Promise<string[]>;
 }
 
 const formatDate = (dateString: string): string => {
@@ -31,6 +32,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
   sharees,
   isLoadingSharees,
   onUnshare,
+  onFetchSuggestedEmails,
 }) => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +40,25 @@ export const ShareModal: React.FC<ShareModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [removingEmail, setRemovingEmail] = useState<string | null>(null);
+  const [suggestedEmails, setSuggestedEmails] = useState<string[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLUListElement>(null);
+
+  useEffect(() => {
+    if (isOpen && onFetchSuggestedEmails) {
+      onFetchSuggestedEmails().then(setSuggestedEmails).catch(() => {});
+    }
+  }, [isOpen, onFetchSuggestedEmails]);
+
+  const shareeEmails = new Set((sharees ?? []).map((s) => s.email.toLowerCase()));
+
+  const filteredSharees = (sharees ?? []).filter((s) =>
+    s.email.toLowerCase().includes(email.toLowerCase())
+  );
+
+  const filteredSuggestions = suggestedEmails.filter(
+    (e) => !shareeEmails.has(e.toLowerCase()) && e.toLowerCase().includes(email.toLowerCase())
+  );
 
   if (!isOpen && !isClosing) return null;
 
@@ -126,17 +147,20 @@ export const ShareModal: React.FC<ShareModalProps> = ({
           </p>
           <div className={styles.inputWrapper}>
             <input
-              type="email"
+              type="text"
+              inputMode="email"
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
                 setError(null);
                 setSuccessMessage(null);
               }}
+              onFocus={() => setShowDropdown(true)}
+              onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
               className={`${styles.input} ${error ? styles.inputError : ''}`}
               placeholder="Enter email address"
+              autoComplete="off"
               disabled={isLoading}
-              autoFocus
             />
             <button
               type="submit"
@@ -146,6 +170,60 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             >
               <ArrowRight />
             </button>
+            {showDropdown && (filteredSharees.length > 0 || isLoadingSharees || filteredSuggestions.length > 0) && (
+              <ul ref={dropdownRef} className={styles.suggestionsDropdown}>
+                {/* Sharee section */}
+                {(isLoadingSharees || filteredSharees.length > 0) && (
+                  <>
+                    {isLoadingSharees ? (
+                      <li className={styles.dropdownLoadingRow}>Loading…</li>
+                    ) : (
+                      filteredSharees.map((sharee) => (
+                        <li key={sharee.email} className={styles.shareeDropdownRow}>
+                          <span className={styles.shareeDropdownEmail}>{sharee.email}</span>
+                          {onUnshare && (
+                            <button
+                              type="button"
+                              className={styles.removeShareBtn}
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                handleUnshare(sharee.email);
+                              }}
+                              disabled={removingEmail === sharee.email}
+                            >
+                              {removingEmail === sharee.email ? (
+                                'Removing…'
+                              ) : (
+                                <><UserMinus size={12} /><span>Remove</span></>
+                              )}
+                            </button>
+                          )}
+                        </li>
+                      ))
+                    )}
+                  </>
+                )}
+                {/* Suggestions section */}
+                {filteredSuggestions.length > 0 && (
+                  <>
+                    {filteredSuggestions.map((suggestion) => (
+                      <li
+                        key={suggestion}
+                        className={styles.suggestionItem}
+                        onMouseDown={() => {
+                          setEmail(suggestion);
+                          setShowDropdown(false);
+                          setError(null);
+                          setSuccessMessage(null);
+                        }}
+                      >
+                        {suggestion}
+                      </li>
+                    ))}
+                  </>
+                )}
+              </ul>
+            )}
           </div>
 
           {successMessage && (

@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, RefreshCw, Plus, Check } from 'lucide-react';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { getAllPdfs, deletePdf, getDownloadUrl, sharePdf, unsharePdf, getPdfShareeList, makePdfPublic, makePdfPrivate } from '@/shared/services/pdf.service';
-import { getAllFolders } from '@/shared/services/folders.service';
+import { getAllFolders, getSharedToEmails } from '@/shared/services/folders.service';
 import type { PdfResponse } from '@/shared/types/pdf.types';
 import type { FolderWithSubFolders, ShareeItem } from '@/shared/types/folders.types';
 import { Toast } from '@/shared/components/Toast';
@@ -397,6 +397,7 @@ export const FolderPdf: React.FC = () => {
         sharees={pdfShareeList}
         isLoadingSharees={isPdfShareeListLoading}
         onUnshare={handleUnsharePdf}
+        onFetchSuggestedEmails={accessToken ? () => getSharedToEmails(accessToken) : undefined}
       />
 
       <ShareeListModal

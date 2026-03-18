@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, ArrowRight, Globe, Lock, Users, Link, Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, ArrowRight, Globe, Lock, Link, Check, ChevronDown, UserMinus } from 'lucide-react';
 import type { PdfResponse } from '@/shared/types/pdf.types';
 import type { ShareeItem } from '@/shared/types/folders.types';
 import styles from './PdfShareModal.module.css';
@@ -20,6 +20,7 @@ interface PdfShareModalProps {
   isLoadingSharees?: boolean;
   onUnshare?: (email: string) => Promise<void>;
   onFetchSharees?: () => Promise<void>;
+  onFetchSuggestedEmails?: () => Promise<string[]>;
 }
 
 type SocialPlatform = 'linkedin' | 'twitter' | 'facebook' | 'whatsapp';
@@ -82,10 +83,17 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
   accessLevel,
   pdfId,
   isOwner,
+  sharees,
+  isLoadingSharees,
+  onUnshare,
   onFetchSharees,
+  onFetchSuggestedEmails,
 }) => {
   const [email, setEmail] = useState('');
-  const [showSharees, setShowSharees] = useState(false);
+  const [suggestedEmails, setSuggestedEmails] = useState<string[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [removingEmail, setRemovingEmail] = useState<string | null>(null);
+  const emailDropdownRef = useRef<HTMLUListElement>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [emailSuccess, setEmailSuccess] = useState<string | null>(null);
   const [isEmailLoading, setIsEmailLoading] = useState(false);
@@ -133,6 +141,38 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
     setLocalAccessLevel(accessLevel);
     setShowMakePublicHint(false);
   }, [accessLevel, isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (onFetchSuggestedEmails) {
+        onFetchSuggestedEmails().then(setSuggestedEmails).catch(() => {});
+      }
+      if (onFetchSharees) {
+        onFetchSharees().catch(() => {});
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+
+  const shareeEmails = new Set((sharees ?? []).map((s) => s.email.toLowerCase()));
+
+  const filteredSharees = (sharees ?? []).filter((s) =>
+    s.email.toLowerCase().includes(email.toLowerCase())
+  );
+
+  const filteredSuggestions = suggestedEmails.filter(
+    (e) => !shareeEmails.has(e.toLowerCase()) && e.toLowerCase().includes(email.toLowerCase())
+  );
+
+  const handleRemoveShare = async (shareeEmail: string) => {
+    if (!onUnshare) return;
+    setRemovingEmail(shareeEmail);
+    try {
+      await onUnshare(shareeEmail);
+    } finally {
+      setRemovingEmail(null);
+    }
+  };
 
   if (!isOpen && !isClosing) return null;
 
@@ -295,7 +335,6 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
       setPendingCopyLink(false);
       setMakePublicError(null);
       setMakePrivateError(null);
-      setShowSharees(false);
       setShowMakePublicHint(false);
       setAccessDropdownOpen(false);
       setIsClosing(false);
@@ -333,17 +372,20 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
             <form onSubmit={handleEmailSubmit} className={styles.emailForm}>
               <div className={styles.inputWrapper}>
                 <input
-                  type="email"
+                  type="text"
+                  inputMode="email"
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
                     setEmailError(null);
                     setEmailSuccess(null);
                   }}
+                  onFocus={() => setShowDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
                   className={`${styles.input} ${emailError ? styles.inputError : ''}`}
                   placeholder="Enter email address"
+                  autoComplete="off"
                   disabled={isEmailLoading}
-                  autoFocus
                 />
                 <button
                   type="submit"
@@ -353,6 +395,60 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
                 >
                   <ArrowRight />
                 </button>
+                {showDropdown && (filteredSharees.length > 0 || isLoadingSharees || filteredSuggestions.length > 0) && (
+                  <ul ref={emailDropdownRef} className={styles.suggestionsDropdown}>
+                    {/* Sharee section */}
+                    {(isLoadingSharees || filteredSharees.length > 0) && (
+                      <>
+                        {isLoadingSharees ? (
+                          <li className={styles.dropdownLoadingRow}>Loading…</li>
+                        ) : (
+                          filteredSharees.map((sharee) => (
+                            <li key={sharee.email} className={styles.shareeDropdownRow}>
+                              <span className={styles.shareeDropdownEmail}>{sharee.email}</span>
+                              {onUnshare && (
+                                <button
+                                  type="button"
+                                  className={styles.removeShareBtn}
+                                  onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    handleRemoveShare(sharee.email);
+                                  }}
+                                  disabled={removingEmail === sharee.email}
+                                >
+                                  {removingEmail === sharee.email ? (
+                                    'Removing…'
+                                  ) : (
+                                    <><UserMinus size={12} /><span>Remove</span></>
+                                  )}
+                                </button>
+                              )}
+                            </li>
+                          ))
+                        )}
+                      </>
+                    )}
+                    {/* Suggestions section */}
+                    {filteredSuggestions.length > 0 && (
+                      <>
+                        {filteredSuggestions.map((suggestion) => (
+                          <li
+                            key={suggestion}
+                            className={styles.suggestionItem}
+                            onMouseDown={() => {
+                              setEmail(suggestion);
+                              setShowDropdown(false);
+                              setEmailError(null);
+                              setEmailSuccess(null);
+                            }}
+                          >
+                            {suggestion}
+                          </li>
+                        ))}
+                      </>
+                    )}
+                  </ul>
+                )}
               </div>
               {emailSuccess && (
                 <div className={styles.successMessage}>{emailSuccess}</div>
@@ -361,23 +457,6 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
                 <div className={styles.errorMessage}>{emailError}</div>
               )}
             </form>
-
-            {onFetchSharees && (
-              <button
-                type="button"
-                className={styles.manageSharesBtn}
-                onClick={async () => {
-                  if (!showSharees) {
-                    await onFetchSharees();
-                  }
-                  setShowSharees((v) => !v);
-                }}
-              >
-                <Users size={14} />
-                <span>{showSharees ? 'Hide shared list' : 'Manage shares'}</span>
-                {showSharees ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-              </button>
-            )}
 
             {/* Link preview row */}
             <button

@@ -7,7 +7,7 @@ import { Plus, ChevronLeft, ChevronRight, Eye, EyeOff, Share2, Download, Message
 import styles from './PdfDetail.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { getPdfById, getAllPdfs, sharePdf, makePdfPublic, makePdfPrivate, getPdfShareeList, unsharePdf, getDownloadUrl, deletePdf } from '@/shared/services/pdf.service';
-import { getAllFolders } from '@/shared/services/folders.service';
+import { getAllFolders, getSharedToEmails } from '@/shared/services/folders.service';
 import type { FolderWithSubFolders, ShareeItem } from '@/shared/types/folders.types';
 import { getUserSettings, updateUserSettings } from '@/shared/services/user-settings.service';
 import type { PdfResponse } from '@/shared/types/pdf.types';
@@ -1383,6 +1383,7 @@ export const PdfDetail: React.FC = () => {
         isLoadingSharees={isPdfShareeListLoading}
         onUnshare={handleUnsharePdf}
         onFetchSharees={handleFetchSharees}
+        onFetchSuggestedEmails={accessToken ? () => getSharedToEmails(accessToken) : undefined}
       />
 
       <ShareeListModal

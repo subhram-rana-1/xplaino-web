@@ -193,6 +193,28 @@ export async function getSharedFolders(
 }
 
 /**
+ * Get all emails that the current user has previously shared folders or PDFs with
+ */
+export async function getSharedToEmails(
+  _accessToken: string
+): Promise<string[]> {
+  const response = await fetchWithAuth(
+    `${authConfig.catenBaseUrl}/api/shared-users/emails`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
+
+  if (!response.ok) {
+    return [];
+  }
+
+  const data = await response.json() as { emails: string[] };
+  return data.emails ?? [];
+}
+
+/**
  * Rename a folder by ID
  */
 export async function renameFolder(

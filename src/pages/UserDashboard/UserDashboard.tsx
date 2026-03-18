@@ -12,6 +12,7 @@ import {
   unshareFolder,
   getFolderShareeList,
   getSharedFolders,
+  getSharedToEmails,
 } from '@/shared/services/folders.service';
 import { getSharedPdfs } from '@/shared/services/pdf.service';
 import type { FolderWithSubFolders, SharedFolderItem, ShareeItem } from '@/shared/types/folders.types';
@@ -626,6 +627,7 @@ export const UserDashboard: React.FC = () => {
           sharees={shareeList}
           isLoadingSharees={isShareeListLoading}
           onUnshare={handleUnshare}
+          onFetchSuggestedEmails={accessToken ? () => getSharedToEmails(accessToken) : undefined}
         />
 
         {/* Manage Sharing (Sharee List) Modal */}
