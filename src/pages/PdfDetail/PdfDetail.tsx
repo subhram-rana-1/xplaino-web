@@ -32,6 +32,7 @@ import { listCustomPrompts } from '@/shared/services/customPrompt.service';
 import type { CustomPromptResponse } from '@/shared/types/customPrompt.types';
 import { normalisePdfText } from './pdfTextNormalise';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
+import { PdfLoadingScreen } from './PdfLoadingScreen';
 
 // PDF.js worker: use same version as react-pdf's pdfjs-dist (5.4.296)
 pdfjs.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@5.4.296/build/pdf.worker.min.mjs';
@@ -931,7 +932,7 @@ export const PdfDetail: React.FC = () => {
         {sidebar}
         {sidebarToggle}
         <div className={styles.mainArea}>
-          <div className={styles.loading}>Loading PDF...</div>
+          <PdfLoadingScreen />
         </div>
         {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       </div>

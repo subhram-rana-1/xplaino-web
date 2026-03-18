@@ -1,0 +1,180 @@
+/* ─── Container ──────────────────────────────────────────────────────────── */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  min-height: 400px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  padding: 3rem 2rem;
+}
+
+/* ─── Background glow ────────────────────────────────────────────────────── */
+.bgGlow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 50% 50%, var(--teal-rgba-10), transparent 70%);
+  pointer-events: none;
+}
+
+/* ─── Orbit ring ─────────────────────────────────────────────────────────── */
+.orbitRing {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  animation: spinRing 12s linear infinite;
+}
+
+@keyframes spinRing {
+  to { transform: rotate(360deg); }
+}
+
+/* Each icon is placed on the ring using polar coordinates */
+.orbitItem {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 36px;
+  height: 36px;
+  margin: -18px;
+  transform:
+    rotate(var(--orbit-angle))
+    translateY(-80px);
+  animation: counterSpin 12s linear infinite, iconPop var(--orbit-delay, 0s) 0.6s both;
+}
+
+/* Counter-rotate so icons stay upright while the ring spins */
+@keyframes counterSpin {
+  to { transform: rotate(calc(var(--orbit-angle) + 360deg)) translateY(-80px); }
+}
+
+@keyframes iconPop {
+  0%   { opacity: 0; transform: rotate(var(--orbit-angle)) translateY(-80px) scale(0.4); }
+  100% { opacity: 1; transform: rotate(var(--orbit-angle)) translateY(-80px) scale(1); }
+}
+
+.iconBubble {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--teal-lighter);
+  border: 1.5px solid var(--teal-rgba-30);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--teal);
+  box-shadow: 0 2px 8px var(--teal-rgba-15);
+  transition: transform 0.2s;
+}
+
+/* ─── Centre document icon ───────────────────────────────────────────────── */
+.centreIcon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--bg-white, #fff);
+  border: 2px solid var(--teal-rgba-25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--teal);
+  box-shadow:
+    0 4px 20px var(--teal-rgba-20),
+    0 0 0 0 var(--teal-rgba-30);
+  animation: counterSpin 12s linear infinite, iconBreath 2.4s ease-in-out infinite;
+  z-index: 2;
+}
+
+@keyframes iconBreath {
+  0%, 100% { box-shadow: 0 4px 20px var(--teal-rgba-20), 0 0 0 0 var(--teal-rgba-25); }
+  50%       { box-shadow: 0 6px 28px var(--teal-rgba-30), 0 0 0 10px var(--teal-rgba-10); }
+}
+
+/* Pulse ring behind centre icon */
+.pulse {
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  border: 2px solid var(--teal-rgba-40);
+  animation: pulsate 2.4s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pulsate {
+  0%   { transform: scale(1);    opacity: 0.7; }
+  100% { transform: scale(1.55); opacity: 0; }
+}
+
+/* ─── Dots row ───────────────────────────────────────────────────────────── */
+.dotsRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--teal-rgba-60);
+  animation: dotBounce 1.2s ease-in-out infinite;
+  animation-delay: var(--dot-delay, 0s);
+}
+
+@keyframes dotBounce {
+  0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+  40%           { transform: scale(1.2); opacity: 1; }
+}
+
+/* ─── Rotating message ───────────────────────────────────────────────────── */
+.message {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--teal);
+  letter-spacing: 0.01em;
+  text-align: center;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  margin: 0;
+}
+
+.messageVisible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.messageHidden {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+/* ─── Progress bar ───────────────────────────────────────────────────────── */
+.progressTrack {
+  width: 220px;
+  height: 3px;
+  border-radius: 99px;
+  background: var(--teal-rgba-10);
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--teal), var(--teal-light));
+  animation: progressShimmer 2s ease-in-out infinite;
+  transform-origin: left;
+}
+
+@keyframes progressShimmer {
+  0%   { width: 0%;    opacity: 0.7; }
+  50%  { width: 80%;   opacity: 1; }
+  100% { width: 100%;  opacity: 0.7; }
+}
