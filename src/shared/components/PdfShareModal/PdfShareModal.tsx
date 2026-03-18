@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { X, ArrowRight, Globe, Lock, UserMinus, Users, Link, Check, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { X, ArrowRight, Globe, Lock, Users, Link, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import type { PdfResponse } from '@/shared/types/pdf.types';
 import type { ShareeItem } from '@/shared/types/folders.types';
 import styles from './PdfShareModal.module.css';
@@ -69,15 +70,7 @@ function buildSocialUrl(platform: SocialPlatform, pdfUrl: string): string {
   }
 }
 
-const formatDate = (dateString: string): string => {
-  try {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric', month: 'short', day: 'numeric',
-    });
-  } catch {
-    return dateString;
-  }
-};
+// formatDate removed (people-with-access section removed)
 
 export const PdfShareModal: React.FC<PdfShareModalProps> = ({
   isOpen,
@@ -89,9 +82,6 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
   accessLevel,
   pdfId,
   isOwner,
-  sharees,
-  isLoadingSharees,
-  onUnshare,
   onFetchSharees,
 }) => {
   const [email, setEmail] = useState('');
@@ -101,6 +91,10 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
   const [isEmailLoading, setIsEmailLoading] = useState(false);
 
   const [localAccessLevel, setLocalAccessLevel] = useState<'PUBLIC' | 'PRIVATE'>(accessLevel);
+  const [accessDropdownOpen, setAccessDropdownOpen] = useState(false);
+  const accessDropdownRef = useRef<HTMLDivElement>(null);
+  const accessTriggerRef = useRef<HTMLButtonElement>(null);
+  const accessMenuRef = useRef<HTMLDivElement>(null);
   const [pendingPlatform, setPendingPlatform] = useState<SocialPlatform | null>(null);
   const [pendingCopyLink, setPendingCopyLink] = useState(false);
   const [isMakingPublic, setIsMakingPublic] = useState(false);
@@ -109,12 +103,35 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
   const [makePrivateError, setMakePrivateError] = useState<string | null>(null);
 
   const [isClosing, setIsClosing] = useState(false);
-  const [removingEmail, setRemovingEmail] = useState<string | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [showMakePublicHint, setShowMakePublicHint] = useState(false);
+  const [isMakingPublicFromHint, setIsMakingPublicFromHint] = useState(false);
+
+  // Close access dropdown on outside click
+  useEffect(() => {
+    if (!accessDropdownOpen) return;
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Node;
+      const insideTrigger = accessTriggerRef.current?.contains(target);
+      const insideMenu = accessMenuRef.current?.contains(target);
+      if (!insideTrigger && !insideMenu) {
+        setAccessDropdownOpen(false);
+      }
+    };
+    // Use a small delay so the portal has time to mount and set accessMenuRef
+    const timer = setTimeout(() => {
+      document.addEventListener('mousedown', handler);
+    }, 0);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('mousedown', handler);
+    };
+  }, [accessDropdownOpen]);
 
   // Sync localAccessLevel when prop changes (e.g. modal re-opens for a different PDF)
   React.useEffect(() => {
     setLocalAccessLevel(accessLevel);
+    setShowMakePublicHint(false);
   }, [accessLevel, isOpen]);
 
   if (!isOpen && !isClosing) return null;
@@ -198,22 +215,12 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
     }
   };
 
-  const handleCopyIconClick = () => {
-    if (localAccessLevel === 'PUBLIC' || !isOwner) {
-      handleCopyLink();
-    } else {
-      setPendingCopyLink(true);
-      setMakePublicError(null);
-    }
-  };
-
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(pdfUrl);
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 2000);
     } catch {
-      // fallback: select a temporary input
       const input = document.createElement('input');
       input.value = pdfUrl;
       document.body.appendChild(input);
@@ -223,15 +230,22 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 2000);
     }
+    // Show make-public hint for owners when PDF is still private
+    if (isOwner && localAccessLevel === 'PRIVATE') {
+      setShowMakePublicHint(true);
+    }
   };
 
-  const handleUnshare = async (shareeEmail: string) => {
-    if (!onUnshare) return;
-    setRemovingEmail(shareeEmail);
+  const handleMakePublicFromHint = async () => {
+    setIsMakingPublicFromHint(true);
     try {
-      await onUnshare(shareeEmail);
+      await onMakePublic();
+      setLocalAccessLevel('PUBLIC');
+      setShowMakePublicHint(false);
+    } catch {
+      // keep hint visible so user can retry
     } finally {
-      setRemovingEmail(null);
+      setIsMakingPublicFromHint(false);
     }
   };
 
@@ -249,6 +263,27 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
     }
   };
 
+  const handleAccessLevelChange = async (level: 'PUBLIC' | 'PRIVATE') => {
+    setAccessDropdownOpen(false);
+    if (level === localAccessLevel) return;
+    if (level === 'PUBLIC') {
+      // If there's a pending social action use that flow, otherwise just make public
+      setIsMakingPublic(true);
+      setMakePublicError(null);
+      try {
+        await onMakePublic();
+        setLocalAccessLevel('PUBLIC');
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Failed to make PDF public';
+        setMakePublicError(msg);
+      } finally {
+        setIsMakingPublic(false);
+      }
+    } else {
+      await handleMakePrivate();
+    }
+  };
+
   const handleClose = () => {
     if (isEmailLoading || isMakingPublic || isMakingPrivate) return;
     setIsClosing(true);
@@ -261,12 +296,15 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
       setMakePublicError(null);
       setMakePrivateError(null);
       setShowSharees(false);
+      setShowMakePublicHint(false);
+      setAccessDropdownOpen(false);
       setIsClosing(false);
       onClose();
     }, 300);
   };
 
   return (
+    <>
     <div
       className={`${styles.overlay} ${isClosing ? styles.closing : ''}`}
       onClick={handleClose}
@@ -290,113 +328,221 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
 
         {/* Email share section — owners only */}
         {isOwner && (
-          <>
-            <div className={styles.section}>
-              <p className={styles.sectionLabel}>Share via email</p>
-              <form onSubmit={handleEmailSubmit} className={styles.emailForm}>
-                <div className={styles.inputWrapper}>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      setEmailError(null);
-                      setEmailSuccess(null);
-                    }}
-                    className={`${styles.input} ${emailError ? styles.inputError : ''}`}
-                    placeholder="Enter email address"
-                    disabled={isEmailLoading}
-                    autoFocus
-                  />
+          <div className={styles.section}>
+            <p className={styles.sectionLabel}>Share via email</p>
+            <form onSubmit={handleEmailSubmit} className={styles.emailForm}>
+              <div className={styles.inputWrapper}>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailError(null);
+                    setEmailSuccess(null);
+                  }}
+                  className={`${styles.input} ${emailError ? styles.inputError : ''}`}
+                  placeholder="Enter email address"
+                  disabled={isEmailLoading}
+                  autoFocus
+                />
+                <button
+                  type="submit"
+                  className={styles.submitButton}
+                  disabled={isEmailLoading || !email.trim()}
+                  aria-label="Share via email"
+                >
+                  <ArrowRight />
+                </button>
+              </div>
+              {emailSuccess && (
+                <div className={styles.successMessage}>{emailSuccess}</div>
+              )}
+              {emailError && (
+                <div className={styles.errorMessage}>{emailError}</div>
+              )}
+            </form>
+
+            {onFetchSharees && (
+              <button
+                type="button"
+                className={styles.manageSharesBtn}
+                onClick={async () => {
+                  if (!showSharees) {
+                    await onFetchSharees();
+                  }
+                  setShowSharees((v) => !v);
+                }}
+              >
+                <Users size={14} />
+                <span>{showSharees ? 'Hide shared list' : 'Manage shares'}</span>
+                {showSharees ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              </button>
+            )}
+
+            {/* Link preview row */}
+            <button
+              type="button"
+              className={`${styles.linkPreviewRow} ${linkCopied ? styles.linkPreviewRowCopied : ''}`}
+              onClick={handleCopyLink}
+              title="Copy PDF link"
+              aria-label="Copy PDF link"
+            >
+              <span className={styles.linkPreviewUrl}>{pdfUrl}</span>
+              <span className={styles.linkPreviewCopyBtn}>
+                {linkCopied ? <><Check size={13} /><span>Copied!</span></> : <><Link size={13} /><span>Copy link</span></>}
+              </span>
+            </button>
+
+            {/* Make-public hint after copying a private PDF link */}
+            {showMakePublicHint && localAccessLevel === 'PRIVATE' && (
+              <>
+                <div className={styles.makePublicHint}>
+                  <span className={styles.makePublicHintText}>
+                    Want anyone with this link to be able to view it? Make the PDF public.
+                  </span>
+                </div>
+                <div className={styles.makePublicHintActions}>
                   <button
-                    type="submit"
-                    className={styles.submitButton}
-                    disabled={isEmailLoading || !email.trim()}
-                    aria-label="Share via email"
+                    type="button"
+                    className={styles.makePublicHintNo}
+                    onClick={() => setShowMakePublicHint(false)}
+                    disabled={isMakingPublicFromHint}
                   >
-                    <ArrowRight />
+                    No
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.makePublicHintYes}
+                    onClick={handleMakePublicFromHint}
+                    disabled={isMakingPublicFromHint}
+                  >
+                    {isMakingPublicFromHint ? 'Making public…' : 'Make public'}
                   </button>
                 </div>
-                {emailSuccess && (
-                  <div className={styles.successMessage}>{emailSuccess}</div>
-                )}
-                {emailError && (
-                  <div className={styles.errorMessage}>{emailError}</div>
-                )}
-              </form>
-
-              {onFetchSharees && (
-                <button
-                  type="button"
-                  className={styles.manageSharesBtn}
-                  onClick={async () => {
-                    if (!showSharees) {
-                      await onFetchSharees();
-                    }
-                    setShowSharees((v) => !v);
-                  }}
-                >
-                  <Users size={14} />
-                  <span>{showSharees ? 'Hide shared list' : 'Manage shares'}</span>
-                  {showSharees ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                </button>
-              )}
-            </div>
-
-            {/* Divider between email and social sections */}
-            <div className={styles.divider}>
-              <span className={styles.dividerText}>Share on public</span>
-            </div>
-          </>
+              </>
+            )}
+          </div>
         )}
+
+        {/* Link preview for non-owners */}
+        {!isOwner && (
+          <div className={styles.section} style={{paddingBottom: 0}}>
+            <button
+              type="button"
+              className={`${styles.linkPreviewRow} ${linkCopied ? styles.linkPreviewRowCopied : ''}`}
+              onClick={handleCopyLink}
+              title="Copy PDF link"
+              aria-label="Copy PDF link"
+            >
+              <span className={styles.linkPreviewUrl}>{pdfUrl}</span>
+              <span className={styles.linkPreviewCopyBtn}>
+                {linkCopied ? <><Check size={13} /><span>Copied!</span></> : <><Link size={13} /><span>Copy link</span></>}
+              </span>
+            </button>
+          </div>
+        )}
+
+        {/* Access level — centered, sits between email and the "Share on public" divider */}
+        {isOwner ? (
+          <div className={styles.accessDropdownCenter} ref={accessDropdownRef}>
+            <button
+              ref={accessTriggerRef}
+              type="button"
+              className={styles.accessDropdownTrigger}
+              onClick={() => setAccessDropdownOpen((v) => !v)}
+              disabled={isMakingPublic || isMakingPrivate}
+              aria-haspopup="listbox"
+              aria-expanded={accessDropdownOpen}
+            >
+              {localAccessLevel === 'PRIVATE' ? (
+                <><Lock size={14} /><span>Only people shared can access</span></>
+              ) : (
+                <><Globe size={14} /><span>Anyone with this link can view</span></>
+              )}
+              <ChevronDown size={14} className={`${styles.accessDropdownChevron} ${accessDropdownOpen ? styles.accessDropdownChevronOpen : ''}`} />
+            </button>
+
+            {accessDropdownOpen && (() => {
+              const rect = accessTriggerRef.current?.getBoundingClientRect();
+              const menuWidth = 280; // matches min-width in CSS
+              return createPortal(
+                <div
+                  ref={accessMenuRef}
+                  className={styles.accessDropdownMenu}
+                  role="listbox"
+                  style={rect ? {
+                    position: 'fixed',
+                    top: `${rect.bottom + 6}px`,
+                    left: `${rect.left + rect.width / 2 - menuWidth / 2}px`,
+                  } : undefined}
+                >
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={localAccessLevel === 'PRIVATE'}
+                    className={`${styles.accessDropdownOption} ${localAccessLevel === 'PRIVATE' ? styles.accessDropdownOptionActive : ''}`}
+                    onClick={() => handleAccessLevelChange('PRIVATE')}
+                  >
+                    <div className={styles.accessDropdownOptionIcon}>
+                      <Lock size={15} />
+                    </div>
+                    <div className={styles.accessDropdownOptionContent}>
+                      <span className={styles.accessDropdownOptionLabel}>Only people shared can access</span>
+                      <span className={styles.accessDropdownOptionDesc}>Only users you've shared with can view</span>
+                    </div>
+                    {localAccessLevel === 'PRIVATE' && <Check size={14} className={styles.accessDropdownOptionCheck} />}
+                  </button>
+
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={localAccessLevel === 'PUBLIC'}
+                    className={`${styles.accessDropdownOption} ${localAccessLevel === 'PUBLIC' ? styles.accessDropdownOptionActive : ''}`}
+                    onClick={() => handleAccessLevelChange('PUBLIC')}
+                  >
+                    <div className={styles.accessDropdownOptionIcon}>
+                      <Globe size={15} />
+                    </div>
+                    <div className={styles.accessDropdownOptionContent}>
+                      <span className={styles.accessDropdownOptionLabel}>Anyone with this link can view</span>
+                      <span className={styles.accessDropdownOptionDesc}>Anyone who has the link can access this PDF</span>
+                    </div>
+                    {localAccessLevel === 'PUBLIC' && <Check size={14} className={styles.accessDropdownOptionCheck} />}
+                  </button>
+                </div>,
+                document.body
+              );
+            })()}
+          </div>
+        ) : (
+          <div className={styles.accessBadgeCenter}>
+            {localAccessLevel === 'PRIVATE' ? (
+              <span className={styles.badgePrivate}>
+                <Lock size={13} />
+                Only people shared can access
+              </span>
+            ) : (
+              <span className={styles.badgePublic}>
+                <Globe size={13} />
+                Anyone with this link can view
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Divider above social share section */}
+        <div className={styles.divider}>
+          <span className={styles.dividerText}>Share on public</span>
+        </div>
 
         {/* Social share section */}
         <div className={styles.section}>
-          <div className={styles.accessBadgeRow}>
-            <div className={styles.accessBadge}>
-              {localAccessLevel === 'PUBLIC' ? (
-                <span className={styles.badgePublic}>
-                  <Globe size={13} />
-                  Public — anyone with the link can view
-                </span>
-              ) : (
-                <span className={styles.badgePrivate}>
-                  <Lock size={13} />
-                  Private — only shared users can view
-                </span>
-              )}
-            </div>
 
-            {/* Owner-only: Make Private button when PDF is PUBLIC */}
-            {isOwner && localAccessLevel === 'PUBLIC' && (
-              <button
-                type="button"
-                className={styles.makePrivateBtn}
-                onClick={handleMakePrivate}
-                disabled={isMakingPrivate}
-                title="Make this PDF private"
-              >
-                <Lock size={12} />
-                {isMakingPrivate ? 'Making private…' : 'Make private'}
-              </button>
-            )}
-          </div>
-
-          {makePrivateError && (
-            <div className={styles.errorMessage}>{makePrivateError}</div>
+          {(makePublicError || makePrivateError) && (
+            <div className={styles.errorMessage}>{makePublicError || makePrivateError}</div>
           )}
 
           <div className={styles.socialButtons}>
-            <button
-              type="button"
-              className={`${styles.socialButton} ${styles.social_copy} ${linkCopied ? styles.social_copy_copied : ''}`}
-              onClick={handleCopyIconClick}
-              title="Copy PDF link"
-              aria-label="Copy PDF link"
-              disabled={isMakingPublic || isMakingPrivate}
-            >
-              {linkCopied ? <Check size={18} /> : <Link size={18} />}
-            </button>
             {SOCIAL_PLATFORMS.map(({ id, label, Icon }) => (
               <button
                 key={id}
@@ -419,87 +565,46 @@ export const PdfShareModal: React.FC<PdfShareModalProps> = ({
             </div>
           )}
 
-          {/* Owner inline confirmation when PDF is private */}
-          {isOwner && (pendingPlatform || pendingCopyLink) && (
-            <div className={styles.makePublicConfirm}>
-              <p className={styles.makePublicMessage}>
-                This PDF is currently private. Make it public so anyone with the link can view it?
-              </p>
-              {makePublicError && (
-                <div className={styles.errorMessage}>{makePublicError}</div>
-              )}
-              <div className={styles.makePublicActions}>
-                <button
-                  className={styles.makePublicConfirmButton}
-                  onClick={handleMakePublicConfirm}
-                  disabled={isMakingPublic}
-                >
-                  {isMakingPublic
-                    ? 'Making public...'
-                    : pendingCopyLink
-                      ? 'Make public and copy pdf link'
-                      : 'Make public & share'}
-                </button>
-                <button
-                  className={styles.makePublicCancelButton}
-                  onClick={handleMakePublicCancel}
-                  disabled={isMakingPublic}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
         </div>
-
-        {/* People with access section — owners only */}
-        {isOwner && onUnshare !== undefined && (!onFetchSharees || showSharees) && (
-          <div className={styles.shareeSection}>
-            <div className={styles.shareeDivider}>
-              <span className={styles.shareeDividerText}>People with access</span>
-            </div>
-            {isLoadingSharees ? (
-              <div className={styles.shareeLoading}>Loading...</div>
-            ) : !sharees || sharees.length === 0 ? (
-              <div className={styles.shareeEmpty}>
-                <Users className={styles.shareeEmptyIcon} />
-                <span>Not shared with anyone yet.</span>
-              </div>
-            ) : (
-              <ul className={styles.shareeList}>
-                {sharees.map((sharee) => (
-                  <li key={sharee.email} className={styles.shareeRow}>
-                    <div className={styles.shareeInfo}>
-                      <span className={styles.shareeEmail}>{sharee.email}</span>
-                      <span className={styles.shareeDate}>
-                        Shared on {formatDate(sharee.shared_at)}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      className={styles.unshareButton}
-                      onClick={() => handleUnshare(sharee.email)}
-                      disabled={removingEmail === sharee.email}
-                      title={`Remove access for ${sharee.email}`}
-                      aria-label={`Remove access for ${sharee.email}`}
-                    >
-                      {removingEmail === sharee.email ? (
-                        <span>Removing...</span>
-                      ) : (
-                        <>
-                          <UserMinus size={13} />
-                          <span>Remove</span>
-                        </>
-                      )}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
       </div>
     </div>
+
+    {/* Make-public confirmation modal — rendered via portal so it sits above everything */}
+    {isOwner && (pendingPlatform || pendingCopyLink) && createPortal(
+      <div className={styles.confirmOverlay} onClick={handleMakePublicCancel}>
+        <div className={styles.confirmDialog} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.confirmIconWrap}>
+            <Globe size={28} />
+          </div>
+          <h3 className={styles.confirmTitle}>Make this PDF publicly accessible?</h3>
+          <p className={styles.confirmBody}>
+            This will allow <strong>anyone with the link</strong> to view this PDF (view only).
+            You can make it private again at any time.
+          </p>
+          {makePublicError && (
+            <div className={styles.errorMessage}>{makePublicError}</div>
+          )}
+          <div className={styles.confirmActions}>
+            <button
+              className={styles.makePublicCancelButton}
+              onClick={handleMakePublicCancel}
+              disabled={isMakingPublic}
+            >
+              Cancel
+            </button>
+            <button
+              className={styles.makePublicConfirmButton}
+              onClick={handleMakePublicConfirm}
+              disabled={isMakingPublic}
+            >
+              {isMakingPublic ? 'Making public…' : 'OK, make public'}
+            </button>
+          </div>
+        </div>
+      </div>,
+      document.body
+    )}
+    </>
   );
 };
 

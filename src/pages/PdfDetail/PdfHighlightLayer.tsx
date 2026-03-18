@@ -6,6 +6,28 @@ import type { PdfNote } from '@/shared/services/pdfNoteService';
 import { normalisePdfText, buildNormalisedWithIndexMap } from './pdfTextNormalise';
 import styles from './PdfHighlightLayer.module.css';
 
+/** Convert a hex color to an opaque pastel by alpha-blending over white.
+ *  e.g. hexToPastel('#fbbf24', 0.33) → 'rgb(253,235,191)' — a light amber. */
+function hexToPastel(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  const blend = (c: number) => Math.round(c * alpha + 255 * (1 - alpha));
+  return `rgb(${blend(r)},${blend(g)},${blend(b)})`;
+}
+
+const NOTE_EDITOR_SIZE_KEY = 'xplaino-note-editor-size';
+
+function getSavedNoteEditorSize(): { width: number; height: number } | null {
+  try {
+    const raw = localStorage.getItem(NOTE_EDITOR_SIZE_KEY);
+    if (!raw) return null;
+    const { width, height } = JSON.parse(raw);
+    if (typeof width === 'number' && typeof height === 'number') return { width, height };
+  } catch { /* ignore */ }
+  return null;
+}
+
 interface HighlightRect {
   highlightId: string;
   x: number;
@@ -68,6 +90,8 @@ interface PdfHighlightLayerProps {
   onPulseComplete?: () => void;
   /** When set, opens the note editor anchored to this explanation's computed y position */
   pendingNoteForExplanationId?: string | null;
+  /** When true, hides the explanation book icons (e.g. for citation highlights that reuse the explanations slot) */
+  hideExplanationIcons?: boolean;
 }
 
 function computeHighlightRects(
@@ -84,10 +108,23 @@ function computeHighlightRects(
   if (spans.length === 0) return [];
 
   // Build full concatenated text and per-span character offsets (in original text).
+  // PDF.js puts each line in its own span with no trailing/leading space.
+  // Insert a synthetic space between adjacent spans so that line-boundary
+  // text like "high."|"These" becomes "high. These" — matching the backend's
+  // properly-spaced citation content.  Skip the space when the previous span
+  // ends with a hyphen (line-continuation, e.g. "low-"|"income" → "low-income").
   const spanOffsets: { start: number; end: number; el: HTMLElement }[] = [];
   let fullText = '';
   for (const span of spans) {
     const t = span.textContent ?? '';
+    const lastChar = fullText.length > 0 ? fullText[fullText.length - 1] : '';
+    const needsSpace =
+      fullText.length > 0 &&
+      lastChar !== ' ' && lastChar !== '\t' &&
+      lastChar !== '-' &&
+      t.length > 0 &&
+      t[0] !== ' ' && t[0] !== '\t';
+    if (needsSpace) fullText += ' ';
     spanOffsets.push({ start: fullText.length, end: fullText.length + t.length, el: span });
     fullText += t;
   }
@@ -97,47 +134,34 @@ function computeHighlightRects(
   // highlights when whitespace was unevenly distributed.
   const { normText: normFull, normToOrig } = buildNormalisedWithIndexMap(fullText);
   const normStart = normalisePdfText(highlight.startText);
-  const normEnd = normalisePdfText(highlight.endText || highlight.startText);
 
   if (!normStart) return [];
 
-  const FALLBACK_MIN = 7;
-
-  // Try the full startText anchor first. If it fails (e.g. table cells are
-  // interleaved in the page text layer, splitting the anchor), progressively
-  // shorten the prefix, then try suffix matching as a last resort.
-  let startIdx = normFull.indexOf(normStart);
-  if (startIdx === -1) {
-    for (let len = normStart.length - 1; len >= FALLBACK_MIN; len--) {
-      startIdx = normFull.indexOf(normStart.slice(0, len));
-      if (startIdx !== -1) break;
-    }
-  }
-  if (startIdx === -1) {
-    for (let len = normStart.length - 1; len >= FALLBACK_MIN; len--) {
-      const suffix = normStart.slice(-len);
-      startIdx = normFull.indexOf(suffix);
-      if (startIdx !== -1) break;
-    }
-  }
+  // Exact match only — no fallback. If the normalised citation text is not
+  // found verbatim in the page's normalised text, return nothing rather than
+  // risk highlighting the wrong location via a partial substring match.
+  const startIdx = normFull.indexOf(normStart);
   if (startIdx === -1) return [];
 
-  const endSearchStart = startIdx + normStart.length - normEnd.length;
-  let endIdxEnd =
-    normFull.indexOf(normEnd, Math.max(startIdx, endSearchStart)) + normEnd.length;
+  let endIdxEnd = startIdx + normStart.length;
 
-  if (endIdxEnd <= startIdx) {
-    endIdxEnd = -1;
-    for (let len = normEnd.length - 1; len >= FALLBACK_MIN; len--) {
-      const suffix = normEnd.slice(-len);
-      const idx = normFull.indexOf(suffix, startIdx);
-      if (idx !== -1) {
-        endIdxEnd = idx + len;
-        break;
-      }
+  // If endText is provided, search for it starting from the beginning of the
+  // startText match (not from after it).  This handles the common case where
+  // endText is a trailing portion of startText itself (e.g. startText =
+  // "Endotracheal intubation and airway management", endText = "airway
+  // management").  Starting the search from after startText would skip that
+  // in-range occurrence and land on a later duplicate, producing a massive
+  // over-highlight.
+  const normEnd = highlight.endText ? normalisePdfText(highlight.endText) : '';
+  if (normEnd) {
+    const searchFrom = startIdx;
+    const endMatchIdx = normFull.indexOf(normEnd, searchFrom);
+    if (endMatchIdx !== -1) {
+      endIdxEnd = endMatchIdx + normEnd.length;
     }
   }
-  if (endIdxEnd === -1 || endIdxEnd <= startIdx) return [];
+
+  if (endIdxEnd <= startIdx) return [];
 
   // Map normalised indices back to original text positions exactly.
   const origStart = normToOrig[startIdx] ?? 0;
@@ -240,11 +264,14 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
   pulsingExplanationId,
   onPulseComplete,
   pendingNoteForExplanationId,
+  hideExplanationIcons = false,
 }) => {
   const [rects, setRects] = useState<HighlightRect[]>([]);
   const [activeNoteRects, setActiveNoteRects] = useState<HighlightRect[]>([]);
   const [explainIconPositions, setExplainIconPositions] = useState<{ id: string; y: number }[]>([]);
   const [explainHighlightRects, setExplainHighlightRects] = useState<{ id: string; rects: HighlightRect[] }[]>([]);
+  const [noteHighlightRects, setNoteHighlightRects] = useState<{ noteId: string; rects: HighlightRect[] }[]>([]);
+  const [hoveredNoteId, setHoveredNoteId] = useState<string | null>(null);
   const [hoveredHighlightId, setHoveredHighlightId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [menuHighlightId, setMenuHighlightId] = useState<string | null>(null);
@@ -256,8 +283,10 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
   const [isDeletingNote, setIsDeletingNote] = useState(false);
   const [pageWidth, setPageWidth] = useState(0);
   const [noteIconPositions, setNoteIconPositions] = useState<NoteIconPosition[]>([]);
+  const [scrollVersion, setScrollVersion] = useState(0);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const noteEditorRef = useRef<HTMLDivElement>(null);
 
   // Move cursor to end of text when note editor opens or switches note
   useEffect(() => {
@@ -280,6 +309,50 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
     const raf = requestAnimationFrame(() => setNoteEditorVisible(true));
     return () => cancelAnimationFrame(raf);
   }, [noteEditorKey]);
+
+  // Persist note editor size when the user resizes it
+  useEffect(() => {
+    if (!noteEditorKey) return;
+    // Wait a frame so the portal ref is attached
+    const raf = requestAnimationFrame(() => {
+      const el = noteEditorRef.current;
+      if (!el) return;
+      const saved = getSavedNoteEditorSize();
+      if (saved) {
+        el.style.width = `${saved.width}px`;
+        el.style.height = `${saved.height}px`;
+      }
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [noteEditorKey]);
+
+  useEffect(() => {
+    if (!noteEditorKey) return;
+    const el = noteEditorRef.current;
+    if (!el) return;
+    let skipFirst = true;
+    const observer = new ResizeObserver((entries) => {
+      if (skipFirst) { skipFirst = false; return; }
+      const entry = entries[0];
+      if (!entry) return;
+      const w = Math.round(entry.borderBoxSize?.[0]?.inlineSize ?? el.offsetWidth);
+      const h = Math.round(entry.borderBoxSize?.[0]?.blockSize ?? el.offsetHeight);
+      try { localStorage.setItem(NOTE_EDITOR_SIZE_KEY, JSON.stringify({ width: w, height: h })); } catch { /* ignore */ }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [noteEditorKey]);
+
+  // Re-render when scroll container moves so the fixed-position note editor portal stays aligned
+  useEffect(() => {
+    if (!noteEditorState || !pageContainerEl) return;
+    const scrollEl = (pageContainerEl.closest('[class*="mainArea"]') as HTMLElement | null)
+      ?? (pageContainerEl.parentElement as HTMLElement | null);
+    if (!scrollEl) return;
+    const onScroll = () => setScrollVersion((v) => v + 1);
+    scrollEl.addEventListener('scroll', onScroll, { passive: true });
+    return () => scrollEl.removeEventListener('scroll', onScroll);
+  }, [noteEditorState, pageContainerEl]);
 
   // Open note editor when parent signals a "Write a note" from text selection
   useEffect(() => {
@@ -361,19 +434,22 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
       setPageWidth(container.offsetWidth);
 
       const iconPositions: NoteIconPosition[] = [];
+      const noteHlRects: { noteId: string; rects: HighlightRect[] }[] = [];
       for (const note of notes) {
         const computed = computeHighlightRects(
           textContainer,
           pageRect,
           { startText: note.startText, endText: note.endText },
-          '#transparent',
+          '#0d8070',
           note.id,
         );
         if (computed.length > 0) {
           iconPositions.push({ noteId: note.id, y: computed[0].y });
+          noteHlRects.push({ noteId: note.id, rects: computed });
         }
       }
       setNoteIconPositions(iconPositions);
+      setNoteHighlightRects(noteHlRects);
 
       // Compute explanation icon positions and highlight rects
       const explainIcons: { id: string; y: number }[] = [];
@@ -397,6 +473,49 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
 
     return () => clearTimeout(timer);
   }, [highlights, colours, notes, explanations, pageContainerEl, renderVersion]);
+
+  // Inject space text-nodes between adjacent PDF.js text spans so that the
+  // browser's built-in Ctrl+F can search across line boundaries (e.g. the
+  // word "Understands" ends one span and "basic" starts the next — without a
+  // space in the DOM, Ctrl+F sees "Understandsbasic" and can't find
+  // "Understands basic"). The injected spacer spans are zero-size, invisible,
+  // and filtered out by computeHighlightRects (whose filter requires
+  // textContent.trim().length > 0, and a single space trims to "").
+  useEffect(() => {
+    const container = pageContainerEl;
+    if (!container) return;
+    const textLayer = container.querySelector('.react-pdf__Page__textContent');
+    if (!textLayer) return;
+
+    // Remove any spacers we injected on a previous render to avoid accumulation.
+    textLayer.querySelectorAll('[data-pdf-space]').forEach((el) => el.remove());
+
+    const spans = Array.from(
+      textLayer.querySelectorAll('span[role="presentation"], span'),
+    ).filter((s) => (s as HTMLElement).textContent?.trim()) as HTMLElement[];
+
+    for (let i = 0; i < spans.length - 1; i++) {
+      const cur = spans[i];
+      const next = spans[i + 1];
+      const curText = cur.textContent ?? '';
+      const nextText = next.textContent ?? '';
+      const needsSpace =
+        curText.length > 0 &&
+        !curText.endsWith(' ') &&
+        curText[curText.length - 1] !== '-' &&
+        nextText.length > 0 &&
+        !nextText.startsWith(' ');
+      if (needsSpace) {
+        const spacer = document.createElement('span');
+        spacer.setAttribute('data-pdf-space', '1');
+        spacer.setAttribute('aria-hidden', 'true');
+        spacer.style.cssText =
+          'position:absolute;overflow:hidden;width:0;height:0;pointer-events:none;user-select:text;';
+        spacer.textContent = ' ';
+        cur.after(spacer);
+      }
+    }
+  }, [pageContainerEl, renderVersion]);
 
   // Coordinate-based hover detection
   useEffect(() => {
@@ -567,6 +686,17 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
 
   if (rects.length === 0 && noteIconPositions.length === 0 && !noteEditorState && explainIconPositions.length === 0) return null;
 
+  // Capture live scroll-adjusted rect for the note editor portal.
+  // scrollVersion is incremented by the scroll listener above so this value
+  // is re-evaluated on every scroll event, keeping the fixed-position popup aligned.
+  // DOMRect getters (top, right, etc.) live on the prototype so we extract them explicitly.
+  const noteEditorPageRect = (() => {
+    if (!noteEditorState || !pageContainerEl) return null;
+    void scrollVersion;
+    const r = pageContainerEl.getBoundingClientRect();
+    return { top: r.top, right: r.right, bottom: r.bottom, left: r.left };
+  })();
+
   const lastRectIndexByHighlight = new Map<string, number>();
   rects.forEach((rect, i) => lastRectIndexByHighlight.set(rect.highlightId, i));
 
@@ -587,33 +717,111 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
   }
 
   return (
-    <div className={styles.layer} aria-hidden="true">
-      {rects.map((rect, i) => {
-        const isHovered = hoveredHighlightId === rect.highlightId;
-        const isDeleting = deletingId === rect.highlightId;
-        const isLastRectForHighlight = lastRectIndexByHighlight.get(rect.highlightId) === i;
-        const isMenuOpen = menuHighlightId === rect.highlightId;
-        const isNoteActive = activeNoteHighlightId === rect.highlightId;
+    <>
+      {/* Highlight color bands — z-index: 1 so they sit behind the text layer */}
+      <div className={styles.layer} aria-hidden="true">
+        {rects.map((rect, i) => {
+          const isNoteActive = activeNoteHighlightId === rect.highlightId;
+          return (
+            <div
+              key={`${rect.highlightId}-${i}`}
+              className={styles.highlightRectWrapper}
+              style={{ left: rect.x, top: rect.y, width: rect.width, height: rect.height }}
+            >
+              <div
+                className={styles.highlightRect}
+                style={{ background: isNoteActive ? hexToPastel('#0d8070', 0.22) : hexToPastel(rect.hexcode, 0.33) }}
+              />
+            </div>
+          );
+        })}
 
-        const highlight = highlights.find((h) => h.id === rect.highlightId);
-        const highlightHasNote = highlight
-          ? notes.some(
-              (n) => n.startText === highlight.startText && n.endText === highlight.endText,
-            )
-          : false;
-
-        return (
+        {activeNoteRects.map((rect, i) => (
           <div
-            key={`${rect.highlightId}-${i}`}
+            key={`__note_active__-${i}`}
             className={styles.highlightRectWrapper}
             style={{ left: rect.x, top: rect.y, width: rect.width, height: rect.height }}
           >
             <div
               className={styles.highlightRect}
-              style={{ background: isNoteActive ? 'rgba(13, 128, 112, 0.22)' : `${rect.hexcode}55` }}
+              style={{ background: hexToPastel('#0d8070', 0.22) }}
             />
+          </div>
+        ))}
 
-            {isLastRectForHighlight && !readOnly && (
+        {hoveredNoteId &&
+          noteHighlightRects
+            .filter(({ noteId }) => noteId === hoveredNoteId)
+            .flatMap(({ noteId, rects: nRects }) =>
+              nRects.map((rect, i) => (
+                <div
+                  key={`note-hover-hl-${noteId}-${i}`}
+                  className={styles.highlightRectWrapper}
+                  style={{ left: rect.x, top: rect.y, width: rect.width, height: rect.height }}
+                >
+                  <div
+                    className={styles.highlightRect}
+                    style={{ background: hexToPastel('#0d8070', 0.33) }}
+                  />
+                </div>
+              ))
+            )}
+
+        {explainHighlightRects
+          .filter(({ id }) => id === activeExplanationId)
+          .flatMap(({ id, rects: exRects }) =>
+            exRects.map((rect, i) => (
+              <div
+                key={`explain-hl-${id}-${i}`}
+                className={styles.highlightRectWrapper}
+                style={{ left: rect.x, top: rect.y, width: rect.width, height: rect.height }}
+              >
+                <div
+                  className={styles.highlightRect}
+                  style={{ background: hexToPastel('#0d8070', 0.22) }}
+                />
+              </div>
+            ))
+          )}
+
+        {pulsingExplanationId &&
+          explainHighlightRects
+            .filter(({ id }) => id === pulsingExplanationId)
+            .flatMap(({ id, rects: exRects }) =>
+              exRects.map((rect, i) => (
+                <div
+                  key={`pulse-${id}-${i}`}
+                  className={styles.pulseHighlight}
+                  style={{ left: rect.x, top: rect.y, width: rect.width, height: rect.height }}
+                  onAnimationEnd={i === 0 ? onPulseComplete : undefined}
+                />
+              ))
+            )}
+      </div>
+
+      {/* Interactive elements — z-index: 3 so they sit above the text layer */}
+      <div className={styles.interactiveLayer} aria-hidden="true">
+        {rects.map((rect, i) => {
+          const isHovered = hoveredHighlightId === rect.highlightId;
+          const isDeleting = deletingId === rect.highlightId;
+          const isLastRectForHighlight = lastRectIndexByHighlight.get(rect.highlightId) === i;
+          const isMenuOpen = menuHighlightId === rect.highlightId;
+
+          if (!isLastRectForHighlight || readOnly) return null;
+
+          const highlight = highlights.find((h) => h.id === rect.highlightId);
+          const highlightHasNote = highlight
+            ? notes.some(
+                (n) => n.startText === highlight.startText && n.endText === highlight.endText,
+              )
+            : false;
+
+          return (
+            <div
+              key={`menu-${rect.highlightId}-${i}`}
+              className={styles.highlightRectWrapper}
+              style={{ left: rect.x, top: rect.y, width: rect.width, height: rect.height }}
+            >
               <div ref={isMenuOpen ? menuRef : undefined} className={styles.menuContainer}>
                 <button
                   type="button"
@@ -631,7 +839,6 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
 
                 {isMenuOpen && (
                   <div className={styles.dropdownMenu}>
-                    {/* Only show "Write a note" if no note already exists */}
                     {!highlightHasNote && (
                       <button
                         type="button"
@@ -653,36 +860,76 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
                   </div>
                 )}
               </div>
-            )}
-          </div>
-        );
-      })}
+            </div>
+          );
+        })}
 
-      {/* Temporary teal highlight for selection-based note (no existing highlight) */}
-      {activeNoteRects.map((rect, i) => (
-        <div
-          key={`__note_active__-${i}`}
-          className={styles.highlightRectWrapper}
-          style={{ left: rect.x, top: rect.y, width: rect.width, height: rect.height }}
-        >
+        {noteIconPositions.map((pos) => (
           <div
-            className={styles.highlightRect}
-            style={{ background: 'rgba(13, 128, 112, 0.22)' }}
-          />
-        </div>
-      ))}
+            key={pos.noteId}
+            className={styles.marginIconWrapper}
+            style={{ left: pageWidth - 40, top: pos.y }}
+          >
+            <button
+              type="button"
+              className={`${styles.noteIcon} ${readOnly ? styles.noteIconReadOnly : ''}`}
+              aria-label={readOnly ? 'View note' : 'Edit note'}
+              onMouseEnter={() => setHoveredNoteId(pos.noteId)}
+              onMouseLeave={() => setHoveredNoteId(null)}
+              onClick={() => { if (!readOnly) handleOpenEditNoteEditor(pos.noteId, pos.y); }}
+            >
+              <NoteIcon />
+            </button>
+            <span className={styles.marginTooltip}>{readOnly ? 'View note' : 'Edit note'}</span>
+          </div>
+        ))}
+
+        {!hideExplanationIcons && explainIconPositions.map((pos) => {
+          const isActive = pos.id === activeExplanationId;
+          const explanation = explanations.find((e) => e.id === pos.id);
+          const isLoading = !!(explanation && (explanation as any).isRequesting && !(explanation as any).firstChunkReceived);
+          const isSaved = !!(explanation as any)?.textChatId;
+          const tooltipLabel = isLoading ? 'Generating explanation…' : 'View explanation';
+          return (
+            <div
+              key={pos.id}
+              className={styles.marginIconWrapper}
+              style={{ left: -40, top: pos.y }}
+            >
+              <button
+                type="button"
+                className={`${styles.explainIcon} ${isActive && !isLoading ? styles.explainIconActive : ''} ${isLoading ? styles.explainIconLoading : ''}`}
+                aria-label={tooltipLabel}
+                disabled={isLoading}
+                onClick={isLoading ? undefined : () => onExplanationIconClick?.(pos.id)}
+              >
+                {isLoading ? <SpinnerIcon /> : isSaved ? <FilledBookIcon /> : <BookIcon />}
+              </button>
+              <span className={styles.marginTooltip}>{tooltipLabel}</span>
+            </div>
+          );
+        })}
+      </div>
 
       {/* Note editor (create or edit) — rendered in a portal so it escapes overflow clipping */}
-      {noteEditorState && pageWidth > 0 && pageContainerEl && createPortal(
+      {noteEditorState && pageWidth > 0 && pageContainerEl && noteEditorPageRect && createPortal(
         <div
+          ref={noteEditorRef}
           className={`${styles.noteEditor} ${noteEditorState.mode === 'create' ? styles.noteEditorCreate : styles.noteEditorEdit} ${noteEditorVisible ? styles.noteEditorVisible : ''}`}
-          style={{
-            left: Math.min(
-              pageContainerEl.getBoundingClientRect().right + 16,
-              window.innerWidth - 236
-            ),
-            top: pageContainerEl.getBoundingClientRect().top + noteEditorState.y,
-          }}
+          style={(() => {
+            const MARGIN = 8;
+            const editorH = noteEditorRef.current?.offsetHeight ?? 220;
+            const editorW = noteEditorRef.current?.offsetWidth ?? 220;
+            const rawTop = noteEditorPageRect.top + noteEditorState.y;
+            const clampedTop = Math.min(
+              Math.max(MARGIN, rawTop),
+              window.innerHeight - editorH - MARGIN,
+            );
+            // right = distance from viewport right edge; clamp so editor stays on screen
+            const rawRight = Math.max(MARGIN, window.innerWidth - (noteEditorPageRect.left + pageWidth + 300));
+            const clampedRight = Math.min(rawRight, window.innerWidth - editorW - MARGIN);
+            return { right: clampedRight, top: clampedTop };
+          })()}
           onMouseDown={(e) => e.stopPropagation()}
         >
           <div className={styles.noteEditorHeader}>
@@ -693,7 +940,7 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
               disabled={isSavingNote || noteEditorSaved || isDeletingNote}
               aria-label="Close note editor"
             >
-              <X size={12} />
+              <X size={15} />
             </button>
             <span>
               {noteEditorState.mode === 'edit'
@@ -723,7 +970,7 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
                 {isDeletingNote ? (
                   <span className={styles.savingSpinner} aria-hidden="true" />
                 ) : (
-                  <Trash2 size={12} />
+                  <Trash2 size={15} />
                 )}
               </button>
             )}
@@ -745,86 +992,7 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
         </div>,
         document.body,
       )}
-
-      {/* Saved note icons */}
-      {noteIconPositions.map((pos) => (
-        <div
-          key={pos.noteId}
-          className={styles.marginIconWrapper}
-          style={{ left: pageWidth + 16, top: pos.y }}
-        >
-          <button
-            type="button"
-            className={`${styles.noteIcon} ${readOnly ? styles.noteIconReadOnly : ''}`}
-            aria-label={readOnly ? 'View note' : 'Edit note'}
-            onClick={() => { if (!readOnly) handleOpenEditNoteEditor(pos.noteId, pos.y); }}
-          >
-            <NoteIcon />
-          </button>
-          <span className={styles.marginTooltip}>{readOnly ? 'View note' : 'Edit note'}</span>
-        </div>
-      ))}
-
-      {/* Explanation teal highlight rects (shown when that explanation is active) */}
-      {explainHighlightRects
-        .filter(({ id }) => id === activeExplanationId)
-        .flatMap(({ id, rects: exRects }) =>
-          exRects.map((rect, i) => (
-            <div
-              key={`explain-hl-${id}-${i}`}
-              className={styles.highlightRectWrapper}
-              style={{ left: rect.x, top: rect.y, width: rect.width, height: rect.height }}
-            >
-              <div
-                className={styles.highlightRect}
-                style={{ background: 'rgba(13, 128, 112, 0.22)' }}
-              />
-            </div>
-          ))
-        )}
-
-      {/* Book icons (or spinner) for explained texts (to the left of the page) */}
-      {explainIconPositions.map((pos) => {
-        const isActive = pos.id === activeExplanationId;
-        const explanation = explanations.find((e) => e.id === pos.id);
-        const isLoading = !!(explanation && (explanation as any).isRequesting && !(explanation as any).firstChunkReceived);
-        const isSaved = !!(explanation as any)?.textChatId;
-        const tooltipLabel = isLoading ? 'Generating explanation…' : 'View explanation';
-        return (
-          <div
-            key={pos.id}
-            className={styles.marginIconWrapper}
-            style={{ left: -40, top: pos.y }}
-          >
-            <button
-              type="button"
-              className={`${styles.explainIcon} ${isActive && !isLoading ? styles.explainIconActive : ''} ${isLoading ? styles.explainIconLoading : ''}`}
-              aria-label={tooltipLabel}
-              disabled={isLoading}
-              onClick={isLoading ? undefined : () => onExplanationIconClick?.(pos.id)}
-            >
-              {isLoading ? <SpinnerIcon /> : isSaved ? <FilledBookIcon /> : <BookIcon />}
-            </button>
-            <span className={styles.marginTooltip}>{tooltipLabel}</span>
-          </div>
-        );
-      })}
-
-      {/* Pulsing teal highlight for scroll-to-text */}
-      {pulsingExplanationId &&
-        explainHighlightRects
-          .filter(({ id }) => id === pulsingExplanationId)
-          .flatMap(({ id, rects: exRects }) =>
-            exRects.map((rect, i) => (
-              <div
-                key={`pulse-${id}-${i}`}
-                className={styles.pulseHighlight}
-                style={{ left: rect.x, top: rect.y, width: rect.width, height: rect.height }}
-                onAnimationEnd={i === 0 ? onPulseComplete : undefined}
-              />
-            ))
-          )}
-    </div>
+    </>
   );
 };
 
@@ -834,12 +1002,19 @@ function NoteIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
-      fill="currentColor"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       aria-hidden="true"
-      width="16"
-      height="16"
+      width="18"
+      height="18"
     >
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="8" y1="13" x2="16" y2="13" />
+      <line x1="8" y1="17" x2="13" y2="17" />
     </svg>
   );
 }

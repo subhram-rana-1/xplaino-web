@@ -1,25 +1,20 @@
 import React from 'react';
-import { Sparkles, Star, Globe } from 'lucide-react';
-import { ChromeButton } from '@/shared/components/ChromeButton';
+import { Star, Globe } from 'lucide-react';
 import styles from './PromoText.module.css';
 
 /**
- * PromoText - Promo text section with heading, description, and Chrome button
+ * PromoText - Promo text section with heading, description, and metrics
  * 
  * @returns JSX element
  */
 export const PromoText: React.FC = () => {
   return (
     <div className={styles.promoText}>
-      <div className={styles.badge}>
-        <Sparkles className={styles.badgeIcon} />
-        <span>AI Web Research & Second Brain System</span>
-      </div>
       <h1 className={styles.heading}>
       Turn Information Overload into <span className={styles.headingHighlight}>Organized Intelligence</span>
       </h1>
       <p className={styles.description}>
-      Xplaino transforms any webpage into structured summaries, contextual explanations, translations, and a personal knowledge system — automatically while you browse
+        Understand any webpage instantly and go deeper with PDFs — chat with documents, highlight what matters, take notes, and learn collaboratively. Xplaino works silently as you browse, so nothing slips through the cracks.
       </p>
       <div className={styles.mobileMetrics} aria-label="Social proof">
         <div className={styles.mobileMetric}>
@@ -38,7 +33,6 @@ export const PromoText: React.FC = () => {
           <span className={styles.mobileMetricLabel}>countries</span>
         </div>
       </div>
-      <ChromeButton />
     </div>
   );
 };

@@ -1,0 +1,1369 @@
+/* ── Inline panel container (flex sibling that pushes PDF content left) ── */
+.panel {
+  flex-shrink: 0;
+  height: 100%;
+  width: 0;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--bg-white);
+  border-left: 3px solid var(--border-light);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease, min-width 0.3s ease;
+  position: relative;
+}
+
+.panelOpen {
+  width: var(--panel-width, 560px);
+  min-width: 300px;
+}
+
+
+/* ── Resize handle ── */
+.resizeHandle {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 50px;
+  background: var(--teal-light);
+  border-radius: 0 3px 3px 0;
+  cursor: ew-resize;
+  pointer-events: auto;
+  z-index: 10000;
+  transition: background 0.2s ease, height 0.2s ease, width 0.2s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.resizeHandle:hover,
+.resizeHandle:active {
+  background: var(--teal);
+  width: 6px;
+  height: 70px;
+}
+
+/* ── Chrome-style session tab bar ── */
+.tabBar {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--border-light);
+  flex-shrink: 0;
+  background: var(--bg-white);
+  min-height: 32px;
+}
+
+.tabList {
+  display: flex;
+  align-items: stretch;
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tabList::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 10px;
+  min-width: 0;
+  max-width: 180px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border-light);
+  position: relative;
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.tab:hover {
+  background: var(--bg-white);
+  color: var(--text-dark);
+}
+
+.tab:hover .tabClose {
+  opacity: 1;
+}
+
+.tabActive {
+  background: var(--teal-rgba-10);
+  color: var(--teal);
+  font-weight: 500;
+}
+
+.tabActive::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--teal);
+}
+
+.tabName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  line-height: 32px;
+}
+
+.tabClose {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: all 0.12s ease;
+}
+
+.tabClose:hover {
+  background: var(--light-red, rgba(239, 68, 68, 0.1));
+  color: var(--red, #ef4444);
+}
+
+.tabRenameInput {
+  width: 100%;
+  min-width: 60px;
+  padding: 2px 6px;
+  border: 1px solid var(--teal);
+  border-radius: 4px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--text-dark);
+  background: var(--bg-white);
+  outline: none;
+}
+
+.tabBarActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 6px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--border-light);
+}
+
+.tabBarBtn {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.12s ease;
+}
+
+.tabBarBtn:hover {
+  background: var(--bg-white);
+  color: var(--teal);
+}
+
+.tabBarBtnDanger:hover {
+  background: var(--light-red, rgba(239, 68, 68, 0.1));
+  color: var(--red, #ef4444);
+}
+
+.tabBarBtnActive {
+  background: var(--bg-white);
+  color: var(--teal);
+}
+
+/* ── Tooltip wrapper ── */
+.tooltipWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.tooltip {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+  z-index: 10000;
+}
+
+.tooltipWrap:hover > .tooltip {
+  opacity: 1;
+}
+
+.tooltipAbove {
+  top: auto;
+  bottom: calc(100% + 4px);
+}
+
+.tooltipRight {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+.tooltipLeft {
+  left: 0;
+  transform: none;
+}
+
+/* ── Left section of tab bar (ChevronDown dropdown) ── */
+.tabBarLeft {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border-light);
+}
+
+/* ── Session list dropdown ── */
+.sessionListDropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 220px;
+  max-width: 300px;
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.sessionListDropdownOpen {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.sessionListScrollable {
+  max-height: 240px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--teal-light) transparent;
+}
+
+.sessionListScrollable::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sessionListScrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sessionListScrollable::-webkit-scrollbar-thumb {
+  background-color: var(--teal-light);
+  border-radius: 3px;
+}
+
+.sessionListItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text-dark);
+  transition: background 0.12s ease;
+}
+
+.sessionListItem:hover {
+  background: var(--bg-light);
+}
+
+.sessionListItem:hover .sessionListDeleteBtn {
+  opacity: 1;
+}
+
+.sessionListItemActive {
+  background: var(--teal-rgba-10);
+  color: var(--teal);
+  font-weight: 500;
+}
+
+.sessionListItemHidden {
+  opacity: 0.5;
+}
+
+.sessionListItemName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sessionListDeleteBtn {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: all 0.12s ease;
+}
+
+.sessionListDeleteBtn:hover {
+  background: var(--light-red, rgba(239, 68, 68, 0.1));
+  color: var(--red, #ef4444);
+}
+
+.sessionListMenuWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.sessionListMenuBtn {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: all 0.12s ease;
+}
+
+.sessionListItem:hover .sessionListMenuBtn,
+.sessionListMenuBtn:focus {
+  opacity: 1;
+}
+
+.sessionListMenuBtn:hover {
+  background: var(--bg-light);
+  color: var(--text-dark);
+}
+
+.sessionListContextMenu {
+  min-width: 160px;
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 4px;
+}
+
+.sessionListContextMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text-dark);
+  border-radius: 6px;
+  text-align: left;
+  width: 100%;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.sessionListContextMenuItemRename:hover {
+  background: var(--teal-rgba-10);
+  color: var(--teal);
+}
+
+.sessionListContextMenuItemDelete:hover {
+  background: var(--light-red, rgba(239, 68, 68, 0.1));
+  color: var(--red, #ef4444);
+}
+
+.sessionListNewChat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--teal);
+  border-top: 1px solid var(--border-light);
+  transition: background 0.12s ease;
+  flex-shrink: 0;
+}
+
+.sessionListNewChat:hover {
+  background: var(--teal-rgba-10);
+}
+
+/* ── Preprocessing state ── */
+.preprocessOverlay {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: 16px;
+  text-align: center;
+}
+
+.preprocessTitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.preprocessSubtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.preprocessErrorText {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--red);
+  margin: 0;
+}
+
+.retryBtn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 8px;
+  background: var(--teal);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.retryBtn:hover {
+  background: var(--teal-dark);
+}
+
+/* ── Spinner ── */
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border-light);
+  border-top-color: var(--teal);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Chat area ── */
+.chatArea {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--teal-light) transparent;
+  min-height: 0;
+}
+
+.chatArea::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chatArea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chatArea::-webkit-scrollbar-thumb {
+  background-color: var(--teal-light);
+  border-radius: 3px;
+}
+
+.messagesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message {
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-wrap: break-word;
+  max-width: 100%;
+}
+
+.userMessage {
+  background: var(--teal-rgba-10);
+  color: var(--text-dark);
+  align-self: flex-end;
+  border-radius: 20px 20px 0 20px;
+  width: fit-content;
+  max-width: 85%;
+}
+
+.assistantMessage {
+  background: var(--bg-white);
+  color: var(--text-dark);
+  align-self: center;
+  border-bottom-left-radius: 4px;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* ── Selected text quote in user message ── */
+.selectedTextQuoteWrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.selectedTextQuote {
+  flex: 1;
+  display: block;
+  padding: 6px 10px;
+  border-left: 3px solid var(--teal-light);
+  background: rgba(13, 128, 112, 0.05);
+  border-radius: 0 6px 6px 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  font-style: italic;
+  max-height: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.refButton {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: var(--teal-rgba-10);
+  border: 1px solid var(--teal-light);
+  color: var(--teal);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.refButton:hover {
+  background: var(--teal);
+  color: #fff;
+  border-color: var(--teal);
+}
+
+/* ── Inline citation badges ── */
+.inlineCitationBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--teal-rgba-10);
+  border: 1px solid var(--teal-light);
+  color: var(--teal);
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 0 2px;
+  vertical-align: middle;
+  position: relative;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.inlineCitationBadge:hover {
+  background: var(--teal);
+  color: #fff;
+  border-color: var(--teal);
+}
+
+.citationTooltipPortal {
+  position: fixed;
+  width: 260px;
+  max-height: 120px;
+  overflow: hidden;
+  padding: 8px 10px;
+  background: #1a1a1a;
+  color: #e0e0e0;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.45;
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  text-align: left;
+}
+
+.citationTooltipPortalVisible {
+  opacity: 1;
+}
+
+.citationPage {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--teal-light);
+  margin-bottom: 3px;
+}
+
+/* ── Streaming cursor ── */
+.cursor {
+  animation: blink 1s step-end infinite;
+  color: var(--teal);
+  font-weight: bold;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* ── Loading message ── */
+.loadingMessage {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 16px 12px;
+}
+
+/* ── Suggested questions ── */
+.suggestedQuestions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1.5px solid var(--border-light);
+  animation: fadeInSlideUp 0.25s ease-out;
+}
+
+@keyframes fadeInSlideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.questionItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+  width: 100%;
+}
+
+.questionItem:hover {
+  background: rgba(13, 128, 112, 0.07);
+}
+
+.questionIcon {
+  color: var(--teal-light);
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+}
+
+.questionItem:hover .questionIcon {
+  color: var(--teal);
+}
+
+.questionText {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  transition: color 0.15s ease;
+}
+
+.questionItem:hover .questionText {
+  color: var(--teal);
+}
+
+/* ── Builtin prompt pills above input ── */
+.promptRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px 0;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.promptPill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border: 1px solid var(--border-dark);
+  background: var(--bg-white);
+  cursor: pointer;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.promptPill:hover:not(:disabled) {
+  background: var(--button-hover-bg);
+  color: var(--teal);
+  border-color: var(--teal);
+}
+
+.promptPill:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.promptRowDisabled .promptAddBtn {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* ── Custom prompt add / menu buttons ── */
+.promptAddBtn {
+  width: 26px;
+  height: 26px;
+  border-radius: 9999px;
+  background: transparent;
+  border: 1px solid var(--border-dark);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  transition: all 0.12s ease;
+}
+
+.promptAddBtn:hover,
+.promptAddBtnActive {
+  background: var(--button-hover-bg);
+  color: var(--teal);
+  border-color: var(--teal);
+}
+
+/* ── Custom prompt dropdown container (relative anchor) ── */
+.customPromptMenuWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* ── Custom prompt dropdown panel ── */
+.customPromptDropdown {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  z-index: 500;
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  min-width: 220px;
+  max-width: 280px;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.customPromptDropdownOpen {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.customPromptDropdownList {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+/* ── Individual custom prompt row ── */
+.customPromptItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px 0 0;
+}
+
+.customPromptItemTitle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: left;
+  min-width: 0;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.customPromptItemTitle:hover {
+  background: var(--button-hover-bg);
+  color: var(--teal);
+}
+
+.customPromptItemTitle span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.customPromptItemMenuBtn {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  transition: all 0.1s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.customPromptItem:hover .customPromptItemMenuBtn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.customPromptItemMenuBtn:hover {
+  background: var(--button-hover-bg);
+  color: var(--teal);
+}
+
+/* ── Per-prompt action sub-menu (rendered via portal with position:fixed) ── */
+.customPromptActionMenu {
+  z-index: 9999;
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  min-width: 150px;
+  padding: 4px 0;
+  overflow: hidden;
+}
+
+.customPromptActionItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: left;
+  text-decoration: none;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.customPromptActionItem:hover {
+  background: var(--button-hover-bg);
+  color: var(--teal);
+}
+
+.customPromptActionItemDanger:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+}
+
+/* ── Footer buttons inside dropdown ── */
+.customPromptDropdownFooter {
+  border-top: 1px solid var(--border-light);
+  padding: 4px 0;
+}
+
+.customPromptFooterBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: left;
+  text-decoration: none;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.customPromptFooterBtn:hover {
+  background: var(--button-hover-bg);
+  color: var(--teal);
+}
+
+/* ── Input bar ── */
+.inputBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px 12px;
+  flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Selected text indicator above input */
+.selectedTextBar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--teal-rgba-10);
+  border-bottom: 1px solid var(--border-light);
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.selectedTextBarLabel {
+  font-weight: 500;
+  color: var(--teal);
+  flex-shrink: 0;
+}
+
+.selectedTextBarText {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-style: italic;
+}
+
+.selectedTextBarClose {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  transition: all 0.12s ease;
+}
+
+.selectedTextBarClose:hover {
+  background: var(--bg-light);
+  color: var(--red);
+}
+
+.inputWrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid var(--border-default);
+  border-radius: 20px;
+  padding: 10px 14px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+  background: var(--bg-white);
+  color: var(--text-dark);
+  font-family: 'Inter', sans-serif;
+}
+
+.input::placeholder {
+  color: var(--text-light);
+}
+
+.input:focus {
+  border-color: var(--teal);
+}
+
+.sendButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--teal);
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.sendButton:hover:not(:disabled) {
+  background: var(--teal-dark);
+  transform: scale(1.05);
+}
+
+.sendButton:disabled {
+  background: var(--gray-300);
+  cursor: not-allowed;
+}
+
+.stopButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--red);
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.stopButton:hover {
+  background: var(--red-dark);
+  transform: scale(1.05);
+}
+
+.clearButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.clearButton:hover {
+  background: var(--light-red);
+  color: var(--red);
+}
+
+/* ── Empty state ── */
+.emptyState {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: 12px;
+  text-align: center;
+}
+
+.emptyIcon {
+  color: var(--teal-light);
+  opacity: 0.5;
+}
+
+.emptyTitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.emptySubtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Markdown styles (matching AskAISidePanelView) ── */
+.markdownH1 { font-size: 20px; font-weight: 700; color: var(--text-dark); margin: 16px 0 8px; line-height: 1.3; }
+.markdownH2 { font-size: 18px; font-weight: 600; color: var(--text-dark); margin: 14px 0 6px; line-height: 1.3; }
+.markdownH3 { font-size: 16px; font-weight: 600; color: var(--text-dark); margin: 12px 0 4px; line-height: 1.3; }
+.markdownP { font-size: 14px; line-height: 1.6; color: var(--text-dark); margin: 8px 0; word-wrap: break-word; }
+.markdownUl, .markdownOl { margin: 8px 0; padding-left: 24px; }
+.markdownLi { font-size: 14px; line-height: 1.6; color: var(--text-dark); margin: 4px 0; }
+.markdownStrong { font-weight: 600; color: var(--text-dark); }
+.markdownEm { font-style: italic; }
+.markdownCode { background: var(--teal-rgba-10); padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 13px; color: var(--teal); }
+
+/* ── Confirm / share dialogs (portaled to body) ── */
+.confirmOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirmDialog {
+  background: var(--bg-white);
+  border: 1px solid var(--teal-light);
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 280px;
+  width: 100%;
+  animation: fadeInSlideUp 0.15s ease-out;
+}
+
+.confirmText {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-dark);
+  margin: 0;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.confirmActions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.confirmDeleteBtn {
+  padding: 6px 18px;
+  border: none;
+  border-radius: 8px;
+  background: var(--red, #ef4444);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.confirmDeleteBtn:hover {
+  background: var(--red-dark, #dc2626);
+}
+
+.confirmCancelBtn {
+  padding: 6px 18px;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  background: var(--bg-white);
+  color: var(--text-secondary);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.confirmCancelBtn:hover {
+  background: var(--bg-light);
+  color: var(--text-dark);
+}
+
+.confirmTitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0;
+  text-align: center;
+}
+
+.confirmBody {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.confirmInput {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text-dark);
+  background: var(--bg-white);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.confirmInput:focus {
+  border-color: var(--teal);
+}
+
+.confirmError {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--red, #ef4444);
+  margin: 0;
+  text-align: center;
+}
+
+.confirmPrimaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 18px;
+  border: none;
+  border-radius: 8px;
+  background: var(--teal);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.confirmPrimaryBtn:hover:not(:disabled) {
+  background: var(--teal-dark, var(--teal));
+  opacity: 0.9;
+}
+
+.confirmPrimaryBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.confirmDangerBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 18px;
+  border: none;
+  border-radius: 8px;
+  background: var(--red, #ef4444);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.confirmDangerBtn:hover {
+  background: var(--red-dark, #dc2626);
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+.spinRed {
+  animation: spin 0.8s linear infinite;
+  color: #fff;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

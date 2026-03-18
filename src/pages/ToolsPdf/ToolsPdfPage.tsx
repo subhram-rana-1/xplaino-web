@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CloudUpload, FileText, Link, Check, AlertCircle, RefreshCw, ArrowRight, Info, BookOpen, MessageCircle, Bookmark, Layers, Folder } from 'lucide-react';
+import { CloudUpload, FileText, Link, Check, AlertCircle, RefreshCw, ArrowRight, Info, BookOpen, MessageCircle, Bookmark, Layers, Folder, Monitor, MessageSquare, NotebookPen, Highlighter, Users } from 'lucide-react';
 import { SiGoogledrive, SiDropbox } from 'react-icons/si';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { fetchPublic, fetchWithAuth } from '@/shared/services/api-client';
@@ -65,6 +65,48 @@ function isValidDropboxUrl(url: string): boolean {
   }
 }
 
+/**
+ * Converts any Google Drive share/view URL to a direct-download URL.
+ * Supports formats:
+ *   https://drive.google.com/file/d/{id}/view
+ *   https://drive.google.com/open?id={id}
+ *   https://drive.google.com/uc?id={id}
+ * Returns null if the file ID cannot be extracted.
+ */
+function getDriveDirectUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    // /file/d/{id}/...
+    const pathMatch = parsed.pathname.match(/\/file\/d\/([^/]+)/);
+    if (pathMatch) {
+      return `https://drive.google.com/uc?export=download&id=${pathMatch[1]}`;
+    }
+    // ?id=... or open?id=...
+    const idParam = parsed.searchParams.get('id');
+    if (idParam) {
+      return `https://drive.google.com/uc?export=download&id=${idParam}`;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Converts a Dropbox share link to a direct-download URL.
+ * Forces dl=1 so the browser receives the raw file instead of the preview page.
+ */
+function getDropboxDirectUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    parsed.searchParams.set('dl', '1');
+    // Remove the rlkey param that sometimes causes issues with direct downloads
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
 export const ToolsPdfPage: React.FC = () => {
   const { isLoggedIn, isLoading, accessToken } = useAuth();
   const navigate = useNavigate();
@@ -91,6 +133,11 @@ export const ToolsPdfPage: React.FC = () => {
   // Prior PDFs for unauthenticated users
   const [unauthPdfs, setUnauthPdfs] = useState<UnauthPdf[]>([]);
   const [unauthPdfsLoading, setUnauthPdfsLoading] = useState(false);
+
+  // Recent PDFs row overflow detection
+  const [viewAllOpen, setViewAllOpen] = useState(false);
+  const [visibleCount, setVisibleCount] = useState<number | null>(null);
+  const recentRowRef = useRef<HTMLDivElement>(null);
 
   // Processing message cycling
   const [processingMsg, setProcessingMsg] = useState('Uploading to secure storage…');
@@ -143,6 +190,48 @@ export const ToolsPdfPage: React.FC = () => {
 
     fetchUnauthPdfs();
   }, [isLoggedIn, isLoading]);
+
+  // Detect overflow in the recent PDFs row and compute how many chips fit
+  useEffect(() => {
+    if (!recentRowRef.current || unauthPdfs.length === 0) return;
+
+    const measure = () => {
+      const row = recentRowRef.current;
+      if (!row) return;
+
+      // Temporarily show all chips to measure
+      const chips = Array.from(row.querySelectorAll<HTMLElement>('[data-pdf-chip]'));
+      const viewAllBtn = row.querySelector<HTMLElement>('[data-view-all-btn]');
+      const rowWidth = row.clientWidth;
+
+      // Sum widths of label + gap to know remaining space
+      const label = row.querySelector<HTMLElement>('[data-recent-label]');
+      const gap = 8; // 0.5rem gap
+      let usedWidth = label ? label.offsetWidth + gap : 0;
+      const viewAllWidth = viewAllBtn ? viewAllBtn.offsetWidth + gap : 60 + gap;
+
+      let count = 0;
+      for (const chip of chips) {
+        const chipWidth = chip.offsetWidth + gap;
+        if (usedWidth + chipWidth + viewAllWidth > rowWidth) break;
+        usedWidth += chipWidth;
+        count++;
+      }
+
+      const allFit = count >= chips.length;
+      setVisibleCount(allFit ? unauthPdfs.length : count);
+    };
+
+    // Run after paint so elements have their rendered sizes
+    const frame = requestAnimationFrame(measure);
+    const observer = new ResizeObserver(measure);
+    if (recentRowRef.current) observer.observe(recentRowRef.current);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [unauthPdfs]);
 
   // Real upload flow for local files
   const uploadLocalFile = useCallback(
@@ -261,23 +350,168 @@ export const ToolsPdfPage: React.FC = () => {
     [isUploading, isLoggedIn, navigate, processingMessages]
   );
 
-  // Mock flow for Drive / Dropbox (no S3 integration yet)
-  const simulateProcess = useCallback((file: UploadedFile) => {
-    setPageState('processing');
-    setProcessingMsg(processingMessages[0]);
+  // Real upload flow for Drive / Dropbox links
+  const uploadFromUrl = useCallback(
+    async (shareUrl: string, source: 'drive' | 'dropbox', fileName: string) => {
+      if (isUploading) return;
 
-    let idx = 0;
-    const interval = setInterval(() => {
-      idx = (idx + 1) % processingMessages.length;
-      setProcessingMsg(processingMessages[idx]);
-    }, 900);
+      setIsUploading(true);
+      setPageState('processing');
+      const sourceLabel = source === 'drive' ? 'Google Drive' : 'Dropbox';
+      const urlMessages = [
+        `Downloading from ${sourceLabel}…`,
+        'Uploading to secure storage…',
+        'Creating PDF record…',
+        'Finalising…',
+      ];
+      setProcessingMsg(urlMessages[0]);
 
-    setTimeout(() => {
-      clearInterval(interval);
-      setUploadedFile(file);
-      setPageState('success');
-    }, 2400);
-  }, [processingMessages]);
+      const apiFetch = isLoggedIn ? fetchWithAuth : fetchPublic;
+
+      let msgIdx = 0;
+      const interval = setInterval(() => {
+        msgIdx = (msgIdx + 1) % urlMessages.length;
+        setProcessingMsg(urlMessages[msgIdx]);
+      }, 900);
+
+      const stopProcessing = (error?: string) => {
+        clearInterval(interval);
+        setIsUploading(false);
+        if (error) {
+          setPageState('idle');
+          setLinkError(error);
+        }
+      };
+
+      try {
+        // Step 0 — convert share URL to direct download URL and fetch the PDF blob
+        const directUrl =
+          source === 'drive'
+            ? getDriveDirectUrl(shareUrl)
+            : getDropboxDirectUrl(shareUrl);
+
+        if (!directUrl) {
+          stopProcessing('Could not parse the file link. Please check the URL and try again.');
+          return;
+        }
+
+        let blob: Blob;
+        try {
+          const fetchRes = await fetch(directUrl);
+          if (!fetchRes.ok) {
+            stopProcessing(`Failed to download the file (HTTP ${fetchRes.status}). Make sure the link is publicly accessible.`);
+            return;
+          }
+          blob = await fetchRes.blob();
+        } catch {
+          stopProcessing(
+            `Could not download the file from ${sourceLabel}. Make sure the link is set to "Anyone with the link can view" and try again.`
+          );
+          return;
+        }
+
+        // Validate it's a PDF
+        const isPdf =
+          blob.type === 'application/pdf' ||
+          blob.type === 'application/octet-stream' ||
+          fileName.toLowerCase().endsWith('.pdf');
+        if (!isPdf) {
+          stopProcessing('The link does not point to a PDF file. Please check the URL and try again.');
+          return;
+        }
+
+        // Validate size
+        if (blob.size > MAX_FILE_SIZE_BYTES) {
+          stopProcessing('File is too large. Maximum allowed size is 5 MB.');
+          return;
+        }
+
+        // Step 1 — get presigned upload URL
+        const presignedRes = await apiFetch(
+          `${authConfig.catenBaseUrl}/api/file-upload/presigned-upload`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file_name: fileName,
+              file_type: 'PDF',
+              entity_type: 'PDF',
+            }),
+          }
+        );
+
+        if (!presignedRes.ok) {
+          const err = await presignedRes.json().catch(() => ({}));
+          if (err?.detail?.errorCode === 'LOGIN_REQUIRED') {
+            stopProcessing();
+            setPageState('idle');
+            window.dispatchEvent(new CustomEvent('loginRequired', { detail: { message: 'upload PDFs' } }));
+            return;
+          }
+          const msg = err?.detail?.error_message || err?.detail || 'Failed to get upload URL.';
+          stopProcessing(typeof msg === 'string' ? msg : 'Failed to get upload URL.');
+          return;
+        }
+
+        const presignedData = await presignedRes.json();
+        const { upload_url, file_upload_id, content_type } = presignedData;
+
+        // Step 2 — PUT blob directly to S3
+        const s3Res = await fetch(upload_url, {
+          method: 'PUT',
+          headers: { 'Content-Type': content_type },
+          body: blob,
+        });
+
+        if (!s3Res.ok) {
+          stopProcessing('Failed to upload file to storage. Please try again.');
+          return;
+        }
+
+        // Step 3 — create PDF record
+        const createPdfRes = await apiFetch(
+          `${authConfig.catenBaseUrl}/api/pdf/create-pdf`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ file_name: fileName }),
+          }
+        );
+
+        if (!createPdfRes.ok) {
+          const err = await createPdfRes.json().catch(() => ({}));
+          const msg = err?.detail?.error_message || err?.detail || 'Failed to create PDF record.';
+          stopProcessing(typeof msg === 'string' ? msg : 'Failed to create PDF record.');
+          return;
+        }
+
+        const pdfData = await createPdfRes.json();
+        const pdfId: string = pdfData.id;
+
+        // Step 4 — link file upload to the PDF record
+        const updateEntityRes = await apiFetch(
+          `${authConfig.catenBaseUrl}/api/file-upload/${file_upload_id}/entity`,
+          {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ entity_id: pdfId }),
+          }
+        );
+
+        if (!updateEntityRes.ok) {
+          console.warn('Failed to link file upload to PDF record, continuing.');
+        }
+
+        // Step 5 — navigate to PDF page
+        clearInterval(interval);
+        setIsUploading(false);
+        navigate(`/pdf/${pdfId}`);
+      } catch {
+        stopProcessing('Something went wrong. Please try again.');
+      }
+    },
+    [isUploading, isLoggedIn, navigate]
+  );
 
   const handleFile = useCallback(
     (file: File) => {
@@ -381,19 +615,6 @@ export const ToolsPdfPage: React.FC = () => {
     return () => document.removeEventListener('paste', handlePaste);
   }, [handleFile]);
 
-  const checkUrlFileSize = async (url: string): Promise<boolean> => {
-    try {
-      const res = await fetch(url, { method: 'HEAD', mode: 'cors' });
-      const contentLength = res.headers.get('Content-Length');
-      if (contentLength && parseInt(contentLength, 10) > MAX_FILE_SIZE_BYTES) {
-        return false; // too large
-      }
-    } catch {
-      // CORS or network error — can't verify, allow through
-    }
-    return true;
-  };
-
   const handleDriveSubmit = async () => {
     setLinkError(null);
     const url = driveUrl.trim();
@@ -405,13 +626,10 @@ export const ToolsPdfPage: React.FC = () => {
       setLinkError('Invalid Google Drive URL. Make sure the link is from drive.google.com.');
       return;
     }
-    const sizeOk = await checkUrlFileSize(url);
-    if (!sizeOk) {
-      setLinkError('This file appears to be larger than 5 MB and cannot be loaded.');
-      return;
-    }
-    const fileName = url.split('/').filter(Boolean).pop() || 'document.pdf';
-    simulateProcess({ name: fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`, size: 0, source: 'drive' });
+    // Extract a sensible file name from the URL path (the actual file name is unknown until download)
+    const rawName = url.split('/').filter(Boolean).pop() || 'document';
+    const fileName = rawName.toLowerCase().endsWith('.pdf') ? rawName : `${rawName}.pdf`;
+    uploadFromUrl(url, 'drive', fileName);
   };
 
   const handleDropboxSubmit = async () => {
@@ -425,18 +643,10 @@ export const ToolsPdfPage: React.FC = () => {
       setLinkError('Invalid Dropbox URL. Make sure the link is from dropbox.com.');
       return;
     }
-    const sizeOk = await checkUrlFileSize(url);
-    if (!sizeOk) {
-      setLinkError('This file appears to be larger than 5 MB and cannot be loaded.');
-      return;
-    }
     const pathParts = new URL(url).pathname.split('/').filter(Boolean);
-    const fileName = pathParts[pathParts.length - 1] || 'document';
-    simulateProcess({
-      name: fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`,
-      size: 0,
-      source: 'dropbox',
-    });
+    const rawName = pathParts[pathParts.length - 1] || 'document';
+    const fileName = rawName.toLowerCase().endsWith('.pdf') ? rawName : `${rawName}.pdf`;
+    uploadFromUrl(url, 'dropbox', fileName);
   };
 
   const handleReset = () => {
@@ -483,74 +693,76 @@ export const ToolsPdfPage: React.FC = () => {
         </div>
       )}
 
+      {/* Mobile — desktop-optimised notice */}
+      <div className={styles.mobileNotice}>
+        <Monitor className={styles.mobileNoticeIcon} aria-hidden />
+        <div>
+          <p className={styles.mobileNoticeTitle}>Best experienced on Desktop</p>
+          <p className={styles.mobileNoticeText}>For the full PDF experience — chat, highlights, notes and more — open this page on a desktop browser.</p>
+        </div>
+      </div>
+
       {/* Hero */}
       <div className={styles.hero}>
         <h1 className={styles.heroTitle}>
-          Analyze any PDF with{' '}
-          <span className={styles.heroTitleAccent}>AI</span>
+          Everything you need to master{' '}
+          <span className={styles.heroTitleAccent}>any PDF</span>
         </h1>
-        <p className={styles.heroSubtitle}>
-          Upload a PDF from your device, Google Drive, or Dropbox — and let AI
-          break it down for you instantly.
-        </p>
       </div>
 
-      {/* Outer row: sidebar (conditional, leftmost) + inner two-column layout */}
-      <div className={styles.outerRow}>
-
-      {/* PDF history sidebar — leftmost, outside the features+card container */}
+      {/* Recent PDFs row — shown below hero for unauthenticated users with prior uploads */}
       {!unauthPdfsLoading && unauthPdfs.length > 0 && (
-        <div className={styles.pdfSidebar}>
-          <p className={styles.pdfSidebarHeading}>Your PDFs</p>
-          <ul className={styles.pdfSidebarList}>
-            {unauthPdfs.map((pdf) => (
-              <li
-                key={pdf.id}
-                className={styles.pdfSidebarItem}
-                onClick={() => navigate(`/pdf/${pdf.id}`)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/pdf/${pdf.id}`); }}
-              >
-                <FileText className={styles.pdfSidebarItemIcon} size={14} />
-                <span className={styles.pdfSidebarItemName}>{pdf.file_name}</span>
-              </li>
-            ))}
-          </ul>
+        <div className={styles.recentPdfsRow} ref={recentRowRef}>
+          <span className={styles.recentPdfsLabel} data-recent-label>Your PDFs</span>
+          {(visibleCount === null ? unauthPdfs : unauthPdfs.slice(0, visibleCount)).map((pdf) => (
+            <button
+              key={pdf.id}
+              className={styles.recentPdfChip}
+              data-pdf-chip
+              onClick={() => window.open(`/pdf/${pdf.id}`, '_blank')}
+            >
+              <FileText size={13} />
+              <span>{pdf.file_name}</span>
+            </button>
+          ))}
+          {visibleCount !== null && visibleCount < unauthPdfs.length && (
+            <button
+              className={styles.viewAllBtn}
+              data-view-all-btn
+              onClick={() => setViewAllOpen(true)}
+            >
+              View all
+            </button>
+          )}
         </div>
       )}
+
+      {/* Outer row: inner two-column layout */}
+      <div className={styles.outerRow}>
 
       {/* Inner row: feature list + upload card */}
       <div className={styles.mainRow}>
 
       {/* Feature list — left column */}
       <div className={styles.featuresColumn}>
-        <p className={styles.featuresHeading}>What you can do</p>
+        <p className={styles.featuresHeading}>One PDF tool. Endless possibilities.</p>
         {[
           {
-            label: 'Summarise PDF',
-            icon: <FileText size={22} />,
+            label: 'Chat with PDF',
+            icon: <MessageSquare size={22} />,
           },
           {
-            label: 'Get citations for every answer',
-            icon: <BookOpen size={22} />,
+            label: 'save conversations and insights',
+            icon: <NotebookPen size={22} />,
           },
           {
-            label: 'Ask anything about your PDF',
-            icon: <MessageCircle size={22} />,
+            label: 'Highlight, save personal notes',
+            icon: <Highlighter size={22} />,
           },
           {
-            label: 'Highlight & bookmark content',
-            icon: <Bookmark size={22} />,
-          },
-          {
-            label: 'Conversations saved on the PDF',
-            icon: <Layers size={22} />,
-          },
-          {
-            label: 'Save to dashboard & chat later',
-            icon: <Folder size={22} />,
-          },
+            label: 'Team collaboration',
+            icon: <Users size={22} />,
+          }
         ].map((item) => (
           <div key={item.label} className={styles.featureItem}>
             <div className={styles.featureItemIcon}>{item.icon}</div>
@@ -564,7 +776,7 @@ export const ToolsPdfPage: React.FC = () => {
             You can do a lot more!
           </p>
           <button className={styles.featuresCtaButton} onClick={handleCtaClick}>
-            {isLoggedIn ? 'Go to Dashboard' : 'Sign up free — it\'s free'}
+            {isLoggedIn ? 'Go to Dashboard' : 'Sign up for free'}
             <ArrowRight size={14} />
           </button>
         </div>
@@ -573,6 +785,7 @@ export const ToolsPdfPage: React.FC = () => {
       {/* Card */}
       <div className={styles.card}>
         {/* Tabs */}
+        {/* TODO: Re-enable tabs once Drive/Dropbox backend proxy is implemented
         {pageState === 'idle' && (
           <div className={styles.tabs}>
             <button
@@ -598,6 +811,7 @@ export const ToolsPdfPage: React.FC = () => {
             </button>
           </div>
         )}
+        */}
 
         <div className={styles.cardBody}>
           {/* Processing state */}
@@ -696,7 +910,7 @@ export const ToolsPdfPage: React.FC = () => {
             </>
           )}
 
-          {/* Idle — Google Drive tab */}
+          {/* TODO: Re-enable once backend proxy is implemented (CORS blocks direct browser fetch)
           {pageState === 'idle' && activeTab === 'drive' && (
             <div className={styles.linkSection}>
               <p className={styles.linkLabel}>Google Drive PDF link</p>
@@ -738,7 +952,6 @@ export const ToolsPdfPage: React.FC = () => {
             </div>
           )}
 
-          {/* Idle — Dropbox tab */}
           {pageState === 'idle' && activeTab === 'dropbox' && (
             <div className={styles.linkSection}>
               <p className={styles.linkLabel}>Dropbox PDF link</p>
@@ -779,14 +992,70 @@ export const ToolsPdfPage: React.FC = () => {
               </div>
             </div>
           )}
+          */}
         </div>
 
       </div>
 
 
+      {/* Extension promo — right column */}
+      <div className={styles.extensionPromo}>
+        <div className={styles.extensionPromoCard}>
+          <span className={styles.extensionPromoNewBadge}>NEW · Beta</span>
+          <p className={styles.extensionPromoHeading}>Also try our Extension</p>
+          {[
+            { label: 'Chat with webpages', icon: <MessageSquare size={16} /> },
+            { label: 'Save conversations and insights', icon: <NotebookPen size={16} /> },
+            { label: 'Bookmark page, text, image, words', icon: <Bookmark size={16} /> },
+            { label: 'Team collaboration', icon: <Users size={16} /> },
+          ].map((item) => (
+            <div key={item.label} className={styles.extensionPromoFeature}>
+              <div className={styles.extensionPromoFeatureIcon}>{item.icon}</div>
+              <p className={styles.extensionPromoFeatureLabel}>{item.label}</p>
+            </div>
+          ))}
+          <a
+            href="https://chromewebstore.google.com/detail/xplaino/nmphalmbdmddagbllhjnfnmodfmbnlkp"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.extensionPromoButton}
+          >
+            Try Extension for Free
+            <ArrowRight size={14} />
+          </a>
+        </div>
+      </div>
+
       </div>{/* end mainRow */}
 
       </div>{/* end outerRow */}
+
+      {/* View all PDFs modal */}
+      {viewAllOpen && (
+        <div className={styles.viewAllOverlay} onClick={() => setViewAllOpen(false)}>
+          <div className={styles.viewAllModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.viewAllModalHeader}>
+              <p className={styles.viewAllModalTitle}>Your PDFs</p>
+              <button className={styles.viewAllModalClose} onClick={() => setViewAllOpen(false)}>✕</button>
+            </div>
+            <ul className={styles.viewAllList}>
+              {unauthPdfs.map((pdf) => (
+                <li
+                  key={pdf.id}
+                  className={styles.viewAllItem}
+                  onClick={() => window.open(`/pdf/${pdf.id}`, '_blank')}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') window.open(`/pdf/${pdf.id}`, '_blank'); }}
+                >
+                  <FileText size={15} className={styles.viewAllItemIcon} />
+                  <span className={styles.viewAllItemName}>{pdf.file_name}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

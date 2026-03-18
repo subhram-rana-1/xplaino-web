@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/TextLayer.css';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
-import { Plus, ChevronLeft, ChevronRight, Share2, Download } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, Eye, EyeOff, Share2, Download, MessageCircle, Trash2, Users } from 'lucide-react';
 import styles from './PdfDetail.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
-import { getPdfById, getAllPdfs, sharePdf, makePdfPublic, makePdfPrivate, getPdfShareeList, unsharePdf, getDownloadUrl } from '@/shared/services/pdf.service';
+import { getPdfById, getAllPdfs, sharePdf, makePdfPublic, makePdfPrivate, getPdfShareeList, unsharePdf, getDownloadUrl, deletePdf } from '@/shared/services/pdf.service';
 import { getAllFolders } from '@/shared/services/folders.service';
 import type { FolderWithSubFolders, ShareeItem } from '@/shared/types/folders.types';
 import { getUserSettings, updateUserSettings } from '@/shared/services/user-settings.service';
@@ -24,22 +24,14 @@ import { PdfHighlightLayer } from './PdfHighlightLayer';
 import { FolderSelectorPopover } from '@/shared/components/FolderSelectorPopover';
 import { PdfSelectorPopover } from '@/shared/components/PdfSelectorPopover';
 import { PdfShareModal } from '@/shared/components/PdfShareModal';
+import { ShareeListModal } from '@/shared/components/ShareeListModal';
 import { CopyPdfModal } from '@/shared/components/CopyPdfModal';
-import { AskAISidePanel } from '@/shared/components/AskAISidePanel';
+import { PdfChatPanel } from './PdfChatPanel';
 import { CreateCustomPromptModal } from '@/shared/components/CreateCustomPromptModal';
-import { simplifyText, askAboutText } from '@/shared/services/simplify.service';
-import type { ChatMessage } from '@/shared/services/simplify.service';
 import { listCustomPrompts } from '@/shared/services/customPrompt.service';
 import type { CustomPromptResponse } from '@/shared/types/customPrompt.types';
-import { extractSurroundingContext, computeTextStartIndex } from './pdfTextContext';
-import {
-  createPdfTextChat,
-  appendPdfTextChatMessages,
-  getAllPdfTextChats,
-  getPdfTextChatHistory,
-  deletePdfTextChat,
-} from '@/shared/services/pdfTextChat.service';
-import type { ChatWho } from '@/shared/types/pdfTextChat.types';
+import { normalisePdfText } from './pdfTextNormalise';
+import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 
 // PDF.js worker: use same version as react-pdf's pdfjs-dist (5.4.296)
 pdfjs.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@5.4.296/build/pdf.worker.min.mjs';
@@ -98,9 +90,14 @@ export const PdfDetail: React.FC = () => {
   const { accessToken, isLoggedIn, isLoading: authLoading, user } = useAuth();
   const userFirstName = user?.firstName || user?.name?.split(' ')[0];
 
+  const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform);
+
   const [sidebarVisible, setSidebarVisible] = useState(getStoredPdfSidebarVisible);
-  const [toolbarVisible] = useState(getStoredToolbarVisible);
-  const [zoomLevel] = useState(1);
+  const [toolbarVisible, setToolbarVisible] = useState(getStoredToolbarVisible);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const ZOOM_STEP = 0.25;
+  const ZOOM_MIN = 0.5;
+  const ZOOM_MAX = 2;
   // 0 = not showing, 1 = step 1 (toolbar spotlight), 2 = step 2 (highlight instruction)
   const [fdStep, setFdStep] = useState<0 | 1 | 2>(() => isFeatureDiscoverySeen() ? 0 : 1);
   const toolbarButtonsRef = useRef<HTMLDivElement>(null);
@@ -202,7 +199,7 @@ export const PdfDetail: React.FC = () => {
   // Translation
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
   const [isTranslationActive] = useState(false);
-  const [showOriginal] = useState(false);
+  const [showOriginal, setShowOriginal] = useState(false);
   const [userSettings, setUserSettings] = useState<SettingsResponse | null>(null);
   const mainAreaRef = useRef<HTMLDivElement>(null);
 
@@ -214,6 +211,38 @@ export const PdfDetail: React.FC = () => {
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [activePage, setActivePage] = useState<number>(1);
 
+  // Auto-update activePage as the user scrolls so the sidebar thumbnail tracks
+  // the page currently visible at the centre of the viewport.
+  useEffect(() => {
+    const scrollEl = mainAreaRef.current;
+    if (!scrollEl) return;
+
+    const handler = () => {
+      const refs = pageRefs.current;
+      if (!refs.length) return;
+
+      const viewMid = scrollEl.scrollTop + scrollEl.clientHeight / 2;
+      let best = 1;
+      let bestDist = Infinity;
+
+      for (let i = 0; i < refs.length; i++) {
+        const el = refs[i];
+        if (!el) continue;
+        const elMid = el.offsetTop + el.offsetHeight / 2;
+        const dist = Math.abs(elMid - viewMid);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = i + 1;
+        }
+      }
+
+      setActivePage((prev) => (prev === best ? prev : best));
+    };
+
+    scrollEl.addEventListener('scroll', handler, { passive: true });
+    return () => scrollEl.removeEventListener('scroll', handler);
+  }, [numPages]);
+
   // Per-page render version counters so PdfHighlightLayer recomputes rects on re-render
   const [pageRenderVersions, setPageRenderVersions] = useState<Record<number, number>>({});
 
@@ -224,626 +253,168 @@ export const PdfDetail: React.FC = () => {
     clientY: number;
   } | null>(null);
 
-  // ── Text explanation (Explain feature) ────────────────────────────────────
-  interface TextExplanation {
+  const [isExplainPanelOpen, setIsExplainPanelOpen] = useState(false);
+  const [chatSelectedText, setChatSelectedText] = useState<string | undefined>(undefined);
+  const [pendingChatPrompt, setPendingChatPrompt] = useState<string | undefined>(undefined);
+  const [activeCitationHighlight, setActiveCitationHighlight] = useState<{
     id: string;
-    textChatId: string | null;
     startText: string;
     endText: string;
-    selectedText: string;
-    surroundingContext: string;
-    startPageNumber: number;
-    endPageNumber: number;
-    streamingText: string;
-    chatMessages: ChatMessage[];
-    isRequesting: boolean;
-    firstChunkReceived: boolean;
-    possibleQuestions: string[];
-    abortController: AbortController | null;
-  }
-
-  const [explanations, setExplanations] = useState<TextExplanation[]>([]);
-  const [activeExplanationId, setActiveExplanationId] = useState<string | null>(null);
-  const [isExplainPanelOpen, setIsExplainPanelOpen] = useState(false);
-  const [pulsingExplanationId, setPulsingExplanationId] = useState<string | null>(null);
-  const [focusChatInput, setFocusChatInput] = useState(false);
-  const explanationsRef = useRef<TextExplanation[]>([]);
-
-  const [panelMode, setPanelMode] = useState<'text-explanation' | 'chat-with-pdf'>('text-explanation');
-  const [chatWithPdfMessages, setChatWithPdfMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
-  const [chatWithPdfStreaming, setChatWithPdfStreaming] = useState('');
-  const [isChatWithPdfRequesting, setIsChatWithPdfRequesting] = useState(false);
-  const chatWithPdfAbortRef = useRef<AbortController | null>(null);
-
-  const updateExplanation = useCallback((id: string, updater: (e: TextExplanation) => TextExplanation) => {
-    setExplanations((prev) => {
-      const next = prev.map((e) => e.id === id ? updater(e) : e);
-      explanationsRef.current = next;
-      return next;
-    });
-  }, []);
+    pageNumber?: number;
+  } | null>(null);
 
   const handleExplainFromSelection = useCallback(
-    (startText: string, endText: string, selectedText: string, clientY: number) => {
-      setActivePanelTitle('Text Explanation');
-      const pageContainerEl = (() => {
-        if (!contentRef.current) return null;
-        const pages = contentRef.current.querySelectorAll('[data-page]');
-        for (const page of pages) {
-          const rect = page.getBoundingClientRect();
-          if (clientY >= rect.top - 40 && clientY <= rect.bottom + 40) {
-            return page as HTMLElement;
-          }
-        }
-        return null;
-      })();
-
-      const pageNumber = pageContainerEl
-        ? Number(pageContainerEl.getAttribute('data-page')) || 1
-        : 1;
-
-      const surroundingContext = extractSurroundingContext(
-        selectedText, startText, endText, pageContainerEl,
-      );
-      const textStartIndex = computeTextStartIndex(startText, pageContainerEl);
-
-      const id = `explain-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const abortController = new AbortController();
-
-      const newExplanation: TextExplanation = {
-        id,
-        textChatId: null,
-        startText,
-        endText,
-        selectedText,
-        surroundingContext,
-        startPageNumber: pageNumber,
-        endPageNumber: pageNumber,
-        streamingText: '',
-        chatMessages: [],
-        isRequesting: true,
-        firstChunkReceived: false,
-        possibleQuestions: [],
-        abortController,
-      };
-
-      setExplanations((prev) => {
-        const next = [...prev, newExplanation];
-        explanationsRef.current = next;
-        return next;
-      });
-
-      // Start SSE streaming
-      (async () => {
-        try {
-          const generator = simplifyText(
-            [{
-              textStartIndex,
-              textLength: selectedText.length,
-              text: surroundingContext,
-              previousSimplifiedTexts: [],
-              languageCode: null,
-            }],
-            abortController.signal,
-          );
-
-          for await (const event of generator) {
-            if (event.type === 'chunk') {
-              const isFirst = !explanationsRef.current.find((e) => e.id === id)?.firstChunkReceived;
-              updateExplanation(id, (e) => ({
-                ...e,
-                streamingText: event.accumulatedText,
-                firstChunkReceived: true,
-              }));
-              if (isFirst) {
-                setActiveExplanationId(id);
-                setIsExplainPanelOpen(true);
-                setPanelMode('text-explanation');
-              }
-            } else if (event.type === 'complete') {
-              updateExplanation(id, (e) => ({
-                ...e,
-                streamingText: '',
-                chatMessages: [
-                  ...e.chatMessages,
-                  { role: 'assistant', content: event.simplifiedText },
-                ],
-                isRequesting: false,
-                possibleQuestions: event.possibleQuestions,
-                abortController: null,
-              }));
-              if (!explanationsRef.current.find((e) => e.id === id)?.firstChunkReceived) {
-                setActiveExplanationId(id);
-                setIsExplainPanelOpen(true);
-                setPanelMode('text-explanation');
-              }
-            } else if (event.type === 'error') {
-              const hadChunk = explanationsRef.current.find((e) => e.id === id)?.firstChunkReceived;
-              if (hadChunk) {
-                updateExplanation(id, (e) => ({
-                  ...e,
-                  streamingText: '',
-                  isRequesting: false,
-                  abortController: null,
-                }));
-              } else {
-                setExplanations((prev) => {
-                  const next = prev.filter((e) => e.id !== id);
-                  explanationsRef.current = next;
-                  return next;
-                });
-              }
-              setToast({ message: event.errorMessage || 'Failed to explain text', type: 'error' });
-            }
-          }
-        } catch (err) {
-          if ((err as Error)?.name === 'AbortError') {
-            // Remove explanation if it never produced a first chunk (aborted during spinner)
-            const hadChunk = explanationsRef.current.find((e) => e.id === id)?.firstChunkReceived;
-            if (!hadChunk) {
-              setExplanations((prev) => {
-                const next = prev.filter((e) => e.id !== id);
-                explanationsRef.current = next;
-                return next;
-              });
-            }
-            return;
-          }
-          const hadChunk = explanationsRef.current.find((e) => e.id === id)?.firstChunkReceived;
-          if (hadChunk) {
-            updateExplanation(id, (e) => ({
-              ...e,
-              streamingText: '',
-              isRequesting: false,
-              abortController: null,
-            }));
-          } else {
-            setExplanations((prev) => {
-              const next = prev.filter((e) => e.id !== id);
-              explanationsRef.current = next;
-              return next;
-            });
-          }
-          setToast({ message: 'Failed to explain text', type: 'error' });
-        }
-      })();
+    (_startText: string, _endText: string, selectedText: string, _clientY: number) => {
+      setChatSelectedText(selectedText);
+      setPendingChatPrompt('Simplify this text');
+      setIsExplainPanelOpen(true);
     },
-    [updateExplanation],
+    [],
   );
 
   const handleAskAIFromSelection = useCallback(
-    (startText: string, endText: string, selectedText: string, clientY: number) => {
-      setActivePanelTitle('Text Explanation');
-      const pageContainerEl = (() => {
-        if (!contentRef.current) return null;
-        const pages = contentRef.current.querySelectorAll('[data-page]');
-        for (const page of pages) {
-          const rect = page.getBoundingClientRect();
-          if (clientY >= rect.top - 40 && clientY <= rect.bottom + 40) {
-            return page as HTMLElement;
-          }
-        }
-        return null;
-      })();
-
-      const pageNumber = pageContainerEl
-        ? Number(pageContainerEl.getAttribute('data-page')) || 1
-        : 1;
-
-      const surroundingContext = extractSurroundingContext(
-        selectedText, startText, endText, pageContainerEl,
-      );
-
-      const id = `explain-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-
-      const newExplanation: TextExplanation = {
-        id,
-        textChatId: null,
-        startText,
-        endText,
-        selectedText,
-        surroundingContext,
-        startPageNumber: pageNumber,
-        endPageNumber: pageNumber,
-        streamingText: '',
-        chatMessages: [],
-        isRequesting: false,
-        firstChunkReceived: true,
-        possibleQuestions: [],
-        abortController: null,
-      };
-
-      setExplanations((prev) => {
-        const next = [...prev, newExplanation];
-        explanationsRef.current = next;
-        return next;
-      });
-
-      setActiveExplanationId(id);
+    (_startText: string, _endText: string, selectedText: string, _clientY: number) => {
+      setChatSelectedText(selectedText);
+      setPendingChatPrompt(undefined);
       setIsExplainPanelOpen(true);
-      setFocusChatInput(true);
-      setPanelMode('text-explanation');
     },
     [],
   );
 
   const handlePromptFromSelection = useCallback(
-    (startText: string, endText: string, selectedText: string, clientY: number, prompt: string) => {
-      const pageContainerEl = (() => {
-        if (!contentRef.current) return null;
-        const pages = contentRef.current.querySelectorAll('[data-page]');
-        for (const page of pages) {
-          const rect = page.getBoundingClientRect();
-          if (clientY >= rect.top - 40 && clientY <= rect.bottom + 40) {
-            return page as HTMLElement;
-          }
-        }
-        return null;
-      })();
-
-      const pageNumber = pageContainerEl
-        ? Number(pageContainerEl.getAttribute('data-page')) || 1
-        : 1;
-
-      const surroundingContext = extractSurroundingContext(
-        selectedText, startText, endText, pageContainerEl,
-      );
-
-      const id = `explain-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const abortController = new AbortController();
-
-      const newExplanation: TextExplanation = {
-        id,
-        textChatId: null,
-        startText,
-        endText,
-        selectedText,
-        surroundingContext,
-        startPageNumber: pageNumber,
-        endPageNumber: pageNumber,
-        streamingText: '',
-        chatMessages: [],
-        isRequesting: true,
-        firstChunkReceived: true,
-        possibleQuestions: [],
-        abortController,
-      };
-
-      setExplanations((prev) => {
-        const next = [...prev, newExplanation];
-        explanationsRef.current = next;
-        return next;
-      });
-
-      setActiveExplanationId(id);
+    (_startText: string, _endText: string, selectedText: string, _clientY: number, prompt: string) => {
+      setChatSelectedText(selectedText);
+      setPendingChatPrompt(prompt);
       setIsExplainPanelOpen(true);
-      setPanelMode('text-explanation');
-
-      // Stream AI response immediately with the preset prompt
-      (async () => {
-        try {
-          const generator = askAboutText(
-            {
-              question: prompt,
-              chat_history: [],
-              initial_context: surroundingContext,
-              context_type: 'TEXT',
-              languageCode: null,
-            },
-            abortController.signal,
-          );
-
-          updateExplanation(id, (e) => ({
-            ...e,
-            chatMessages: [...e.chatMessages, { role: 'user', content: prompt }],
-          }));
-
-          for await (const event of generator) {
-            if (event.type === 'chunk') {
-              updateExplanation(id, (e) => ({
-                ...e,
-                streamingText: event.accumulatedText,
-              }));
-            } else if (event.type === 'complete') {
-              updateExplanation(id, (e) => ({
-                ...e,
-                streamingText: '',
-                chatMessages: event.chatHistory,
-                isRequesting: false,
-                possibleQuestions: event.possibleQuestions,
-                abortController: null,
-              }));
-            } else if (event.type === 'error') {
-              updateExplanation(id, (e) => ({
-                ...e,
-                streamingText: '',
-                isRequesting: false,
-                abortController: null,
-              }));
-              setToast({ message: event.errorMessage || 'Failed to process prompt', type: 'error' });
-            }
-          }
-        } catch (err) {
-          if ((err as Error)?.name === 'AbortError') return;
-          updateExplanation(id, (e) => ({
-            ...e,
-            streamingText: '',
-            isRequesting: false,
-            abortController: null,
-          }));
-          setToast({ message: 'Failed to process prompt', type: 'error' });
-        }
-      })();
     },
-    [updateExplanation],
+    [],
   );
 
   const handleCustomPromptFromSelection = useCallback(
-    (title: string, startText: string, endText: string, selectedText: string, clientY: number, promptText: string) => {
-      setActivePanelTitle(title);
+    (_title: string, startText: string, endText: string, selectedText: string, clientY: number, promptText: string) => {
       handlePromptFromSelection(startText, endText, selectedText, clientY, promptText);
     },
     [handlePromptFromSelection],
   );
 
-  const handleChatWithPdfSubmit = useCallback(async (question: string) => {
-    if (isChatWithPdfRequesting) return;
+  const handleScrollToPage = useCallback((pageNumber: number) => {
+    const pageEl = contentRef.current?.querySelector(
+      `[data-page="${pageNumber}"]`,
+    );
+    pageEl?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
 
-    chatWithPdfAbortRef.current?.abort();
-    const abortController = new AbortController();
-    chatWithPdfAbortRef.current = abortController;
+  const handleScrollToSelectedText = useCallback(
+    (text: string, pageHint?: number | null, noPulse?: boolean) => {
+      if (!contentRef.current || !text) return;
+      const fullNeedle = normalisePdfText(text).toLowerCase();
+      if (!fullNeedle) return;
 
-    setChatWithPdfMessages((prev) => [...prev, { role: 'user', content: question }]);
-    setIsChatWithPdfRequesting(true);
-    setChatWithPdfStreaming('');
+      type PageBuf = { buf: string; charSpan: HTMLElement[] };
+      const pageBuffers = new Map<number, PageBuf>();
 
-    try {
-      const generator = askAboutText(
-        {
-          question,
-          chat_history: chatWithPdfMessages.concat({ role: 'user', content: question }),
-          initial_context: '',
-          context_type: 'TEXT',
-          languageCode: null,
-        },
-        abortController.signal,
+      const allPages = Array.from(
+        contentRef.current.querySelectorAll<HTMLElement>('[data-page]'),
       );
 
-      for await (const event of generator) {
-        if (event.type === 'chunk') {
-          setChatWithPdfStreaming(event.accumulatedText);
-        } else if (event.type === 'complete') {
-          setChatWithPdfStreaming('');
-          setChatWithPdfMessages(event.chatHistory);
-          setIsChatWithPdfRequesting(false);
-        } else if (event.type === 'error') {
-          setChatWithPdfStreaming('');
-          setIsChatWithPdfRequesting(false);
-          setToast({ message: event.errorMessage || 'Failed to process request', type: 'error' });
-        }
-      }
-    } catch (err) {
-      if ((err as Error)?.name === 'AbortError') return;
-      setChatWithPdfStreaming('');
-      setIsChatWithPdfRequesting(false);
-      setToast({ message: 'Failed to process request', type: 'error' });
-    }
-  }, [isChatWithPdfRequesting, chatWithPdfMessages]);
-
-  const handleChatWithPdfStop = useCallback(() => {
-    chatWithPdfAbortRef.current?.abort();
-    setIsChatWithPdfRequesting(false);
-    setChatWithPdfStreaming('');
-  }, []);
-
-  const handleClearChatWithPdf = useCallback(() => {
-    chatWithPdfAbortRef.current?.abort();
-    setChatWithPdfMessages([]);
-    setChatWithPdfStreaming('');
-    setIsChatWithPdfRequesting(false);
-  }, []);
-
-  const handleAskFollowUp = useCallback(
-    async (question: string) => {
-      if (!activeExplanationId) return;
-      const explanation = explanationsRef.current.find((e) => e.id === activeExplanationId);
-      if (!explanation) return;
-
-      const abortController = new AbortController();
-
-      // Lazily recompute surroundingContext from the live PDF DOM if it was not
-      // persisted (happens for chats reloaded from the backend after a page reload).
-      let initialContext = explanation.surroundingContext;
-      if (!initialContext) {
-        const pageContainerEl = pageRefs.current[explanation.startPageNumber - 1] ?? null;
-        const recomputed = extractSurroundingContext(
-          explanation.startText,
-          explanation.startText,
-          explanation.endText,
-          pageContainerEl,
+      for (const page of allPages) {
+        const pageNum = parseInt(page.getAttribute('data-page') ?? '0', 10);
+        const spans = Array.from(
+          page.querySelectorAll<HTMLElement>('.react-pdf__Page__textContent span'),
         );
-        initialContext = recomputed;
-        // Cache it so subsequent follow-ups in the same session don't recompute.
-        updateExplanation(activeExplanationId, (e) => ({ ...e, surroundingContext: recomputed }));
-      }
+        if (!spans.length) continue;
 
-      updateExplanation(activeExplanationId, (e) => ({
-        ...e,
-        chatMessages: [...e.chatMessages, { role: 'user', content: question }],
-        streamingText: '',
-        isRequesting: true,
-        abortController,
-      }));
-
-      try {
-        const generator = askAboutText(
-          {
-            question,
-            chat_history: explanation.chatMessages,
-            initial_context: initialContext,
-            context_type: 'TEXT',
-            languageCode: null,
-          },
-          abortController.signal,
-        );
-
-        for await (const event of generator) {
-          if (event.type === 'chunk') {
-            updateExplanation(activeExplanationId, (e) => ({
-              ...e,
-              streamingText: event.accumulatedText,
-            }));
-          } else if (event.type === 'complete') {
-            updateExplanation(activeExplanationId, (e) => ({
-              ...e,
-              streamingText: '',
-              chatMessages: event.chatHistory,
-              isRequesting: false,
-              possibleQuestions: event.possibleQuestions,
-              abortController: null,
-            }));
-
-            const currentExplanation = explanationsRef.current.find((e) => e.id === activeExplanationId);
-            if (currentExplanation?.textChatId && accessToken && pdfId) {
-              const lastAssistant = [...event.chatHistory].reverse().find((m) => m.role === 'assistant');
-              if (lastAssistant) {
-                appendPdfTextChatMessages(accessToken, pdfId, currentExplanation.textChatId, {
-                  chats: [
-                    { who: 'USER', content: question },
-                    { who: 'SYSTEM', content: lastAssistant.content },
-                  ],
-                }).catch((err) => console.error('Failed to append text chat messages:', err));
-              }
-            }
-          } else if (event.type === 'error') {
-            updateExplanation(activeExplanationId, (e) => ({
-              ...e,
-              streamingText: '',
-              isRequesting: false,
-              abortController: null,
-            }));
-            setToast({ message: event.errorMessage || 'Failed to get answer', type: 'error' });
+        let buf = '';
+        const charSpan: HTMLElement[] = [];
+        for (const span of spans) {
+          const t = normalisePdfText(span.textContent ?? '');
+          if (!t) continue;
+          if (buf.length > 0 && !buf.endsWith(' ') && !t.startsWith(' ')) {
+            buf += ' ';
+            charSpan.push(span);
+          }
+          for (const ch of t) {
+            buf += ch;
+            charSpan.push(span);
           }
         }
-      } catch (err) {
-        if ((err as Error)?.name === 'AbortError') return;
-        updateExplanation(activeExplanationId, (e) => ({
-          ...e,
-          streamingText: '',
-          isRequesting: false,
-          abortController: null,
-        }));
-        setToast({ message: 'Failed to get answer', type: 'error' });
+        pageBuffers.set(pageNum, { buf, charSpan });
+      }
+
+      const searchOrder: PageBuf[] = [];
+      if (pageHint != null && pageBuffers.has(pageHint)) {
+        searchOrder.push(pageBuffers.get(pageHint)!);
+      }
+      for (const [num, pb] of pageBuffers) {
+        if (num !== pageHint) searchOrder.push(pb);
+      }
+
+      const NEEDLE_LENGTHS = [300, 150, 80, 40];
+      let matchSpan: HTMLElement | null = null;
+
+      for (const maxLen of NEEDLE_LENGTHS) {
+        const needle = fullNeedle.slice(0, maxLen);
+        if (!needle) continue;
+
+        for (const { buf, charSpan } of searchOrder) {
+          const lowerBuf = buf.toLowerCase();
+
+          let idx = lowerBuf.indexOf(needle);
+
+          if (idx === -1) {
+            const compactBuf = lowerBuf.replace(/ /g, '');
+            const compactNeedle = needle.replace(/ /g, '');
+            const compactIdx = compactBuf.indexOf(compactNeedle);
+            if (compactIdx !== -1) {
+              let origIdx = 0;
+              let compactCount = 0;
+              while (compactCount < compactIdx && origIdx < buf.length) {
+                if (buf[origIdx] !== ' ') compactCount++;
+                origIdx++;
+              }
+              while (origIdx < buf.length && buf[origIdx] === ' ') origIdx++;
+              idx = origIdx;
+            }
+          }
+
+          if (idx !== -1) {
+            matchSpan = charSpan[idx] ?? null;
+            break;
+          }
+        }
+        if (matchSpan) break;
+      }
+
+      if (!matchSpan) return;
+      matchSpan.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      if (!noPulse) {
+        const PULSE_CLASS = 'xplaino-text-pulse';
+        const pulse = () => {
+          matchSpan!.classList.add(PULSE_CLASS);
+          setTimeout(() => {
+            matchSpan!.classList.remove(PULSE_CLASS);
+            setTimeout(() => {
+              matchSpan!.classList.add(PULSE_CLASS);
+              setTimeout(() => matchSpan!.classList.remove(PULSE_CLASS), 400);
+            }, 200);
+          }, 400);
+        };
+        setTimeout(pulse, 450);
       }
     },
-    [activeExplanationId, updateExplanation, accessToken, pdfId],
+    [],
   );
 
-  const handleStopExplainRequest = useCallback(() => {
-    if (!activeExplanationId) return;
-    const explanation = explanationsRef.current.find((e) => e.id === activeExplanationId);
-    explanation?.abortController?.abort();
-    updateExplanation(activeExplanationId, (e) => ({
-      ...e,
-      isRequesting: false,
-      abortController: null,
-    }));
-  }, [activeExplanationId, updateExplanation]);
-
-  const handleCloseExplainPanel = useCallback(() => {
-    setIsExplainPanelOpen(false);
-  }, []);
-
-  const handleClearExplainChat = useCallback(() => {
-    if (!activeExplanationId) return;
-
-    const explanation = explanationsRef.current.find((e) => e.id === activeExplanationId);
-    if (explanation?.textChatId && accessToken && pdfId) {
-      deletePdfTextChat(accessToken, pdfId, explanation.textChatId)
-        .catch((err) => console.error('Failed to delete text chat:', err));
-    }
-
-    setExplanations((prev) => {
-      const next = prev.filter((e) => e.id !== activeExplanationId);
-      explanationsRef.current = next;
-      return next;
-    });
-    setActiveExplanationId(null);
-    setIsExplainPanelOpen(false);
-  }, [activeExplanationId, accessToken, pdfId]);
-
-  const handleExplanationIconClick = useCallback((id: string) => {
-    setActiveExplanationId(id);
+  const handleSendToChatFromSelection = useCallback((text: string) => {
+    setChatSelectedText(text);
     setIsExplainPanelOpen(true);
   }, []);
 
-  const handleScrollToExplanationText = useCallback(() => {
-    if (!activeExplanationId) return;
-    const explanation = explanationsRef.current.find((e) => e.id === activeExplanationId);
-    if (!explanation) return;
-
-    const pageIndex = explanation.startPageNumber - 1;
-    const el = pageRefs.current[pageIndex];
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      setTimeout(() => {
-        setPulsingExplanationId(activeExplanationId);
-      }, 500);
-    }
-  }, [activeExplanationId]);
-
-  const handlePulseComplete = useCallback(() => {
-    setPulsingExplanationId(null);
+  const handleCloseExplainPanel = useCallback(() => {
+    setIsExplainPanelOpen(false);
+    setActiveCitationHighlight(null);
   }, []);
-
-  const handleDeleteExplainChat = useCallback(async () => {
-    if (!activeExplanationId || !accessToken || !pdfId) return;
-    const explanation = explanationsRef.current.find((e) => e.id === activeExplanationId);
-    if (!explanation?.textChatId) return;
-    try {
-      await deletePdfTextChat(accessToken, pdfId, explanation.textChatId);
-      updateExplanation(activeExplanationId, (e) => ({ ...e, textChatId: null }));
-      setToast({ message: 'Chat deleted', type: 'success' });
-    } catch (err) {
-      console.error('Failed to delete text chat:', err);
-      setToast({ message: 'Failed to delete chat', type: 'error' });
-    }
-  }, [activeExplanationId, accessToken, pdfId, updateExplanation]);
-
-  const handleSaveExplainChat = useCallback(async () => {
-    if (!activeExplanationId || !accessToken || !pdfId) return;
-    const explanation = explanationsRef.current.find((e) => e.id === activeExplanationId);
-    if (!explanation || explanation.textChatId) return;
-
-    const truncate = (s: string, max: number) => s.slice(0, max);
-
-    try {
-      const chats = explanation.chatMessages.map((m) => ({
-        who: (m.role === 'user' ? 'USER' : 'SYSTEM') as ChatWho,
-        content: m.content,
-      }));
-
-      const result = await createPdfTextChat(accessToken, pdfId, {
-        start_text_pdf_page_number: explanation.startPageNumber,
-        end_text_pdf_page_number: explanation.endPageNumber,
-        start_text: truncate(explanation.startText, 50),
-        end_text: truncate(explanation.endText, 50),
-        chats: chats.length > 0 ? chats : undefined,
-      });
-
-      updateExplanation(activeExplanationId, (e) => ({
-        ...e,
-        textChatId: result.chat.id,
-      }));
-
-      setToast({ message: 'Chat saved', type: 'success' });
-    } catch (err) {
-      console.error('Failed to save text chat:', err);
-      setToast({ message: 'Failed to save chat', type: 'error' });
-    }
-  }, [activeExplanationId, accessToken, pdfId, updateExplanation]);
-
-  const activeExplanation = explanations.find((e) => e.id === activeExplanationId) ?? null;
 
   const handleWriteNoteFromSelection = useCallback(
     (startText: string, endText: string, clientY: number) => {
@@ -870,18 +441,6 @@ export const PdfDetail: React.FC = () => {
     deleteHighlight,
   } = usePdfHighlights({ pdfId, accessToken: accessToken ?? null, isPublic });
 
-  const handleHighlightFromPanel = useCallback(() => {
-    if (!activeExplanation) return;
-    createHighlight(activeExplanation.startText, activeExplanation.endText);
-  }, [activeExplanation, createHighlight]);
-
-  const [pendingNoteExplanationId, setPendingNoteExplanationId] = useState<string | null>(null);
-
-  const handleAddNoteFromPanel = useCallback(() => {
-    if (!activeExplanationId) return;
-    setPendingNoteExplanationId(activeExplanationId);
-    setTimeout(() => setPendingNoteExplanationId(null), 100);
-  }, [activeExplanationId]);
 
   // Notes
   const { notes: pdfNotes, createNote, updateNote, deleteNote } = usePdfNotes({ pdfId, accessToken: accessToken ?? null, isPublic });
@@ -899,14 +458,15 @@ export const PdfDetail: React.FC = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isLoginModalClosing, setIsLoginModalClosing] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showManageSharingModal, setShowManageSharingModal] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [pdfShareeList, setPdfShareeList] = useState<ShareeItem[]>([]);
   const [isPdfShareeListLoading, setIsPdfShareeListLoading] = useState(false);
   const [showCreatePromptModal, setShowCreatePromptModal] = useState(false);
   const [userCustomPrompts, setUserCustomPrompts] = useState<CustomPromptResponse[]>([]);
-  const [activePanelTitle, setActivePanelTitle] = useState('Text Explanation');
-
   const [isDownloading, setIsDownloading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDownload = useCallback(async () => {
     if (!pdfDetails || isDownloading) return;
@@ -936,6 +496,22 @@ export const PdfDetail: React.FC = () => {
       setIsDownloading(false);
     }
   }, [pdfDetails, accessToken, isDownloading]);
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!pdfId || !accessToken) return;
+    setIsDeleting(true);
+    try {
+      await deletePdf(accessToken, pdfId);
+      setShowDeleteConfirm(false);
+      navigate(`/user/dashboard/folder/${folderId}/pdf`, { state: { folderName } });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete PDF';
+      setToast({ message: errorMessage, type: 'error' });
+      setShowDeleteConfirm(false);
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [pdfId, accessToken, folderId, folderName, navigate]);
 
   const handleSharePdfSubmit = useCallback(async (email: string) => {
     if (!accessToken || !pdfId) return;
@@ -969,6 +545,20 @@ export const PdfDetail: React.FC = () => {
     }
   }, [accessToken, pdfId]);
 
+  const handleOpenManageSharing = useCallback(async () => {
+    if (!accessToken || !pdfId) return;
+    setIsPdfShareeListLoading(true);
+    setShowManageSharingModal(true);
+    try {
+      const res = await getPdfShareeList(accessToken, pdfId);
+      setPdfShareeList(res.sharees);
+    } catch {
+      setPdfShareeList([]);
+    } finally {
+      setIsPdfShareeListLoading(false);
+    }
+  }, [accessToken, pdfId]);
+
   const handleUnsharePdf = useCallback(async (email: string) => {
     if (!accessToken || !pdfId) return;
     await unsharePdf(accessToken, pdfId, email);
@@ -981,6 +571,19 @@ export const PdfDetail: React.FC = () => {
     try { localStorage.setItem(PDF_FEATURE_DISCOVERY_SEEN_KEY, 'true'); } catch {}
     setFdStep(0);
   }, []);
+
+  // Cmd+B (Mac) / Ctrl+B (others) toggles the Chat with PDF panel
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const modifierHeld = isMac ? e.metaKey : e.ctrlKey;
+      if (modifierHeld && e.key === 'b') {
+        e.preventDefault();
+        setIsExplainPanelOpen((open) => !open);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMac]);
 
   // Compute spotlight bounding rect for step 1 once the toolbar buttons are in the DOM.
   // Uses multiple strategies to catch the coupon banner appearing asynchronously:
@@ -1071,6 +674,23 @@ export const PdfDetail: React.FC = () => {
     return () => observer.disconnect();
   }, [viewState]);
 
+  // Stable PDF.js options: cMapUrl ensures correct CID-font character mappings and
+  // standardFontDataUrl provides accurate font metrics, both of which are necessary
+  // for the text layer to be positioned correctly over the canvas.
+  // Version matches the pdfjs worker already in use (pdfjs.GlobalWorkerOptions.workerSrc).
+  const pdfOptions = useMemo(() => ({
+    cMapUrl: 'https://unpkg.com/pdfjs-dist@5.4.296/cmaps/',
+    cMapPacked: true,
+    standardFontDataUrl: 'https://unpkg.com/pdfjs-dist@5.4.296/standard_fonts/',
+  }), []);
+
+  // Memoize computed page width so sub-pixel ResizeObserver fluctuations don't
+  // trigger unnecessary page re-renders and text layer recomputations.
+  const pageWidth = useMemo(
+    () => (containerWidth ? Math.round(containerWidth * zoomLevel) : undefined),
+    [containerWidth, zoomLevel],
+  );
+
   // Load PDF data and user settings
   useEffect(() => {
     if (authLoading || !pdfId) return;
@@ -1132,64 +752,6 @@ export const PdfDetail: React.FC = () => {
     };
   }, [authLoading, isLoggedIn, accessToken, pdfId]);
 
-  // Load saved text chat conversations from the backend
-  useEffect(() => {
-    if (!pdfId || (!accessToken && !isPublic) || viewState !== 'ready') return;
-
-    let cancelled = false;
-
-    const roleFromWho = (who: ChatWho): 'user' | 'assistant' =>
-      who === 'USER' ? 'user' : 'assistant';
-
-    (async () => {
-      try {
-        const { chats } = await getAllPdfTextChats(accessToken ?? null, pdfId);
-        if (cancelled || chats.length === 0) return;
-
-        const hydrated: TextExplanation[] = await Promise.all(
-          chats.map(async (chat) => {
-            const historyRes = await getPdfTextChatHistory(accessToken ?? null, pdfId, chat.id, 0, 200);
-            const messages: ChatMessage[] = historyRes.messages
-              .slice()
-              .reverse()
-              .map((m) => ({ role: roleFromWho(m.who), content: m.content }));
-
-            return {
-              id: chat.id,
-              textChatId: chat.id,
-              startText: chat.start_text,
-              endText: chat.end_text,
-              selectedText: '',
-              surroundingContext: '',
-              startPageNumber: chat.start_text_pdf_page_number,
-              endPageNumber: chat.end_text_pdf_page_number,
-              streamingText: '',
-              chatMessages: messages,
-              isRequesting: false,
-              firstChunkReceived: true,
-              possibleQuestions: [],
-              abortController: null,
-            };
-          }),
-        );
-
-        if (cancelled) return;
-
-        setExplanations((prev) => {
-          const existingIds = new Set(prev.map((e) => e.textChatId).filter(Boolean));
-          const newOnes = hydrated.filter((h) => !existingIds.has(h.textChatId));
-          if (newOnes.length === 0) return prev;
-          const next = [...prev, ...newOnes];
-          explanationsRef.current = next;
-          return next;
-        });
-      } catch (err) {
-        console.error('Failed to load saved text chats:', err);
-      }
-    })();
-
-    return () => { cancelled = true; };
-  }, [pdfId, accessToken, isPublic, viewState]);
 
   // Resolve folder name from API when only folderId is available (no folderName query param)
   useEffect(() => {
@@ -1274,6 +836,37 @@ export const PdfDetail: React.FC = () => {
   const sidebar = (
     <aside className={`${styles.sidebar} ${!sidebarVisible ? styles.sidebarHidden : ''}`}>
       <div className={styles.sidebarButtons}>
+        {isLoggedIn && (
+          <>
+            <button
+              className={styles.pdfBreadcrumbBack}
+              onClick={() => navigate('/user/dashboard')}
+            >
+              ← Dashboard
+            </button>
+            <div className={styles.sidebarDropdowns}>
+              <FolderSelectorPopover
+                folders={allFolders}
+                currentFolderId={folderId || pdfDetails?.folder_id || undefined}
+                onSelect={handleFolderSelect}
+              />
+              <PdfSelectorPopover
+                folderId={folderId || pdfDetails?.folder_id || undefined}
+                currentPdfId={pdfId}
+                currentPdfName={pdfDetails?.file_name}
+                accessToken={accessToken}
+                onSelect={(pdf) => {
+                  const effectiveFolderId = folderId || pdfDetails?.folder_id;
+                  const params = new URLSearchParams({
+                    ...(effectiveFolderId ? { folderId: effectiveFolderId } : {}),
+                    ...(resolvedFolderName ? { folderName: resolvedFolderName } : {}),
+                  });
+                  navigate(`/pdf/${pdf.id}${params.toString() ? `?${params}` : ''}`);
+                }}
+              />
+            </div>
+          </>
+        )}
         <button className={styles.sidebarBtn} onClick={handleNewPdf} title="New PDF">
           <Plus size={15} />
           <span>New PDF</span>
@@ -1296,6 +889,7 @@ export const PdfDetail: React.FC = () => {
               {Array.from(new Array(numPages), (_, index) => (
                 <button
                   key={`thumb-${index + 1}`}
+                  ref={activePage === index + 1 ? (el) => { el?.scrollIntoView({ block: 'nearest' }); } : undefined}
                   className={`${styles.thumbnailBtn} ${activePage === index + 1 ? styles.thumbnailActive : ''}`}
                   onClick={() => scrollToPage(index + 1)}
                   title={`Page ${index + 1}`}
@@ -1395,18 +989,29 @@ export const PdfDetail: React.FC = () => {
 
   return (
     <div className={styles.wrapper}>
+      {/* Global keyframes for the "scroll-to-selected-text" pulse effect. */}
+      <style>{`
+        @keyframes xplainoPulse {
+          0%   { background: transparent; border-radius: 2px; }
+          40%  { background: rgba(13, 128, 112, 0.35); border-radius: 2px; }
+          100% { background: transparent; border-radius: 2px; }
+        }
+        .xplaino-text-pulse {
+          animation: xplainoPulse 0.4s ease-in-out;
+        }
+      `}</style>
       {refreshBanner}
       {sidebar}
       {sidebarToggle}
 
       <div className={styles.mainArea} ref={mainAreaRef}>
 
-        {/* ── Sticky horizontal toolbar ── (temporarily hidden)
         <div className={styles.toolbar}>
-          <div className={`${styles.toolbarBody} ${!toolbarVisible ? styles.toolbarBodyHidden : ''}`}>
+          {/* Entire toolbar row — collapses as one unit */}
+          <div className={`${styles.toolbarRow} ${!toolbarVisible ? styles.toolbarRowHidden : ''}`}>
             <div className={styles.toolbarSpacer} />
             <div className={styles.toolbarButtons} ref={toolbarButtonsRef}>
-              <PdfTranslateButton
+              {/* <PdfTranslateButton
                 selectedLanguage={selectedLanguage}
                 onLanguageChange={handleLanguageChange}
                 onTranslate={handleTranslate}
@@ -1421,23 +1026,17 @@ export const PdfDetail: React.FC = () => {
                   Object.values(pageTranslations).some((s) => s.status === 'translated') &&
                   !Object.values(pageTranslations).some((s) => s.status === 'translating')
                 }
-              />
-              <button
+              /> */}
+              {!isExplainPanelOpen && <button
                 type="button"
                 className={styles.chatWithPdfBtn}
-                onClick={() => {
-                  if (isExplainPanelOpen && panelMode === 'chat-with-pdf') {
-                    handleCloseExplainPanel();
-                  } else {
-                    setPanelMode('chat-with-pdf');
-                    setIsExplainPanelOpen(true);
-                  }
-                }}
+                onClick={() => setIsExplainPanelOpen(true)}
                 title="Chat with PDF"
               >
                 <ChatIcon />
                 <span>Chat with PDF</span>
-              </button>
+                <kbd className={styles.chatWithPdfKbd}>{isMac ? '⌘B' : 'Ctrl+B'}</kbd>
+              </button>}
               {isTranslationActive && Object.values(pageTranslations).some((s) => s.status === 'translated') && (
                 <button
                   type="button"
@@ -1448,13 +1047,14 @@ export const PdfDetail: React.FC = () => {
                   {showOriginal ? 'Translated' : 'Original'}
                 </button>
               )}
+            </div>
+            <div className={styles.toolbarEndActions}>
               <div className={styles.zoomControls}>
                 <button
                   type="button"
                   className={styles.zoomBtn}
                   onClick={() => setZoomLevel(z => Math.max(ZOOM_MIN, parseFloat((z - ZOOM_STEP).toFixed(2))))}
                   disabled={zoomLevel <= ZOOM_MIN}
-                  title="Zoom out"
                   aria-label="Zoom out"
                 >
                   −
@@ -1465,100 +1065,88 @@ export const PdfDetail: React.FC = () => {
                   className={styles.zoomBtn}
                   onClick={() => setZoomLevel(z => Math.min(ZOOM_MAX, parseFloat((z + ZOOM_STEP).toFixed(2))))}
                   disabled={zoomLevel >= ZOOM_MAX}
-                  title="Zoom in"
                   aria-label="Zoom in"
                 >
                   +
                 </button>
               </div>
-            </div>
-            <div className={styles.toolbarEndActions}>
-              <button
-                type="button"
-                className={styles.toolbarHideBtn}
-                onClick={() => setToolbarVisible(false)}
-                title="Hide toolbar"
-                aria-label="Hide toolbar"
-              >
-                <EyeOff size={14} />
-                <span>Hide toolbar</span>
-              </button>
+              <div className={styles.iconBtnWrapper}>
+                <button
+                  type="button"
+                  className={styles.iconBtn}
+                  onClick={() => setShowShareModal(true)}
+                  aria-label="Share PDF"
+                >
+                  <Share2 size={16} />
+                </button>
+                <span className={styles.iconBtnTooltip}>Share</span>
+              </div>
+              <div className={styles.iconBtnWrapper}>
+                <button
+                  type="button"
+                  className={styles.iconBtn}
+                  onClick={handleOpenManageSharing}
+                  aria-label="Manage sharing"
+                >
+                  <Users size={16} />
+                </button>
+                <span className={styles.iconBtnTooltip}>Manage sharing</span>
+              </div>
+              <div className={styles.iconBtnWrapper}>
+                <button
+                  type="button"
+                  className={styles.iconBtn}
+                  onClick={handleDownload}
+                  disabled={isDownloading}
+                  aria-label="Download PDF"
+                >
+                  <Download size={16} />
+                </button>
+                <span className={styles.iconBtnTooltip}>Download</span>
+              </div>
+              <div className={styles.iconBtnWrapper}>
+                <button
+                  type="button"
+                  className={styles.iconBtn}
+                  onClick={() => setShowDeleteConfirm(true)}
+                  aria-label="Delete PDF"
+                >
+                  <Trash2 size={16} />
+                </button>
+                <span className={styles.iconBtnTooltip}>Delete</span>
+              </div>
+              <div className={styles.iconBtnWrapper}>
+                <button
+                  type="button"
+                  className={styles.iconBtn}
+                  onClick={() => setToolbarVisible(false)}
+                  aria-label="Hide toolbar"
+                >
+                  <EyeOff size={14} />
+                </button>
+                <span className={styles.iconBtnTooltip}>Hide toolbar</span>
+              </div>
             </div>
           </div>
-          <div className={styles.toolbarFooter}>
-            {!toolbarVisible && (
+
+        </div>
+
+        {/* Show-toolbar button — sticks at top-right of scroll area */}
+        {!toolbarVisible && (
+          <div className={styles.toolbarRevealFixed}>
+            <div className={styles.iconBtnWrapper}>
               <button
                 type="button"
-                className={styles.toolbarRevealBtn}
+                className={styles.iconBtn}
                 onClick={() => setToolbarVisible(true)}
-                title="Show toolbar"
                 aria-label="Show toolbar"
               >
-                <ChevronDown size={14} />
+                <Eye size={14} />
               </button>
-            )}
-          </div>
-        </div>
-        ── end toolbar ── */}
-
-        <div className={styles.mainHeader}>
-          <div className={styles.mainHeaderTop}>
-            <div className={styles.pdfBreadcrumb}>
-              {isLoggedIn && (
-                <>
-                  <button
-                    className={styles.pdfBreadcrumbBack}
-                    onClick={() => navigate('/user/dashboard')}
-                  >
-                    ← Dashboard
-                  </button>
-                  <FolderSelectorPopover
-                    folders={allFolders}
-                    currentFolderId={folderId || pdfDetails?.folder_id || undefined}
-                    onSelect={handleFolderSelect}
-                  />
-                  <PdfSelectorPopover
-                    folderId={folderId || pdfDetails?.folder_id || undefined}
-                    currentPdfId={pdfId}
-                    currentPdfName={pdfDetails?.file_name}
-                    accessToken={accessToken}
-                    onSelect={(pdf) => {
-                      const effectiveFolderId = folderId || pdfDetails?.folder_id;
-                      const params = new URLSearchParams({
-                        ...(effectiveFolderId ? { folderId: effectiveFolderId } : {}),
-                        ...(resolvedFolderName ? { folderName: resolvedFolderName } : {}),
-                      });
-                      navigate(`/pdf/${pdf.id}${params.toString() ? `?${params}` : ''}`);
-                    }}
-                  />
-                </>
-              )}
-            </div>
-            <div className={styles.headerEndActions}>
-              <button
-                type="button"
-                className={styles.downloadBtn}
-                onClick={handleDownload}
-                disabled={isDownloading}
-                title="Download PDF"
-                aria-label="Download PDF"
-              >
-                <Download size={14} />
-                <span>{isDownloading ? 'Downloading…' : 'Download'}</span>
-              </button>
-              <button
-                type="button"
-                className={styles.shareBtn}
-                onClick={() => setShowShareModal(true)}
-                title="Share PDF"
-                aria-label="Share PDF"
-              >
-                <Share2 size={14} />
-                <span>Share</span>
-              </button>
+              <span className={`${styles.iconBtnTooltip} ${styles.iconBtnTooltipLeft}`}>Show toolbar</span>
             </div>
           </div>
-        </div>
+        )}
 
         {pdfDetails && (
           <h2 className={styles.pdfFileHeading}>
@@ -1588,11 +1176,13 @@ export const PdfDetail: React.FC = () => {
               onAddCustomPrompt={() => setShowCreatePromptModal(true)}
               customPrompts={userCustomPrompts}
               onCustomPromptSelect={handleCustomPromptFromSelection}
+              onChatWithSelection={handleSendToChatFromSelection}
             />
           )}
           {downloadUrl && (
             <Document
               file={downloadUrl}
+              options={pdfOptions}
               onLoadSuccess={onDocumentLoadSuccess}
               onLoadError={onDocumentLoadError}
               loading={<div className={styles.loading}>Loading document…</div>}
@@ -1624,7 +1214,7 @@ export const PdfDetail: React.FC = () => {
                         renderTextLayer={!isPageTranslated || showOriginal}
                         renderAnnotationLayer={true}
                         className={styles.page}
-                        width={containerWidth ? Math.round(containerWidth * zoomLevel) : undefined}
+                        width={pageWidth}
                         onRenderSuccess={() => {
                           setPageRenderVersions((prev) => ({
                             ...prev,
@@ -1647,12 +1237,20 @@ export const PdfDetail: React.FC = () => {
                           pendingNoteForSelection={pendingNoteSelection}
                           readOnly={!canEditAnnotations}
                           isLoggedIn={isLoggedIn}
-                          explanations={explanations}
-                          activeExplanationId={isExplainPanelOpen ? activeExplanationId : null}
-                          onExplanationIconClick={handleExplanationIconClick}
-                          pulsingExplanationId={pulsingExplanationId}
-                          onPulseComplete={handlePulseComplete}
-                          pendingNoteForExplanationId={pendingNoteExplanationId}
+                          explanations={
+                            activeCitationHighlight && (
+                              activeCitationHighlight.pageNumber == null ||
+                              activeCitationHighlight.pageNumber === pageNumber
+                            )
+                              ? [activeCitationHighlight]
+                              : []
+                          }
+                          activeExplanationId={activeCitationHighlight?.id ?? null}
+                          onExplanationIconClick={() => {}}
+                          pulsingExplanationId={null}
+                          onPulseComplete={() => {}}
+                          pendingNoteForExplanationId={null}
+                          hideExplanationIcons={!!activeCitationHighlight}
                         />
                       )}
                       {!showOriginal && translatedParagraphs && (
@@ -1666,53 +1264,36 @@ export const PdfDetail: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Side panel: Text Explanation or Chat with PDF ── */}
-      {panelMode === 'chat-with-pdf' ? (
-        <AskAISidePanel
-          isOpen={isExplainPanelOpen}
-          onClose={handleCloseExplainPanel}
-          onInputSubmit={handleChatWithPdfSubmit}
-          onStopRequest={handleChatWithPdfStop}
-          onClearChat={handleClearChatWithPdf}
-          isRequesting={isChatWithPdfRequesting}
-          chatMessages={chatWithPdfMessages}
-          streamingText={chatWithPdfStreaming}
-          possibleQuestions={[]}
-          headerTitle="Chat with PDF"
-          mode="inline"
-          builtinPrompts={['Summarise']}
-        />
-      ) : (
-        <AskAISidePanel
-          isOpen={isExplainPanelOpen}
-          onClose={handleCloseExplainPanel}
-          onInputSubmit={handleAskFollowUp}
-          onStopRequest={handleStopExplainRequest}
-          onClearChat={handleClearExplainChat}
-          isRequesting={activeExplanation?.isRequesting ?? false}
-          chatMessages={activeExplanation?.chatMessages ?? []}
-          streamingText={activeExplanation?.streamingText ?? ''}
-          possibleQuestions={activeExplanation?.possibleQuestions ?? []}
-          headerTitle={activePanelTitle}
-          mode="inline"
-          onScrollToText={handleScrollToExplanationText}
-          onSaveChat={handleSaveExplainChat}
-          onDeleteChat={handleDeleteExplainChat}
-          isChatSaved={!!activeExplanation?.textChatId}
-          autoFocusInput={focusChatInput}
-          onInputFocused={() => setFocusChatInput(false)}
-          onHighlightText={canEditAnnotations ? handleHighlightFromPanel : undefined}
-          onAddNote={canEditAnnotations ? handleAddNoteFromPanel : undefined}
-          highlightColours={highlightColours}
-          selectedColourId={selectedColourId}
-          onHighlightColourChange={canEditAnnotations ? handleHighlightColourChange : undefined}
-          activeColour={highlightColours.find((c) => c.id === selectedColourId)?.hexcode ?? '#fbbf24'}
-          isTextHighlighted={highlights.some((h) => h.startText === activeExplanation?.startText)}
-          onDeleteExplanation={handleClearExplainChat}
-          customPrompts={userCustomPrompts}
-          onAddCustomPrompt={() => setShowCreatePromptModal(true)}
-        />
+      {/* ── Chat panel toggle — only shown when panel is closed ── */}
+      {!isExplainPanelOpen && (
+        <button
+          type="button"
+          className={`${styles.chatPanelToggle} ${styles.chatPanelToggleCollapsed}`}
+          onClick={() => setIsExplainPanelOpen(true)}
+          title="Show chat"
+          aria-label="Show chat"
+        >
+          <ChevronLeft size={14} />
+        </button>
       )}
+
+      {/* ── Side panel: Chat with PDF ── */}
+      <PdfChatPanel
+        isOpen={isExplainPanelOpen}
+        onClose={handleCloseExplainPanel}
+        pdfId={pdfId!}
+        accessToken={accessToken}
+        onScrollToPage={handleScrollToPage}
+        onScrollToSelectedText={handleScrollToSelectedText}
+        onHighlightCitation={setActiveCitationHighlight}
+        selectedText={chatSelectedText}
+        onClearSelectedText={() => setChatSelectedText(undefined)}
+        pendingPrompt={pendingChatPrompt}
+        onClearPendingPrompt={() => setPendingChatPrompt(undefined)}
+        customPrompts={userCustomPrompts}
+        onCreatePrompt={() => setShowCreatePromptModal(true)}
+        onCustomPromptsChanged={(prompts) => setUserCustomPrompts(prompts)}
+      />
 
       {/* ── Feature discovery step 1: toolbar spotlight ── */}
       {fdStep === 1 && viewState === 'ready' && spotlightRect && (
@@ -1804,6 +1385,15 @@ export const PdfDetail: React.FC = () => {
         onFetchSharees={handleFetchSharees}
       />
 
+      <ShareeListModal
+        isOpen={showManageSharingModal}
+        onClose={() => { setShowManageSharingModal(false); setPdfShareeList([]); }}
+        title={`Sharing: "${pdfDetails?.file_name ?? ''}"`}
+        sharees={pdfShareeList}
+        isLoading={isPdfShareeListLoading}
+        onUnshare={handleUnsharePdf}
+      />
+
       <PdfUploadModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
@@ -1846,8 +1436,22 @@ export const PdfDetail: React.FC = () => {
         onClose={() => setShowCreatePromptModal(false)}
         onCreated={(newPrompt) => setUserCustomPrompts(prev => [newPrompt, ...prev])}
       />
+
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Delete PDF"
+        message="Are you sure you want to delete this PDF? This action cannot be undone."
+        confirmText={isDeleting ? 'Deleting...' : 'Delete'}
+        cancelText="Cancel"
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 };
+
+function ChatIcon() {
+  return <MessageCircle size={16} aria-hidden="true" />;
+}
 
 PdfDetail.displayName = 'PdfDetail';

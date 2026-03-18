@@ -125,12 +125,6 @@ export const FeatureSet: React.FC = () => {
       <section className={styles.featureSet}>
         <div className={styles.headingRow}>
           <h2 className={styles.subheading}>What you can do today</h2>
-          <div className={styles.comingSoonTeaser} aria-label="Upcoming features">
-            <span className={styles.comingSoonBadge}>Coming Soon !</span>
-            <span className={styles.comingSoonText}>
-              Summarise any PDF & chat with your documents — Few days to launch.
-            </span>
-          </div>
         </div>
         <div className={styles.containerList}>
           {features.map((feature, index) => (

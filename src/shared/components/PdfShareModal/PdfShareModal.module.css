@@ -209,6 +209,155 @@
   margin-top: 0.625rem;
 }
 
+/* Link preview row */
+.linkPreviewRow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-top: 0.75rem;
+  width: 100%;
+  background: var(--bg-light);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  text-align: left;
+}
+
+.linkPreviewRow:hover {
+  border-color: var(--teal);
+  background: var(--button-hover-bg);
+}
+
+.linkPreviewRowCopied {
+  border-color: var(--green-dark) !important;
+  background: var(--green-light-bg) !important;
+}
+
+.linkPreviewUrl {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.linkPreviewRowCopied .linkPreviewUrl {
+  color: var(--green-dark);
+}
+
+.linkPreviewCopyBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--teal);
+  border-left: 1px solid var(--border-light);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.linkPreviewRow:hover .linkPreviewCopyBtn {
+  border-left-color: var(--teal);
+}
+
+.linkPreviewRowCopied .linkPreviewCopyBtn {
+  color: var(--green-dark);
+  border-left-color: var(--green-dark);
+}
+
+/* Make-public hint (shown after copying a private PDF link) */
+.makePublicHint {
+  display: flex;
+  margin-top: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  background: var(--yellow-light, #fefce8);
+  border: 1px solid var(--yellow-border, #fde68a);
+  border-radius: 10px;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.makePublicHintText {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  color: var(--yellow-dark, #92400e);
+  line-height: 1.5;
+}
+
+.makePublicHintActions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 0.375rem;
+}
+
+.makePublicHintNo {
+  padding: 0.35rem 0.875rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  background: transparent;
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.makePublicHintNo:hover:not(:disabled) {
+  background: var(--bg-light);
+}
+
+.makePublicHintNo:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.makePublicHintYes {
+  padding: 0.35rem 0.875rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-on-primary);
+  background: var(--teal);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.makePublicHintYes:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.makePublicHintYes:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+[data-theme="dark"] .makePublicHint {
+  background: rgba(251, 191, 36, 0.1);
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+[data-theme="dark"] .makePublicHintText {
+  color: var(--yellow, #fbbf24);
+}
+
 /* Manage Shares button */
 .manageSharesBtn {
   display: flex;
@@ -260,6 +409,152 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   white-space: nowrap;
+}
+
+/* Access level dropdown (Google Docs–style) */
+.accessDropdownWrapper {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.accessDropdownCenter {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.accessBadgeCenter {
+  display: flex;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+}
+
+.accessDropdownTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.875rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  background: var(--bg-light);
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.accessDropdownTrigger:hover:not(:disabled) {
+  border-color: var(--border-dark);
+  color: var(--text-secondary);
+  background: var(--button-hover-bg);
+}
+
+.accessDropdownTrigger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.accessDropdownChevron {
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.accessDropdownChevronOpen {
+  transform: rotate(180deg);
+}
+
+.accessDropdownMenu {
+  position: fixed;
+  min-width: 280px;
+  background: var(--bg-white);
+  border: 1px solid var(--border-medium);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px var(--shadow-black-15), 0 2px 8px var(--shadow-black-08);
+  z-index: 9999;
+  overflow: hidden;
+  animation: dropdownFadeIn 0.15s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.accessDropdownOption {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.accessDropdownOption:hover {
+  background: var(--bg-light);
+}
+
+.accessDropdownOptionActive {
+  background: var(--bg-lighter);
+}
+
+.accessDropdownOptionIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--bg-light);
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.accessDropdownOptionActive .accessDropdownOptionIcon {
+  background: var(--button-hover-bg);
+  color: var(--teal);
+}
+
+.accessDropdownOptionContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.accessDropdownOptionLabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+.accessDropdownOptionDesc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+
+.accessDropdownOptionCheck {
+  flex-shrink: 0;
+  color: var(--teal);
+  margin-top: 4px;
+}
+
+[data-theme="dark"] .accessDropdownMenu {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.3);
 }
 
 /* Access badge row (badge + optional make-private button) */
@@ -476,50 +771,81 @@
   margin-top: 2px;
 }
 
-/* Make public confirmation panel */
-.makePublicConfirm {
-  margin-top: 1rem;
+/* Make public confirmation modal */
+.confirmOverlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
   padding: 1rem;
-  background: var(--yellow-light);
-  border: 1px solid var(--yellow-border);
-  border-radius: 12px;
-  animation: slideDown 0.2s ease-out;
+  animation: fadeIn 0.2s ease-out;
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.confirmDialog {
+  background: var(--bg-white);
+  border-radius: 20px;
+  padding: 2rem 1.75rem 1.5rem;
+  width: 100%;
+  max-width: 400px;
+  border: 1.5px solid var(--border-medium);
+  box-shadow: 0 20px 60px var(--shadow-black-15);
+  animation: modalSlideIn 0.25s ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.75rem;
 }
 
-.makePublicMessage {
+.confirmIconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--button-hover-bg);
+  color: var(--teal);
+  margin-bottom: 0.25rem;
+}
+
+.confirmTitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.confirmBody {
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
-  color: var(--yellow-dark);
-  margin: 0 0 0.875rem 0;
-  line-height: 1.5;
+  color: var(--text-tertiary);
+  margin: 0;
+  line-height: 1.6;
 }
 
-.makePublicActions {
+.confirmActions {
   display: flex;
   gap: 0.625rem;
+  width: 100%;
+  margin-top: 0.5rem;
 }
 
 .makePublicConfirmButton {
   flex: 1;
-  padding: 0.5rem 1rem;
+  padding: 0.625rem 1rem;
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-on-primary);
   background: var(--teal);
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -534,20 +860,25 @@
 }
 
 .makePublicCancelButton {
-  padding: 0.5rem 1rem;
+  padding: 0.625rem 1rem;
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--text-secondary);
   background: var(--bg-white);
   border: 1px solid var(--border-medium);
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .makePublicCancelButton:hover:not(:disabled) {
   background: var(--bg-light);
+}
+
+.makePublicCancelButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .makePublicCancelButton:disabled {
@@ -680,14 +1011,6 @@
   border: 2px solid var(--teal);
 }
 
-[data-theme="dark"] .makePublicConfirm {
-  background: rgba(251, 191, 36, 0.1);
-  border-color: rgba(251, 191, 36, 0.3);
-}
-
-[data-theme="dark"] .makePublicMessage {
-  color: var(--yellow);
-}
 
 [data-theme="dark"] .social_twitter {
   color: #d4d4d4;

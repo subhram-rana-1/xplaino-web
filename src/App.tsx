@@ -1,5 +1,5 @@
-import React, { useState, Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Navbar } from '@/shared/components/Navbar';
 import { HighlightedCoupon } from '@/shared/components/HighlightedCoupon';
@@ -13,6 +13,12 @@ import { AdminProtectedRoute } from '@/shared/components/AdminProtectedRoute';
 import { UserProtectedRoute } from '@/shared/components/UserProtectedRoute';
 import { SubscriptionRequiredModal } from '@/shared/components/SubscriptionRequiredModal';
 import { useAuth } from '@/shared/hooks/useAuth';
+import { getAllFolders } from '@/shared/services/folders.service';
+import type { FolderWithSubFolders } from '@/shared/types/folders.types';
+
+function flattenFolders(folders: FolderWithSubFolders[]): FolderWithSubFolders[] {
+  return folders.flatMap((f) => [f, ...flattenFolders(f.subFolders || [])]);
+}
 
 const Home = lazy(() => import('@/pages/Home').then((m) => ({ default: m.Home })));
 const Contact = lazy(() => import('@/pages/Contact').then((m) => ({ default: m.Contact })));
@@ -47,18 +53,44 @@ const CouponEdit = lazy(() => import('@/pages/Admin/components/AdminCoupons').th
 const ToolsPdfPage = lazy(() => import('@/pages/ToolsPdf').then((m) => ({ default: m.ToolsPdfPage })));
 
 /**
- * ToolsPdfRoute - Renders ToolsPdfPage for guests; redirects logged-in users to dashboard PDF page.
+ * ToolsPdfRoute - Renders ToolsPdfPage for guests.
+ * For logged-in non-admin users: navigates to the most recently created folder's
+ * PDF page and auto-opens the New PDF upload modal.
  */
 const ToolsPdfRoute: React.FC = () => {
-  const { isLoggedIn, user, isLoading } = useAuth();
+  const { isLoggedIn, user, isLoading, accessToken } = useAuth();
+  const navigate = useNavigate();
 
-  if (isLoading) {
-    return null;
-  }
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
 
-  if (isLoggedIn && user?.role !== 'ADMIN' && user?.role !== 'SUPER_ADMIN') {
-    return <Navigate to="/user/dashboard" replace />;
-  }
+  useEffect(() => {
+    if (isLoading || !isLoggedIn || !accessToken || isAdmin) return;
+
+    getAllFolders(accessToken)
+      .then((res) => {
+        const all = flattenFolders(res.folders);
+        if (all.length === 0) {
+          navigate('/user/dashboard', { replace: true });
+          return;
+        }
+        const mostRecent = all.reduce((a, b) =>
+          new Date(b.created_at) > new Date(a.created_at) ? b : a
+        );
+        navigate(`/user/dashboard/folder/${mostRecent.id}/pdf`, {
+          replace: true,
+          state: { autoOpenUpload: true },
+        });
+      })
+      .catch(() => {
+        navigate('/user/dashboard', { replace: true });
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, isLoggedIn, accessToken]);
+
+  if (isLoading) return null;
+
+  // Logged-in non-admin: navigation is handled by the effect above
+  if (isLoggedIn && !isAdmin) return null;
 
   return <ToolsPdfPage />;
 };

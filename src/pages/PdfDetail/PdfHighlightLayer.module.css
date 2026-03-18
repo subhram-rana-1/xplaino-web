@@ -6,6 +6,14 @@
   overflow: visible;
 }
 
+.interactiveLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 3;
+}
+
 /* ─── Wrapper for each highlight rect + menu button ─────────────────────────── */
 .highlightRectWrapper {
   position: absolute;
@@ -18,7 +26,7 @@
   inset: 0;
   border-radius: 2px;
   transition: background 0.2s ease;
-  mix-blend-mode: multiply;
+  mix-blend-mode: darken;
 }
 
 /* ─── Container for menu button + dropdown ───────────────────────────────────── */
@@ -155,7 +163,7 @@
   width: 220px;
   background: #fff;
   border: 1px solid #e2e8f0;
-  border-radius: 20px;
+  border-radius: 10px;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
   padding: 10px;
   pointer-events: auto;
@@ -163,6 +171,11 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  resize: both;
+  overflow: auto;
+  min-width: 180px;
+  min-height: 140px;
+  direction: rtl;
   transform-origin: top left;
   opacity: 0;
   /* Transition used when .noteEditorVisible is removed (close) */
@@ -199,14 +212,15 @@
   font-size: 0.75rem;
   font-weight: 600;
   color: #0d8070;
+  direction: ltr;
 }
 
 .noteEditorMinimise {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
   border: none;
   background: none;
@@ -215,8 +229,10 @@
   line-height: 1;
   cursor: pointer;
   padding: 0;
-  border-radius: 3px;
+  border-radius: 4px;
   transition: background 0.1s ease;
+  margin-left: auto;
+  order: 1;
 }
 
 .noteEditorMinimise:hover:not(:disabled) {
@@ -230,7 +246,9 @@
 
 .noteEditorTextarea {
   width: 100%;
-  resize: vertical;
+  flex: 1;
+  resize: none;
+  direction: ltr;
   border: 1px solid #cbd5e0;
   border-radius: 6px;
   padding: 7px 9px;
@@ -259,6 +277,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: 6px;
+  direction: ltr;
 }
 
 .noteEditorCancel {
@@ -284,19 +303,19 @@
 }
 
 .noteEditorSave {
-  padding: 4px 12px;
-  border-radius: 5px;
+  padding: 6px 16px;
+  border-radius: 6px;
   border: none;
   background: #0d8070;
   font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: #fff;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 44px;
+  min-width: 52px;
   transition: background 0.1s ease;
 }
 
@@ -322,10 +341,10 @@
 
 /* ─── Saved note icons ───────────────────────────────────────────────────────── */
 .noteIcon {
-  width: 31px;
-  height: 31px;
-  border-radius: 50%;
-  background: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 0;
+  background: none;
   border: none;
   display: flex;
   align-items: center;
@@ -335,12 +354,14 @@
   padding: 0;
   pointer-events: auto;
   z-index: 10;
-  transition: transform 0.15s ease;
+  opacity: 0.7;
+  transition: opacity 0.15s ease, transform 0.15s ease;
   animation: noteIconAppear 0.3s ease;
 }
 
 .noteIcon:hover {
-  transform: scale(1.2);
+  opacity: 1;
+  transform: scale(1.1);
 }
 
 @keyframes noteIconAppear {
@@ -356,8 +377,8 @@
 
 /* ─── Delete-note button inside the note editor ──────────────────────────────── */
 .noteEditorDeleteNote {
-  padding: 4px 8px;
-  border-radius: 5px;
+  padding: 6px 10px;
+  border-radius: 6px;
   border: none;
   background: none;
   color: #e53e3e;

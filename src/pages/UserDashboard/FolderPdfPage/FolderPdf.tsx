@@ -26,7 +26,9 @@ export const FolderPdf: React.FC = () => {
   const location = useLocation();
   const { accessToken } = useAuth();
 
-  const nameFromState: string = (location.state as { folder?: { name?: string } } | null)?.folder?.name ?? '';
+  const locationState = location.state as { folder?: { name?: string }; autoOpenUpload?: boolean } | null;
+  const nameFromState: string = locationState?.folder?.name ?? '';
+  const autoOpenUpload = locationState?.autoOpenUpload ?? false;
   const [resolvedFolderName, setResolvedFolderName] = useState<string>(nameFromState);
 
   useEffect(() => {
@@ -67,6 +69,14 @@ export const FolderPdf: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showFetchSuccess, setShowFetchSuccess] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
+  // Auto-open the upload modal when navigated from /tools/pdf
+  useEffect(() => {
+    if (autoOpenUpload) {
+      setIsUploadModalOpen(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Share PDF state — track the full PDF object so we have access_level
   const [sharePdfEntry, setSharePdfEntry] = useState<PdfResponse | null>(null);
@@ -261,7 +271,7 @@ export const FolderPdf: React.FC = () => {
     },
     {
       key: 'actions',
-      header: 'CHAT PDF',
+      header: '',
       align: 'left',
       render: (pdf) => {
         const isHovered = hoveredRowId === pdf.id;

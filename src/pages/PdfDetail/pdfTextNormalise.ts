@@ -7,6 +7,22 @@
  */
 
 /**
+ * Strip common markdown formatting from a string, returning plain text.
+ * Used as a safety net for old cached citation content that may still
+ * contain markdown syntax (##, **, etc.) from before the BE migration
+ * to plain-text extraction.
+ */
+export function stripMarkdown(s: string): string {
+  return s
+    .replace(/^#{1,6}\s*/gm, '')
+    .replace(/\*{1,2}([^*]+)\*{1,2}/g, '$1')
+    .replace(/_{1,2}([^_]+)_{1,2}/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/^\s*[-*]\s+/gm, '')
+    .replace(/\n+/g, ' ');
+}
+
+/**
  * Normalise a single character to its canonical ASCII equivalent.
  * Returns '' for invisible zero-width characters that should be stripped.
  */
@@ -92,6 +108,28 @@ function normChar(ch: string): string {
   if (code === 0xfb04) return 'ffl';
   if (code === 0xfb05) return 'st';
   if (code === 0xfb06) return 'st';
+
+  // ── Bullet / list-marker glyphs — strip entirely ───────────────────────
+  // U+2022 BULLET, U+25CF BLACK CIRCLE, U+25E6 WHITE BULLET,
+  // U+2219 BULLET OPERATOR
+  if (
+    code === 0x2022 ||
+    code === 0x25cf ||
+    code === 0x25e6 ||
+    code === 0x2219
+  ) {
+    return '';
+  }
+
+  // ── Private Use Area (U+E000–U+F8FF) — strip entirely ────────────────
+  // PDFs often render bullets, arrows, and decorative glyphs via custom
+  // fonts (Symbol, Wingdings, ZapfDingbats) that map them to PUA code
+  // points.  The specific code (U+F0B7, U+F076, U+F0A7, etc.) varies by
+  // font, so we strip the entire BMP PUA range.  These characters are
+  // never meaningful text and only cause anchor-matching mismatches.
+  if (code >= 0xe000 && code <= 0xf8ff) {
+    return '';
+  }
 
   // ── Special / non-breaking spaces → regular space ────────────────────────
   // U+00A0 NO-BREAK SPACE, U+2002 EN SPACE, U+2003 EM SPACE, U+2004–U+200A
