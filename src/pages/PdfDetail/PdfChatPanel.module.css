@@ -648,11 +648,8 @@
   border-color: var(--teal);
 }
 
-.citationTooltip {
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
+.citationTooltipPortal {
+  position: fixed;
   width: 260px;
   max-height: 120px;
   overflow: hidden;
@@ -670,7 +667,7 @@
   text-align: left;
 }
 
-.inlineCitationBadge:hover .citationTooltip {
+.citationTooltipPortalVisible {
   opacity: 1;
 }
 

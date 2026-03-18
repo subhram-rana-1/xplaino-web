@@ -90,6 +90,8 @@ interface PdfHighlightLayerProps {
   onPulseComplete?: () => void;
   /** When set, opens the note editor anchored to this explanation's computed y position */
   pendingNoteForExplanationId?: string | null;
+  /** When true, hides the explanation book icons (e.g. for citation highlights that reuse the explanations slot) */
+  hideExplanationIcons?: boolean;
 }
 
 function computeHighlightRects(
@@ -106,10 +108,23 @@ function computeHighlightRects(
   if (spans.length === 0) return [];
 
   // Build full concatenated text and per-span character offsets (in original text).
+  // PDF.js puts each line in its own span with no trailing/leading space.
+  // Insert a synthetic space between adjacent spans so that line-boundary
+  // text like "high."|"These" becomes "high. These" — matching the backend's
+  // properly-spaced citation content.  Skip the space when the previous span
+  // ends with a hyphen (line-continuation, e.g. "low-"|"income" → "low-income").
   const spanOffsets: { start: number; end: number; el: HTMLElement }[] = [];
   let fullText = '';
   for (const span of spans) {
     const t = span.textContent ?? '';
+    const lastChar = fullText.length > 0 ? fullText[fullText.length - 1] : '';
+    const needsSpace =
+      fullText.length > 0 &&
+      lastChar !== ' ' && lastChar !== '\t' &&
+      lastChar !== '-' &&
+      t.length > 0 &&
+      t[0] !== ' ' && t[0] !== '\t';
+    if (needsSpace) fullText += ' ';
     spanOffsets.push({ start: fullText.length, end: fullText.length + t.length, el: span });
     fullText += t;
   }
@@ -119,47 +134,34 @@ function computeHighlightRects(
   // highlights when whitespace was unevenly distributed.
   const { normText: normFull, normToOrig } = buildNormalisedWithIndexMap(fullText);
   const normStart = normalisePdfText(highlight.startText);
-  const normEnd = normalisePdfText(highlight.endText || highlight.startText);
 
   if (!normStart) return [];
 
-  const FALLBACK_MIN = 7;
-
-  // Try the full startText anchor first. If it fails (e.g. table cells are
-  // interleaved in the page text layer, splitting the anchor), progressively
-  // shorten the prefix, then try suffix matching as a last resort.
-  let startIdx = normFull.indexOf(normStart);
-  if (startIdx === -1) {
-    for (let len = normStart.length - 1; len >= FALLBACK_MIN; len--) {
-      startIdx = normFull.indexOf(normStart.slice(0, len));
-      if (startIdx !== -1) break;
-    }
-  }
-  if (startIdx === -1) {
-    for (let len = normStart.length - 1; len >= FALLBACK_MIN; len--) {
-      const suffix = normStart.slice(-len);
-      startIdx = normFull.indexOf(suffix);
-      if (startIdx !== -1) break;
-    }
-  }
+  // Exact match only — no fallback. If the normalised citation text is not
+  // found verbatim in the page's normalised text, return nothing rather than
+  // risk highlighting the wrong location via a partial substring match.
+  const startIdx = normFull.indexOf(normStart);
   if (startIdx === -1) return [];
 
-  const endSearchStart = startIdx + normStart.length - normEnd.length;
-  let endIdxEnd =
-    normFull.indexOf(normEnd, Math.max(startIdx, endSearchStart)) + normEnd.length;
+  let endIdxEnd = startIdx + normStart.length;
 
-  if (endIdxEnd <= startIdx) {
-    endIdxEnd = -1;
-    for (let len = normEnd.length - 1; len >= FALLBACK_MIN; len--) {
-      const suffix = normEnd.slice(-len);
-      const idx = normFull.indexOf(suffix, startIdx);
-      if (idx !== -1) {
-        endIdxEnd = idx + len;
-        break;
-      }
+  // If endText is provided, search for it starting from the beginning of the
+  // startText match (not from after it).  This handles the common case where
+  // endText is a trailing portion of startText itself (e.g. startText =
+  // "Endotracheal intubation and airway management", endText = "airway
+  // management").  Starting the search from after startText would skip that
+  // in-range occurrence and land on a later duplicate, producing a massive
+  // over-highlight.
+  const normEnd = highlight.endText ? normalisePdfText(highlight.endText) : '';
+  if (normEnd) {
+    const searchFrom = startIdx;
+    const endMatchIdx = normFull.indexOf(normEnd, searchFrom);
+    if (endMatchIdx !== -1) {
+      endIdxEnd = endMatchIdx + normEnd.length;
     }
   }
-  if (endIdxEnd === -1 || endIdxEnd <= startIdx) return [];
+
+  if (endIdxEnd <= startIdx) return [];
 
   // Map normalised indices back to original text positions exactly.
   const origStart = normToOrig[startIdx] ?? 0;
@@ -262,11 +264,14 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
   pulsingExplanationId,
   onPulseComplete,
   pendingNoteForExplanationId,
+  hideExplanationIcons = false,
 }) => {
   const [rects, setRects] = useState<HighlightRect[]>([]);
   const [activeNoteRects, setActiveNoteRects] = useState<HighlightRect[]>([]);
   const [explainIconPositions, setExplainIconPositions] = useState<{ id: string; y: number }[]>([]);
   const [explainHighlightRects, setExplainHighlightRects] = useState<{ id: string; rects: HighlightRect[] }[]>([]);
+  const [noteHighlightRects, setNoteHighlightRects] = useState<{ noteId: string; rects: HighlightRect[] }[]>([]);
+  const [hoveredNoteId, setHoveredNoteId] = useState<string | null>(null);
   const [hoveredHighlightId, setHoveredHighlightId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [menuHighlightId, setMenuHighlightId] = useState<string | null>(null);
@@ -429,19 +434,22 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
       setPageWidth(container.offsetWidth);
 
       const iconPositions: NoteIconPosition[] = [];
+      const noteHlRects: { noteId: string; rects: HighlightRect[] }[] = [];
       for (const note of notes) {
         const computed = computeHighlightRects(
           textContainer,
           pageRect,
           { startText: note.startText, endText: note.endText },
-          '#transparent',
+          '#0d8070',
           note.id,
         );
         if (computed.length > 0) {
           iconPositions.push({ noteId: note.id, y: computed[0].y });
+          noteHlRects.push({ noteId: note.id, rects: computed });
         }
       }
       setNoteIconPositions(iconPositions);
+      setNoteHighlightRects(noteHlRects);
 
       // Compute explanation icon positions and highlight rects
       const explainIcons: { id: string; y: number }[] = [];
@@ -465,6 +473,49 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
 
     return () => clearTimeout(timer);
   }, [highlights, colours, notes, explanations, pageContainerEl, renderVersion]);
+
+  // Inject space text-nodes between adjacent PDF.js text spans so that the
+  // browser's built-in Ctrl+F can search across line boundaries (e.g. the
+  // word "Understands" ends one span and "basic" starts the next — without a
+  // space in the DOM, Ctrl+F sees "Understandsbasic" and can't find
+  // "Understands basic"). The injected spacer spans are zero-size, invisible,
+  // and filtered out by computeHighlightRects (whose filter requires
+  // textContent.trim().length > 0, and a single space trims to "").
+  useEffect(() => {
+    const container = pageContainerEl;
+    if (!container) return;
+    const textLayer = container.querySelector('.react-pdf__Page__textContent');
+    if (!textLayer) return;
+
+    // Remove any spacers we injected on a previous render to avoid accumulation.
+    textLayer.querySelectorAll('[data-pdf-space]').forEach((el) => el.remove());
+
+    const spans = Array.from(
+      textLayer.querySelectorAll('span[role="presentation"], span'),
+    ).filter((s) => (s as HTMLElement).textContent?.trim()) as HTMLElement[];
+
+    for (let i = 0; i < spans.length - 1; i++) {
+      const cur = spans[i];
+      const next = spans[i + 1];
+      const curText = cur.textContent ?? '';
+      const nextText = next.textContent ?? '';
+      const needsSpace =
+        curText.length > 0 &&
+        !curText.endsWith(' ') &&
+        curText[curText.length - 1] !== '-' &&
+        nextText.length > 0 &&
+        !nextText.startsWith(' ');
+      if (needsSpace) {
+        const spacer = document.createElement('span');
+        spacer.setAttribute('data-pdf-space', '1');
+        spacer.setAttribute('aria-hidden', 'true');
+        spacer.style.cssText =
+          'position:absolute;overflow:hidden;width:0;height:0;pointer-events:none;user-select:text;';
+        spacer.textContent = ' ';
+        cur.after(spacer);
+      }
+    }
+  }, [pageContainerEl, renderVersion]);
 
   // Coordinate-based hover detection
   useEffect(() => {
@@ -698,6 +749,24 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
           </div>
         ))}
 
+        {hoveredNoteId &&
+          noteHighlightRects
+            .filter(({ noteId }) => noteId === hoveredNoteId)
+            .flatMap(({ noteId, rects: nRects }) =>
+              nRects.map((rect, i) => (
+                <div
+                  key={`note-hover-hl-${noteId}-${i}`}
+                  className={styles.highlightRectWrapper}
+                  style={{ left: rect.x, top: rect.y, width: rect.width, height: rect.height }}
+                >
+                  <div
+                    className={styles.highlightRect}
+                    style={{ background: hexToPastel('#0d8070', 0.33) }}
+                  />
+                </div>
+              ))
+            )}
+
         {explainHighlightRects
           .filter(({ id }) => id === activeExplanationId)
           .flatMap(({ id, rects: exRects }) =>
@@ -805,6 +874,8 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
               type="button"
               className={`${styles.noteIcon} ${readOnly ? styles.noteIconReadOnly : ''}`}
               aria-label={readOnly ? 'View note' : 'Edit note'}
+              onMouseEnter={() => setHoveredNoteId(pos.noteId)}
+              onMouseLeave={() => setHoveredNoteId(null)}
               onClick={() => { if (!readOnly) handleOpenEditNoteEditor(pos.noteId, pos.y); }}
             >
               <NoteIcon />
@@ -813,7 +884,7 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
           </div>
         ))}
 
-        {explainIconPositions.map((pos) => {
+        {!hideExplanationIcons && explainIconPositions.map((pos) => {
           const isActive = pos.id === activeExplanationId;
           const explanation = explanations.find((e) => e.id === pos.id);
           const isLoading = !!(explanation && (explanation as any).isRequesting && !(explanation as any).firstChunkReceived);
@@ -845,10 +916,20 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
         <div
           ref={noteEditorRef}
           className={`${styles.noteEditor} ${noteEditorState.mode === 'create' ? styles.noteEditorCreate : styles.noteEditorEdit} ${noteEditorVisible ? styles.noteEditorVisible : ''}`}
-          style={{
-            right: Math.max(8, window.innerWidth - (noteEditorPageRect.left + pageWidth + 300)),
-            top: noteEditorPageRect.top + noteEditorState.y,
-          }}
+          style={(() => {
+            const MARGIN = 8;
+            const editorH = noteEditorRef.current?.offsetHeight ?? 220;
+            const editorW = noteEditorRef.current?.offsetWidth ?? 220;
+            const rawTop = noteEditorPageRect.top + noteEditorState.y;
+            const clampedTop = Math.min(
+              Math.max(MARGIN, rawTop),
+              window.innerHeight - editorH - MARGIN,
+            );
+            // right = distance from viewport right edge; clamp so editor stays on screen
+            const rawRight = Math.max(MARGIN, window.innerWidth - (noteEditorPageRect.left + pageWidth + 300));
+            const clampedRight = Math.min(rawRight, window.innerWidth - editorW - MARGIN);
+            return { right: clampedRight, top: clampedTop };
+          })()}
           onMouseDown={(e) => e.stopPropagation()}
         >
           <div className={styles.noteEditorHeader}>

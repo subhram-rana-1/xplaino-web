@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -211,6 +211,38 @@ export const PdfDetail: React.FC = () => {
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [activePage, setActivePage] = useState<number>(1);
 
+  // Auto-update activePage as the user scrolls so the sidebar thumbnail tracks
+  // the page currently visible at the centre of the viewport.
+  useEffect(() => {
+    const scrollEl = mainAreaRef.current;
+    if (!scrollEl) return;
+
+    const handler = () => {
+      const refs = pageRefs.current;
+      if (!refs.length) return;
+
+      const viewMid = scrollEl.scrollTop + scrollEl.clientHeight / 2;
+      let best = 1;
+      let bestDist = Infinity;
+
+      for (let i = 0; i < refs.length; i++) {
+        const el = refs[i];
+        if (!el) continue;
+        const elMid = el.offsetTop + el.offsetHeight / 2;
+        const dist = Math.abs(elMid - viewMid);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = i + 1;
+        }
+      }
+
+      setActivePage((prev) => (prev === best ? prev : best));
+    };
+
+    scrollEl.addEventListener('scroll', handler, { passive: true });
+    return () => scrollEl.removeEventListener('scroll', handler);
+  }, [numPages]);
+
   // Per-page render version counters so PdfHighlightLayer recomputes rects on re-render
   const [pageRenderVersions, setPageRenderVersions] = useState<Record<number, number>>({});
 
@@ -224,6 +256,12 @@ export const PdfDetail: React.FC = () => {
   const [isExplainPanelOpen, setIsExplainPanelOpen] = useState(false);
   const [chatSelectedText, setChatSelectedText] = useState<string | undefined>(undefined);
   const [pendingChatPrompt, setPendingChatPrompt] = useState<string | undefined>(undefined);
+  const [activeCitationHighlight, setActiveCitationHighlight] = useState<{
+    id: string;
+    startText: string;
+    endText: string;
+    pageNumber?: number;
+  } | null>(null);
 
   const handleExplainFromSelection = useCallback(
     (_startText: string, _endText: string, selectedText: string, _clientY: number) => {
@@ -266,57 +304,107 @@ export const PdfDetail: React.FC = () => {
     pageEl?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
 
-  const handleScrollToSelectedText = useCallback((text: string) => {
-    if (!contentRef.current || !text) return;
-    // Normalise using the same Unicode-aware function used for highlight anchors so that
-    // ligatures, smart quotes, fullwidth chars, zero-width chars, etc. all match correctly.
-    const needle = normalisePdfText(text).toLowerCase().slice(0, 80);
-    if (!needle) return;
+  const handleScrollToSelectedText = useCallback(
+    (text: string, pageHint?: number | null, noPulse?: boolean) => {
+      if (!contentRef.current || !text) return;
+      const fullNeedle = normalisePdfText(text).toLowerCase();
+      if (!fullNeedle) return;
 
-    // Build a concatenated text buffer per page, tracking which span each char belongs to
-    const pages = contentRef.current.querySelectorAll<HTMLElement>('[data-page]');
-    let matchSpan: HTMLElement | null = null;
+      type PageBuf = { buf: string; charSpan: HTMLElement[] };
+      const pageBuffers = new Map<number, PageBuf>();
 
-    for (const page of pages) {
-      const spans = Array.from(page.querySelectorAll<HTMLElement>('.react-pdf__Page__textContent span'));
-      if (!spans.length) continue;
+      const allPages = Array.from(
+        contentRef.current.querySelectorAll<HTMLElement>('[data-page]'),
+      );
 
-      let buf = '';
-      const charSpan: HTMLElement[] = [];
-      for (const span of spans) {
-        const t = normalisePdfText(span.textContent ?? '');
-        for (const ch of t) {
-          buf += ch;
-          charSpan.push(span);
+      for (const page of allPages) {
+        const pageNum = parseInt(page.getAttribute('data-page') ?? '0', 10);
+        const spans = Array.from(
+          page.querySelectorAll<HTMLElement>('.react-pdf__Page__textContent span'),
+        );
+        if (!spans.length) continue;
+
+        let buf = '';
+        const charSpan: HTMLElement[] = [];
+        for (const span of spans) {
+          const t = normalisePdfText(span.textContent ?? '');
+          if (!t) continue;
+          if (buf.length > 0 && !buf.endsWith(' ') && !t.startsWith(' ')) {
+            buf += ' ';
+            charSpan.push(span);
+          }
+          for (const ch of t) {
+            buf += ch;
+            charSpan.push(span);
+          }
         }
+        pageBuffers.set(pageNum, { buf, charSpan });
       }
 
-      const idx = buf.toLowerCase().indexOf(needle);
-      if (idx !== -1) {
-        matchSpan = charSpan[idx] ?? null;
-        break;
+      const searchOrder: PageBuf[] = [];
+      if (pageHint != null && pageBuffers.has(pageHint)) {
+        searchOrder.push(pageBuffers.get(pageHint)!);
       }
-    }
+      for (const [num, pb] of pageBuffers) {
+        if (num !== pageHint) searchOrder.push(pb);
+      }
 
-    if (!matchSpan) return;
+      const NEEDLE_LENGTHS = [300, 150, 80, 40];
+      let matchSpan: HTMLElement | null = null;
 
-    matchSpan.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      for (const maxLen of NEEDLE_LENGTHS) {
+        const needle = fullNeedle.slice(0, maxLen);
+        if (!needle) continue;
 
-    // Pulse twice: add class → remove → add again → remove
-    const PULSE_CLASS = 'xplaino-text-pulse';
-    const pulse = () => {
-      matchSpan!.classList.add(PULSE_CLASS);
-      setTimeout(() => {
-        matchSpan!.classList.remove(PULSE_CLASS);
-        setTimeout(() => {
+        for (const { buf, charSpan } of searchOrder) {
+          const lowerBuf = buf.toLowerCase();
+
+          let idx = lowerBuf.indexOf(needle);
+
+          if (idx === -1) {
+            const compactBuf = lowerBuf.replace(/ /g, '');
+            const compactNeedle = needle.replace(/ /g, '');
+            const compactIdx = compactBuf.indexOf(compactNeedle);
+            if (compactIdx !== -1) {
+              let origIdx = 0;
+              let compactCount = 0;
+              while (compactCount < compactIdx && origIdx < buf.length) {
+                if (buf[origIdx] !== ' ') compactCount++;
+                origIdx++;
+              }
+              while (origIdx < buf.length && buf[origIdx] === ' ') origIdx++;
+              idx = origIdx;
+            }
+          }
+
+          if (idx !== -1) {
+            matchSpan = charSpan[idx] ?? null;
+            break;
+          }
+        }
+        if (matchSpan) break;
+      }
+
+      if (!matchSpan) return;
+      matchSpan.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      if (!noPulse) {
+        const PULSE_CLASS = 'xplaino-text-pulse';
+        const pulse = () => {
           matchSpan!.classList.add(PULSE_CLASS);
-          setTimeout(() => matchSpan!.classList.remove(PULSE_CLASS), 400);
-        }, 200);
-      }, 400);
-    };
-    // Slight delay to let smooth scroll start before pulsing
-    setTimeout(pulse, 450);
-  }, []);
+          setTimeout(() => {
+            matchSpan!.classList.remove(PULSE_CLASS);
+            setTimeout(() => {
+              matchSpan!.classList.add(PULSE_CLASS);
+              setTimeout(() => matchSpan!.classList.remove(PULSE_CLASS), 400);
+            }, 200);
+          }, 400);
+        };
+        setTimeout(pulse, 450);
+      }
+    },
+    [],
+  );
 
   const handleSendToChatFromSelection = useCallback((text: string) => {
     setChatSelectedText(text);
@@ -325,6 +413,7 @@ export const PdfDetail: React.FC = () => {
 
   const handleCloseExplainPanel = useCallback(() => {
     setIsExplainPanelOpen(false);
+    setActiveCitationHighlight(null);
   }, []);
 
   const handleWriteNoteFromSelection = useCallback(
@@ -585,6 +674,23 @@ export const PdfDetail: React.FC = () => {
     return () => observer.disconnect();
   }, [viewState]);
 
+  // Stable PDF.js options: cMapUrl ensures correct CID-font character mappings and
+  // standardFontDataUrl provides accurate font metrics, both of which are necessary
+  // for the text layer to be positioned correctly over the canvas.
+  // Version matches the pdfjs worker already in use (pdfjs.GlobalWorkerOptions.workerSrc).
+  const pdfOptions = useMemo(() => ({
+    cMapUrl: 'https://unpkg.com/pdfjs-dist@5.4.296/cmaps/',
+    cMapPacked: true,
+    standardFontDataUrl: 'https://unpkg.com/pdfjs-dist@5.4.296/standard_fonts/',
+  }), []);
+
+  // Memoize computed page width so sub-pixel ResizeObserver fluctuations don't
+  // trigger unnecessary page re-renders and text layer recomputations.
+  const pageWidth = useMemo(
+    () => (containerWidth ? Math.round(containerWidth * zoomLevel) : undefined),
+    [containerWidth, zoomLevel],
+  );
+
   // Load PDF data and user settings
   useEffect(() => {
     if (authLoading || !pdfId) return;
@@ -783,6 +889,7 @@ export const PdfDetail: React.FC = () => {
               {Array.from(new Array(numPages), (_, index) => (
                 <button
                   key={`thumb-${index + 1}`}
+                  ref={activePage === index + 1 ? (el) => { el?.scrollIntoView({ block: 'nearest' }); } : undefined}
                   className={`${styles.thumbnailBtn} ${activePage === index + 1 ? styles.thumbnailActive : ''}`}
                   onClick={() => scrollToPage(index + 1)}
                   title={`Page ${index + 1}`}
@@ -1075,6 +1182,7 @@ export const PdfDetail: React.FC = () => {
           {downloadUrl && (
             <Document
               file={downloadUrl}
+              options={pdfOptions}
               onLoadSuccess={onDocumentLoadSuccess}
               onLoadError={onDocumentLoadError}
               loading={<div className={styles.loading}>Loading document…</div>}
@@ -1106,7 +1214,7 @@ export const PdfDetail: React.FC = () => {
                         renderTextLayer={!isPageTranslated || showOriginal}
                         renderAnnotationLayer={true}
                         className={styles.page}
-                        width={containerWidth ? Math.round(containerWidth * zoomLevel) : undefined}
+                        width={pageWidth}
                         onRenderSuccess={() => {
                           setPageRenderVersions((prev) => ({
                             ...prev,
@@ -1129,12 +1237,20 @@ export const PdfDetail: React.FC = () => {
                           pendingNoteForSelection={pendingNoteSelection}
                           readOnly={!canEditAnnotations}
                           isLoggedIn={isLoggedIn}
-                          explanations={[]}
-                          activeExplanationId={null}
+                          explanations={
+                            activeCitationHighlight && (
+                              activeCitationHighlight.pageNumber == null ||
+                              activeCitationHighlight.pageNumber === pageNumber
+                            )
+                              ? [activeCitationHighlight]
+                              : []
+                          }
+                          activeExplanationId={activeCitationHighlight?.id ?? null}
                           onExplanationIconClick={() => {}}
                           pulsingExplanationId={null}
                           onPulseComplete={() => {}}
                           pendingNoteForExplanationId={null}
+                          hideExplanationIcons={!!activeCitationHighlight}
                         />
                       )}
                       {!showOriginal && translatedParagraphs && (
@@ -1169,6 +1285,7 @@ export const PdfDetail: React.FC = () => {
         accessToken={accessToken}
         onScrollToPage={handleScrollToPage}
         onScrollToSelectedText={handleScrollToSelectedText}
+        onHighlightCitation={setActiveCitationHighlight}
         selectedText={chatSelectedText}
         onClearSelectedText={() => setChatSelectedText(undefined)}
         pendingPrompt={pendingChatPrompt}

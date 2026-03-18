@@ -25,6 +25,7 @@ import { CreateCustomPromptModal } from '@/shared/components/CreateCustomPromptM
 import { LoadingDots } from '@/shared/components/LoadingDots';
 import { usePdfChat } from './usePdfChat';
 import type { PdfChatCitationItem, PdfChatSessionResponse } from '@/shared/types/pdfChat.types';
+import { stripMarkdown, normalisePdfText } from './pdfTextNormalise';
 import styles from './PdfChatPanel.module.css';
 
 export interface PdfChatPanelProps {
@@ -39,7 +40,9 @@ export interface PdfChatPanelProps {
   pendingPrompt?: string;
   onClearPendingPrompt?: () => void;
   /** Called when the user clicks the ref button next to a quoted selection — scrolls + pulses the text in the PDF. */
-  onScrollToSelectedText?: (text: string) => void;
+  onScrollToSelectedText?: (text: string, pageHint?: number | null, noPulse?: boolean) => void;
+  /** Called when a citation is clicked to show/clear a persistent highlight band on the PDF. Pass null to clear. */
+  onHighlightCitation?: (h: { id: string; startText: string; endText: string; pageNumber?: number } | null) => void;
   customPrompts?: CustomPromptResponse[];
   onCreatePrompt?: () => void;
   onCustomPromptsChanged?: (prompts: CustomPromptResponse[]) => void;
@@ -87,6 +90,57 @@ function buildCitedText(text: string): string {
     .join('');
 }
 
+const CitationBadge: React.FC<{
+  cit: PdfChatCitationItem | undefined;
+  onCitClick: (c: PdfChatCitationItem) => void;
+  href: string;
+  chunkSeq: number;
+  citationsCount: number;
+  children: React.ReactNode;
+}> = ({ cit, onCitClick, href, chunkSeq, citationsCount, children }) => {
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [hovered, setHovered] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+
+  useEffect(() => {
+    if (!hovered || !btnRef.current || !cit) { setPos(null); return; }
+    const rect = btnRef.current.getBoundingClientRect();
+    const tooltipW = 260;
+    let left = rect.left + rect.width / 2 - tooltipW / 2;
+    if (left < 4) left = 4;
+    if (left + tooltipW > window.innerWidth - 4) left = window.innerWidth - 4 - tooltipW;
+    setPos({ top: rect.top - 8, left });
+  }, [hovered, cit]);
+
+  return (
+    <button
+      ref={btnRef}
+      type="button"
+      className={styles.inlineCitationBadge}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={(e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('[Citation click]', { href, chunkSeq, cit, citationsCount });
+        if (cit) onCitClick(cit);
+      }}
+    >
+      {children}
+      {cit && hovered && pos && createPortal(
+        <span
+          className={`${styles.citationTooltipPortal} ${styles.citationTooltipPortalVisible}`}
+          style={{ top: pos.top, left: pos.left, transform: 'translateY(-100%)' }}
+        >
+          {cit.pageNumber && <span className={styles.citationPage}>Page {cit.pageNumber}</span>}
+          {cit.content.length > 200 ? cit.content.slice(0, 200) + '...' : cit.content}
+        </span>,
+        document.body,
+      )}
+    </button>
+  );
+};
+
 function makeMarkdownComponents(
   citations: PdfChatCitationItem[],
   onCitClick: (c: PdfChatCitationItem) => void,
@@ -106,32 +160,20 @@ function makeMarkdownComponents(
       const citPrefix = '#citation:';
       if (href?.startsWith(citPrefix)) {
         const chunkSeq = parseInt(href.slice(citPrefix.length), 10);
-        // First try exact chunkSequence match; fall back to 1-based index because the
-        // LLM often renumbers citations sequentially ([1], [2]…) rather than using the
-        // actual chunk_sequence values stored in the citations array.
         let cit = citations.find((c) => c.chunkSequence === chunkSeq);
         if (!cit && chunkSeq >= 1 && chunkSeq <= citations.length) {
           cit = citations[chunkSeq - 1];
         }
         return (
-          <button
-            type="button"
-            className={styles.inlineCitationBadge}
-            onClick={(e: React.MouseEvent) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log('[Citation click]', { href, chunkSeq, cit, citationsCount: citations.length });
-              if (cit) onCitClick(cit);
-            }}
+          <CitationBadge
+            cit={cit}
+            onCitClick={onCitClick}
+            href={href}
+            chunkSeq={chunkSeq}
+            citationsCount={citations.length}
           >
             {children}
-            {cit && (
-              <span className={styles.citationTooltip}>
-                {cit.pageNumber && <span className={styles.citationPage}>Page {cit.pageNumber}</span>}
-                {cit.content.length > 200 ? cit.content.slice(0, 200) + '...' : cit.content}
-              </span>
-            )}
-          </button>
+          </CitationBadge>
         );
       }
       return <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>;
@@ -150,6 +192,7 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
   pendingPrompt,
   onClearPendingPrompt,
   onScrollToSelectedText,
+  onHighlightCitation,
   customPrompts = [],
   onCreatePrompt,
   onCustomPromptsChanged,
@@ -158,7 +201,6 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
   const [renamingSessionId, setRenamingSessionId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [inputValue, setInputValue] = useState('');
-  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const [sessionListDropdownOpen, setSessionListDropdownOpen] = useState(false);
   const [hiddenSessionIds, setHiddenSessionIds] = useState<Set<string>>(new Set());
   const [confirmDeleteSessionId, setConfirmDeleteSessionId] = useState<string | null>(null);
@@ -174,8 +216,11 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
   const [shareUserId, setShareUserId] = useState('');
   const [shareLoading, setShareLoading] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
+  const [activeCitationId, setActiveCitationId] = useState<string | null>(null);
 
   const chatAreaRef = useRef<HTMLDivElement>(null);
+  const lastUserMsgRef = useRef<HTMLDivElement>(null);
+  const prevUserMsgCountRef = useRef(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const sessionListRef = useRef<HTMLDivElement>(null);
   const customPromptMenuRef = useRef<HTMLDivElement>(null);
@@ -223,37 +268,28 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
     window.addEventListener('mouseup', handleMouseUp);
   }, [width]);
 
-  // --- Auto-scroll ---
-  const SCROLL_THRESHOLD = 5;
-
-  const checkIfAtBottom = useCallback((element: HTMLDivElement): boolean => {
-    const { scrollTop, scrollHeight, clientHeight } = element;
-    return scrollTop >= scrollHeight - clientHeight - SCROLL_THRESHOLD;
-  }, []);
-
+  // Scroll the chat so the latest user message sits at ~38% from the top of the
+  // container whenever a new user message is added. After that one-time scroll
+  // no further auto-scrolling happens — streaming content that flows past the
+  // bottom border is intentionally not chased.
   useEffect(() => {
-    const container = chatAreaRef.current;
-    if (!container) return;
-    const handleScroll = () => {
-      if (checkIfAtBottom(container)) {
-        setShouldAutoScroll(true);
-      } else {
-        setShouldAutoScroll(false);
+    const userMsgCount = chat.messages.filter((m) => m.role === 'user').length;
+    if (userMsgCount > prevUserMsgCountRef.current) {
+      prevUserMsgCountRef.current = userMsgCount;
+      const container = chatAreaRef.current;
+      const lastMsg = lastUserMsgRef.current;
+      if (container && lastMsg) {
+        const targetScrollTop = lastMsg.offsetTop - container.clientHeight * 0.5;
+        container.scrollTop = Math.max(0, targetScrollTop);
       }
-    };
-    container.addEventListener('scroll', handleScroll, { passive: true });
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, [checkIfAtBottom]);
-
-  useEffect(() => {
-    if (chatAreaRef.current && shouldAutoScroll) {
-      chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
     }
-  }, [chat.streamingText, chat.messages, shouldAutoScroll]);
+  }, [chat.messages]);
 
-  // Reset auto-scroll to true whenever the active session changes
+  // Clear citation highlight whenever the active session changes
   useEffect(() => {
-    setShouldAutoScroll(true);
+    prevUserMsgCountRef.current = 0;
+    setActiveCitationId(null);
+    onHighlightCitation?.(null);
   }, [chat.activeSession?.id]);
 
   useEffect(() => {
@@ -292,7 +328,6 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
     const q = inputValue.trim();
     if (!q) return;
     setInputValue('');
-    setShouldAutoScroll(true);
     chat.askQuestion(q, selectedText || undefined);
     onClearSelectedText?.();
   }, [inputValue, chat, selectedText, onClearSelectedText]);
@@ -312,7 +347,6 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
   };
 
   const handlePromptClick = useCallback((displayText: string, apiContent?: string) => {
-    setShouldAutoScroll(true);
     chat.askQuestion(displayText, selectedText || undefined, apiContent);
     onClearSelectedText?.();
   }, [chat, selectedText, onClearSelectedText]);
@@ -338,11 +372,32 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
 
   // --- Citation click ---
   const handleCitationClick = useCallback((citation: PdfChatCitationItem) => {
-    console.log('[handleCitationClick]', { pageNumber: citation.pageNumber, chunkSequence: citation.chunkSequence, hasOnScrollToPage: !!onScrollToPage });
-    if (citation.pageNumber != null && onScrollToPage) {
-      onScrollToPage(citation.pageNumber);
+    const citId = String(citation.chunkSequence);
+
+    if (activeCitationId === citId) {
+      setActiveCitationId(null);
+      onHighlightCitation?.(null);
+      return;
     }
-  }, [onScrollToPage]);
+
+    const cleanText = normalisePdfText(stripMarkdown(citation.content));
+    const startText = cleanText;
+    const endText = cleanText;
+
+    setActiveCitationId(citId);
+    onHighlightCitation?.({ id: citId, startText, endText, pageNumber: citation.pageNumber ?? undefined });
+
+    // Scroll: immediately jump to the page (ensures the page is visible and
+    // its text layer is rendered), then after a short delay scroll precisely
+    // to the matched text span so the highlighted text is centred in view.
+    const pageHint = citation.pageNumber ?? null;
+    if (pageHint != null && onScrollToPage) {
+      onScrollToPage(pageHint);
+    }
+    if (onScrollToSelectedText) {
+      setTimeout(() => onScrollToSelectedText(cleanText, pageHint, true), 350);
+    }
+  }, [activeCitationId, onScrollToPage, onHighlightCitation, onScrollToSelectedText]);
 
   // Stable components for streaming (no citations available yet)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -590,9 +645,14 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
           <div ref={chatAreaRef} className={styles.chatArea}>
             {hasChatHistory && (
               <div className={styles.messagesContainer}>
-                {chat.messages.map((msg, i) => (
+                {chat.messages.map((msg, i) => {
+                  const isLastUserMsg =
+                    msg.role === 'user' &&
+                    !chat.messages.slice(i + 1).some((m) => m.role === 'user');
+                  return (
                   <div
                     key={i}
+                    ref={isLastUserMsg ? lastUserMsgRef : undefined}
                     className={`${styles.message} ${msg.role === 'user' ? styles.userMessage : styles.assistantMessage}`}
                   >
                     {msg.role === 'user' && msg.selectedText && (
@@ -622,7 +682,8 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
                       msg.content
                     )}
                   </div>
-                ))}
+                  );
+                })}
 
                 {chat.isRequesting && !chat.streamingText && (
                   <div className={`${styles.message} ${styles.assistantMessage} ${styles.loadingMessage}`}>
