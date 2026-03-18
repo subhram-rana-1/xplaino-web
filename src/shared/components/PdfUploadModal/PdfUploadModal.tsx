@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { CloudUpload, FileText, Link, Check, AlertCircle, RefreshCw, Info, X } from 'lucide-react';
+import { CloudUpload, FileText, Check, AlertCircle, RefreshCw, Info, X } from 'lucide-react';
 import { SiGoogledrive, SiDropbox } from 'react-icons/si';
 import { fetchWithAuth, fetchPublic } from '@/shared/services/api-client';
 import { authConfig } from '@/config/auth.config';
@@ -39,65 +39,6 @@ function isPdfFile(file: File): boolean {
   );
 }
 
-function isValidDriveUrl(url: string): boolean {
-  try {
-    const parsed = new URL(url);
-    return parsed.hostname === 'drive.google.com';
-  } catch {
-    return false;
-  }
-}
-
-function isValidDropboxUrl(url: string): boolean {
-  try {
-    const parsed = new URL(url);
-    return (
-      parsed.hostname === 'www.dropbox.com' ||
-      parsed.hostname === 'dropbox.com' ||
-      parsed.hostname === 'dl.dropboxusercontent.com'
-    );
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Converts any Google Drive share/view URL to a direct-download URL.
- * Supports formats:
- *   https://drive.google.com/file/d/{id}/view
- *   https://drive.google.com/open?id={id}
- *   https://drive.google.com/uc?id={id}
- * Returns null if the file ID cannot be extracted.
- */
-function getDriveDirectUrl(url: string): string | null {
-  try {
-    const parsed = new URL(url);
-    const pathMatch = parsed.pathname.match(/\/file\/d\/([^/]+)/);
-    if (pathMatch) {
-      return `https://drive.google.com/uc?export=download&id=${pathMatch[1]}`;
-    }
-    const idParam = parsed.searchParams.get('id');
-    if (idParam) {
-      return `https://drive.google.com/uc?export=download&id=${idParam}`;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Converts a Dropbox share link to a direct-download URL by forcing dl=1.
- */
-function getDropboxDirectUrl(url: string): string {
-  try {
-    const parsed = new URL(url);
-    parsed.searchParams.set('dl', '1');
-    return parsed.toString();
-  } catch {
-    return url;
-  }
-}
 
 export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose, folderId, folderName }) => {
   const navigate = useNavigate();
@@ -111,10 +52,6 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
   const [isDropZoneHovered, setIsDropZoneHovered] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [driveUrl, setDriveUrl] = useState('');
-  const [dropboxUrl, setDropboxUrl] = useState('');
-  const [linkError, setLinkError] = useState<string | null>(null);
 
   const [isDraggingOverViewport, setIsDraggingOverViewport] = useState(false);
   const dragCounterRef = useRef(0);
@@ -135,9 +72,6 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
       setIsUploading(false);
       setIsDropZoneHovered(false);
       setLocalError(null);
-      setDriveUrl('');
-      setDropboxUrl('');
-      setLinkError(null);
       setIsDraggingOverViewport(false);
       dragCounterRef.current = 0;
     }
@@ -264,176 +198,6 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
     [isUploading, isLoggedIn, folderId, navigate, onClose, processingMessages]
   );
 
-  // Real upload flow for Drive / Dropbox links
-  const uploadFromUrl = useCallback(
-    async (shareUrl: string, source: 'drive' | 'dropbox', fileName: string) => {
-      if (isUploading) return;
-
-      setIsUploading(true);
-      setUploadState('processing');
-      const sourceLabel = source === 'drive' ? 'Google Drive' : 'Dropbox';
-      const urlMessages = [
-        `Downloading from ${sourceLabel}…`,
-        'Uploading to secure storage…',
-        'Creating PDF record…',
-        'Finalising…',
-      ];
-      setProcessingMsg(urlMessages[0]);
-
-      const apiFetch = isLoggedIn ? fetchWithAuth : fetchPublic;
-
-      let msgIdx = 0;
-      const interval = setInterval(() => {
-        msgIdx = (msgIdx + 1) % urlMessages.length;
-        setProcessingMsg(urlMessages[msgIdx]);
-      }, 900);
-
-      const stopProcessing = (error?: string) => {
-        clearInterval(interval);
-        setIsUploading(false);
-        if (error) {
-          setUploadState('idle');
-          setLinkError(error);
-        }
-      };
-
-      try {
-        // Step 0 — convert share URL to direct download URL and fetch the PDF blob
-        const directUrl =
-          source === 'drive'
-            ? getDriveDirectUrl(shareUrl)
-            : getDropboxDirectUrl(shareUrl);
-
-        if (!directUrl) {
-          stopProcessing('Could not parse the file link. Please check the URL and try again.');
-          return;
-        }
-
-        let blob: Blob;
-        try {
-          const fetchRes = await fetch(directUrl);
-          if (!fetchRes.ok) {
-            stopProcessing(`Failed to download the file (HTTP ${fetchRes.status}). Make sure the link is publicly accessible.`);
-            return;
-          }
-          blob = await fetchRes.blob();
-        } catch {
-          stopProcessing(
-            `Could not download the file from ${sourceLabel}. Make sure the link is set to "Anyone with the link can view" and try again.`
-          );
-          return;
-        }
-
-        // Validate it's a PDF
-        const isPdf =
-          blob.type === 'application/pdf' ||
-          blob.type === 'application/octet-stream' ||
-          fileName.toLowerCase().endsWith('.pdf');
-        if (!isPdf) {
-          stopProcessing('The link does not point to a PDF file. Please check the URL and try again.');
-          return;
-        }
-
-        // Validate size
-        if (blob.size > MAX_FILE_SIZE_BYTES) {
-          stopProcessing('File is too large. Maximum allowed size is 5 MB.');
-          return;
-        }
-
-        // Step 1 — get presigned upload URL
-        const presignedRes = await apiFetch(
-          `${authConfig.catenBaseUrl}/api/file-upload/presigned-upload`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              file_name: fileName,
-              file_type: 'PDF',
-              entity_type: 'PDF',
-            }),
-          }
-        );
-
-        if (!presignedRes.ok) {
-          const err = await presignedRes.json().catch(() => ({}));
-          if (err?.detail?.errorCode === 'LOGIN_REQUIRED') {
-            stopProcessing();
-            setUploadState('idle');
-            onClose();
-            window.dispatchEvent(new CustomEvent('loginRequired', { detail: { message: 'upload PDFs' } }));
-            return;
-          }
-          const msg = err?.detail?.error_message || err?.detail || 'Failed to get upload URL.';
-          stopProcessing(typeof msg === 'string' ? msg : 'Failed to get upload URL.');
-          return;
-        }
-
-        const presignedData = await presignedRes.json();
-        const { upload_url, file_upload_id, content_type } = presignedData;
-
-        // Step 2 — PUT blob directly to S3
-        const s3Res = await fetch(upload_url, {
-          method: 'PUT',
-          headers: { 'Content-Type': content_type },
-          body: blob,
-        });
-
-        if (!s3Res.ok) {
-          stopProcessing('Failed to upload file to storage. Please try again.');
-          return;
-        }
-
-        // Step 3 — create PDF record
-        const createPdfBody: Record<string, string> = { file_name: fileName };
-        if (folderId) createPdfBody.folder_id = folderId;
-        const createPdfRes = await apiFetch(
-          `${authConfig.catenBaseUrl}/api/pdf/create-pdf`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(createPdfBody),
-          }
-        );
-
-        if (!createPdfRes.ok) {
-          const err = await createPdfRes.json().catch(() => ({}));
-          const msg = err?.detail?.error_message || err?.detail || 'Failed to create PDF record.';
-          stopProcessing(typeof msg === 'string' ? msg : 'Failed to create PDF record.');
-          return;
-        }
-
-        const pdfData = await createPdfRes.json();
-        const pdfId: string = pdfData.id;
-
-        // Step 4 — link file upload to the PDF record
-        const updateEntityRes = await apiFetch(
-          `${authConfig.catenBaseUrl}/api/file-upload/${file_upload_id}/entity`,
-          {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ entity_id: pdfId }),
-          }
-        );
-
-        if (!updateEntityRes.ok) {
-          console.warn('Failed to link file upload to PDF record, continuing.');
-        }
-
-        // Step 5 — close modal and navigate to PDF page
-        clearInterval(interval);
-        setIsUploading(false);
-        onClose();
-        const params = new URLSearchParams({
-          ...(folderId ? { folderId } : {}),
-          ...(folderName ? { folderName } : {}),
-        });
-        navigate(`/pdf/${pdfId}${params.toString() ? `?${params}` : ''}`);
-      } catch {
-        stopProcessing('Something went wrong. Please try again.');
-      }
-    },
-    [isUploading, isLoggedIn, folderId, folderName, navigate, onClose]
-  );
 
   const handleFile = useCallback(
     (file: File) => {
@@ -533,46 +297,11 @@ export const PdfUploadModal: React.FC<PdfUploadModalProps> = ({ isOpen, onClose,
     return () => document.removeEventListener('paste', handlePaste);
   }, [isOpen, handleFile]);
 
-  const handleDriveSubmit = () => {
-    setLinkError(null);
-    const url = driveUrl.trim();
-    if (!url) {
-      setLinkError('Please enter a Google Drive share link.');
-      return;
-    }
-    if (!isValidDriveUrl(url)) {
-      setLinkError('Invalid Google Drive URL. Make sure the link is from drive.google.com.');
-      return;
-    }
-    const rawName = url.split('/').filter(Boolean).pop() || 'document';
-    const fileName = rawName.toLowerCase().endsWith('.pdf') ? rawName : `${rawName}.pdf`;
-    uploadFromUrl(url, 'drive', fileName);
-  };
-
-  const handleDropboxSubmit = () => {
-    setLinkError(null);
-    const url = dropboxUrl.trim();
-    if (!url) {
-      setLinkError('Please enter a Dropbox share link.');
-      return;
-    }
-    if (!isValidDropboxUrl(url)) {
-      setLinkError('Invalid Dropbox URL. Make sure the link is from dropbox.com.');
-      return;
-    }
-    const pathParts = new URL(url).pathname.split('/').filter(Boolean);
-    const rawName = pathParts[pathParts.length - 1] || 'document';
-    const fileName = rawName.toLowerCase().endsWith('.pdf') ? rawName : `${rawName}.pdf`;
-    uploadFromUrl(url, 'dropbox', fileName);
-  };
 
   const handleReset = () => {
     setUploadState('idle');
     setUploadedFile(null);
     setLocalError(null);
-    setLinkError(null);
-    setDriveUrl('');
-    setDropboxUrl('');
   };
 
   const handleClose = () => {
