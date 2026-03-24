@@ -405,9 +405,89 @@ export const SubscriptionTab: React.FC = () => {
               <Link to="/pricing" className={styles.secondaryButton}>
                 View All Plans
               </Link>
+              {subscription.paddle_subscription_id && statusEnum !== SubscriptionStatus.CANCELED && (
+                <button
+                  className={styles.cancelButton}
+                  onClick={() => setShowCancelConfirm(true)}
+                >
+                  <XCircle size={18} />
+                  Cancel Subscription
+                </button>
+              )}
             </div>
           </div>
         </div>
+
+        {/* Cancel Confirmation Modal */}
+        {showCancelConfirm && (
+          <div
+            className={`${styles.cancelModal} ${isModalClosing ? styles.modalClosing : ''}`}
+            onClick={resetCancelModal}
+          >
+            <div
+              className={`${styles.cancelModalContent} ${isModalClosing ? styles.modalContentClosing : ''}`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className={styles.modalCloseButton}
+                onClick={resetCancelModal}
+                aria-label="Close modal"
+              >
+                <X size={20} />
+              </button>
+              <h3>Cancel Subscription</h3>
+              <p>We're sorry to see you go. Please let us know why you're canceling so we can improve.</p>
+
+              <div className={styles.cancelReasonsList}>
+                {CANCELLATION_REASONS.map((reason) => (
+                  <label key={reason.id} className={styles.cancelReasonItem}>
+                    <input
+                      type="checkbox"
+                      className={styles.cancelReasonCheckbox}
+                      checked={selectedReasons.includes(reason.id)}
+                      onChange={(e) => handleReasonChange(reason.id, e.target.checked)}
+                      disabled={cancelLoading}
+                    />
+                    <span>{reason.label}</span>
+                  </label>
+                ))}
+              </div>
+
+              {selectedReasons.length > 0 && (
+                <div className={styles.cancelFeedbackSection}>
+                  <label className={styles.cancelFeedbackPrompt}>
+                    {feedbackPrompt} <span className={styles.requiredAsterisk}>*</span>
+                  </label>
+                  <textarea
+                    className={styles.cancelFeedbackTextarea}
+                    value={userFeedback}
+                    onChange={(e) => setUserFeedback(e.target.value)}
+                    placeholder="Your feedback helps us improve..."
+                    disabled={cancelLoading}
+                    rows={3}
+                  />
+                </div>
+              )}
+
+              <div className={styles.cancelModalActions}>
+                <button
+                  className={styles.continueButton}
+                  onClick={resetCancelModal}
+                  disabled={cancelLoading}
+                >
+                  Continue with Xplaino
+                </button>
+                <button
+                  className={styles.cancelModalConfirm}
+                  onClick={handleCancelSubscription}
+                  disabled={cancelLoading || selectedReasons.length === 0 || !userFeedback.trim()}
+                >
+                  {cancelLoading ? 'Canceling...' : 'Cancel Subscription'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {toast && (
           <Toast

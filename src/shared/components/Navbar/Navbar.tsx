@@ -8,9 +8,11 @@ import pdfToolIcon from '../../../assets/images/pdf.webp';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { useTheme } from '@/shared/hooks/ThemeContext';
 import { Theme } from '@/shared/types/user-settings.types';
-import { LogOut, User, LayoutGrid, AlertCircle, ChevronDown } from 'lucide-react';
+import { LogOut, User, LayoutGrid, AlertCircle, ChevronDown, X } from 'lucide-react';
 import { LoginModal } from '@/shared/components/LoginModal';
 import { Toast } from '@/shared/components/Toast';
+
+const EXT_PILL_DISMISSED_KEY = 'xplaino-ext-pill-dismissed';
 
 interface NavbarProps {
   showMiniCoupon?: boolean;
@@ -39,6 +41,16 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
   const location = useLocation();
   const profilePopoverRef = useRef<HTMLDivElement>(null);
   const pendingRouteRef = useRef<string | null>(null);
+  const [miniCouponDismissed, setMiniCouponDismissed] = useState(false);
+  const isPdfPage = /^\/pdf\//.test(location.pathname);
+  const [extensionPillDismissed, setExtensionPillDismissed] = useState(() => {
+    try { return localStorage.getItem(EXT_PILL_DISMISSED_KEY) === 'true'; } catch { return false; }
+  });
+
+  const handleExtensionPillDismiss = () => {
+    setExtensionPillDismissed(true);
+    try { localStorage.setItem(EXT_PILL_DISMISSED_KEY, 'true'); } catch {}
+  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -214,20 +226,58 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
           />
         </Link>
 
+        {isPdfPage && !extensionPillDismissed && (
+          <div className={styles.extensionPill}>
+            <button
+              type="button"
+              className={styles.extensionPillButton}
+              onClick={handleToolsExtensionClick}
+              aria-label="Try Xplaino Extension for free"
+            >
+              <img src={chromeExtensionIcon} alt="" aria-hidden className={styles.extensionPillIcon} />
+              Try extension — Free
+            </button>
+            <span className={styles.extensionPillDivider} aria-hidden />
+            <button
+              type="button"
+              className={styles.extensionPillDismiss}
+              onClick={handleExtensionPillDismiss}
+              aria-label="Dismiss"
+            >
+              <X size={11} strokeWidth={2.5} />
+            </button>
+          </div>
+        )}
+
         {!hideNavButtons && (
           <div className={styles.navCenter}>
-            {showMiniCoupon && (
-              <button
-                type="button"
-                className={styles.miniCouponBadge}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  navigate('/pricing');
-                }}
-              >
-                Limited offer 30% Off!
-              </button>
+            {showMiniCoupon && !miniCouponDismissed && (
+              <div className={styles.miniCouponPill}>
+                <button
+                  type="button"
+                  className={styles.miniCouponBadge}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    navigate('/pricing');
+                  }}
+                >
+                  Limited offer 30% Off!
+                </button>
+                <span className={styles.miniCouponDivider} aria-hidden />
+                <button
+                  type="button"
+                  className={styles.miniCouponDismiss}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setMiniCouponDismissed(true);
+                  }}
+                  aria-label="Dismiss offer"
+                >
+                  <X size={11} strokeWidth={2.5} />
+                </button>
+              </div>
             )}
             <div className={`${styles.navLinks} ${isMenuOpen ? styles.navLinksOpen : ''}`}>
               <div

@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Trash2, X } from 'lucide-react';
 import type { PdfHighlight, HighlightColour } from '@/shared/services/pdfHighlightService';
-import type { PdfNote } from '@/shared/services/pdfNoteService';
+import type { PdfNote, PdfNoteComment } from '@/shared/services/pdfNoteService';
+import { getPdfNoteComments, createPdfNoteComment, updatePdfNoteComment } from '@/shared/services/pdfNoteService';
 import { normalisePdfText, buildNormalisedWithIndexMap } from './pdfTextNormalise';
 import styles from './PdfHighlightLayer.module.css';
 
@@ -18,12 +19,12 @@ function hexToPastel(hex: string, alpha: number): string {
 
 const NOTE_EDITOR_SIZE_KEY = 'xplaino-note-editor-size';
 
-function getSavedNoteEditorSize(): { width: number; height: number } | null {
+function getSavedNoteEditorWidth(): number | null {
   try {
     const raw = localStorage.getItem(NOTE_EDITOR_SIZE_KEY);
     if (!raw) return null;
-    const { width, height } = JSON.parse(raw);
-    if (typeof width === 'number' && typeof height === 'number') return { width, height };
+    const { width } = JSON.parse(raw);
+    if (typeof width === 'number') return width;
   } catch { /* ignore */ }
   return null;
 }
@@ -72,6 +73,8 @@ interface PdfHighlightLayerProps {
   onUpdateNote: (noteId: string, content: string) => Promise<PdfNote>;
   onDeleteNote: (noteId: string) => Promise<void>;
   userFirstName?: string;
+  /** Email of the currently logged-in user, used to show edit button on own comments */
+  userEmail?: string;
   /** Set by parent when user clicks "Write a note" from the text selection trigger */
   pendingNoteForSelection?: { startText: string; endText: string; clientY: number } | null;
   /** When true, disables all write actions (delete highlight, create/edit/delete notes). Read-only display only. */
@@ -92,6 +95,12 @@ interface PdfHighlightLayerProps {
   pendingNoteForExplanationId?: string | null;
   /** When true, hides the explanation book icons (e.g. for citation highlights that reuse the explanations slot) */
   hideExplanationIcons?: boolean;
+  /** PDF id — used to build the shareable deep-link URL */
+  pdfId?: string;
+  /** Called when the user copies a share link or triggers a toast-worthy action */
+  onToast?: (message: string, type?: 'success' | 'error') => void;
+  /** When set, auto-scrolls to the matching note and opens its editor (deep-link entry) */
+  pendingCommentNoteId?: string | null;
 }
 
 function computeHighlightRects(
@@ -255,6 +264,7 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
   onUpdateNote,
   onDeleteNote,
   userFirstName,
+  userEmail,
   pendingNoteForSelection,
   readOnly = false,
   isLoggedIn,
@@ -265,6 +275,9 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
   onPulseComplete,
   pendingNoteForExplanationId,
   hideExplanationIcons = false,
+  pdfId,
+  onToast,
+  pendingCommentNoteId,
 }) => {
   const [rects, setRects] = useState<HighlightRect[]>([]);
   const [activeNoteRects, setActiveNoteRects] = useState<HighlightRect[]>([]);
@@ -272,7 +285,7 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
   const [explainHighlightRects, setExplainHighlightRects] = useState<{ id: string; rects: HighlightRect[] }[]>([]);
   const [noteHighlightRects, setNoteHighlightRects] = useState<{ noteId: string; rects: HighlightRect[] }[]>([]);
   const [hoveredNoteId, setHoveredNoteId] = useState<string | null>(null);
-  const [pinnedNoteId, setPinnedNoteId] = useState<string | null>(null);
+  const [pinnedNoteEditorId, setPinnedNoteEditorId] = useState<string | null>(null);
   const [hoveredHighlightId, setHoveredHighlightId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [menuHighlightId, setMenuHighlightId] = useState<string | null>(null);
@@ -285,16 +298,25 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
   const [pageWidth, setPageWidth] = useState(0);
   const [noteIconPositions, setNoteIconPositions] = useState<NoteIconPosition[]>([]);
   const [scrollVersion, setScrollVersion] = useState(0);
+  const [noteCommentsMap, setNoteCommentsMap] = useState<Record<string, PdfNoteComment[]>>({});
+  const fetchedNoteIds = useRef<Set<string>>(new Set());
+  const [commentDraft, setCommentDraft] = useState('');
+  const [isSavingComment, setIsSavingComment] = useState(false);
+  const [commentError, setCommentError] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const noteEditorRef = useRef<HTMLDivElement>(null);
+  const noteIconLeaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const deepLinkHandledRef = useRef(false);
 
-  // Move cursor to end of text when note editor opens or switches note
+  // Move cursor to end of text and auto-size the textarea when note editor opens or switches note
   useEffect(() => {
     const el = textareaRef.current;
     if (!el || !noteEditorState) return;
     const len = el.value.length;
     el.setSelectionRange(len, len);
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
   }, [noteEditorState]);
 
   // Trigger open transition on next frame whenever a (new) note editor mounts
@@ -318,10 +340,9 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
     const raf = requestAnimationFrame(() => {
       const el = noteEditorRef.current;
       if (!el) return;
-      const saved = getSavedNoteEditorSize();
-      if (saved) {
-        el.style.width = `${saved.width}px`;
-        el.style.height = `${saved.height}px`;
+      const savedWidth = getSavedNoteEditorWidth();
+      if (savedWidth) {
+        el.style.width = `${savedWidth}px`;
       }
     });
     return () => cancelAnimationFrame(raf);
@@ -337,8 +358,7 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
       const entry = entries[0];
       if (!entry) return;
       const w = Math.round(entry.borderBoxSize?.[0]?.inlineSize ?? el.offsetWidth);
-      const h = Math.round(entry.borderBoxSize?.[0]?.blockSize ?? el.offsetHeight);
-      try { localStorage.setItem(NOTE_EDITOR_SIZE_KEY, JSON.stringify({ width: w, height: h })); } catch { /* ignore */ }
+      try { localStorage.setItem(NOTE_EDITOR_SIZE_KEY, JSON.stringify({ width: w })); } catch { /* ignore */ }
     });
     observer.observe(el);
     return () => observer.disconnect();
@@ -630,6 +650,7 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
 
   const closeNoteEditorWithAnimation = useCallback(() => {
     setNoteEditorVisible(false);
+    setPinnedNoteEditorId(null);
     setTimeout(() => {
       setNoteEditorState(null);
       setNoteContent('');
@@ -684,6 +705,62 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
       setIsDeletingNote(false);
     }
   }, [noteEditorState, isDeletingNote, onDeleteNote, closeNoteEditorWithAnimation]);
+
+  const handlePostComment = useCallback(async (noteId: string) => {
+    const content = commentDraft.trim();
+    if (!content || isSavingComment) return;
+    setIsSavingComment(true);
+    setCommentError(null);
+    try {
+      const newComment = await createPdfNoteComment(noteId, content);
+      setNoteCommentsMap((prev) => ({
+        ...prev,
+        [noteId]: [newComment, ...(prev[noteId] ?? [])],
+      }));
+      setCommentDraft('');
+    } catch {
+      setCommentError('Failed to post comment. Please try again.');
+    } finally {
+      setIsSavingComment(false);
+    }
+  }, [commentDraft, isSavingComment]);
+
+  const handleUpdateComment = useCallback(
+    async (noteId: string, commentId: string, newContent: string) => {
+      const updated = await updatePdfNoteComment(commentId, newContent);
+      setNoteCommentsMap((prev) => ({
+        ...prev,
+        [noteId]: (prev[noteId] ?? []).map((c) => (c.id === commentId ? updated : c)),
+      }));
+    },
+    [],
+  );
+
+  // Deep-link: auto-scroll to the target note and open its editor on first render
+  useEffect(() => {
+    if (!pendingCommentNoteId || deepLinkHandledRef.current) return;
+    const pos = noteIconPositions.find((p) => p.noteId === pendingCommentNoteId);
+    if (!pos || !pageContainerEl) return;
+
+    deepLinkHandledRef.current = true;
+
+    const el = pageContainerEl.querySelector(`[data-note-id="${pendingCommentNoteId}"]`);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    if (!fetchedNoteIds.current.has(pendingCommentNoteId)) {
+      fetchedNoteIds.current.add(pendingCommentNoteId);
+      getPdfNoteComments(pendingCommentNoteId)
+        .then((comments) =>
+          setNoteCommentsMap((prev) => ({ ...prev, [pendingCommentNoteId]: comments }))
+        )
+        .catch(() => {});
+    }
+
+    setTimeout(() => {
+      handleOpenEditNoteEditor(pendingCommentNoteId, pos.y);
+      setPinnedNoteEditorId(pendingCommentNoteId);
+    }, 400);
+  }, [pendingCommentNoteId, noteIconPositions, pageContainerEl, handleOpenEditNoteEditor]);
 
   if (rects.length === 0 && noteIconPositions.length === 0 && !noteEditorState && explainIconPositions.length === 0) return null;
 
@@ -867,42 +944,126 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
 
         {noteIconPositions.map((pos) => {
           const note = notes.find((n) => n.id === pos.noteId);
-          const isNoteContainerVisible = hoveredNoteId === pos.noteId || pinnedNoteId === pos.noteId;
+          const isPinned = pinnedNoteEditorId === pos.noteId;
+          const isHovered = hoveredNoteId === pos.noteId;
+          // readOnly: keep the old preview-popup behaviour
+          const isReadOnlyPopupVisible = readOnly && (isHovered || isPinned);
           return (
             <div
               key={pos.noteId}
+              data-note-id={pos.noteId}
               className={styles.marginIconWrapper}
               style={{ left: pageWidth - 40, top: pos.y }}
-              onMouseEnter={() => setHoveredNoteId(pos.noteId)}
-              onMouseLeave={() => setHoveredNoteId(null)}
+              onMouseEnter={() => {
+                if (noteIconLeaveTimerRef.current) {
+                  clearTimeout(noteIconLeaveTimerRef.current);
+                  noteIconLeaveTimerRef.current = null;
+                }
+                setHoveredNoteId(pos.noteId);
+                if (isLoggedIn && !fetchedNoteIds.current.has(pos.noteId)) {
+                  fetchedNoteIds.current.add(pos.noteId);
+                  getPdfNoteComments(pos.noteId)
+                    .then((comments) =>
+                      setNoteCommentsMap((prev) => ({ ...prev, [pos.noteId]: comments }))
+                    )
+                    .catch(() => {});
+                }
+                if (!readOnly && !pinnedNoteEditorId && !noteEditorState) {
+                  handleOpenEditNoteEditor(pos.noteId, pos.y);
+                }
+              }}
+              onMouseLeave={() => {
+                noteIconLeaveTimerRef.current = setTimeout(() => {
+                  setHoveredNoteId(null);
+                  if (!readOnly && !isPinned) {
+                    closeNoteEditorWithAnimation();
+                  }
+                }, 120);
+              }}
             >
               <button
                 type="button"
-                className={`${styles.noteIcon} ${readOnly ? styles.noteIconReadOnly : ''} ${pinnedNoteId === pos.noteId ? styles.noteIconPinned : ''}`}
+                className={`${styles.noteIcon} ${readOnly ? styles.noteIconReadOnly : ''} ${isPinned ? styles.noteIconPinned : ''}`}
                 aria-label={readOnly ? 'View note' : 'Edit note'}
-                onClick={() => setPinnedNoteId(prev => prev === pos.noteId ? null : pos.noteId)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (readOnly) {
+                    setPinnedNoteEditorId(prev => prev === pos.noteId ? null : pos.noteId);
+                    return;
+                  }
+                  if (isPinned) {
+                    // unpin — close the editor
+                    setPinnedNoteEditorId(null);
+                    closeNoteEditorWithAnimation();
+                  } else {
+                    // pin — editor already open from hover; ensure it stays
+                    setPinnedNoteEditorId(pos.noteId);
+                    if (!noteEditorState) {
+                      handleOpenEditNoteEditor(pos.noteId, pos.y);
+                    }
+                  }
+                }}
               >
                 <NoteIcon />
               </button>
-              {!isNoteContainerVisible && (
+              {!isHovered && !isPinned && (
                 <span className={styles.marginTooltip}>{readOnly ? 'View note' : 'Edit note'}</span>
               )}
-              {isNoteContainerVisible && note && (
+              {/* readOnly: show preview popup with comments */}
+              {isReadOnlyPopupVisible && note && (
                 <div className={styles.noteContainer}>
                   <p className={styles.noteContainerContent}>{note.content}</p>
-                  {!readOnly && (
-                    <button
-                      type="button"
-                      className={styles.noteContainerEditBtn}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setPinnedNoteId(null);
-                        handleOpenEditNoteEditor(pos.noteId, pos.y);
-                      }}
-                    >
-                      Edit
-                    </button>
-                  )}
+                  <div className={styles.commentsSection}>
+                    <div className={styles.commentsSectionTitle}>Comments</div>
+                    <NoteCommentsList
+                      comments={noteCommentsMap[pos.noteId]}
+                      isFetching={!fetchedNoteIds.current.has(pos.noteId)}
+                      currentUserEmail={userEmail}
+                      onUpdateComment={(commentId, newContent) =>
+                        handleUpdateComment(pos.noteId, commentId, newContent)
+                      }
+                    />
+                    {isLoggedIn && (
+                      <div className={styles.commentInputRow}>
+                        <div className={styles.commentInputInner}>
+                          <textarea
+                            className={styles.commentInput}
+                            value={commentDraft}
+                            onChange={(e) => {
+                              setCommentDraft(e.target.value);
+                              const el = e.target;
+                              el.style.height = 'auto';
+                              el.style.height = `${el.scrollHeight}px`;
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handlePostComment(pos.noteId);
+                              }
+                            }}
+                            placeholder="Add a comment…"
+                            rows={1}
+                            disabled={isSavingComment}
+                          />
+                          <button
+                            type="button"
+                            className={styles.commentPostBtn}
+                            onClick={() => handlePostComment(pos.noteId)}
+                            disabled={isSavingComment || !commentDraft.trim()}
+                          >
+                            {isSavingComment ? (
+                              <span className={styles.commentSpinner} aria-hidden="true" />
+                            ) : (
+                              'Post'
+                            )}
+                          </button>
+                        </div>
+                        {commentError && (
+                          <p className={styles.commentError}>{commentError}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -956,6 +1117,12 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
             return { right: clampedRight, top: clampedTop };
           })()}
           onMouseDown={(e) => e.stopPropagation()}
+          onMouseEnter={() => {
+            if (noteIconLeaveTimerRef.current) {
+              clearTimeout(noteIconLeaveTimerRef.current);
+              noteIconLeaveTimerRef.current = null;
+            }
+          }}
         >
           <div className={styles.noteEditorHeader}>
             <button
@@ -977,27 +1144,55 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
             ref={textareaRef}
             className={styles.noteEditorTextarea}
             value={noteContent}
-            onChange={(e) => setNoteContent(e.target.value)}
+            onChange={(e) => {
+              setNoteContent(e.target.value);
+              const el = e.target;
+              el.style.height = 'auto';
+              el.style.height = `${el.scrollHeight}px`;
+            }}
             placeholder="Write your note here…"
-            rows={4}
+            rows={1}
             autoFocus
             disabled={isSavingNote || noteEditorSaved || isDeletingNote}
           />
           <div className={styles.noteEditorActions}>
+            {noteEditorState.mode === 'edit' && noteEditorState.noteId && pdfId && (
+              <div className={styles.noteEditorBtnWrap}>
+                <button
+                  type="button"
+                  className={styles.noteEditorShareBtn}
+                  onClick={() => {
+                    const url = `${window.location.origin}/pdf/${pdfId}?comment_id=${noteEditorState.noteId}`;
+                    navigator.clipboard.writeText(url).then(() => {
+                      onToast?.('Link copied to clipboard');
+                    }).catch(() => {
+                      onToast?.('Failed to copy link', 'error');
+                    });
+                  }}
+                  aria-label="Copy link to note"
+                >
+                  <LinkIcon />
+                </button>
+                <span className={styles.noteEditorBtnTip}>Copy link</span>
+              </div>
+            )}
             {noteEditorState.mode === 'edit' && (
-              <button
-                type="button"
-                className={styles.noteEditorDeleteNote}
-                onClick={handleDeleteNote}
-                disabled={isSavingNote || noteEditorSaved || isDeletingNote}
-                aria-label="Delete note"
-              >
-                {isDeletingNote ? (
-                  <span className={styles.savingSpinner} aria-hidden="true" />
-                ) : (
-                  <Trash2 size={15} />
-                )}
-              </button>
+              <div className={`${styles.noteEditorBtnWrap} ${styles.noteEditorBtnWrapLeft}`}>
+                <button
+                  type="button"
+                  className={styles.noteEditorDeleteNote}
+                  onClick={handleDeleteNote}
+                  disabled={isSavingNote || noteEditorSaved || isDeletingNote}
+                  aria-label="Delete note"
+                >
+                  {isDeletingNote ? (
+                    <span className={styles.savingSpinner} aria-hidden="true" />
+                  ) : (
+                    <Trash2 size={15} />
+                  )}
+                </button>
+                <span className={styles.noteEditorBtnTip}>Delete note</span>
+              </div>
             )}
             <button
               type="button"
@@ -1013,6 +1208,62 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
                 'Save'
               )}
             </button>
+          </div>
+          {noteEditorState.mode === 'edit' && noteEditorState.noteId && (
+            <div className={styles.commentsSection}>
+              <div className={styles.commentsSectionTitle}>Comments</div>
+              <NoteCommentsList
+                comments={noteCommentsMap[noteEditorState.noteId]}
+                isFetching={!fetchedNoteIds.current.has(noteEditorState.noteId)}
+                currentUserEmail={userEmail}
+                onUpdateComment={(commentId, newContent) =>
+                  handleUpdateComment(noteEditorState.noteId!, commentId, newContent)
+                }
+              />
+              {isLoggedIn && (
+                <div className={styles.commentInputRow}>
+                  <div className={styles.commentInputInner}>
+                    <textarea
+                      className={styles.commentInput}
+                      value={commentDraft}
+                      onChange={(e) => {
+                        setCommentDraft(e.target.value);
+                        const el = e.target;
+                        el.style.height = 'auto';
+                        el.style.height = `${el.scrollHeight}px`;
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handlePostComment(noteEditorState.noteId!);
+                        }
+                      }}
+                      placeholder="Add a comment…"
+                      rows={1}
+                      disabled={isSavingComment}
+                    />
+                    <button
+                      type="button"
+                      className={styles.commentPostBtn}
+                      onClick={() => handlePostComment(noteEditorState.noteId!)}
+                      disabled={isSavingComment || !commentDraft.trim()}
+                    >
+                      {isSavingComment ? (
+                        <span className={styles.commentSpinner} aria-hidden="true" />
+                      ) : (
+                        'Post'
+                      )}
+                    </button>
+                  </div>
+                  {commentError && (
+                    <p className={styles.commentError}>{commentError}</p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+          <div className={styles.noteEditorResizeHandle} aria-hidden="true">
+            <ResizeGripIcon />
           </div>
         </div>,
         document.body,
@@ -1118,3 +1369,190 @@ function SpinnerIcon() {
 }
 
 PdfHighlightLayer.displayName = 'PdfHighlightLayer';
+
+function LinkIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      width="14"
+      height="14"
+    >
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+    </svg>
+  );
+}
+
+function PencilIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      width="11"
+      height="11"
+    >
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </svg>
+  );
+}
+
+function ResizeGripIcon() {
+  return (
+    <svg
+      viewBox="0 0 10 10"
+      fill="currentColor"
+      aria-hidden="true"
+      width="10"
+      height="10"
+    >
+      <circle cx="2" cy="8" r="1" />
+      <circle cx="5" cy="8" r="1" />
+      <circle cx="8" cy="8" r="1" />
+      <circle cx="5" cy="5" r="1" />
+      <circle cx="8" cy="5" r="1" />
+      <circle cx="8" cy="2" r="1" />
+    </svg>
+  );
+}
+
+// ── NoteCommentsList ──────────────────────────────────────────────────────────
+
+function formatRelativeTime(isoDate: string): string {
+  // Ensure the string is parsed as UTC — servers often omit the trailing 'Z'
+  const normalized = /[Zz]|[+-]\d{2}:\d{2}$/.test(isoDate) ? isoDate : `${isoDate}Z`;
+  const diff = Date.now() - new Date(normalized).getTime();
+  if (diff < 0) return 'just now';
+  const minutes = Math.floor(diff / 60_000);
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  return new Date(normalized).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+function NoteCommentsList({
+  comments,
+  isFetching,
+  currentUserEmail,
+  onUpdateComment,
+}: {
+  comments: PdfNoteComment[] | undefined;
+  isFetching: boolean;
+  currentUserEmail?: string;
+  onUpdateComment?: (commentId: string, newContent: string) => Promise<void>;
+}) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const startEdit = (c: PdfNoteComment) => {
+    setEditingId(c.id);
+    setEditDraft(c.content);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditDraft('');
+  };
+
+  const saveEdit = async (commentId: string) => {
+    if (!onUpdateComment || !editDraft.trim() || isSaving) return;
+    setIsSaving(true);
+    try {
+      await onUpdateComment(commentId, editDraft.trim());
+      setEditingId(null);
+      setEditDraft('');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (isFetching) {
+    return (
+      <div className={styles.commentsLoading}>
+        <span className={styles.commentSpinner} aria-hidden="true" />
+      </div>
+    );
+  }
+  if (!comments || comments.length === 0) {
+    return <p className={styles.noComments}>No comments yet.</p>;
+  }
+  // API returns newest-first; reverse so oldest is at top, newest at bottom
+  const ordered = [...comments].reverse();
+  return (
+    <ul className={styles.commentsList}>
+      {ordered.map((c) => {
+        const isOwn = !!currentUserEmail && c.userEmail === currentUserEmail;
+        const isEditing = editingId === c.id;
+        return (
+          <li key={c.id} className={styles.commentItem}>
+            <div className={styles.commentMeta}>
+              <span className={styles.commentAuthor}>{(c.userName || c.userEmail).split(' ')[0]}</span>
+              <span className={styles.commentTime}>{formatRelativeTime(c.createdAt)}</span>
+              {isOwn && !isEditing && (
+                <button
+                  type="button"
+                  className={styles.commentEditBtn}
+                  onClick={() => startEdit(c)}
+                  aria-label="Edit comment"
+                >
+                  <PencilIcon />
+                </button>
+              )}
+            </div>
+            {isEditing ? (
+              <div className={styles.commentEditInner}>
+                <textarea
+                  className={styles.commentEditTextarea}
+                  value={editDraft}
+                  onChange={(e) => {
+                    setEditDraft(e.target.value);
+                    const el = e.target;
+                    el.style.height = 'auto';
+                    el.style.height = `${el.scrollHeight}px`;
+                  }}
+                  disabled={isSaving}
+                  autoFocus
+                />
+                <div className={styles.commentEditActions}>
+                  <button
+                    type="button"
+                    className={styles.commentEditCancel}
+                    onClick={cancelEdit}
+                    disabled={isSaving}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.commentEditSave}
+                    onClick={() => saveEdit(c.id)}
+                    disabled={isSaving || !editDraft.trim()}
+                  >
+                    {isSaving ? <span className={styles.commentSpinner} aria-hidden="true" /> : 'Save'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className={styles.commentContent}>{c.content}</p>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}

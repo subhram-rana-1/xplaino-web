@@ -1235,6 +1235,10 @@ export const PdfDetail: React.FC = () => {
                           onUpdateNote={updateNote}
                           onDeleteNote={deleteNote}
                           userFirstName={userFirstName}
+                          userEmail={user?.email}
+                          pdfId={pdfId}
+                          onToast={(msg, type) => setToast({ message: msg, type })}
+                          pendingCommentNoteId={searchParams.get('comment_id')}
                           pendingNoteForSelection={pendingNoteSelection}
                           readOnly={!canEditAnnotations}
                           isLoggedIn={isLoggedIn}

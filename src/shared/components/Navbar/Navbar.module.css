@@ -435,11 +435,28 @@
   letter-spacing: 0.02em;
 }
 
-.miniCouponBadge {
-  padding: 0.3rem 1rem;
+.miniCouponPill {
+  display: inline-flex;
+  align-items: stretch;
   border-radius: 999px;
   border: 1.5px solid rgba(255, 255, 255, 0.6);
   background: #7c3aed;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.4);
+  overflow: hidden;
+  margin-right: 1.25rem;
+  flex-shrink: 0;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.miniCouponPill:hover {
+  background: #6d28d9;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.5);
+}
+
+.miniCouponBadge {
+  padding: 0.3rem 0.75rem;
+  background: none;
+  border: none;
   color: #ffffff;
   font-family: 'Inter', sans-serif;
   display: inline-flex;
@@ -449,15 +466,123 @@
   font-weight: 700;
   letter-spacing: 0.03em;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.4);
-  transition: background 0.2s ease, box-shadow 0.2s ease;
-  margin-right: 1.25rem;
+}
+
+.miniCouponDivider {
+  width: 1px;
+  background: rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+  align-self: stretch;
+}
+
+.miniCouponDismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.miniCouponDismiss:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+/* ── Extension pill (PDF pages only) ───────────────────────────────────────── */
+
+@keyframes slideInPill {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pillGlow {
+  0%, 100% { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+  50%       { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 3px rgba(255, 255, 255, 0.22); }
+}
+
+.extensionPill {
+  display: inline-flex;
+  align-items: stretch;
+  margin-left: 0.875rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1.5px solid rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+  flex-shrink: 0;
+  animation: slideInPill 0.3s ease-out, pillGlow 3s ease-in-out 0.8s infinite;
+  transition: box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.extensionPill:hover {
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+  animation: slideInPill 0s, none;
+}
+
+.extensionPillButton {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.7rem;
+  background: none;
+  border: none;
+  color: var(--teal-dark, #0d7a6e);
+  font-size: 0.775rem;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.extensionPillButton:hover {
+  color: var(--teal, #0d9488);
+}
+
+.extensionPillIcon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
   flex-shrink: 0;
 }
 
-.miniCouponBadge:hover {
-  background: #6d28d9;
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.5);
+.extensionPillDivider {
+  width: 1px;
+  background: rgba(0, 120, 110, 0.18);
+  flex-shrink: 0;
+  align-self: stretch;
+}
+
+.extensionPillDismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: rgba(0, 100, 90, 0.45);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.extensionPillDismiss:hover {
+  background: rgba(0, 120, 110, 0.08);
+  color: var(--teal-dark, #0d7a6e);
+}
+
+@media (max-width: 600px) {
+  .extensionPill {
+    display: none;
+  }
 }
 
 .navLinks {

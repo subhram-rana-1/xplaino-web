@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { X } from 'lucide-react';
 import styles from './HighlightedCoupon.module.css';
 import { usePaddle } from '@/shared/hooks/usePaddle';
 
@@ -186,7 +187,7 @@ export const HighlightedCoupon: React.FC<HighlightedCouponProps> = ({ onDismiss,
           onClick={handleDismiss}
           aria-label="Dismiss banner"
         >
-          ✕
+          <X size={13} strokeWidth={2.5} />
         </button>
         <div className={styles.shimmer}></div>
       </div>

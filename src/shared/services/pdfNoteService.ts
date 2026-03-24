@@ -62,3 +62,63 @@ export async function deletePdfNote(noteId: string): Promise<void> {
     throw new Error(extractErrorMessage(data, 'Failed to delete note'));
   }
 }
+
+// ── PDF Note Comments ─────────────────────────────────────────────────────────
+
+export interface PdfNoteComment {
+  id: string;
+  pdfNoteId: string;
+  userId: string;
+  content: string;
+  userEmail: string;
+  userName: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function getPdfNoteComments(noteId: string): Promise<PdfNoteComment[]> {
+  const res = await fetchWithAuth(
+    `${authConfig.catenBaseUrl}/api/pdf-note-comment/note/${noteId}`,
+  );
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(data, 'Failed to fetch comments'));
+  }
+  const data = await res.json();
+  return data.comments as PdfNoteComment[];
+}
+
+export async function createPdfNoteComment(
+  pdfNoteId: string,
+  content: string,
+): Promise<PdfNoteComment> {
+  const res = await fetchWithAuth(`${authConfig.catenBaseUrl}/api/pdf-note-comment`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ pdfNoteId, content }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(data, 'Failed to create comment'));
+  }
+  return res.json() as Promise<PdfNoteComment>;
+}
+
+export async function updatePdfNoteComment(
+  commentId: string,
+  content: string,
+): Promise<PdfNoteComment> {
+  const res = await fetchWithAuth(
+    `${authConfig.catenBaseUrl}/api/pdf-note-comment/${commentId}`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content }),
+    },
+  );
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(data, 'Failed to update comment'));
+  }
+  return res.json() as Promise<PdfNoteComment>;
+}
