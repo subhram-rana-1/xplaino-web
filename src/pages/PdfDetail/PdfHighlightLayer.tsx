@@ -272,6 +272,7 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
   const [explainHighlightRects, setExplainHighlightRects] = useState<{ id: string; rects: HighlightRect[] }[]>([]);
   const [noteHighlightRects, setNoteHighlightRects] = useState<{ noteId: string; rects: HighlightRect[] }[]>([]);
   const [hoveredNoteId, setHoveredNoteId] = useState<string | null>(null);
+  const [pinnedNoteId, setPinnedNoteId] = useState<string | null>(null);
   const [hoveredHighlightId, setHoveredHighlightId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [menuHighlightId, setMenuHighlightId] = useState<string | null>(null);
@@ -864,25 +865,49 @@ export const PdfHighlightLayer: React.FC<PdfHighlightLayerProps> = ({
           );
         })}
 
-        {noteIconPositions.map((pos) => (
-          <div
-            key={pos.noteId}
-            className={styles.marginIconWrapper}
-            style={{ left: pageWidth - 40, top: pos.y }}
-          >
-            <button
-              type="button"
-              className={`${styles.noteIcon} ${readOnly ? styles.noteIconReadOnly : ''}`}
-              aria-label={readOnly ? 'View note' : 'Edit note'}
+        {noteIconPositions.map((pos) => {
+          const note = notes.find((n) => n.id === pos.noteId);
+          const isNoteContainerVisible = hoveredNoteId === pos.noteId || pinnedNoteId === pos.noteId;
+          return (
+            <div
+              key={pos.noteId}
+              className={styles.marginIconWrapper}
+              style={{ left: pageWidth - 40, top: pos.y }}
               onMouseEnter={() => setHoveredNoteId(pos.noteId)}
               onMouseLeave={() => setHoveredNoteId(null)}
-              onClick={() => { if (!readOnly) handleOpenEditNoteEditor(pos.noteId, pos.y); }}
             >
-              <NoteIcon />
-            </button>
-            <span className={styles.marginTooltip}>{readOnly ? 'View note' : 'Edit note'}</span>
-          </div>
-        ))}
+              <button
+                type="button"
+                className={`${styles.noteIcon} ${readOnly ? styles.noteIconReadOnly : ''} ${pinnedNoteId === pos.noteId ? styles.noteIconPinned : ''}`}
+                aria-label={readOnly ? 'View note' : 'Edit note'}
+                onClick={() => setPinnedNoteId(prev => prev === pos.noteId ? null : pos.noteId)}
+              >
+                <NoteIcon />
+              </button>
+              {!isNoteContainerVisible && (
+                <span className={styles.marginTooltip}>{readOnly ? 'View note' : 'Edit note'}</span>
+              )}
+              {isNoteContainerVisible && note && (
+                <div className={styles.noteContainer}>
+                  <p className={styles.noteContainerContent}>{note.content}</p>
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      className={styles.noteContainerEditBtn}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPinnedNoteId(null);
+                        handleOpenEditNoteEditor(pos.noteId, pos.y);
+                      }}
+                    >
+                      Edit
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
 
         {!hideExplanationIcons && explainIconPositions.map((pos) => {
           const isActive = pos.id === activeExplanationId;

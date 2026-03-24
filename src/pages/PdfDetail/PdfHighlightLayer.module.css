@@ -500,3 +500,54 @@
 .marginIconWrapper:hover .marginTooltip {
   opacity: 1;
 }
+
+/* ─── Note container (preview popup) ────────────────────────────────────────── */
+.noteContainer {
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 0;
+  width: 200px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.13);
+  padding: 10px 12px;
+  pointer-events: auto;
+  z-index: 20;
+  animation: dropdownFadeIn 0.14s ease;
+}
+
+.noteContainerContent {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #374151;
+  margin: 0 0 8px;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.noteContainerEditBtn {
+  display: block;
+  width: 100%;
+  padding: 4px 0;
+  border: none;
+  background: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #0d8070;
+  cursor: pointer;
+  text-align: right;
+  transition: color 0.1s ease;
+}
+
+.noteContainerEditBtn:hover {
+  color: #0a6b5e;
+}
+
+/* ─── Pinned note icon (active/clicked state) ────────────────────────────────── */
+.noteIconPinned {
+  opacity: 1;
+  color: #0d8070;
+}

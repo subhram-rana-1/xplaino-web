@@ -1,17 +1,37 @@
 .container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
   min-height: calc(100vh - 200px);
-  padding: 2rem;
+  padding: 2.5rem 2rem 4rem;
   background: var(--bg-white);
+  gap: 1.5rem;
+}
+
+.pageHeader {
+  max-width: 960px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.mainRow {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 2rem;
+  width: 100%;
+  max-width: 960px;
 }
 
 .content {
+  flex: 1;
   background: var(--bg-white);
   border-radius: 16px;
-  padding: 3rem;
-  max-width: 600px;
+  padding: 2rem 2.5rem 2.5rem;
+  max-width: 560px;
   width: 100%;
 }
 
@@ -190,6 +210,33 @@
   color: var(--text-quaternary);
 }
 
+.input {
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  font-family: inherit;
+  border: 2px solid var(--border-default);
+  border-radius: 8px;
+  transition: all 0.2s;
+  outline: none;
+  background-color: var(--bg-white);
+  color: var(--text-primary);
+  width: 100%;
+}
+
+.input:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px var(--teal-rgba-15);
+}
+
+.input:disabled {
+  background-color: var(--bg-light);
+  cursor: not-allowed;
+}
+
+.input::placeholder {
+  color: var(--text-quaternary);
+}
+
 /* ============================================
    SUBMIT BUTTON
    ============================================ */
@@ -312,16 +359,243 @@
 }
 
 /* ============================================
+   PDF PROMO BANNER
+   ============================================ */
+
+@property --pdf-border-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes pdfBorderSpin {
+  to { --pdf-border-angle: 360deg; }
+}
+
+@keyframes shimmerButton {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes pulsateButton {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.045); }
+}
+
+.pdfPromo {
+  position: relative;
+  width: 360px;
+  flex-shrink: 0;
+  align-self: flex-start;
+  position: sticky;
+  top: 2rem;
+  border-radius: 20px;
+  padding: 1.625rem 1.5rem 1.5rem;
+  background: var(--bg-white);
+}
+
+.pdfPromo::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 21px;
+  background: conic-gradient(
+    from var(--pdf-border-angle),
+    #ccc 0%,
+    #ccc 60%,
+    #34c8b0 75%,
+    #0d8070 85%,
+    #34c8b0 92%,
+    #ccc 100%
+  );
+  animation: pdfBorderSpin 3s linear infinite;
+  z-index: 0;
+  transition: background 0.4s ease;
+}
+
+.pdfPromo::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: 19px;
+  background: var(--bg-white);
+  z-index: 1;
+}
+
+.pdfPromo > * {
+  position: relative;
+  z-index: 2;
+}
+
+.pdfPromoBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--teal-rgba-10);
+  color: var(--teal);
+  border: 1px solid rgba(0, 180, 160, 0.25);
+  border-radius: 100px;
+  padding: 0.275rem 0.7rem;
+  font-size: 0.775rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-bottom: 1.1rem;
+}
+
+.pdfPromoHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  margin-bottom: 1.25rem;
+}
+
+.pdfPromoIcon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--teal-gradient-start) 0%, var(--teal-gradient-end) 100%);
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(0, 180, 160, 0.3);
+}
+
+.pdfPromoTitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 0.3rem;
+  line-height: 1.35;
+}
+
+.pdfPromoSubtitle {
+  font-size: 0.825rem;
+  color: var(--text-medium);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.pdfPromoFeatures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.625rem;
+  margin-bottom: 1.375rem;
+}
+
+.pdfPromoFeature {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background: var(--bg-light);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  padding: 0.625rem;
+  transition: border-color 0.2s;
+}
+
+.pdfPromoFeature:hover {
+  border-color: var(--teal-light);
+}
+
+.pdfPromoFeatureIcon {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  background: var(--teal-rgba-10);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--teal);
+}
+
+.pdfPromoFeatureName {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.15rem;
+  line-height: 1.3;
+}
+
+.pdfPromoFeatureDesc {
+  font-size: 0.725rem;
+  color: var(--text-medium);
+  line-height: 1.4;
+}
+
+.pdfPromoButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.825rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(
+    270deg,
+    #0d8070,
+    #34c8b0,
+    #0891b2,
+    #34c8b0,
+    #0d8070
+  );
+  background-size: 400% 100%;
+  animation: shimmerButton 4s ease infinite, pulsateButton 1.8s ease-in-out infinite;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+}
+
+.pdfPromoButton:hover {
+  animation: shimmerButton 4s ease infinite;
+  transform: translateY(-2px) scale(1.045);
+  box-shadow: 0 10px 28px rgba(0, 180, 160, 0.45);
+}
+
+.pdfPromoButton:active {
+  transform: scale(0.97);
+}
+
+/* ============================================
    RESPONSIVE - TABLET
    ============================================ */
+
+@media (max-width: 960px) {
+  .mainRow {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .content {
+    max-width: 600px;
+  }
+
+  .pdfPromo {
+    width: 100%;
+    max-width: 600px;
+    position: static;
+  }
+}
 
 @media (max-width: 768px) {
   .container {
     padding: 1.5rem;
+    padding-bottom: 3rem;
+    gap: 1.25rem;
+  }
+
+  .pageHeader {
+    gap: 0;
   }
 
   .content {
-    padding: 2rem 1.5rem;
+    padding: 1.75rem 1.5rem;
   }
 
   .title {
@@ -344,6 +618,8 @@
 @media (max-width: 480px) {
   .container {
     padding: 1rem;
+    padding-bottom: 3rem;
+    gap: 1rem;
     min-height: calc(100vh - 150px);
   }
 
@@ -426,5 +702,23 @@
   .errorMessage {
     font-size: 0.875rem;
     padding: 0.75rem;
+  }
+
+  .pdfPromo {
+    padding: 1.375rem 1.25rem 1.25rem;
+  }
+
+  .pdfPromoFeatures {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .pdfPromoTitle {
+    font-size: 1rem;
+  }
+
+  .pdfPromoButton {
+    font-size: 0.9375rem;
+    padding: 0.75rem 1.25rem;
   }
 }

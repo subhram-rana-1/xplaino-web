@@ -36,21 +36,6 @@ const formatDate = (dateString: string | null): string => {
  */
 const CANCELLATION_REASONS = [
   {
-    id: 'TOO_EXPENSIVE',
-    label: "It's too expensive for me",
-    feedbackPrompt: 'What price point would work better for you?'
-  },
-  {
-    id: 'NOT_USING',
-    label: "I'm not using it enough",
-    feedbackPrompt: 'What prevented you from using Xplaino more?'
-  },
-  {
-    id: 'FOUND_ALTERNATIVE',
-    label: 'I found a better alternative',
-    feedbackPrompt: 'Which alternative did you find? What made it better?'
-  },
-  {
     id: 'MISSING_FEATURES',
     label: "It's missing features I need",
     feedbackPrompt: 'What features would you like us to add?'
@@ -59,6 +44,21 @@ const CANCELLATION_REASONS = [
     id: 'EXTENSION_NOT_WORKING',
     label: 'The extension is not working properly',
     feedbackPrompt: 'What issues are you experiencing with the extension?'
+  },
+  {
+    id: 'TOO_EXPENSIVE',
+    label: "It's too expensive for me",
+    feedbackPrompt: 'What price point would work better for you?'
+  },
+  {
+    id: 'FOUND_ALTERNATIVE',
+    label: 'I found a better alternative',
+    feedbackPrompt: 'Which alternative did you find? What made it better?'
+  },
+  {
+    id: 'NOT_USING',
+    label: "I'm not using it enough",
+    feedbackPrompt: 'What prevented you from using Xplaino more?'
   },
   {
     id: 'OTHER',
