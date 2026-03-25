@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useLocation, useParams, Link, Outlet } from 'react-router-dom';
-import { Bookmark, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
+import { BookOpen, Globe, Type, Image, ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from './FolderDetailLayout.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { getAllFolders } from '@/shared/services/folders.service';
@@ -17,7 +17,7 @@ function getStoredSidebarVisible(): boolean {
   }
 }
 
-type FolderSection = 'bookmark' | 'pdf';
+type FolderSection = 'pdf' | 'webpage' | 'word' | 'image';
 
 /**
  * FolderDetailLayout - Layout for folder detail pages with BOOKMARKS/PDF sidebar.
@@ -68,25 +68,37 @@ export const FolderDetailLayout: React.FC = () => {
   }[] = useMemo(
     () => [
       {
-        key: 'bookmark',
-        label: 'Bookmarks',
-        path: `/user/dashboard/folder/${folderId}/bookmark`,
-        icon: <Bookmark />,
-      },
-      {
         key: 'pdf',
-        label: 'Pdf',
+        label: 'PDFs',
         path: `/user/dashboard/folder/${folderId}/pdf`,
         icon: <BookOpen />,
+      },
+      {
+        key: 'webpage',
+        label: 'Saved Webpages',
+        path: `/user/dashboard/folder/${folderId}/webpage`,
+        icon: <Globe />,
+      },
+      {
+        key: 'word',
+        label: 'Saved Words',
+        path: `/user/dashboard/folder/${folderId}/word`,
+        icon: <Type />,
+      },
+      {
+        key: 'image',
+        label: 'Saved Images',
+        path: `/user/dashboard/folder/${folderId}/image`,
+        icon: <Image />,
       },
     ],
     [folderId]
   );
 
   const activeSection = useMemo((): FolderSection => {
-    const path = location.pathname;
-    if (path.endsWith('/pdf')) return 'pdf';
-    return 'bookmark';
+    const segment = location.pathname.split('/').pop() as FolderSection;
+    const valid: FolderSection[] = ['pdf', 'webpage', 'word', 'image'];
+    return valid.includes(segment) ? segment : 'pdf';
   }, [location.pathname]);
 
   return (

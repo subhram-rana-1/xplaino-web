@@ -37,12 +37,15 @@ import type { FolderWithSubFolders } from '@/shared/types/folders.types';
  * 
  * @returns JSX element
  */
-export const FolderBookmark: React.FC = () => {
+interface FolderBookmarkProps {
+  activeTab: 'paragraph' | 'link' | 'word' | 'image';
+}
+
+export const FolderBookmark: React.FC<FolderBookmarkProps> = ({ activeTab }) => {
   const { folderId } = useParams<{ folderId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
   const { accessToken } = useAuth();
-  const [activeTab, setActiveTab] = useState<'paragraph' | 'link' | 'word' | 'image'>('paragraph');
   
   // Data states for each tab
   const [paragraphsData, setParagraphsData] = useState<GetAllSavedParagraphsResponse | null>(null);
@@ -2249,7 +2252,10 @@ export const FolderBookmark: React.FC = () => {
             <FolderSelectorPopover
               folders={folders}
               currentFolderId={folderId}
-              onSelect={(folder) => navigate(`/user/dashboard/folder/${folder.id}/bookmark`, { state: { folderName: folder.name } })}
+              onSelect={(folder) => {
+                const tabPath = activeTab === 'link' ? 'webpage' : activeTab;
+                navigate(`/user/dashboard/folder/${folder.id}/${tabPath}`, { state: { folderName: folder.name } });
+              }}
             />
           </div>
           <div className={styles.headerActionsRow}>
@@ -2276,44 +2282,8 @@ export const FolderBookmark: React.FC = () => {
           </div>
         </div>
 
-        <div className={styles.tabContainer}>
-          <div className={styles.tabs}>
-            <div className={styles.tabWrapper}>
-              <button
-                className={`${styles.tab} ${activeTab === 'paragraph' ? styles.tabActive : ''}`}
-                onClick={() => setActiveTab('paragraph')}
-              >
-                <span>Paragraphs</span>
-              </button>
-            </div>
-            <div className={styles.tabWrapper}>
-              <button
-                className={`${styles.tab} ${activeTab === 'link' ? styles.tabActive : ''}`}
-                onClick={() => setActiveTab('link')}
-              >
-                <span>Links</span>
-              </button>
-            </div>
-            <div className={styles.tabWrapper}>
-              <button
-                className={`${styles.tab} ${activeTab === 'word' ? styles.tabActive : ''}`}
-                onClick={() => setActiveTab('word')}
-              >
-                <span>Words</span>
-              </button>
-            </div>
-            <div className={styles.tabWrapper}>
-              <button
-                className={`${styles.tab} ${activeTab === 'image' ? styles.tabActive : ''}`}
-                onClick={() => setActiveTab('image')}
-              >
-                <span>Images</span>
-              </button>
-            </div>
-          </div>
-          <div className={styles.tabContent}>
-            {renderTabContent()}
-          </div>
+        <div className={styles.tabContent}>
+          {renderTabContent()}
         </div>
       </div>
       {toast && (

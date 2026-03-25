@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RefreshCw, List, LayoutGrid, ArrowUp, ArrowDown, Plus, Check, CornerDownLeft, BookOpen } from 'lucide-react';
+import { RefreshCw, List, LayoutGrid, ArrowUp, ArrowDown, Plus, Check, CornerDownLeft, BookOpen, ExternalLink, ChevronDown, Globe, ChevronsDown, ChevronsUp } from 'lucide-react';
 import styles from './UserDashboard.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
 import {
@@ -15,8 +15,10 @@ import {
   getSharedToEmails,
 } from '@/shared/services/folders.service';
 import { getSharedPdfs } from '@/shared/services/pdf.service';
+import { getHighlightedPages, getWebHighlightsByUrl } from '@/shared/services/webHighlights.service';
 import type { FolderWithSubFolders, SharedFolderItem, ShareeItem } from '@/shared/types/folders.types';
 import type { SharedPdfItem } from '@/shared/types/pdf.types';
+import type { HighlightedPageSummary, WebHighlight } from '@/shared/types/webHighlights.types';
 import { FolderIcon } from '@/shared/components/FolderIcon';
 import { Toast } from '@/shared/components/Toast';
 import { CreateFolderModal } from '@/shared/components/CreateFolderModal';
@@ -25,6 +27,7 @@ import { DataTable } from '@/shared/components/DataTable';
 import { FolderMenu } from '@/shared/components/FolderMenu';
 import { ShareModal } from '@/shared/components/ShareModal';
 import { ShareeListModal } from '@/shared/components/ShareeListModal';
+import { ChromeButton } from '@/shared/components/ChromeButton';
 
 /**
  * UserDashboard - User dashboard with folder management and shared-with-me sections
@@ -60,6 +63,16 @@ export const UserDashboard: React.FC = () => {
   const [sharedFolders, setSharedFolders] = useState<SharedFolderItem[]>([]);
   const [sharedPdfs, setSharedPdfs] = useState<SharedPdfItem[]>([]);
   const [isSharedLoading, setIsSharedLoading] = useState(false);
+
+  // Webpage highlights state
+  const [highlightedPages, setHighlightedPages] = useState<HighlightedPageSummary[]>([]);
+  const [highlightsPagesLoading, setHighlightsPagesLoading] = useState(false);
+  const [highlightsPagesHasMore, setHighlightsPagesHasMore] = useState(false);
+  const [highlightsPagesOffset, setHighlightsPagesOffset] = useState(0);
+  const [expandedPageUrls, setExpandedPageUrls] = useState<Set<string>>(new Set());
+  const [pageHighlights, setPageHighlights] = useState<Record<string, WebHighlight[]>>({});
+  const [pageHighlightsLoading, setPageHighlightsLoading] = useState<Record<string, boolean>>({});
+  const [expandedHighlightIds, setExpandedHighlightIds] = useState<Set<string>>(new Set());
 
   // Flatten hierarchical folder structure
   const flattenFolders = (folderList: FolderWithSubFolders[]): FolderWithSubFolders[] => {
@@ -115,10 +128,102 @@ export const UserDashboard: React.FC = () => {
     }
   };
 
+  const fetchHighlightedPages = async (append = false) => {
+    try {
+      setHighlightsPagesLoading(true);
+      const offset = append ? highlightsPagesOffset : 0;
+      const res = await getHighlightedPages(10, offset);
+      setHighlightedPages(prev => append ? [...prev, ...res.pages] : res.pages);
+      setHighlightsPagesHasMore(res.hasMore);
+      setHighlightsPagesOffset(offset + res.pages.length);
+    } catch (error) {
+      console.error('Error fetching highlighted pages:', error);
+    } finally {
+      setHighlightsPagesLoading(false);
+    }
+  };
+
+  const handleTogglePageExpand = async (pageUrl: string) => {
+    if (expandedPageUrls.has(pageUrl)) {
+      setExpandedPageUrls(prev => { const next = new Set(prev); next.delete(pageUrl); return next; });
+      return;
+    }
+    setExpandedPageUrls(prev => new Set(prev).add(pageUrl));
+    if (pageHighlights[pageUrl]) return;
+    setPageHighlightsLoading(prev => ({ ...prev, [pageUrl]: true }));
+    try {
+      const res = await getWebHighlightsByUrl(pageUrl);
+      setPageHighlights(prev => ({ ...prev, [pageUrl]: res.highlights }));
+    } catch (error) {
+      console.error('Error fetching highlights for page:', error);
+    } finally {
+      setPageHighlightsLoading(prev => ({ ...prev, [pageUrl]: false }));
+    }
+  };
+
+  const handleExpandAll = async () => {
+    const urls = highlightedPages.map(p => p.pageUrl);
+    setExpandedPageUrls(new Set(urls));
+    await Promise.all(
+      urls
+        .filter(url => !pageHighlights[url])
+        .map(async (url) => {
+          setPageHighlightsLoading(prev => ({ ...prev, [url]: true }));
+          try {
+            const res = await getWebHighlightsByUrl(url);
+            setPageHighlights(prev => ({ ...prev, [url]: res.highlights }));
+          } catch (error) {
+            console.error('Error fetching highlights for page:', error);
+          } finally {
+            setPageHighlightsLoading(prev => ({ ...prev, [url]: false }));
+          }
+        })
+    );
+  };
+
+  const handleCollapseAll = () => {
+    setExpandedPageUrls(new Set());
+  };
+
+  const handleToggleHighlightExpand = (highlightId: string) => {
+    setExpandedHighlightIds(prev => {
+      const next = new Set(prev);
+      if (next.has(highlightId)) {
+        next.delete(highlightId);
+      } else {
+        next.add(highlightId);
+      }
+      return next;
+    });
+  };
+
+  const formatShortDate = (dateString: string): string => {
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  const getDisplayUrl = (url: string): string => {
+    try {
+      const { hostname, pathname } = new URL(url);
+      const path = pathname.length > 1 ? pathname.replace(/\/$/, '') : '';
+      return `${hostname}${path}`;
+    } catch {
+      return url;
+    }
+  };
+
   useEffect(() => {
     if (accessToken) {
       fetchFolders();
       fetchSharedData();
+      fetchHighlightedPages();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken]);
@@ -353,30 +458,19 @@ export const UserDashboard: React.FC = () => {
           </div>
           <div className={styles.headerRight}>
             <button
-              className={`${styles.refreshButton} ${showRefreshSuccess ? styles.refreshButtonSuccess : ''}`}
+              className={`${styles.refreshButton} ${styles.iconBtn} ${showRefreshSuccess ? styles.refreshButtonSuccess : ''}`}
               onClick={handleRefresh}
               disabled={isLoading}
-              title="Refresh"
+              data-tooltip={showRefreshSuccess ? 'Data fetched' : 'Refresh'}
             >
-              {showRefreshSuccess ? (
-                <>
-                  <Check />
-                  <span>Data fetched</span>
-                </>
-              ) : (
-                <>
-                  <RefreshCw className={isLoading ? styles.spin : ''} />
-                  <span>Refresh</span>
-                </>
-              )}
+              {showRefreshSuccess ? <Check /> : <RefreshCw className={isLoading ? styles.spin : ''} />}
             </button>
             <button
-              className={styles.createFolderButton}
+              className={`${styles.createFolderButton} ${styles.iconBtn}`}
               onClick={() => setIsCreateModalOpen(true)}
-              title="Create folder"
+              data-tooltip="Create folder"
             >
               <Plus />
-              <span>Create Folder</span>
             </button>
           </div>
         </div>
@@ -593,6 +687,145 @@ export const UserDashboard: React.FC = () => {
             )}
           </div>
         )}
+
+        {/* My Webpage Highlights Section */}
+        <div className={styles.sharedSection}>
+          <div className={styles.highlightSectionHeader}>
+            <h2 className={styles.heading}>My Webpage Highlights</h2>
+            {highlightedPages.length > 0 && (
+              <button
+                className={`${styles.highlightToggleAllButton} ${styles.iconBtn}`}
+                onClick={expandedPageUrls.size === highlightedPages.length ? handleCollapseAll : handleExpandAll}
+                data-tooltip={expandedPageUrls.size === highlightedPages.length ? 'Collapse all' : 'Expand all'}
+              >
+                {expandedPageUrls.size === highlightedPages.length
+                  ? <ChevronsUp size={22} />
+                  : <ChevronsDown size={22} />}
+              </button>
+            )}
+          </div>
+          {highlightsPagesLoading && highlightedPages.length === 0 ? (
+            <div className={styles.sharedLoading}>Loading highlights...</div>
+          ) : highlightedPages.length === 0 ? (
+            <div className={styles.highlightsEmptyState}>
+              <p className={styles.highlightsEmptyMessage}>
+                With the extension, start highlighting and adding notes to webpage content that matters to you.
+              </p>
+              <ChromeButton stackedLabel />
+            </div>
+          ) : (
+              <div className={styles.highlightPageList}>
+                {highlightedPages.map((page) => {
+                  const isExpanded = expandedPageUrls.has(page.pageUrl);
+                  const highlights = pageHighlights[page.pageUrl] ?? [];
+                  const isLoadingHighlights = pageHighlightsLoading[page.pageUrl] ?? false;
+
+                  return (
+                    <div
+                      key={page.pageUrlHash}
+                      className={`${styles.highlightPageCard} ${isExpanded ? styles.highlightPageCardExpanded : ''}`}
+                    >
+                      {/* Page header row */}
+                      <button
+                        className={styles.highlightPageRow}
+                        onClick={() => handleTogglePageExpand(page.pageUrl)}
+                        aria-expanded={isExpanded}
+                      >
+                        <div className={styles.highlightPageLeft}>
+                          <Globe size={14} className={styles.highlightPageGlobe} />
+                          <div className={styles.highlightPageMeta}>
+                            <span className={styles.highlightPageUrl} title={page.pageUrl}>
+                              {getDisplayUrl(page.pageUrl)}
+                            </span>
+                            <span className={styles.highlightPageDate}>
+                              Last highlighted {formatShortDate(page.lastHighlightedAt)}
+                            </span>
+                          </div>
+                        </div>
+                        <div className={styles.highlightPageRight}>
+                          <a
+                            href={page.pageUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.highlightExternalLink}
+                            onClick={(e) => e.stopPropagation()}
+                            title="Open page"
+                          >
+                            <ExternalLink size={13} />
+                          </a>
+                          <span className={styles.highlightCountBadge}>
+                            {page.highlightCount} {page.highlightCount === 1 ? 'highlight' : 'highlights'}
+                          </span>
+                          <ChevronDown
+                            size={16}
+                            className={`${styles.highlightChevron} ${isExpanded ? styles.highlightChevronOpen : ''}`}
+                          />
+                        </div>
+                      </button>
+
+                      {/* Expanded highlights list */}
+                      {isExpanded && (
+                        <div className={styles.highlightList}>
+                          {isLoadingHighlights ? (
+                            <div className={styles.highlightLoading}>Loading highlights...</div>
+                          ) : highlights.length === 0 ? (
+                            <div className={styles.highlightEmpty}>No highlights found.</div>
+                          ) : (
+                            highlights.map((h) => {
+                              const PREVIEW_LEN = 150;
+                              const isLong = h.selectedText.length > PREVIEW_LEN;
+                              const isFullyExpanded = expandedHighlightIds.has(h.id);
+                              const displayText = isLong && !isFullyExpanded
+                                ? `${h.selectedText.slice(0, PREVIEW_LEN).trimEnd()}…`
+                                : h.selectedText;
+
+                              return (
+                                <div
+                                  key={h.id}
+                                  className={styles.highlightItem}
+                                  style={{ borderLeftColor: h.color || 'var(--teal)' }}
+                                >
+                                  <div className={styles.highlightBody}>
+                                    <p className={styles.highlightText}>
+                                      {displayText}
+                                      {isLong && (
+                                        <button
+                                          className={styles.highlightShowMore}
+                                          onClick={() => handleToggleHighlightExpand(h.id)}
+                                        >
+                                          {isFullyExpanded ? ' Show less' : ' Show more'}
+                                        </button>
+                                      )}
+                                    </p>
+                                    {h.note && (
+                                      <p className={styles.highlightNote}>{h.note}</p>
+                                    )}
+                                  </div>
+                                  <span className={styles.highlightTime}>
+                                    {formatShortDate(h.createdAt)}
+                                  </span>
+                                </div>
+                              );
+                            })
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {highlightsPagesHasMore && (
+                  <button
+                    className={styles.loadMoreButton}
+                    onClick={() => fetchHighlightedPages(true)}
+                    disabled={highlightsPagesLoading}
+                  >
+                    {highlightsPagesLoading ? 'Loading…' : 'Load more'}
+                  </button>
+                )}
+              </div>
+            )}
+        </div>
 
         {toast && (
           <Toast

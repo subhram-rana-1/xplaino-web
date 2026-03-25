@@ -41,8 +41,10 @@ const PricingAdd = lazy(() => import('@/pages/Admin/components/PricingAdd').then
 const PricingDetail = lazy(() => import('@/pages/Admin/components/PricingDetail').then((m) => ({ default: m.PricingDetail })));
 const UserDashboard = lazy(() => import('@/pages/UserDashboard').then((m) => ({ default: m.UserDashboard })));
 const FolderDetailLayout = lazy(() => import('@/pages/UserDashboard/FolderDetailLayout').then((m) => ({ default: m.FolderDetailLayout })));
-const FolderBookmarkPage = lazy(() => import('@/pages/UserDashboard/FolderBookmarkPage').then((m) => ({ default: m.FolderBookmarkPage })));
 const FolderPdfPage = lazy(() => import('@/pages/UserDashboard/FolderPdfPage').then((m) => ({ default: m.FolderPdfPage })));
+const FolderWebpagePage = lazy(() => import('@/pages/UserDashboard/FolderWebpagePage/FolderWebpagePage').then((m) => ({ default: m.FolderWebpagePage })));
+const FolderWordPage = lazy(() => import('@/pages/UserDashboard/FolderWordPage/FolderWordPage').then((m) => ({ default: m.FolderWordPage })));
+const FolderImagePage = lazy(() => import('@/pages/UserDashboard/FolderImagePage/FolderImagePage').then((m) => ({ default: m.FolderImagePage })));
 const PdfDetail = lazy(() => import('@/pages/PdfDetail').then((m) => ({ default: m.PdfDetail })));
 const UserAccount = lazy(() => import('@/pages/UserAccount').then((m) => ({ default: m.UserAccount })));
 const AdminDashboard = lazy(() => import('@/pages/AdminDashboard').then((m) => ({ default: m.AdminDashboard })));
@@ -160,14 +162,22 @@ const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: 
                   </UserProtectedRoute>
                 }
               >
-                <Route index element={<Navigate to="bookmark" replace />} />
-                <Route 
-                  path="bookmark" 
-                  element={<FolderBookmarkPage />} 
-                />
+                <Route index element={<Navigate to="pdf" replace />} />
                 <Route 
                   path="pdf" 
                   element={<FolderPdfPage />} 
+                />
+                <Route 
+                  path="webpage" 
+                  element={<FolderWebpagePage />} 
+                />
+                <Route 
+                  path="word" 
+                  element={<FolderWordPage />} 
+                />
+                <Route 
+                  path="image" 
+                  element={<FolderImagePage />} 
                 />
               </Route>
               <Route 
