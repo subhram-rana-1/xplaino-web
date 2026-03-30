@@ -207,12 +207,34 @@ export const ReportIssue: React.FC = () => {
   return (
     <div className={styles.reportIssue}>
       <div className={styles.container}>
+
+        {/* Empathy hero block */}
+        <div className={styles.heroBlock}>
+          <div className={styles.heroIcon}>🤝</div>
+          <h1 className={styles.heroHeading}>We hear you. We've got your back.</h1>
+          <p className={styles.heroSubtext}>
+            Something isn't working the way it should — and that's on us to fix. Tell us what happened and we'll personally look into it. You won't be ignored.
+          </p>
+          <div className={styles.trustBadges}>
+            <div className={styles.trustBadge}>
+              <span className={styles.trustBadgeIcon}>⚡</span>
+              <span className={styles.trustBadgeText}>Reviewed within 24 hours</span>
+            </div>
+            <div className={styles.trustBadge}>
+              <span className={styles.trustBadgeIcon}>👤</span>
+              <span className={styles.trustBadgeText}>Real humans, not bots</span>
+            </div>
+            <div className={styles.trustBadge}>
+              <span className={styles.trustBadgeIcon}>✅</span>
+              <span className={styles.trustBadgeText}>Every report gets resolved</span>
+            </div>
+          </div>
+        </div>
+
         <form 
           className={styles.form}
           onSubmit={handleSubmit}
         >
-          <h1 className={styles.heading}>Report an Issue</h1>
-          
           {/* Issue Type */}
           <div className={styles.fieldGroup}>
             <label htmlFor="issueType" className={styles.label}>

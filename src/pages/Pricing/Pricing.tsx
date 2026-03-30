@@ -27,28 +27,27 @@ const freeTrialFeatures = [
 
 // Features for Ultra plan
 const ultraFeatures = [
-  'Unlimited page summaries & AI chat',
-  'Unlimited text explanations & AI chat',
-  'Unlimited image explanations & AI chat',
-  'Results in your native language',
-  'Unlimited Page translations in 60+ languages',
-  'Unlimited Contextual word meanings & vocabulary',
-  'Revisit your reading history',
-  'Unlimited bookmark with source links - Page, summary, text, image, word with contextual meaning',
-  'Unlimited create notes from saved content & chat with them',
-  'Priority support via tickets at anytime'
+  'Unlimited Chat with webpages in your language',
+  'Unlimited Highlight anything and add notes in webpages',
+  'Unlimited Chat with images',
+  'Unlimited Chat with words, vocabulary, terminologies',
+  'Unlimited Translate in more than 50+ languages',
+  'Unlimited bookmark, text, words, images, webpage with source reference',
+  'Unlimited PDF features - Chat with PDF, highlight text, add notes',
+  'Unlimited Collaborate with colleagues',
+  'Priority customer support via tickets at anytime',
 ];
 
 // Features for Plus plan
 const plusFeatures = [
-  'Unlimited page summaries & AI chat',
-  'Unlimited text explanations & AI chat',
-  'Unlimited image explanations & AI chat',
-  'Unlimited Page translations in 60+ languages',
-  'Contextual word meanings & vocabulary',
-  'Revisit your reading history',
-  'Bookmark anything with source links',
-  'Create notes & chat with them',
+  'Unlimited Chat with webpages in your language',
+  'Unlimited Highlight anything and add notes in webpages',
+  'Unlimited Chat with images',
+  'Unlimited Chat with words, vocabulary, terminologies',
+  'Unlimited Translate in more than 50+ languages',
+  'Bookmark, text, words, images, webpage with source reference',
+  'PDF features - Chat with PDF, highlight text, add notes',
+  'Collaboration while learning',
 ];
 
 // Helper to extract base plan name (remove Monthly/Yearly suffix)
@@ -388,8 +387,8 @@ export const Pricing: React.FC = () => {
                 {/* Features List */}
                 <ul className={styles.featuresList}>
                   {(isFeatured ? ultraFeatures : plusFeatures).map((feature, idx) => {
-                    // For Plus plan: last 2 features (index 6+) get cross icon
-                    const isExcluded = !isFeatured && idx >= 6;
+                    // For Plus plan: last 3 features (bookmark, PDF, collaboration) get cross icon
+                    const isExcluded = !isFeatured && idx >= 5;
                     return (
                       <li key={idx} className={`${styles.featureItem} ${isExcluded ? styles.featureExcluded : ''}`}>
                         {isExcluded ? (

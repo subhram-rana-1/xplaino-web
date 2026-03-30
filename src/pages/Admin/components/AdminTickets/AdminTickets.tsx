@@ -35,6 +35,7 @@ export const AdminTickets: React.FC<AdminTicketsProps> = ({ accessToken }) => {
   
   // Filter states
   const [ticketIdFilter, setTicketIdFilter] = useState('');
+  const [emailFilter, setEmailFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('');
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('');
   
@@ -60,6 +61,9 @@ export const AdminTickets: React.FC<AdminTicketsProps> = ({ accessToken }) => {
       };
       if (ticketIdFilter.trim()) {
         filters.ticket_id = ticketIdFilter.trim();
+      }
+      if (emailFilter.trim()) {
+        filters.email = emailFilter.trim();
       }
       if (statusFilter) {
         filters.status = statusFilter;
@@ -212,6 +216,18 @@ export const AdminTickets: React.FC<AdminTicketsProps> = ({ accessToken }) => {
               placeholder="Enter ticket ID..."
               value={ticketIdFilter}
               onChange={(e) => setTicketIdFilter(e.target.value)}
+            />
+          </div>
+
+          {/* Email Input */}
+          <div className={styles.filterGroup}>
+            <label className={styles.filterLabel}>Email</label>
+            <input
+              type="email"
+              className={styles.ticketIdInput}
+              placeholder="Enter user email..."
+              value={emailFilter}
+              onChange={(e) => setEmailFilter(e.target.value)}
             />
           </div>
 

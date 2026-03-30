@@ -137,6 +137,9 @@ export async function getAllIssues(
   if (filters?.closed_by) {
     params.append('closed_by', filters.closed_by);
   }
+  if (filters?.email) {
+    params.append('email', filters.email);
+  }
   if (filters?.offset !== undefined) {
     params.append('offset', filters.offset.toString());
   }

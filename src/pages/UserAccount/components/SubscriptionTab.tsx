@@ -295,15 +295,15 @@ export const SubscriptionTab: React.FC = () => {
                 Unlock Ultra features
               </p>
               <ul className={styles.ultraBenefitsList}>
-                <li>Unlimited page summaries & AI chat</li>
-                <li>Unlimited text & image explanations</li>
-                <li>Results in your native language</li>
-                <li>Unlimited page translations in 60+ languages</li>
-                <li>Unlimited contextual word meanings & vocabulary</li>
-                <li>Revisit your reading history</li>
-                <li>Unlimited bookmarks with source links</li>
-                <li>Unlimited notes & AI chat</li>
-                <li>Priority support anytime</li>
+                <li>Unlimited Chat with webpages in your language</li>
+                <li>Unlimited Highlight anything and add notes in webpages</li>
+                <li>Unlimited Chat with images</li>
+                <li>Unlimited Chat with words, vocabulary, terminologies</li>
+                <li>Unlimited Translate in more than 50+ languages</li>
+                <li>Unlimited bookmark, text, words, images, webpage with source reference</li>
+                <li>Unlimited PDF features - Chat with PDF, highlight text, add notes</li>
+                <li>Unlimited Collaborate with colleagues</li>
+                <li>Priority customer support via tickets at anytime</li>
               </ul>
             </div>
 
@@ -727,10 +727,9 @@ export const SubscriptionTab: React.FC = () => {
                   What's extra in Ultra
                 </p>
                 <ul className={styles.ultraBenefitsList}>
-                  <li>Save any page, summary, passage & images to your dashboard that come across your browsing</li>
-                  <li>Get back to the original source of the content you saved in one click</li>
-                  <li>Chat with saved content to quickly revise your learnings</li>
-                  <li>Create your own notes from saved content</li>
+                  <li>Unlimited bookmark, text, words, images, webpage with source reference (vs Limited in Plus)</li>
+                  <li>Unlimited PDF features - Chat with PDF, highlight text, add notes (vs Limited in Plus)</li>
+                  <li>Unlimited Collaborate with colleagues</li>
                 </ul>
               </div>
 
@@ -775,15 +774,15 @@ export const SubscriptionTab: React.FC = () => {
                   Unlock Ultra features
                 </p>
                 <ul className={styles.ultraBenefitsList}>
-                  <li>Unlimited page summaries & AI chat</li>
-                  <li>Unlimited text & image explanations</li>
-                  <li>Results in your native language</li>
-                  <li>Unlimited page translations in 60+ languages</li>
-                  <li>Unlimited contextual word meanings & vocabulary</li>
-                  <li>Revisit your reading history</li>
-                  <li>Unlimited bookmarks with source links</li>
-                  <li>Unlimited notes & AI chat</li>
-                  <li>Priority support anytime</li>
+                  <li>Unlimited Chat with webpages in your language</li>
+                  <li>Unlimited Highlight anything and add notes in webpages</li>
+                  <li>Unlimited Chat with images</li>
+                  <li>Unlimited Chat with words, vocabulary, terminologies</li>
+                  <li>Unlimited Translate in more than 50+ languages</li>
+                  <li>Unlimited bookmark, text, words, images, webpage with source reference</li>
+                  <li>Unlimited PDF features - Chat with PDF, highlight text, add notes</li>
+                  <li>Unlimited Collaborate with colleagues</li>
+                  <li>Priority customer support via tickets at anytime</li>
                 </ul>
               </div>
 

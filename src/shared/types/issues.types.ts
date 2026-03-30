@@ -73,6 +73,7 @@ export interface GetAllIssuesFilters {
   type?: string;
   status?: string;
   closed_by?: string;
+  email?: string;
   offset?: number;
   limit?: number;
 }

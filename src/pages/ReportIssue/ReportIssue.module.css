@@ -35,6 +35,86 @@
   left: 0;
 }
 
+/* ── Empathy hero block ── */
+.heroBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2.5rem 2rem 2rem;
+  gap: 0.75rem;
+}
+
+.heroIcon {
+  font-size: 2.75rem;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+  animation: gentleBob 3s ease-in-out infinite;
+}
+
+@keyframes gentleBob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-5px); }
+}
+
+.heroHeading {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.25;
+}
+
+.heroSubtext {
+  font-size: 0.975rem;
+  color: var(--text-secondary);
+  font-family: 'Inter', sans-serif;
+  line-height: 1.65;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.trustBadges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.625rem;
+  margin-top: 0.5rem;
+}
+
+.trustBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.875rem;
+  border: 1px solid var(--teal-lighter);
+  border-radius: 999px;
+  background-color: var(--bg-lighter);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.trustBadgeIcon {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.trustBadgeText {
+  line-height: 1;
+}
+
+/* responsive */
+@media (max-width: 480px) {
+  .heroHeading { font-size: 1.5rem; }
+  .heroIcon    { font-size: 2.25rem; }
+  .heroBlock   { padding: 2rem 1rem 1.5rem; }
+}
+
+/* ── Original heading (kept for any legacy ref) ── */
 .heading {
   font-size: 2rem;
   font-weight: 700;
