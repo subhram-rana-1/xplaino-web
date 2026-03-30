@@ -29,12 +29,12 @@ const freeTrialFeatures = [
 const ultraFeatures = [
   'Unlimited Chat with webpages in your language',
   'Unlimited Highlight anything and add notes in webpages',
+  'Unlimited bookmark, text, words, images, webpage with source reference',
+  'Unlimited Collaborate with colleagues',
+  'Unlimited PDF features - Chat with PDF, highlight text, add notes',
+  'Unlimited Translate in more than 50+ languages',
   'Unlimited Chat with images',
   'Unlimited Chat with words, vocabulary, terminologies',
-  'Unlimited Translate in more than 50+ languages',
-  'Unlimited bookmark, text, words, images, webpage with source reference',
-  'Unlimited PDF features - Chat with PDF, highlight text, add notes',
-  'Unlimited Collaborate with colleagues',
   'Priority customer support via tickets at anytime',
 ];
 
