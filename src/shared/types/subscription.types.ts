@@ -145,6 +145,7 @@ export interface PaddleSubscriptionResponse {
  */
 export interface GetUserSubscriptionResponse {
   has_active_subscription: boolean;
+  can_cancel: boolean;
   subscription: PaddleSubscriptionResponse | null;
   customer: PaddleCustomerResponse | null;
 }

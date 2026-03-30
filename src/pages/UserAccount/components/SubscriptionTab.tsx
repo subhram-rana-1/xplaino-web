@@ -335,7 +335,7 @@ export const SubscriptionTab: React.FC = () => {
     );
   }
 
-  const { subscription, has_active_subscription } = subscriptionData;
+  const { subscription, has_active_subscription, can_cancel } = subscriptionData;
   const planNameFromItems = getPlanName(subscription);
   const formattedPrice = formatSubscriptionPrice(subscription);
   const statusEnum = getSubscriptionStatusEnum(subscription.status);
@@ -405,7 +405,7 @@ export const SubscriptionTab: React.FC = () => {
               <Link to="/pricing" className={styles.secondaryButton}>
                 View All Plans
               </Link>
-              {subscription.paddle_subscription_id && statusEnum !== SubscriptionStatus.CANCELED && (
+              {can_cancel && (
                 <button
                   className={styles.cancelButton}
                   onClick={() => setShowCancelConfirm(true)}
@@ -605,7 +605,7 @@ export const SubscriptionTab: React.FC = () => {
           {/* Actions - conditional based on plan */}
           <div className={styles.actions}>
             {/* Ultra Yearly - only cancel button */}
-            {isUltraYearly && hasNextBillingDate && (
+            {isUltraYearly && can_cancel && (
               <button 
                 className={styles.cancelButton}
                 onClick={() => setShowCancelConfirm(true)}
@@ -625,7 +625,7 @@ export const SubscriptionTab: React.FC = () => {
                   <Crown size={20} />
                   {checkoutLoading ? 'Loading...' : `Upgrade to Yearly for ${ultraYearlyPrice?.discountPercentage || ''}% OFF`}
                 </button>
-                {hasNextBillingDate && (
+                {can_cancel && (
                   <button 
                     className={styles.cancelButton}
                     onClick={() => setShowCancelConfirm(true)}
@@ -637,7 +637,7 @@ export const SubscriptionTab: React.FC = () => {
             )}
 
             {/* Plus plans - cancel button here before suggested plan */}
-            {isPlusPlan && hasNextBillingDate && (
+            {isPlusPlan && can_cancel && (
               <button 
                 className={styles.cancelButton}
                 onClick={() => setShowCancelConfirm(true)}
@@ -657,7 +657,7 @@ export const SubscriptionTab: React.FC = () => {
                   <Crown size={20} />
                   {checkoutLoading ? 'Loading...' : `Upgrade to Yearly for ${ultraYearlyPrice?.discountPercentage || '30'}% OFF`}
                 </button>
-                {hasNextBillingDate && (
+                {can_cancel && (
                   <button 
                     className={styles.cancelButton}
                     onClick={() => setShowCancelConfirm(true)}
@@ -674,7 +674,7 @@ export const SubscriptionTab: React.FC = () => {
                 <Link to="/pricing" className={styles.viewPlansButton}>
                   View All Plans
                 </Link>
-                {hasNextBillingDate && (
+                {can_cancel && (
                   <button 
                     className={styles.cancelButton}
                     onClick={() => setShowCancelConfirm(true)}
@@ -691,7 +691,7 @@ export const SubscriptionTab: React.FC = () => {
                 <Link to="/pricing" className={styles.viewPlansButton}>
                   View All Plans
                 </Link>
-                {hasNextBillingDate && (
+                {can_cancel && (
                   <button 
                     className={styles.cancelButton}
                     onClick={() => setShowCancelConfirm(true)}
