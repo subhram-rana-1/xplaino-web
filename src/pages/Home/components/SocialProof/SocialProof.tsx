@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Globe } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { ScrollReveal } from '@/shared/components/ScrollReveal';
 import styles from './SocialProof.module.css';
 
@@ -19,26 +19,16 @@ export const SocialProof: React.FC = () => {
               <div className={styles.metric}>
                 <span className={styles.metricValue}>
                   <span className={styles.metricIcon} aria-hidden>
-                    <Star />
+                    <Star fill="currentColor" />
                   </span>
                   4.9/5
                 </span>
                 <span className={styles.metricLabel}>on Chrome Web Store</span>
               </div>
-              <div className={styles.metricDivider} aria-hidden />
-              <div className={styles.metric}>
-                <span className={styles.metricValue}>
-                  <span className={styles.metricIcon} aria-hidden>
-                    <Globe />
-                  </span>
-                  30+
-                </span>
-                <span className={styles.metricLabel}>countries</span>
-              </div>
             </div>
           </div>
           <p className={styles.trustLine}>
-            Trusted by Professionals, Researchers & Students — Already used across 30+ countries.
+            Trusted by Professionals, Researchers & Students
           </p>
         </section>
       </div>

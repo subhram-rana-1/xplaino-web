@@ -94,6 +94,58 @@
   z-index: 1;
 }
 
+/* ===== TRUST BAR (social proof) ===== */
+.trustBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.trustMetric {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-tertiary);
+}
+
+.trustStarIcon {
+  color: #f5a623;
+  fill: #f5a623;
+}
+
+.trustMetricValue {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.trustMetricLabel {
+  font-size: 0.92rem;
+  font-weight: 400;
+  color: var(--text-tertiary);
+}
+
+.trustExtensionLink {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--teal);
+  text-decoration: none;
+  padding: 0.25rem 0.65rem;
+  border: 1.5px solid var(--teal);
+  border-radius: 999px;
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+
+.trustExtensionLink:hover {
+  background: var(--teal);
+  color: var(--white);
+}
+
 /* ===== RECENT PDFS ROW (unauthenticated users) ===== */
 .recentPdfsRow {
   display: flex;
@@ -862,20 +914,6 @@
   padding-top: 0.5rem;
 }
 
-.featuresHeading {
-  font-family: 'Inter', sans-serif;
-  font-size: 1.05rem;
-  font-weight: 800;
-  background: linear-gradient(270deg, #0d8070, #34c8b0, #0d8070);
-  background-size: 300% 300%;
-  animation: tealShimmer 3s ease infinite;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-transform: none;
-  letter-spacing: normal;
-  margin: 0 0 0.5rem;
-}
 
 .featureItem {
   display: flex;
@@ -979,21 +1017,6 @@
   z-index: 2;
 }
 
-.extensionPromoNewBadge {
-  position: absolute;
-  top: -11px;
-  left: 20px;
-  z-index: 3;
-  background: linear-gradient(90deg, #0d8070, #34c8b0);
-  color: #fff;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.62rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  padding: 0.18rem 0.55rem;
-  border-radius: 20px;
-  text-transform: uppercase;
-}
 
 .extensionPromoHeading {
   font-family: 'Inter', sans-serif;

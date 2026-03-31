@@ -73,6 +73,16 @@
   font-family: 'Inter', sans-serif;
 }
 
+.tagline {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--teal);
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.01em;
+}
+
 .highlight {
   background: linear-gradient(
     90deg,
@@ -132,6 +142,10 @@
     max-width: 100%;
     font-size: 1.125rem;
   }
+
+  .tagline {
+    font-size: 1.0625rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -149,6 +163,10 @@
 
   .description {
     font-size: 1.0625rem;
+  }
+
+  .tagline {
+    font-size: 1rem;
   }
 
   .mobileMetrics {
@@ -185,6 +203,11 @@
     font-family: 'Inter', sans-serif;
   }
 
+  .mobileStarIcon {
+    color: #f5a623;
+    fill: #f5a623;
+  }
+
   .mobileMetricDivider {
     width: 1px;
     height: 2.25rem;
@@ -208,6 +231,10 @@
   .description {
     font-size: 1rem;
     line-height: 1.65;
+  }
+
+  .tagline {
+    font-size: 0.9375rem;
   }
 
   .mobileMetricValue {

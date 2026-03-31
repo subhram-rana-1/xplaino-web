@@ -299,7 +299,7 @@ export const SubscriptionTab: React.FC = () => {
                 <li>Unlimited Highlight anything and add notes in webpages</li>
                 <li>Unlimited Chat with images</li>
                 <li>Unlimited Chat with words, vocabulary, terminologies</li>
-                <li>Unlimited Translate in more than 50+ languages</li>
+                <li>Unlimited Translate in 50+ languages</li>
                 <li>Unlimited bookmark, text, words, images, webpage with source reference</li>
                 <li>Unlimited PDF features - Chat with PDF, highlight text, add notes</li>
                 <li>Unlimited Collaborate with colleagues</li>
@@ -778,7 +778,7 @@ export const SubscriptionTab: React.FC = () => {
                   <li>Unlimited Highlight anything and add notes in webpages</li>
                   <li>Unlimited Chat with images</li>
                   <li>Unlimited Chat with words, vocabulary, terminologies</li>
-                  <li>Unlimited Translate in more than 50+ languages</li>
+                  <li>Unlimited Translate in 50+ languages</li>
                   <li>Unlimited bookmark, text, words, images, webpage with source reference</li>
                   <li>Unlimited PDF features - Chat with PDF, highlight text, add notes</li>
                   <li>Unlimited Collaborate with colleagues</li>

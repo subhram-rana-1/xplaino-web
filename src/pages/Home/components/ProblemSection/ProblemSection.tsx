@@ -55,7 +55,7 @@ export const ProblemSection: React.FC = () => {
       <div className={styles.wrapper}>
         <section className={styles.section} aria-labelledby="problem-heading">
           <h2 id="problem-heading" className={styles.heading}>
-            The Modern Learning Problem
+            The Modern Information Problem
           </h2>
           <div className={styles.cardGrid}>
             {cards.map((item, index) => {

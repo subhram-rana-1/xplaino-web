@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CloudUpload, FileText, Check, AlertCircle, RefreshCw, ArrowRight, Info, Bookmark, Monitor, MessageSquare, NotebookPen, Highlighter, Users } from 'lucide-react';
+import { CloudUpload, FileText, Check, AlertCircle, RefreshCw, ArrowRight, Info, Bookmark, Monitor, MessageSquare, NotebookPen, Highlighter, Users, Star } from 'lucide-react';
 import { SiGoogledrive, SiDropbox } from 'react-icons/si';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { fetchPublic, fetchWithAuth } from '@/shared/services/api-client';
@@ -14,7 +14,7 @@ function flattenFolders(folders: FolderWithSubFolders[]): FolderWithSubFolders[]
   return folders.flatMap((f) => [f, ...flattenFolders(f.subFolders || [])]);
 }
 
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+const MAX_FILE_SIZE_BYTES = 25 * 1024 * 1024; // 25 MB
 
 type Tab = 'local' | 'drive' | 'dropbox';
 type PageState = 'idle' | 'processing' | 'success';
@@ -291,7 +291,7 @@ export const ToolsPdfPage: React.FC = () => {
         return;
       }
       if (file.size > MAX_FILE_SIZE_BYTES) {
-        setLocalError('File is too large. Maximum allowed size is 5 MB.');
+        setLocalError('File is too large. Maximum allowed size is 25 MB.');
         return;
       }
       uploadLocalFile(file);
@@ -439,9 +439,27 @@ export const ToolsPdfPage: React.FC = () => {
       {/* Hero */}
       <div className={styles.hero}>
         <h1 className={styles.heroTitle}>
-          Everything you need to master{' '}
-          <span className={styles.heroTitleAccent}>any PDF</span>
+          Drop your PDF.{' '}
+          <span className={styles.heroTitleAccent}>Start asking questions.</span>
         </h1>
+        <p className={styles.heroSubtitle}>
+          Chat with any PDF — get answers, highlights, and notes in seconds. No signup needed.
+        </p>
+        <div className={styles.trustBar} aria-label="Social proof">
+          <div className={styles.trustMetric}>
+            <Star size={20} className={styles.trustStarIcon} aria-hidden />
+            <span className={styles.trustMetricValue}>4.9/5</span>
+            <span className={styles.trustMetricLabel}>on Chrome Web Store</span>
+          </div>
+          <a
+            href="https://chromewebstore.google.com/detail/xplaino/nmphalmbdmddagbllhjnfnmodfmbnlkp"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.trustExtensionLink}
+          >
+            Try Extension — It's Free
+          </a>
+        </div>
       </div>
 
       {/* Recent PDFs row — shown below hero for unauthenticated users with prior uploads */}
@@ -479,14 +497,13 @@ export const ToolsPdfPage: React.FC = () => {
 
       {/* Feature list — left column */}
       <div className={styles.featuresColumn}>
-        <p className={styles.featuresHeading}>One PDF tool. Endless possibilities.</p>
         {[
           {
             label: 'Chat with PDF',
             icon: <MessageSquare size={22} />,
           },
           {
-            label: 'save conversations and insights',
+            label: 'Save and revisit past chats',
             icon: <NotebookPen size={22} />,
           },
           {
@@ -507,10 +524,12 @@ export const ToolsPdfPage: React.FC = () => {
         {/* CTA below feature list */}
         <div className={styles.featuresCta}>
           <p className={styles.featuresCtaText}>
-            You can do a lot more!
+            {isLoggedIn
+              ? 'Access all your PDFs and folders from the dashboard.'
+              : 'Upload a PDF above to try it free — create an account later to save your work.'}
           </p>
           <button className={styles.featuresCtaButton} onClick={handleCtaClick}>
-            {isLoggedIn ? 'Go to Dashboard' : 'Sign up for free'}
+            {isLoggedIn ? 'Go to Dashboard' : 'Create free account'}
             <ArrowRight size={14} />
           </button>
         </div>
@@ -625,7 +644,7 @@ export const ToolsPdfPage: React.FC = () => {
                 </button>
                 <p className={styles.dropZoneHint}>
                   <Info size={12} />
-                  PDF files only · Max 5 MB
+                  PDF files only · Max 25 MB
                 </p>
               </div>
               <input
@@ -735,11 +754,10 @@ export const ToolsPdfPage: React.FC = () => {
       {/* Extension promo — right column */}
       <div className={styles.extensionPromo}>
         <div className={styles.extensionPromoCard}>
-          <span className={styles.extensionPromoNewBadge}>NEW · Beta</span>
-          <p className={styles.extensionPromoHeading}>Also try our Extension</p>
+          <p className={styles.extensionPromoHeading}>Also available as an Extension</p>
           {[
             { label: 'Chat with webpages', icon: <MessageSquare size={16} /> },
-            { label: 'Save conversations and insights', icon: <NotebookPen size={16} /> },
+            { label: 'Organize insights across pages', icon: <NotebookPen size={16} /> },
             { label: 'Bookmark page, text, image, words', icon: <Bookmark size={16} /> },
             { label: 'Team collaboration', icon: <Users size={16} /> },
           ].map((item) => (
@@ -754,7 +772,7 @@ export const ToolsPdfPage: React.FC = () => {
             rel="noopener noreferrer"
             className={styles.extensionPromoButton}
           >
-            Try Extension for Free
+            Try Extension — It's Free
             <ArrowRight size={14} />
           </a>
         </div>
