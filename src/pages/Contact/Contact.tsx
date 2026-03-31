@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, AlertCircle, Shield, HeartHandshake } from 'lucide-react';
+import { AlertCircle, Shield, HeartHandshake } from 'lucide-react';
 import styles from './Contact.module.css';
 
 /**
