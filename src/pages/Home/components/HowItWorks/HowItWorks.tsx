@@ -4,9 +4,9 @@ import { ScrollReveal } from '@/shared/components/ScrollReveal';
 import styles from './HowItWorks.module.css';
 
 const steps = [
-  { number: '01', title: 'Browse normally', description: 'Read any article, research paper, blog, or website as you usually do.' },
-  { number: '02', title: 'Open Xplaino instantly', description: 'Click the extension on any page to activate AI-powered analysis.' },
-  { number: '03', title: 'Get structured insights', description: 'Receive summaries, translations, explanations, and organized knowledge — instantly.' },
+  { number: '01', title: 'Browse articles as usual', description: 'Open any article, paper, or PDF as usual — Xplaino stays ready in the background.' },
+  { number: '02', title: 'Ask AI on the page instantly', description: 'Chat with any webpage or PDF. Highlight key passages, add notes, translate, and collaborate — all without leaving the page.' },
+  { number: '03', title: 'Track what you gathered', description: 'Every highlight, note, and bookmark is saved with its source reference — organized in your personal dashboard for easy revisit.' },
 ];
 
 const PHASE_DURATIONS = [700, 850, 850, 400];

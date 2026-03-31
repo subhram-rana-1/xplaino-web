@@ -20,7 +20,7 @@ export const Support: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const description = 'Report issues right from the extension, get real support from real people — not bots or endless FAQs — and share feature ideas that help shape what we build next. We provide real human support and continuously improve our AI research assistant based on user feedback.';
+  const description = 'Report issues directly from the extension. Get help from real people — not bots. Share feature ideas that shape what we build next.';
 
   // IntersectionObserver for viewport-based autoplay
   useEffect(() => {
@@ -70,7 +70,7 @@ export const Support: React.FC = () => {
             {/* Left side - Text content */}
             <div className={styles.textSection}>
               <h2 className={styles.heading}>
-                We believe in dedicated support and continuous improvement
+                Real humans. Real customer support.
               </h2>
               <p className={styles.description}>{description}</p>
             </div>
@@ -89,7 +89,7 @@ export const Support: React.FC = () => {
                 muted
                 loop
                 playsInline
-                title="We believe in dedicated support and continuous improvement."
+                title="Real customer support."
               />
             </div>
           </div>
@@ -99,7 +99,7 @@ export const Support: React.FC = () => {
       <VideoModal
         isOpen={isModalOpen}
         videoUrl={SUPPORT_VIDEO_URL}
-        title="We believe in dedicated support and continuous improvement."
+        title="Real customer support."
         sourceElement={containerRef.current}
         onClose={() => setIsModalOpen(false)}
       />

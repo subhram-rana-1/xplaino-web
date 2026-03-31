@@ -1,26 +1,29 @@
 import React from 'react';
-import { X } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 import { ScrollReveal } from '@/shared/components/ScrollReveal';
 import styles from './PositioningSection.module.css';
 
-const extensionsProblems = [
-  'Wait for prompts',
-  'Forget context',
-  "Don't organize anything",
-  "Don't build long-term knowledge",
-];
-
-const xplainoBenefits = [
-  'Understands the page in seconds',
-  'Turns information into structured knowledge',
-  'Builds your personal knowledge base automatically',
-  'Creates long-term learning memory',
+const comparisons = [
+  {
+    problem: 'Copy-paste text into AI chatbots for answers',
+    solution: 'Ask AI directly on any webpage or PDF — zero copy-paste',
+  },
+  {
+    problem: 'Highlights and notes scattered across separate apps',
+    solution: 'Highlight, annotate, and save notes right on the page — they persist',
+  },
+  {
+    problem: 'Switch tabs to translate foreign-language content',
+    solution: 'Translate any webpage into 50+ languages without leaving',
+  },
+  {
+    problem: 'Nothing tracked — learnings lost after closing the tab',
+    solution: 'Personal dashboard organizes every bookmark, note, and highlight with source',
+  },
 ];
 
 /**
- * PositioningSection - Problem → Solution mapping (not another AI chat popup)
- *
- * @returns JSX element
+ * PositioningSection - 1:1 Problem → Solution comparison rows
  */
 export const PositioningSection: React.FC = () => {
   return (
@@ -31,49 +34,30 @@ export const PositioningSection: React.FC = () => {
             Not Just Another AI Chat Extension
           </h2>
           <p className={styles.subheading}>
-            The problem with most AI extensions — and how Xplaino solves it.
+            See how Xplaino is different — point by point.
           </p>
-          <div className={styles.compareGrid}>
-            <div className={styles.problemCard}>
-              <span className={styles.cardBadge} data-badge="problem">
-                The problem
-              </span>
-              <p className={styles.columnLabel}>Most AI extensions</p>
-              <ul className={styles.problemList}>
-                {extensionsProblems.map((item, index) => (
-                  <li key={index} className={styles.problemItem}>
-                    <span className={styles.crossIcon} aria-hidden>
-                      <X />
-                    </span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
+          <div className={styles.table}>
+            <div className={styles.tableHeader}>
+              <span className={styles.headerProblem}>Other AI Extensions</span>
+              <span className={styles.headerSolution}>With Xplaino</span>
             </div>
-            <div className={styles.connector} aria-hidden>
-              <span className={styles.connectorArrow}>→</span>
-              <span className={styles.connectorLabel}>Xplaino solves this</span>
-            </div>
-            <div className={styles.solutionCard}>
-              <span className={styles.cardBadge} data-badge="solution">
-                The solution
-              </span>
-              <p className={`${styles.columnLabel} ${styles.columnLabelXplaino}`}>
-                <img src="https://bmicorrect.com/website/icons/xplaino-brand-teal.png" alt="Xplaino" className={styles.brandIcon} aria-hidden />
-              </p>
-              <ul className={styles.benefitList}>
-                {xplainoBenefits.map((item, index) => (
-                  <li key={index} className={styles.benefitItem}>
-                    <span className={styles.checkmark} aria-hidden>✔</span>
-                    <span className={styles.benefitContent}>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {comparisons.map((item, index) => (
+              <div key={index} className={styles.row}>
+                <div className={styles.cellProblem}>
+                  <span className={styles.crossIcon} aria-hidden>
+                    <X />
+                  </span>
+                  <span>{item.problem}</span>
+                </div>
+                <div className={styles.cellSolution}>
+                  <span className={styles.checkIcon} aria-hidden>
+                    <Check />
+                  </span>
+                  <span>{item.solution}</span>
+                </div>
+              </div>
+            ))}
           </div>
-          <p className={styles.closing}>
-            This is AI for serious learners — not casual chatting.
-          </p>
         </section>
       </div>
     </ScrollReveal>

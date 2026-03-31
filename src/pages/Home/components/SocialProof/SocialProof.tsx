@@ -31,14 +31,14 @@ export const SocialProof: React.FC = () => {
                   <span className={styles.metricIcon} aria-hidden>
                     <Globe />
                   </span>
-                  10+
+                  30+
                 </span>
                 <span className={styles.metricLabel}>countries</span>
               </div>
             </div>
           </div>
           <p className={styles.trustLine}>
-            Trusted by students, researchers & professionals — already used across 10+ countries.
+            Trusted by Professionals, Researchers & Students — Already used across 30+ countries.
           </p>
         </section>
       </div>

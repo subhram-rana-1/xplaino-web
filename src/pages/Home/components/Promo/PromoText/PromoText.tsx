@@ -11,10 +11,10 @@ export const PromoText: React.FC = () => {
   return (
     <div className={styles.promoText}>
       <h1 className={styles.heading}>
-      Turn Information Overload into <span className={styles.headingHighlight}>Organized Intelligence</span>
+      Turn Information Overload into <span className={styles.headingHighlight}>Organized Intelligence</span> - Webpages, PDF
       </h1>
       <p className={styles.description}>
-        Understand any webpage instantly and go deeper with PDFs — chat with documents, highlight what matters, take notes, and learn collaboratively. Xplaino works silently as you browse, so nothing slips through the cracks.
+        Understand any webpage instantly and go deeper with PDFs — chat with documents, highlight what matters, take notes, and learn collaboratively. Translate in more than 50+ languages. Xplaino works silently as you browse, so nothing slips through the cracks.
       </p>
       <div className={styles.mobileMetrics} aria-label="Social proof">
         <div className={styles.mobileMetric}>
@@ -28,7 +28,7 @@ export const PromoText: React.FC = () => {
         <div className={styles.mobileMetric}>
           <span className={styles.mobileMetricValue}>
             <Globe aria-hidden />
-            10+
+            30+
           </span>
           <span className={styles.mobileMetricLabel}>countries</span>
         </div>

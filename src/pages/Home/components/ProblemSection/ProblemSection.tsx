@@ -1,20 +1,53 @@
 import React from 'react';
-import { BookOpen, FileText, Bookmark, MessageCircle } from 'lucide-react';
+import {
+  StickyNote, Languages, FileType2, Bot,
+  Highlighter, Globe, MessageSquare, LayoutGrid,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ScrollReveal } from '@/shared/components/ScrollReveal';
 import styles from './ProblemSection.module.css';
 
-const problemItems: { icon: LucideIcon; text: string }[] = [
-  { icon: BookOpen, text: 'You read dozens of articles — but retain very little.' },
-  { icon: FileText, text: 'Research papers feel dense, overwhelming, and slow.' },
-  { icon: Bookmark, text: 'Important insights disappear into bookmarks.' },
-  { icon: MessageCircle, text: 'AI chat tools give answers — but don\'t build knowledge.' },
+interface CardItem {
+  problemLabel: string;
+  problemIcon: LucideIcon;
+  problem: string;
+  solutionIcon: LucideIcon;
+  solution: string;
+}
+
+const cards: CardItem[] = [
+  {
+    problemLabel: 'Scattered Notes',
+    problemIcon: StickyNote,
+    problem: 'You save important content in paper notes or separate apps — losing context every time.',
+    solutionIcon: Highlighter,
+    solution: 'Highlight and annotate directly on any webpage. Your notes persist and are always there when you return.',
+  },
+  {
+    problemLabel: 'Language Barrier',
+    problemIcon: Languages,
+    problem: 'You leave articles to translate elsewhere, then switch back — breaking your reading flow.',
+    solutionIcon: Globe,
+    solution: 'Translate any webpage into 50+ languages. Read in your native language without leaving the page.',
+  },
+  {
+    problemLabel: 'Dense Content',
+    problemIcon: FileType2,
+    problem: 'Research papers and long articles feel dense, overwhelming, and slow to process.',
+    solutionIcon: MessageSquare,
+    solution: 'Ask any webpage or PDF a question directly. Get precise answers with source citations.',
+  },
+  {
+    problemLabel: 'Unorganized Learning',
+    problemIcon: Bot,
+    problem: 'AI sidebars answer questions but never organize your learnings to revisit later.',
+    solutionIcon: LayoutGrid,
+    solution: 'Track all your bookmarks — webpages, passages, images, words — in one organized dashboard.',
+  },
 ];
 
 /**
- * ProblemSection - "The Modern Learning Problem" section for emotional recognition
- *
- * @returns JSX element
+ * ProblemSection - "The Modern Learning Problem" section showing pain points and Xplaino solutions
  */
 export const ProblemSection: React.FC = () => {
   return (
@@ -22,26 +55,44 @@ export const ProblemSection: React.FC = () => {
       <div className={styles.wrapper}>
         <section className={styles.section} aria-labelledby="problem-heading">
           <h2 id="problem-heading" className={styles.heading}>
-            {/* <span className={styles.headingIcon} aria-hidden>🧠</span> */}
             The Modern Learning Problem
           </h2>
-          <ul className={styles.problemList}>
-            {problemItems.map((item, index) => {
-              const Icon = item.icon;
+          <div className={styles.cardGrid}>
+            {cards.map((item, index) => {
+              const ProblemIcon = item.problemIcon;
+              const SolutionIcon = item.solutionIcon;
               return (
-                <li key={index} className={styles.problemItem}>
-                  <span className={styles.pointIconWrapper} aria-hidden>
-                    <span className={styles.pointIcon}>
-                      <Icon />
+                <div key={index} className={styles.card}>
+                  <div className={styles.cardTop}>
+                    <span className={`${styles.label} ${styles.problemLabel}`}>
+                      {item.problemLabel}
                     </span>
-                  </span>
-                  <p className={styles.pointText}>{item.text}</p>
-                </li>
+                    <div className={styles.cardRow}>
+                      <span className={`${styles.iconWrap} ${styles.iconProblem}`} aria-hidden>
+                        <ProblemIcon />
+                      </span>
+                      <p className={styles.textProblem}>{item.problem}</p>
+                    </div>
+                  </div>
+                  <div className={styles.divider} aria-hidden />
+                  <div className={styles.cardBottom}>
+                    <span className={styles.label}>
+                      With Xplaino
+                    </span>
+                    <div className={styles.cardRow}>
+                      <span className={`${styles.iconWrap} ${styles.iconSolution}`} aria-hidden>
+                        <SolutionIcon />
+                      </span>
+                      <p className={styles.textSolution}>{item.solution}</p>
+                    </div>
+                  </div>
+                </div>
               );
             })}
-          </ul>
-          <p className={styles.closingLine}>The web wasn&apos;t built for deep understanding.</p>
-          <p className={styles.fixLine}>Xplaino fixes that.</p>
+          </div>
+          <p className={styles.closingLine}>
+            The web wasn&apos;t built for deep understanding — <span className={styles.fixHighlight}>Xplaino fixes that.</span>
+          </p>
         </section>
       </div>
     </ScrollReveal>

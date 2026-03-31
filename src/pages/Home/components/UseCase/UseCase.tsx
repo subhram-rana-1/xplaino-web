@@ -4,20 +4,20 @@ import styles from './UseCase.module.css';
 
 const useCases = [
   {
-    title: 'For Students & Competitive Exams',
-    description: 'Summarize study material, simplify concepts, and store structured notes.',
+    title: 'For Professionals',
+    description: 'Understand industry reports faster and retain key insights.',
   },
   {
     title: 'For Researchers & Academics',
     description: 'Summarize research papers and interact with academic content instantly.',
   },
   {
-    title: 'For Professionals',
-    description: 'Understand industry reports faster and retain key insights.',
-  },
-  {
     title: 'For Language Learners',
     description: 'Translate and understand foreign-language content in real time.',
+  },
+  {
+    title: 'For Students & Competitive Exams',
+    description: 'Summarize study material, simplify concepts, and store structured notes.',
   },
 ];
 

@@ -90,7 +90,6 @@
 }
 
 .languageItem:hover {
-  background: var(--bg-white);
   border-color: var(--teal-rgba-50);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transform: translateY(-2px);
@@ -99,13 +98,11 @@
 .flag {
   font-size: 1.375rem;
   line-height: 1;
-  filter: grayscale(100%);
 }
 
 .languageName {
   font-size: 0.9375rem;
   font-weight: 500;
-  filter: grayscale(100%);
 }
 
 @keyframes scrollLeftToRight {

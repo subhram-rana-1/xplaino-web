@@ -306,7 +306,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                     <img src={chromeExtensionIcon} alt="" aria-hidden className={styles.dropdownItemImgIcon} />
                     <span className={styles.dropdownItemContent}>
                       <span className={styles.dropdownItemTitle}>Extension</span>
-                      <span className={styles.dropdownItemDesc}>Summarise, Ask AI, Translate &amp; more on any webpage</span>
+                      <span className={styles.dropdownItemDesc}>Chat with webpages, Ask AI, Highlight text, Add Notes, Translate webpage to 50+ languages </span>
                     </span>
                   </button>
                   <button
@@ -316,7 +316,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                     <img src={pdfToolIcon} alt="" aria-hidden className={styles.dropdownItemImgIcon} />
                     <span className={styles.dropdownItemContent}>
                       <span className={styles.dropdownItemTitle}>Study PDF</span>
-                      <span className={styles.dropdownItemDesc}>Chat, highlight, take notes &amp; collaborate on PDFs</span>
+                      <span className={styles.dropdownItemDesc}>Chat with PDF, Ask AI, Highlight text, Add notes &amp; collaborate with teammates</span>
                     </span>
                   </button>
                 </div>

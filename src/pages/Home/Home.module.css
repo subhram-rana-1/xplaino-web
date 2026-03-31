@@ -87,6 +87,83 @@
   max-width: 500px;
 }
 
+.ctaButtonRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.ctaPdfButton {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: 1rem 1.75rem;
+  padding-left: 1rem;
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+  color: var(--text-on-primary);
+  border: none;
+  border-radius: 9999px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  white-space: nowrap;
+  width: fit-content;
+  box-shadow:
+    0 4px 12px var(--teal-rgba-30),
+    0 8px 24px var(--shadow-black-15),
+    inset 0 1px 0 var(--white-rgba-20);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ctaPdfButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, var(--white-rgba-20) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.ctaPdfButton:hover {
+  background: linear-gradient(135deg, var(--teal-dark) 0%, #2a8a8a 100%);
+  box-shadow:
+    0 6px 20px var(--teal-rgba-40),
+    0 12px 32px var(--shadow-black-20),
+    inset 0 1px 0 var(--white-rgba-32);
+}
+
+.ctaPdfButton:active {
+  transform: scale(0.98);
+  box-shadow:
+    0 2px 8px var(--teal-rgba-30),
+    0 4px 12px var(--shadow-black-15);
+}
+
+.ctaPdfIcon {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  position: absolute;
+  left: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  filter: drop-shadow(0 1px 2px var(--shadow-black-20));
+}
+
+.ctaPdfText {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  font-family: 'Inter', sans-serif;
+  padding-left: 2.25rem;
+  text-shadow: 0 1px 2px var(--shadow-black-15);
+  white-space: nowrap;
+}
+
 /* Responsive design */
 @media (max-width: 1200px) {
   .home::before,

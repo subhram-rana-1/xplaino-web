@@ -3,10 +3,10 @@ import { ScrollReveal } from '@/shared/components/ScrollReveal';
 import styles from './IdentitySection.module.css';
 
 const identityItems = [
-  'Students who want structured revision.',
-  'Researchers who read papers daily.',
   'Professionals who process large reports.',
+  'Researchers who read papers daily.',
   'Language learners who study globally.',
+  'Students who want structured revision.',
 ];
 
 /**
