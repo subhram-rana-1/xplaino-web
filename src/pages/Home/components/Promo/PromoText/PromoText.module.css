@@ -58,10 +58,7 @@
 }
 
 .headingHighlight {
-  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--teal);
   position: relative;
 }
 
