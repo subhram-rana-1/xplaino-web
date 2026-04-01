@@ -6,7 +6,7 @@ interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
-type AdminSection = 'pricing' | 'ticket' | 'domain' | 'coupon';
+type AdminSection = /* 'pricing' | */ 'ticket' | 'domain' | /* 'coupon' | */ 'user-feedback';
 
 /**
  * Admin - Admin layout component with sidebar navigation
@@ -17,19 +17,21 @@ export const Admin: React.FC<AdminLayoutProps> = ({ children }) => {
   const location = useLocation();
 
   const sidebarItems: { key: AdminSection; label: string; path: string }[] = [
-    { key: 'ticket', label: 'Ticket', path: '/admin/ticket' },
-    { key: 'pricing', label: 'Pricing', path: '/admin/pricing' },
+    { key: 'ticket', label: 'Issues', path: '/admin/ticket' },
+    { key: 'user-feedback', label: 'User Feedback', path: '/admin/user-feedback' },
+    // { key: 'pricing', label: 'Pricing', path: '/admin/pricing' },
     { key: 'domain', label: 'Domain', path: '/admin/domain' },
-    { key: 'coupon', label: 'Coupon', path: '/admin/coupon' },
+    // { key: 'coupon', label: 'Coupon', path: '/admin/coupon' },
   ];
 
   // Determine active section from current route
   const getActiveSection = (): AdminSection => {
     const path = location.pathname;
-    if (path.startsWith('/admin/pricing')) return 'pricing';
+    // if (path.startsWith('/admin/pricing')) return 'pricing';
     if (path.startsWith('/admin/ticket')) return 'ticket';
     if (path.startsWith('/admin/domain')) return 'domain';
-    if (path.startsWith('/admin/coupon')) return 'coupon';
+    // if (path.startsWith('/admin/coupon')) return 'coupon';
+    if (path.startsWith('/admin/user-feedback')) return 'user-feedback';
     return 'ticket'; // default
   };
 

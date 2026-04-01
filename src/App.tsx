@@ -37,6 +37,7 @@ const AdminPricingPage = lazy(() => import('@/pages/Admin/AdminPricingPage').the
 const AdminTicketsPage = lazy(() => import('@/pages/Admin/AdminTicketsPage').then((m) => ({ default: m.AdminTicketsPage })));
 const AdminDomainsPage = lazy(() => import('@/pages/Admin/AdminDomainsPage').then((m) => ({ default: m.AdminDomainsPage })));
 const AdminCouponPage = lazy(() => import('@/pages/Admin/AdminCouponPage').then((m) => ({ default: m.AdminCouponPage })));
+const AdminUserFeedbackPage = lazy(() => import('@/pages/Admin/AdminUserFeedbackPage').then((m) => ({ default: m.AdminUserFeedbackPage })));
 const PricingAdd = lazy(() => import('@/pages/Admin/components/PricingAdd').then((m) => ({ default: m.PricingAdd })));
 const PricingDetail = lazy(() => import('@/pages/Admin/components/PricingDetail').then((m) => ({ default: m.PricingDetail })));
 const UserDashboard = lazy(() => import('@/pages/UserDashboard').then((m) => ({ default: m.UserDashboard })));
@@ -325,6 +326,14 @@ const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: 
                     <CouponEdit />
                   </AdminProtectedRoute>
                 } 
+              />
+              <Route
+                path="/admin/user-feedback"
+                element={
+                  <AdminProtectedRoute>
+                    <AdminUserFeedbackPage />
+                  </AdminProtectedRoute>
+                }
               />
               <Route path="/tools/pdf" element={<ToolsPdfRoute />} />
               <Route path="*" element={<Navigate to="/" replace />} />
