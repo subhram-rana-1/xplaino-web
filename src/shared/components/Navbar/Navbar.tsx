@@ -11,6 +11,7 @@ import { Theme } from '@/shared/types/user-settings.types';
 import { LogOut, User, LayoutGrid, AlertCircle, ChevronDown, X } from 'lucide-react';
 import { LoginModal } from '@/shared/components/LoginModal';
 import { Toast } from '@/shared/components/Toast';
+import { WEBPAGE_FEATURES, PDF_FEATURES } from '@/config/features.config';
 
 const EXT_PILL_DISMISSED_KEY = 'xplaino-ext-pill-dismissed';
 
@@ -26,9 +27,11 @@ interface NavbarProps {
  */
 export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isFeaturesDropdownOpen, setIsFeaturesDropdownOpen] = useState(false);
   const [isToolsDropdownOpen, setIsToolsDropdownOpen] = useState(false);
   const [isProfilePopoverOpen, setIsProfilePopoverOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const featuresDropdownRef = useRef<HTMLDivElement>(null);
   const toolsDropdownRef = useRef<HTMLDivElement>(null);
   const [isModalClosing, setIsModalClosing] = useState(false);
   const [loginModalActionText, setLoginModalActionText] = useState('access your dashboard');
@@ -60,6 +63,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
     setIsMenuOpen(false);
     setIsProfilePopoverOpen(false);
     setIsToolsDropdownOpen(false);
+    setIsFeaturesDropdownOpen(false);
   };
 
   const handleToolsExtensionClick = () => {
@@ -280,6 +284,62 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
               </div>
             )}
             <div className={`${styles.navLinks} ${isMenuOpen ? styles.navLinksOpen : ''}`}>
+              {/* Features mega-dropdown */}
+              <div
+                className={styles.dropdownContainer}
+                ref={featuresDropdownRef}
+                onMouseEnter={() => setIsFeaturesDropdownOpen(true)}
+                onMouseLeave={() => setIsFeaturesDropdownOpen(false)}
+              >
+                <button
+                  className={`${styles.navLink} ${styles.dropdownTrigger} ${isActiveRoute('/features') ? styles.navLinkActive : ''}`}
+                  onClick={() => setIsFeaturesDropdownOpen((v) => !v)}
+                >
+                  Features
+                  <ChevronDown
+                    className={styles.dropdownChevron}
+                    size={14}
+                    style={{ transition: 'transform 0.2s ease', transform: isFeaturesDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                  />
+                </button>
+                <div className={`${styles.featuresDropdownMenu} ${isFeaturesDropdownOpen ? styles.dropdownMenuOpen : ''}`}>
+                  <div className={styles.featuresDropdownGrid}>
+                    <div className={styles.featuresDropdownSection}>
+                      <span className={styles.featuresDropdownSectionLabel}>Webpage</span>
+                      {WEBPAGE_FEATURES.map((feature) => (
+                        <Link
+                          key={feature.slug}
+                          to={feature.route}
+                          className={`${styles.dropdownItem} ${isActiveRoute(feature.route) ? styles.dropdownItemActive : ''}`}
+                          onClick={closeMenu}
+                        >
+                          <span className={styles.dropdownItemContent}>
+                            <span className={styles.dropdownItemTitle}>{feature.navTitle}</span>
+                            <span className={styles.dropdownItemDesc}>{feature.navDescription}</span>
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                    <div className={styles.featuresDropdownSection}>
+                      <span className={styles.featuresDropdownSectionLabel}>PDF</span>
+                      {PDF_FEATURES.map((feature) => (
+                        <Link
+                          key={feature.slug}
+                          to={feature.route}
+                          className={`${styles.dropdownItem} ${isActiveRoute(feature.route) ? styles.dropdownItemActive : ''}`}
+                          onClick={closeMenu}
+                        >
+                          <span className={styles.dropdownItemContent}>
+                            <span className={styles.dropdownItemTitle}>{feature.navTitle}</span>
+                            <span className={styles.dropdownItemDesc}>{feature.navDescription}</span>
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Tools dropdown */}
               <div
                 className={styles.dropdownContainer}
                 ref={toolsDropdownRef}
@@ -291,7 +351,6 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                   onClick={() => setIsToolsDropdownOpen((v) => !v)}
                 >
                   Tools
-                  <span className={styles.freeBadge}>FREE</span>
                   <ChevronDown
                     className={styles.dropdownChevron}
                     size={14}

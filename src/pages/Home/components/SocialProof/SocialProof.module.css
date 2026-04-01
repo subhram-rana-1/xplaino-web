@@ -34,9 +34,9 @@
 
 .metric {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.3rem;
 }
 
 .metricValue {
@@ -47,14 +47,15 @@
   letter-spacing: -0.02em;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 
 .metricLabel {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 500;
   color: var(--text-tertiary);
   font-family: 'Inter', sans-serif;
+  text-align: center;
 }
 
 .metricIcon {
@@ -70,6 +71,19 @@
 .metricIcon svg {
   width: 100%;
   height: 100%;
+}
+
+.starsRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.starIcon {
+  width: 1.625rem;
+  height: 1.625rem;
+  color: #f5a623;
+  flex-shrink: 0;
 }
 
 .metricDivider {

@@ -185,8 +185,22 @@
     gap: 0.2rem;
   }
 
+  .mobileStarsRow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.1rem;
+  }
+
+  .mobileStarIcon {
+    width: 1.125rem;
+    height: 1.125rem;
+    color: #f5a623;
+    fill: #f5a623;
+    flex-shrink: 0;
+  }
+
   .mobileMetricValue {
-    font-size: 1.625rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: #7aaba5;
     font-family: 'Inter', sans-serif;
@@ -201,11 +215,6 @@
     font-weight: 500;
     color: #7aaba5;
     font-family: 'Inter', sans-serif;
-  }
-
-  .mobileStarIcon {
-    color: #f5a623;
-    fill: #f5a623;
   }
 
   .mobileMetricDivider {
@@ -237,8 +246,13 @@
     font-size: 0.9375rem;
   }
 
+  .mobileStarIcon {
+    width: 1rem;
+    height: 1rem;
+  }
+
   .mobileMetricValue {
-    font-size: 1.375rem;
+    font-size: 1.125rem;
     color: #7aaba5;
   }
 

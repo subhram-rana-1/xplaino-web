@@ -1,50 +1,3 @@
-/* Desktop: two-column grid — text left, video top-right, buttons bottom-right */
-.promo {
-  display: grid;
-  grid-template-columns: 1.1fr 1.3fr;
-  grid-template-rows: 1fr auto;
-  column-gap: 15px;
-  row-gap: 2.5rem;
-  padding: 2.5rem 4.5rem 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 1;
-}
-
-.promoWrapper {
-  position: relative;
-  padding-bottom: 0.75rem;
-}
-
-.promoLeft {
-  grid-column: 1;
-  grid-row: 1 / 3;
-  display: flex;
-  align-items: flex-start;
-}
-
-.promoRight {
-  grid-column: 2;
-  grid-row: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Button row — below video on desktop */
-.buttonRow {
-  grid-column: 2;
-  grid-row: 2;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-  padding-top: 0.25rem;
-}
-
 .pdfButton {
   display: flex;
   align-items: center;
@@ -113,37 +66,7 @@
   white-space: nowrap;
 }
 
-/* ===== TABLET (≤1024px): flex column, buttons between text and video ===== */
 @media (max-width: 1024px) {
-  .promo {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    padding: 1.5rem 2rem 2rem;
-  }
-
-  .promoWrapper {
-    padding-bottom: 0.5rem;
-  }
-
-  .promoLeft {
-    order: 1;
-    width: 100%;
-  }
-
-  .promoRight {
-    order: 2;
-    width: 100%;
-  }
-
-  .buttonRow {
-    order: 3;
-    justify-content: center;
-    gap: 0.75rem;
-    padding-top: 1.5rem;
-  }
-
   .pdfButton {
     font-size: 1rem;
     padding: 1rem 1.75rem;
@@ -161,44 +84,7 @@
   }
 }
 
-/* ===== MOBILE (≤768px) ===== */
-@media (max-width: 768px) {
-  .promo {
-    padding: 1.75rem 1.5rem 1.5rem;
-    gap: 3.5rem;
-    justify-content: center;
-  }
-
-  .promoWrapper {
-    padding-bottom: 0.5rem;
-    min-height: auto;
-    display: flex;
-    align-items: flex-start;
-  }
-
-  .buttonRow {
-    gap: 0.75rem;
-    padding-top: 0;
-  }
-}
-
-/* ===== SMALL MOBILE (≤480px) ===== */
 @media (max-width: 480px) {
-  .promo {
-    padding: 1.5rem 1rem 2.5rem;
-    gap: 3rem;
-  }
-
-  .promoWrapper {
-    padding-bottom: 1rem;
-  }
-
-  .buttonRow {
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-  }
-
   .pdfButton {
     width: 90%;
     max-width: 380px;

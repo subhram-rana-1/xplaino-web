@@ -54,6 +54,7 @@ const AdminIssueDetail = lazy(() => import('@/pages/Admin/components/AdminIssueD
 const DomainEdit = lazy(() => import('@/pages/Admin/components/AdminDomains').then((m) => ({ default: m.DomainEdit })));
 const CouponEdit = lazy(() => import('@/pages/Admin/components/AdminCoupons').then((m) => ({ default: m.CouponEdit })));
 const ToolsPdfPage = lazy(() => import('@/pages/ToolsPdf').then((m) => ({ default: m.ToolsPdfPage })));
+const FeatureLanding = lazy(() => import('@/pages/FeatureLanding').then((m) => ({ default: m.FeatureLanding })));
 
 /**
  * ToolsPdfRoute - Renders ToolsPdfPage for guests.
@@ -105,11 +106,16 @@ const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: 
   const location = useLocation();
   const isPdfDetailPage = location.pathname.startsWith('/pdf/');
   const isGettingStartedPage = location.pathname === '/getting-started';
+  const isHomePage = location.pathname === '/';
+  const isFeaturePage = location.pathname.startsWith('/features/');
+
+  // Pages where the discount bar and mini-coupon badge should be hidden
+  const hideDiscount = isGettingStartedPage || isHomePage || isFeaturePage;
 
   return (
     <>
-      {!isGettingStartedPage && <HighlightedCoupon onDismiss={() => setShowMiniCoupon(true)} />}
-      <Navbar showMiniCoupon={showMiniCoupon} />
+      {!hideDiscount && <HighlightedCoupon onDismiss={() => setShowMiniCoupon(true)} />}
+      <Navbar showMiniCoupon={hideDiscount ? false : showMiniCoupon} />
       <PageContent>
             <Suspense fallback={null}>
             <Routes>
@@ -336,6 +342,14 @@ const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: 
                 }
               />
               <Route path="/tools/pdf" element={<ToolsPdfRoute />} />
+              {/* Feature landing pages */}
+              <Route path="/features/chat-with-webpage" element={<FeatureLanding slug="chat-with-webpage" />} />
+              <Route path="/features/web-highlighter-notes" element={<FeatureLanding slug="web-highlighter-notes" />} />
+              <Route path="/features/chat-with-image" element={<FeatureLanding slug="chat-with-image" />} />
+              <Route path="/features/web-bookmarks" element={<FeatureLanding slug="web-bookmarks" />} />
+              <Route path="/features/knowledge-dashboard" element={<FeatureLanding slug="knowledge-dashboard" />} />
+              <Route path="/features/chat-with-pdf" element={<FeatureLanding slug="chat-with-pdf" />} />
+              <Route path="/features/pdf-highlighter-notes" element={<FeatureLanding slug="pdf-highlighter-notes" />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
             </Suspense>

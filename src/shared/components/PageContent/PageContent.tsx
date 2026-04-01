@@ -17,12 +17,13 @@ export const PageContent: React.FC<PageContentProps> = ({ children }) => {
   const isHomePage = location.pathname === '/';
   const isPdfDetailPage = location.pathname.startsWith('/pdf/');
   const isToolsPdfPage = location.pathname === '/tools/pdf';
+  const isFeaturePage = location.pathname.startsWith('/features/');
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isUserAccountRoute = location.pathname.startsWith('/user/account');
   const isUserDashboardRoute = location.pathname.startsWith('/user/dashboard');
   
   const getPageContentClass = () => {
-    if (isHomePage) {
+    if (isHomePage || isFeaturePage) {
       return styles.pageContentFullWidthNoBottomPadding;
     }
     if (isPdfDetailPage) {

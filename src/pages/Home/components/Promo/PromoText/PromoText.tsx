@@ -21,10 +21,12 @@ export const PromoText: React.FC = () => {
       </p>
       <div className={styles.mobileMetrics} aria-label="Social proof">
         <div className={styles.mobileMetric}>
-          <span className={styles.mobileMetricValue}>
-            <Star aria-hidden fill="currentColor" className={styles.mobileStarIcon} />
-            4.9/5
+          <span className={styles.mobileStarsRow} aria-hidden>
+            {[1,2,3,4,5].map((i) => (
+              <Star key={i} fill="currentColor" className={styles.mobileStarIcon} />
+            ))}
           </span>
+          <span className={styles.mobileMetricValue}>4.9/5</span>
           <span className={styles.mobileMetricLabel}>on Chrome Web Store</span>
         </div>
       </div>

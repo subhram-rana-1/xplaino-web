@@ -2,13 +2,13 @@
   display: flex;
   align-items: center;
   position: relative;
-  padding: 1rem 1.75rem;
-  padding-left: 1rem;
+  padding: 1.125rem 2.125rem;
+  padding-left: 1.125rem;
   background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
   color: var(--text-on-primary);
   border: none;
-  border-radius: 9999px;
-  font-size: 1rem;
+  border-radius: 14px;
+  font-size: 1.0625rem;
   cursor: pointer;
   transition: background 0.3s ease, box-shadow 0.3s ease;
   width: fit-content;
@@ -25,7 +25,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: 9999px;
+  border-radius: 14px;
   background: linear-gradient(135deg, var(--white-rgba-20) 0%, transparent 50%);
   pointer-events: none;
 }
@@ -139,9 +139,9 @@
 /* Responsive design - tablet */
 @media (max-width: 768px) {
   .chromeButton {
-    font-size: 0.9375rem;
-    padding: 0.875rem 1.5rem;
-    padding-left: 1.25rem;
+    font-size: 1rem;
+    padding: 1rem 1.75rem;
+    padding-left: 1.125rem;
   }
 
   .chromeLogo {
@@ -159,15 +159,15 @@
 @media (max-width: 480px) {
   .chromeButton {
     width: 90%;
-    max-width: 360px;
+    max-width: 380px;
     margin-left: auto;
     margin-right: auto;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.75rem 1.25rem;
-    font-size: 0.8125rem;
+    padding: 0.9375rem 1.5rem;
+    font-size: 0.9375rem;
   }
 
   .chromeLogo {

@@ -100,13 +100,13 @@
   display: flex;
   align-items: center;
   position: relative;
-  padding: 1rem 1.75rem;
-  padding-left: 1rem;
+  padding: 1.125rem 2.125rem;
+  padding-left: 1.125rem;
   background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
   color: var(--text-on-primary);
   border: none;
-  border-radius: 9999px;
-  font-size: 1rem;
+  border-radius: 14px;
+  font-size: 1.0625rem;
   font-weight: 600;
   font-family: 'Inter', sans-serif;
   letter-spacing: 0.01em;
@@ -124,7 +124,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: 9999px;
+  border-radius: 14px;
   background: linear-gradient(135deg, var(--white-rgba-20) 0%, transparent 50%);
   pointer-events: none;
 }

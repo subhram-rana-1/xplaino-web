@@ -1,10 +1,9 @@
 import React, { Suspense, lazy } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ScrollReveal } from '@/shared/components/ScrollReveal';
 import { Promo } from './components/Promo';
 import { TransformationIntro } from './components/TransformationIntro';
 import { ChromeButton } from '@/shared/components/ChromeButton';
-import pdfIcon from '@/assets/images/pdf.webp';
+import { PdfButton } from '@/shared/components/PdfButton';
 import styles from './Home.module.css';
 
 const SocialProof = lazy(() => import('./components/SocialProof').then((m) => ({ default: m.SocialProof })));
@@ -24,8 +23,6 @@ const QuoteTestimonials = lazy(() => import('./components/QuoteTestimonials').th
  * @returns JSX element
  */
 export const Home: React.FC = () => {
-  const navigate = useNavigate();
-
   return (
     <div className={styles.home}>
       <Promo />
@@ -66,13 +63,7 @@ export const Home: React.FC = () => {
             <h2 className={styles.ctaHeading}>Build Your Second Brain While You Browse</h2>
             <p className={styles.ctaSubtext}>Get AI-powered summaries, translations, and structured knowledge storage — all inside your browser. Install Xplaino AI and transform how you learn online.</p>
             <div className={styles.ctaButtonRow}>
-              <button
-                className={styles.ctaPdfButton}
-                onClick={() => navigate('/tools/pdf')}
-              >
-                <img src={pdfIcon} alt="" aria-hidden className={styles.ctaPdfIcon} />
-                <span className={styles.ctaPdfText}>Try PDF for Free</span>
-              </button>
+              <PdfButton />
               <ChromeButton />
             </div>
           </div>

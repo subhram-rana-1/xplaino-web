@@ -18,8 +18,10 @@ export const SocialProof: React.FC = () => {
             <div className={styles.metricsRow}>
               <div className={styles.metric}>
                 <span className={styles.metricValue}>
-                  <span className={styles.metricIcon} aria-hidden>
-                    <Star fill="currentColor" />
+                  <span className={styles.starsRow} aria-hidden>
+                    {[1,2,3,4,5].map((i) => (
+                      <Star key={i} fill="currentColor" className={styles.starIcon} />
+                    ))}
                   </span>
                   4.9/5
                 </span>

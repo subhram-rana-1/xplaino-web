@@ -1,0 +1,515 @@
+/* ======================================================================
+   FeatureLanding — above-the-fold layout: text left, video + grid right
+   ====================================================================== */
+
+.page {
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 60% 300% at 0% 50%, var(--teal-rgba-15) 0%, var(--teal-rgba-10) 30%, transparent 70%),
+    radial-gradient(ellipse 60% 300% at 100% 50%, var(--teal-rgba-15) 0%, var(--teal-rgba-10) 30%, transparent 70%),
+    var(--bg-white);
+}
+
+.page::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 450px;
+  height: 100vh;
+  background: linear-gradient(90deg, var(--teal-lighter) 0%, var(--teal-rgba-15) 20%, var(--teal-rgba-10) 40%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 450px;
+  height: 100vh;
+  background: linear-gradient(270deg, var(--teal-lighter) 0%, var(--teal-rgba-15) 20%, var(--teal-rgba-10) 40%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Promo layout ─────────────────────────────────────────────────────── */
+
+.promoWrapper {
+  position: relative;
+  z-index: 1;
+  /* Reduced vertical padding so everything sits above the fold */
+  padding-top: 2.25rem;
+  padding-bottom: 2.25rem;
+}
+
+/* Desktop: 2-column CSS grid, both columns stretch to equal height */
+.promo {
+  display: grid;
+  grid-template-columns: 1.05fr 1.35fr;
+  grid-template-rows: 1fr;
+  column-gap: 2.5rem;
+  align-items: stretch;
+  padding: 1.5rem 4.5rem 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.promoLeft {
+  grid-column: 1;
+  display: flex;
+  align-items: center;
+}
+
+.promoRight {
+  grid-column: 2;
+  display: flex;
+  align-items: stretch;
+}
+
+/* ── Right column — flex column: video on top, features grid below ─────── */
+
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  width: 100%;
+  min-height: 0;
+}
+
+/* ── Copy (left column) ────────────────────────────────────────────────── */
+
+.promoText {
+  display: flex;
+  flex-direction: column;
+  /* Tighter gap so tall headings don't push things off-screen */
+  gap: 1.25rem;
+}
+
+.heading {
+  font-size: 2.875rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0;
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.03em;
+}
+
+.headingHighlight {
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.description {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  max-width: 500px;
+}
+
+.tagline {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--teal);
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* Rating + CTA grouped — extra top margin creates breathing room from the tagline */
+.ctaGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  align-items: flex-start;
+  /* Explicit full width so ratingRow centers across the whole column, not just the button width */
+  width: 100%;
+  margin-top: 1.25rem;
+}
+
+/* CTA button — teal gradient, reasonable border-radius (not pill) */
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  position: relative;
+  align-self: flex-start;
+  padding: 0.9375rem 1.875rem;
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+  color: var(--text-on-primary);
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow:
+    0 4px 12px var(--teal-rgba-30),
+    0 8px 24px var(--shadow-black-15),
+    inset 0 1px 0 var(--white-rgba-20);
+  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
+}
+
+.ctaIcon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+.ctaButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--white-rgba-20) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.ctaButton:hover {
+  background: linear-gradient(135deg, var(--teal-dark) 0%, #2a8a8a 100%);
+  box-shadow:
+    0 6px 20px var(--teal-rgba-40),
+    0 12px 32px var(--shadow-black-20),
+    inset 0 1px 0 var(--white-rgba-32);
+}
+
+.ctaButton:active {
+  transform: scale(0.98);
+  box-shadow:
+    0 2px 8px var(--teal-rgba-30),
+    0 4px 12px var(--shadow-black-15);
+}
+
+/* ── Star rating row (extension pages) ─────────────────────────────────── */
+
+.ratingRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  /* Left-aligned to share the same axis as the CTA button */
+  justify-content: flex-start;
+}
+
+.ratingStars {
+  font-size: 1.125rem;
+  color: #f5a623;
+  line-height: 1;
+  letter-spacing: 0.05em;
+}
+
+.ratingScore {
+  font-size: 1.625rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.ratingLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Video ──────────────────────────────────────────────────────────────── */
+
+.videoContainer {
+  position: relative;
+  width: 100%;
+  /* Fill available height in the right column flex container */
+  flex: 1;
+  min-height: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  background: #ffffff;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
+  outline: none;
+}
+
+.videoContainer:focus {
+  outline: 2px solid var(--teal);
+  outline-offset: 3px;
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center 48%;
+  user-select: none;
+  pointer-events: none;
+  background: #ffffff;
+}
+
+.playOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0);
+  transition: background 0.2s ease;
+}
+
+.videoContainer:hover .playOverlay {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.playIcon {
+  font-size: 2.25rem;
+  color: rgba(255, 255, 255, 0.9);
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  transform: scale(0.85);
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+  line-height: 1;
+}
+
+.videoContainer:hover .playIcon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ── Compact other-features grid (below video) ─────────────────────────── */
+
+@keyframes tealRunning {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+.featuresGrid {
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.featuresGridLabel {
+  font-size: 0.875rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: 'Inter', sans-serif;
+  margin: 0 0 0.75rem;
+  /* Running teal shimmer */
+  background: linear-gradient(
+    90deg,
+    #0a5d52 0%,
+    #0d8070 20%,
+    #14b8a6 45%,
+    #0d8070 70%,
+    #0a5d52 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: tealRunning 2.8s linear infinite;
+}
+
+.featuresGridItems {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 1.25rem;
+}
+
+.featureChip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.featureChipDot {
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--teal);
+}
+
+.featureChipName {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-family: 'Inter', sans-serif;
+  line-height: 1.3;
+}
+
+/* ── 404-style fallback ─────────────────────────────────────────────────── */
+
+.notFound {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-secondary);
+}
+
+/* ======================================================================
+   RESPONSIVE
+   ====================================================================== */
+
+/* ── Tablet (≤1024px) ────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .promoWrapper {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .promo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    padding: 1.5rem 2rem 2rem;
+  }
+
+  .promoLeft,
+  .promoRight {
+    width: 100%;
+  }
+
+  .promoText {
+    align-items: center;
+    text-align: center;
+  }
+
+  .description {
+    max-width: 100%;
+  }
+
+  .ctaButton {
+    align-self: center;
+  }
+
+  .ctaGroup {
+    align-items: center;
+    align-self: stretch;
+  }
+
+  .heading {
+    font-size: 2.5rem;
+  }
+
+  .rightColumn {
+    max-width: 640px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .videoContainer {
+    flex: none;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    min-height: unset;
+  }
+
+  .featuresGridItems {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ── Mobile (≤768px) ─────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .promoWrapper {
+    padding-top: 1.75rem;
+    padding-bottom: 1.75rem;
+  }
+
+  .promo {
+    padding: 1.5rem 1.5rem 1.75rem;
+    gap: 1.75rem;
+  }
+
+  .heading {
+    font-size: 1.875rem;
+  }
+
+  .description {
+    font-size: 1rem;
+  }
+
+  .tagline {
+    font-size: 0.9375rem;
+  }
+
+  .videoContainer {
+    border-radius: 12px;
+  }
+
+  .rightColumn {
+    max-width: 92%;
+  }
+}
+
+/* ── Small mobile (≤480px) ──────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .promo {
+    padding: 1.25rem 1rem 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .promoWrapper {
+    padding-top: 1.25rem;
+  }
+
+  .heading {
+    font-size: 1.625rem;
+  }
+
+  .description {
+    font-size: 0.9375rem;
+    line-height: 1.65;
+  }
+
+  .ctaButton {
+    width: 90%;
+    max-width: 360px;
+    font-size: 0.9375rem;
+    padding: 0.875rem 1.25rem;
+    text-align: center;
+    white-space: normal;
+    line-height: 1.3;
+    align-self: center;
+  }
+
+  .videoContainer {
+    border-radius: 10px;
+  }
+
+  .rightColumn {
+    max-width: 95%;
+  }
+
+  .featuresGridItems {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ratingScore {
+    font-size: 1.375rem;
+  }
+
+  .ratingLabel {
+    font-size: 0.8125rem;
+  }
+}

@@ -161,17 +161,6 @@ export const HighlightedCoupon: React.FC<HighlightedCouponProps> = ({ onDismiss,
             </div>
           )}
           <div className={styles.rightSection}>
-            <div className={styles.codeContainer}>
-              <span className={styles.codeLabel}>You save:</span>
-              <button
-                className={styles.codeButton}
-                onClick={handleGoToPricing}
-                aria-label="View pricing"
-              >
-                <span className={styles.codeValue}>{bestDeal.formattedSavings}</span>
-                <span className={styles.copyIcon}>🔥</span>
-              </button>
-            </div>
             <button
               type="button"
               className={styles.ctaButton}
