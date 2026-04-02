@@ -1,8 +1,7 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Navbar } from '@/shared/components/Navbar';
-import { HighlightedCoupon } from '@/shared/components/HighlightedCoupon';
 import { PageContent } from '@/shared/components/PageContent';
 import { Footer } from '@/shared/components/Footer';
 import { authConfig } from '@/config/auth.config';
@@ -103,15 +102,9 @@ const ToolsPdfRoute: React.FC = () => {
 /**
  * AppContent - Inner component that uses useLocation for conditional rendering
  */
-const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: boolean) => void }> = ({ showMiniCoupon, setShowMiniCoupon }) => {
+const AppContent: React.FC = () => {
   const location = useLocation();
   const isPdfDetailPage = location.pathname.startsWith('/pdf/');
-  const isGettingStartedPage = location.pathname === '/getting-started';
-  const isHomePage = location.pathname === '/';
-  const isFeaturePage = location.pathname.startsWith('/features/');
-
-  // Pages where the discount bar and mini-coupon badge should be hidden
-  const hideDiscount = isGettingStartedPage || isHomePage || isFeaturePage;
 
   return (
     <>
@@ -375,14 +368,12 @@ const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: 
  * @returns JSX element
  */
 export const App: React.FC = () => {
-  const [showMiniCoupon, setShowMiniCoupon] = useState(false);
-
   return (
     <GoogleOAuthProvider clientId={authConfig.googleClientId}>
       <BrowserRouter>
         <AuthProvider>
           <ThemeProvider>
-            <AppContent showMiniCoupon={showMiniCoupon} setShowMiniCoupon={setShowMiniCoupon} />
+            <AppContent />
           </ThemeProvider>
         </AuthProvider>
       </BrowserRouter>
