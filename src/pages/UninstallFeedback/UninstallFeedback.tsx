@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchPublic, extractErrorMessage } from '@/shared/services/api-client';
 import { authConfig } from '@/config/auth.config';
 import styles from './UninstallFeedback.module.css';
@@ -26,9 +26,12 @@ const UNINSTALL_REASONS = [
  */
 export const UninstallFeedback: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const emailFromUrl = searchParams.get('email') ?? undefined;
   const [reason, setReason] = useState<string>('');
   const [userFeedback, setUserFeedback] = useState('');
   const [webpageUrl, setWebpageUrl] = useState('');
+  const [desiredPrice, setDesiredPrice] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -54,10 +57,12 @@ export const UninstallFeedback: React.FC = () => {
           body: JSON.stringify({
             reason,
             metadata: reason === 'MISSING_FEATURES'
-              ? { featureMissing: userFeedback.trim() }
+              ? { featureMissing: userFeedback.trim(), userEmail: emailFromUrl }
               : reason === 'EXTENSION_NOT_WORKING'
-                ? { webpageUrl: webpageUrl.trim() }
-                : { userFeedback: userFeedback.trim() || undefined },
+                ? { webpageUrl: webpageUrl.trim(), userEmail: emailFromUrl }
+                : reason === 'TOO_EXPENSIVE'
+                  ? { desiredPrice: desiredPrice.trim() || undefined, userFeedback: userFeedback.trim() || undefined, userEmail: emailFromUrl }
+                  : { userFeedback: userFeedback.trim() || undefined, userEmail: emailFromUrl },
           }),
         }
       );
@@ -124,6 +129,7 @@ export const UninstallFeedback: React.FC = () => {
                           setReason(e.target.value);
                           setUserFeedback('');
                           setWebpageUrl('');
+                          setDesiredPrice('');
                         }}
                         className={styles.radioInput}
                       />
@@ -168,7 +174,36 @@ export const UninstallFeedback: React.FC = () => {
                 </div>
               )}
 
-              {reason !== '' && reason !== 'MISSING_FEATURES' && reason !== 'EXTENSION_NOT_WORKING' && (
+              {reason === 'TOO_EXPENSIVE' && (
+                <div className={styles.feedbackGroup}>
+                  <label htmlFor="desiredPrice" className={styles.label}>
+                    What price would you be willing to pay? <span className={styles.optional}>(per month)</span>
+                  </label>
+                  <input
+                    id="desiredPrice"
+                    type="text"
+                    value={desiredPrice}
+                    onChange={(e) => setDesiredPrice(e.target.value)}
+                    // placeholder="e.g. $3/month, $5/month"
+                    className={styles.input}
+                    disabled={isSubmitting}
+                  />
+                  <label htmlFor="userFeedback" className={styles.label} style={{ marginTop: '0.75rem' }}>
+                    Anything else? <span className={styles.optional}>(optional)</span>
+                  </label>
+                  <textarea
+                    id="userFeedback"
+                    value={userFeedback}
+                    onChange={(e) => setUserFeedback(e.target.value)}
+                    placeholder="Share any additional thoughts..."
+                    className={styles.textarea}
+                    rows={3}
+                    disabled={isSubmitting}
+                  />
+                </div>
+              )}
+
+              {reason !== '' && reason !== 'MISSING_FEATURES' && reason !== 'EXTENSION_NOT_WORKING' && reason !== 'TOO_EXPENSIVE' && (
                 <div className={styles.feedbackGroup}>
                   <label htmlFor="userFeedback" className={styles.label}>
                     Tell us more <span className={styles.optional}>(optional)</span>
@@ -231,91 +266,24 @@ export const UninstallFeedback: React.FC = () => {
         {/* PDF Feature Promo — always visible */}
         <div className={styles.pdfPromo}>
           <div className={styles.pdfPromoBadge}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
             </svg>
-            Works without the extension
+            No install needed
           </div>
-          <div className={styles.pdfPromoHeader}>
-            <div className={styles.pdfPromoIcon}>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="16" y1="13" x2="8" y2="13" />
-                <line x1="16" y1="17" x2="8" y2="17" />
-                <polyline points="10 9 9 9 8 9" />
-              </svg>
-            </div>
-            <div>
-              <h3 className={styles.pdfPromoTitle}>Try our AI PDF tool — free, no install needed</h3>
-              <p className={styles.pdfPromoSubtitle}>Upload any PDF and chat with it, highlight, annotate, and share — all in your browser.</p>
-            </div>
-          </div>
-
-          <div className={styles.pdfPromoFeatures}>
-            <div className={styles.pdfPromoFeature}>
-              <div className={styles.pdfPromoFeatureIcon}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                </svg>
-              </div>
-              <div>
-                <div className={styles.pdfPromoFeatureName}>Chat with your PDF</div>
-                <div className={styles.pdfPromoFeatureDesc}>Ask any question, get answers with exact source citations</div>
-              </div>
-            </div>
-
-            <div className={styles.pdfPromoFeature}>
-              <div className={styles.pdfPromoFeatureIcon}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                  <circle cx="9" cy="7" r="4" />
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                </svg>
-              </div>
-              <div>
-                <div className={styles.pdfPromoFeatureName}>Collaborate with teammates</div>
-                <div className={styles.pdfPromoFeatureDesc}>Collaboratively study and communicate over a PDF right there</div>
-              </div>
-            </div>
-
-            <div className={styles.pdfPromoFeature}>
-              <div className={styles.pdfPromoFeatureIcon}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 20h9" />
-                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                </svg>
-              </div>
-              <div>
-                <div className={styles.pdfPromoFeatureName}>Highlights & notes</div>
-                <div className={styles.pdfPromoFeatureDesc}>Mark what matters, add personal annotations, never lose context</div>
-              </div>
-            </div>
-
-            <div className={styles.pdfPromoFeature}>
-              <div className={styles.pdfPromoFeatureIcon}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="18" cy="5" r="3" />
-                  <circle cx="6" cy="12" r="3" />
-                  <circle cx="18" cy="19" r="3" />
-                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                  <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-                </svg>
-              </div>
-              <div>
-                <div className={styles.pdfPromoFeatureName}>Share with anyone</div>
-                <div className={styles.pdfPromoFeatureDesc}>Share via link or post directly to LinkedIn, X, WhatsApp</div>
-              </div>
-            </div>
-          </div>
-
+          <h3 className={styles.pdfPromoTitle}>Try our free AI PDF tool</h3>
+          <ul className={styles.pdfPromoList}>
+            <li>Chat with any PDF — get cited answers instantly</li>
+            <li>Highlight, annotate &amp; add personal notes</li>
+            <li>Collaborate with teammates on the same doc</li>
+            <li>Share via link or post to LinkedIn, X, WhatsApp</li>
+          </ul>
           <button
             onClick={() => navigate('/tools/pdf')}
             className={styles.pdfPromoButton}
           >
             Try PDF Tool — It's Free
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="5" y1="12" x2="19" y2="12" />
               <polyline points="12 5 19 12 12 19" />
             </svg>

@@ -292,6 +292,7 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                 onMouseLeave={() => setIsFeaturesDropdownOpen(false)}
               >
                 <button
+                  data-walkthrough="features-btn"
                   className={`${styles.navLink} ${styles.dropdownTrigger} ${isActiveRoute('/features') ? styles.navLinkActive : ''}`}
                   onClick={() => setIsFeaturesDropdownOpen((v) => !v)}
                 >
@@ -387,19 +388,21 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
               >
                 Pricing
               </Link>
-              <button 
-                className={`${styles.navLink} ${isDashboardActive() ? styles.navLinkActive : ''}`} 
-                onClick={handleMyDashboardClick}
-              >
-                {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') ? 'Admin Dashboard' : 'My Dashboard'}
-              </button>
-              <Link 
-                to="/report-issue" 
-                className={`${styles.navLink} ${isActiveRoute('/report-issue') ? styles.navLinkActive : ''}`} 
-                onClick={handleReportIssueClick}
-              >
-                Report Issue
-              </Link>
+              <div data-walkthrough="dashboard-report" className={styles.walkthroughGroup}>
+                <button 
+                  className={`${styles.navLink} ${isDashboardActive() ? styles.navLinkActive : ''}`} 
+                  onClick={handleMyDashboardClick}
+                >
+                  {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') ? 'Admin Dashboard' : 'My Dashboard'}
+                </button>
+                <Link 
+                  to="/report-issue" 
+                  className={`${styles.navLink} ${isActiveRoute('/report-issue') ? styles.navLinkActive : ''}`} 
+                  onClick={handleReportIssueClick}
+                >
+                  Report Issue
+                </Link>
+              </div>
             </div>
           </div>
         )}

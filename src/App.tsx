@@ -114,8 +114,8 @@ const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: 
 
   return (
     <>
-      {!hideDiscount && <HighlightedCoupon onDismiss={() => setShowMiniCoupon(true)} />}
-      <Navbar showMiniCoupon={hideDiscount ? false : showMiniCoupon} />
+      {/* {!hideDiscount && <HighlightedCoupon onDismiss={() => setShowMiniCoupon(true)} />} */}
+      <Navbar showMiniCoupon={false} />
       <PageContent>
             <Suspense fallback={null}>
             <Routes>
