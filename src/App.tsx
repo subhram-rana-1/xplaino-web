@@ -38,6 +38,7 @@ const AdminTicketsPage = lazy(() => import('@/pages/Admin/AdminTicketsPage').the
 const AdminDomainsPage = lazy(() => import('@/pages/Admin/AdminDomainsPage').then((m) => ({ default: m.AdminDomainsPage })));
 const AdminCouponPage = lazy(() => import('@/pages/Admin/AdminCouponPage').then((m) => ({ default: m.AdminCouponPage })));
 const AdminUserFeedbackPage = lazy(() => import('@/pages/Admin/AdminUserFeedbackPage').then((m) => ({ default: m.AdminUserFeedbackPage })));
+const AdminExtensionUninstallFeedbackPage = lazy(() => import('@/pages/Admin/AdminExtensionUninstallFeedbackPage').then((m) => ({ default: m.AdminExtensionUninstallFeedbackPage })));
 const PricingAdd = lazy(() => import('@/pages/Admin/components/PricingAdd').then((m) => ({ default: m.PricingAdd })));
 const PricingDetail = lazy(() => import('@/pages/Admin/components/PricingDetail').then((m) => ({ default: m.PricingDetail })));
 const UserDashboard = lazy(() => import('@/pages/UserDashboard').then((m) => ({ default: m.UserDashboard })));
@@ -338,6 +339,14 @@ const AppContent: React.FC<{ showMiniCoupon: boolean; setShowMiniCoupon: (show: 
                 element={
                   <AdminProtectedRoute>
                     <AdminUserFeedbackPage />
+                  </AdminProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/uninstall-feedback"
+                element={
+                  <AdminProtectedRoute>
+                    <AdminExtensionUninstallFeedbackPage />
                   </AdminProtectedRoute>
                 }
               />

@@ -1,0 +1,1 @@
+export { AdminExtensionUninstallFeedbackPage } from './AdminExtensionUninstallFeedbackPage';

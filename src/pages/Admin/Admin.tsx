@@ -6,7 +6,7 @@ interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
-type AdminSection = /* 'pricing' | */ 'ticket' | 'domain' | /* 'coupon' | */ 'user-feedback';
+type AdminSection = /* 'pricing' | */ 'ticket' | 'domain' | /* 'coupon' | */ 'user-feedback' | 'uninstall-feedback';
 
 /**
  * Admin - Admin layout component with sidebar navigation
@@ -18,6 +18,7 @@ export const Admin: React.FC<AdminLayoutProps> = ({ children }) => {
 
   const sidebarItems: { key: AdminSection; label: string; path: string }[] = [
     { key: 'ticket', label: 'Issues', path: '/admin/ticket' },
+    { key: 'uninstall-feedback', label: 'Uninstall Feedback', path: '/admin/uninstall-feedback' },
     { key: 'user-feedback', label: 'User Feedback', path: '/admin/user-feedback' },
     // { key: 'pricing', label: 'Pricing', path: '/admin/pricing' },
     { key: 'domain', label: 'Domain', path: '/admin/domain' },
@@ -32,6 +33,7 @@ export const Admin: React.FC<AdminLayoutProps> = ({ children }) => {
     if (path.startsWith('/admin/domain')) return 'domain';
     // if (path.startsWith('/admin/coupon')) return 'coupon';
     if (path.startsWith('/admin/user-feedback')) return 'user-feedback';
+    if (path.startsWith('/admin/uninstall-feedback')) return 'uninstall-feedback';
     return 'ticket'; // default
   };
 
