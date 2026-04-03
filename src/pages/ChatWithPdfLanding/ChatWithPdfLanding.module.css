@@ -1,0 +1,693 @@
+/* ======================================================================
+   ChatWithPdfLanding — dedicated Google Ads landing page for /features/chat-with-pdf
+   ====================================================================== */
+
+/* ── Page wrapper ────────────────────────────────────────────────────── */
+.page {
+  width: 100%;
+  overflow-x: hidden;
+  background:
+    radial-gradient(ellipse 70% 40% at 50% 0%, var(--teal-rgba-10) 0%, transparent 70%),
+    var(--bg-white);
+}
+
+/* ======================================================================
+   HERO
+   ====================================================================== */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  column-gap: 3rem;
+  align-items: center;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 9rem 4.5rem 3rem;
+}
+
+.heroLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.heroRight {
+  display: flex;
+  align-items: center;
+}
+
+/* ── Heading ─────────────────────────────────────────────────────────── */
+.heading {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--text-dark);
+  letter-spacing: -0.03em;
+  margin: 0;
+  /* Prevent layout jump from word cycling */
+  min-height: 2.4em;
+  margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* Cycling word slot */
+.cyclingWord {
+  display: inline-block;
+  color: var(--teal);
+  /* Prevent gradient bleed from any inherited style */
+  -webkit-text-fill-color: var(--teal);
+  background: none;
+  will-change: transform, opacity;
+}
+
+@keyframes wordSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wordSlideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+}
+
+.cyclingWordEnter {
+  animation: wordSlideIn 0.3s ease forwards;
+}
+
+.cyclingWordExit {
+  animation: wordSlideOut 0.25s ease forwards;
+}
+
+/* ── Description ─────────────────────────────────────────────────────── */
+.description {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 480px;
+}
+
+/* ── Mini feature grid (2×2) ─────────────────────────────────────────── */
+.miniFeatureGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem 1.5rem;
+}
+
+.miniFeatureItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.miniFeatureIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--teal);
+  flex-shrink: 0;
+}
+
+.miniFeatureLabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text-tertiary);
+  line-height: 1.3;
+}
+
+/* ── Security tag ────────────────────────────────────────────────────── */
+.secureRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.secureTag {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--text-tertiary);
+}
+
+.secureTagDivider {
+  font-size: 0.8rem;
+  color: var(--text-quaternary);
+  line-height: 1;
+}
+
+.secureTagIcon {
+  color: var(--teal);
+  flex-shrink: 0;
+}
+
+/* ── CTA button ──────────────────────────────────────────────────────── */
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  align-self: flex-start;
+  margin-top: 2rem;
+  padding: 0.9375rem 1.875rem;
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow:
+    0 4px 12px var(--teal-rgba-30),
+    0 8px 24px rgba(0, 0, 0, 0.12);
+  transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+  position: relative;
+}
+
+.ctaButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.ctaButton:hover {
+  background: linear-gradient(135deg, var(--teal-dark) 0%, #1a6e62 100%);
+  box-shadow:
+    0 6px 20px var(--teal-rgba-40),
+    0 12px 32px rgba(0, 0, 0, 0.18);
+}
+
+.ctaButton:active {
+  transform: scale(0.98);
+}
+
+.ctaIcon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* ── Video ───────────────────────────────────────────────────────────── */
+.videoContainer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  background: #fff;
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.08);
+  outline: none;
+  transition: box-shadow 0.25s ease;
+}
+
+.videoContainer:focus {
+  outline: 2.5px solid var(--teal);
+  outline-offset: 3px;
+}
+
+.videoContainer:hover {
+  box-shadow:
+    0 20px 56px rgba(0, 0, 0, 0.16),
+    0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center 48%;
+  user-select: none;
+  pointer-events: none;
+  background: #fff;
+}
+
+.playOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  transition: background 0.2s ease;
+}
+
+.videoContainer:hover .playOverlay {
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.playIcon {
+  font-size: 2.25rem;
+  color: rgba(255, 255, 255, 0.9);
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+  line-height: 1;
+}
+
+.videoContainer:hover .playIcon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ======================================================================
+   STATS BAR
+   ====================================================================== */
+.statsSection {
+  background: none;
+  padding: 2.5rem 4.5rem;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.statCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1.5rem 1.75rem;
+  background: var(--bg-white);
+  border-radius: 16px;
+  border: 1.5px solid var(--border-default);
+  transition: box-shadow 0.2s ease;
+}
+
+.statCard:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+}
+
+.statIcon {
+  color: var(--teal);
+  line-height: 1;
+}
+
+.statValue {
+  font-family: 'Inter', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--teal);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.statLabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+/* ======================================================================
+   SHARED SECTION HEADER
+   ====================================================================== */
+.sectionEyebrow {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--teal);
+  margin: 0 0 0.5rem;
+}
+
+.sectionTitle {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(1.6rem, 3vw, 2.25rem);
+  font-weight: 800;
+  color: var(--text-dark);
+  margin: 0 0 0.75rem;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+.sectionSubtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: var(--text-tertiary);
+  margin: 0 0 3rem;
+  line-height: 1.6;
+}
+
+/* ======================================================================
+   HOW IT WORKS
+   ====================================================================== */
+.howSection {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 4.5rem 4.5rem 3.5rem;
+  text-align: center;
+}
+
+.stepsRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.875rem;
+  flex: 1;
+  max-width: 260px;
+  padding: 0 1rem;
+}
+
+.stepConnector {
+  flex-shrink: 0;
+  width: 80px;
+  height: 2px;
+  border-top: 2px dashed var(--teal-rgba-30);
+  align-self: center;
+  margin-top: -2.5rem;
+}
+
+.stepCircle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--teal-rgba-30);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stepNumber {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--teal);
+  line-height: 1;
+}
+
+.stepIcon {
+  color: var(--teal);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepTitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.stepDesc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+  line-height: 1.6;
+  margin: 0;
+  text-align: center;
+}
+
+/* ======================================================================
+   FEATURES GRID
+   ====================================================================== */
+.featuresSection {
+  background: linear-gradient(180deg, var(--bg-white) 0%, var(--teal-rgba-10) 100%);
+  padding: 4.5rem 4.5rem;
+  text-align: center;
+}
+
+.featuresSection .sectionEyebrow,
+.featuresSection .sectionTitle,
+.featuresSection .sectionSubtitle {
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.featureCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 1.75rem 1.5rem;
+  background: var(--bg-white);
+  border-radius: 18px;
+  border: none;
+  text-align: left;
+  transition: box-shadow 0.2s ease;
+}
+
+.featureCard:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+}
+
+.featureCardIcon {
+  width: 48px;
+  height: 48px;
+  background: var(--teal-rgba-10);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--teal);
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+
+.featureCardTitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.featureCardDesc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ======================================================================
+   BOTTOM CTA STRIP
+   ====================================================================== */
+.bottomCta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  padding: 5rem 4.5rem 5.5rem;
+  background: linear-gradient(135deg, var(--teal-rgba-10) 0%, var(--teal-rgba-15) 100%);
+}
+
+.bottomCtaTitle {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(1.6rem, 3vw, 2.25rem);
+  font-weight: 800;
+  color: var(--text-dark);
+  margin: 0;
+  letter-spacing: -0.025em;
+  max-width: 540px;
+  line-height: 1.2;
+}
+
+.bottomCtaSubtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.0625rem;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 480px;
+  line-height: 1.65;
+}
+
+.bottomCta .ctaButton {
+  align-self: center;
+  margin-top: 0.5rem;
+}
+
+.bottomCtaNote {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  color: var(--text-quaternary);
+  margin: 0;
+}
+
+/* ======================================================================
+   RESPONSIVE
+   ====================================================================== */
+
+/* ── Tablet (≤1024px) ────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 5rem 2.5rem 2.5rem;
+    text-align: center;
+    gap: 2.5rem;
+  }
+
+  .heroLeft {
+    align-items: center;
+  }
+
+  .description {
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .ctaButton {
+    align-self: center;
+  }
+
+  .heroRight {
+    max-width: 640px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .statsSection {
+    padding: 2.5rem 2rem;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .howSection,
+  .featuresSection {
+    padding: 3.5rem 2rem;
+  }
+
+  .featuresGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bottomCta {
+    padding: 3.5rem 2rem 4rem;
+  }
+}
+
+/* ── Mobile (≤768px) ─────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hero {
+    padding: 2.5rem 1.5rem 2rem;
+    gap: 2rem;
+  }
+
+  .heading {
+    min-height: auto;
+  }
+
+  .stepsRow {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .stepConnector {
+    width: 2px;
+    height: 32px;
+    border-top: none;
+    border-left: 2px dashed var(--teal-rgba-30);
+    margin-top: 0;
+    align-self: center;
+  }
+
+  .step {
+    max-width: 100%;
+    padding: 0;
+  }
+}
+
+/* ── Small mobile (≤480px) ──────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .hero {
+    padding: 2rem 1rem 1.5rem;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .statCard {
+    padding: 1.25rem;
+  }
+
+  .statValue {
+    font-size: 1.6rem;
+  }
+
+  .howSection,
+  .featuresSection {
+    padding: 3rem 1rem;
+  }
+
+  .featuresGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .ctaButton {
+    width: 100%;
+    max-width: 360px;
+    justify-content: center;
+    white-space: normal;
+    line-height: 1.3;
+    text-align: center;
+  }
+
+  .bottomCta {
+    padding: 3rem 1rem 3.5rem;
+  }
+}

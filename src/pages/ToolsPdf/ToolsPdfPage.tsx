@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CloudUpload, FileText, Check, AlertCircle, RefreshCw, ArrowRight, Info, Bookmark, Monitor, MessageSquare, NotebookPen, Highlighter, Users, Star } from 'lucide-react';
+import { CloudUpload, FileText, Check, AlertCircle, RefreshCw, ArrowRight, Info, Bookmark, Monitor, MessageSquare, NotebookPen, Users, Star } from 'lucide-react';
 import { SiGoogledrive, SiDropbox } from 'react-icons/si';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { fetchPublic, fetchWithAuth } from '@/shared/services/api-client';
@@ -392,16 +392,6 @@ export const ToolsPdfPage: React.FC = () => {
     setLocalError(null);
   };
 
-  const handleCtaClick = () => {
-    if (isLoggedIn) {
-      navigate('/user/dashboard');
-    } else {
-      window.dispatchEvent(
-        new CustomEvent('loginRequired', { detail: { message: 'unlock all PDF features' } })
-      );
-    }
-  };
-
   const sourceLabel: Record<UploadedFile['source'], string> = {
     local: 'Local file',
     drive: 'Google Drive',
@@ -439,27 +429,11 @@ export const ToolsPdfPage: React.FC = () => {
       {/* Hero */}
       <div className={styles.hero}>
         <h1 className={styles.heroTitle}>
-          Drop your PDF.{' '}
-          <span className={styles.heroTitleAccent}>Start asking questions.</span>
+          Upload your PDF.
         </h1>
-        <p className={styles.heroSubtitle}>
-          Chat with any PDF — get answers, highlights, and notes in seconds. No signup needed.
-        </p>
-        <div className={styles.trustBar} aria-label="Social proof">
-          <div className={styles.trustMetric}>
-            <Star size={20} className={styles.trustStarIcon} aria-hidden />
-            <span className={styles.trustMetricValue}>4.9/5</span>
-            <span className={styles.trustMetricLabel}>on Chrome Web Store</span>
-          </div>
-          <a
-            href="https://chromewebstore.google.com/detail/xplaino/nmphalmbdmddagbllhjnfnmodfmbnlkp"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.trustExtensionLink}
-          >
-            Try Extension — It's Free
-          </a>
-        </div>
+        <h2 className={styles.heroTagline}>
+          Ask anything, Highlight text, Add notes, Share &amp; collaborate
+        </h2>
       </div>
 
       {/* Recent PDFs row — shown below hero for unauthenticated users with prior uploads */}
@@ -494,46 +468,6 @@ export const ToolsPdfPage: React.FC = () => {
 
       {/* Inner row: feature list + upload card */}
       <div className={styles.mainRow}>
-
-      {/* Feature list — left column */}
-      <div className={styles.featuresColumn}>
-        {[
-          {
-            label: 'Chat with PDF',
-            icon: <MessageSquare size={22} />,
-          },
-          {
-            label: 'Save and revisit past chats',
-            icon: <NotebookPen size={22} />,
-          },
-          {
-            label: 'Highlight, save personal notes',
-            icon: <Highlighter size={22} />,
-          },
-          {
-            label: 'Team collaboration',
-            icon: <Users size={22} />,
-          }
-        ].map((item) => (
-          <div key={item.label} className={styles.featureItem}>
-            <div className={styles.featureItemIcon}>{item.icon}</div>
-            <h2 className={styles.featureItemLabel}>{item.label}</h2>
-          </div>
-        ))}
-
-        {/* CTA below feature list */}
-        <div className={styles.featuresCta}>
-          <p className={styles.featuresCtaText}>
-            {isLoggedIn
-              ? 'Access all your PDFs and folders from the dashboard.'
-              : 'Upload a PDF above to try it free — create an account later to save your work.'}
-          </p>
-          <button className={styles.featuresCtaButton} onClick={handleCtaClick}>
-            {isLoggedIn ? 'Go to Dashboard' : 'Create free account'}
-            <ArrowRight size={14} />
-          </button>
-        </div>
-      </div>
 
       {/* Card */}
       <div className={styles.card}>
@@ -766,6 +700,11 @@ export const ToolsPdfPage: React.FC = () => {
               <p className={styles.extensionPromoFeatureLabel}>{item.label}</p>
             </div>
           ))}
+          <div className={styles.extensionPromoRating}>
+            <Star size={14} className={styles.trustStarIcon} aria-hidden />
+            <span className={styles.trustMetricValue}>4.9/5</span>
+            <span className={styles.trustMetricLabel}>on Chrome Web Store</span>
+          </div>
           <a
             href="https://chromewebstore.google.com/detail/xplaino/nmphalmbdmddagbllhjnfnmodfmbnlkp"
             target="_blank"

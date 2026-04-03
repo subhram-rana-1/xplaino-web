@@ -55,6 +55,7 @@ const DomainEdit = lazy(() => import('@/pages/Admin/components/AdminDomains').th
 const CouponEdit = lazy(() => import('@/pages/Admin/components/AdminCoupons').then((m) => ({ default: m.CouponEdit })));
 const ToolsPdfPage = lazy(() => import('@/pages/ToolsPdf').then((m) => ({ default: m.ToolsPdfPage })));
 const FeatureLanding = lazy(() => import('@/pages/FeatureLanding').then((m) => ({ default: m.FeatureLanding })));
+const ChatWithPdfLanding = lazy(() => import('@/pages/ChatWithPdfLanding').then((m) => ({ default: m.ChatWithPdfLanding })));
 
 /**
  * ToolsPdfRoute - Renders ToolsPdfPage for guests.
@@ -350,7 +351,7 @@ const AppContent: React.FC = () => {
               <Route path="/features/chat-with-image" element={<FeatureLanding slug="chat-with-image" />} />
               <Route path="/features/web-bookmarks" element={<FeatureLanding slug="web-bookmarks" />} />
               <Route path="/features/knowledge-dashboard" element={<FeatureLanding slug="knowledge-dashboard" />} />
-              <Route path="/features/chat-with-pdf" element={<FeatureLanding slug="chat-with-pdf" />} />
+              <Route path="/features/chat-with-pdf" element={<ChatWithPdfLanding />} />
               <Route path="/features/pdf-highlighter-notes" element={<FeatureLanding slug="pdf-highlighter-notes" />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
