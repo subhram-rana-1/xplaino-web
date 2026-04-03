@@ -351,7 +351,7 @@ export const PdfDetail: React.FC = () => {
       }
 
       const NEEDLE_LENGTHS = [300, 150, 80, 40];
-      let matchSpan: HTMLElement | null = null;
+      let matchSpans: HTMLElement[] = [];
 
       for (const maxLen of NEEDLE_LENGTHS) {
         const needle = fullNeedle.slice(0, maxLen);
@@ -379,25 +379,31 @@ export const PdfDetail: React.FC = () => {
           }
 
           if (idx !== -1) {
-            matchSpan = charSpan[idx] ?? null;
+            // Collect every unique span that covers the full matched range.
+            const endIdx = Math.min(idx + needle.length - 1, charSpan.length - 1);
+            const seen = new Set<HTMLElement>();
+            for (let ci = idx; ci <= endIdx; ci++) {
+              const s = charSpan[ci];
+              if (s && !seen.has(s)) { seen.add(s); matchSpans.push(s); }
+            }
             break;
           }
         }
-        if (matchSpan) break;
+        if (matchSpans.length) break;
       }
 
-      if (!matchSpan) return;
-      matchSpan.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (!matchSpans.length) return;
+      matchSpans[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
 
       if (!noPulse) {
         const PULSE_CLASS = 'xplaino-text-pulse';
         const pulse = () => {
-          matchSpan!.classList.add(PULSE_CLASS);
+          matchSpans.forEach((s) => s.classList.add(PULSE_CLASS));
           setTimeout(() => {
-            matchSpan!.classList.remove(PULSE_CLASS);
+            matchSpans.forEach((s) => s.classList.remove(PULSE_CLASS));
             setTimeout(() => {
-              matchSpan!.classList.add(PULSE_CLASS);
-              setTimeout(() => matchSpan!.classList.remove(PULSE_CLASS), 400);
+              matchSpans.forEach((s) => s.classList.add(PULSE_CLASS));
+              setTimeout(() => matchSpans.forEach((s) => s.classList.remove(PULSE_CLASS)), 400);
             }, 200);
           }, 400);
         };

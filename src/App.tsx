@@ -56,6 +56,7 @@ const CouponEdit = lazy(() => import('@/pages/Admin/components/AdminCoupons').th
 const ToolsPdfPage = lazy(() => import('@/pages/ToolsPdf').then((m) => ({ default: m.ToolsPdfPage })));
 const FeatureLanding = lazy(() => import('@/pages/FeatureLanding').then((m) => ({ default: m.FeatureLanding })));
 const ChatWithPdfLanding = lazy(() => import('@/pages/ChatWithPdfLanding').then((m) => ({ default: m.ChatWithPdfLanding })));
+const PdfHighlighterNotesLanding = lazy(() => import('@/pages/PdfHighlighterNotesLanding').then((m) => ({ default: m.PdfHighlighterNotesLanding })));
 
 /**
  * ToolsPdfRoute - Renders ToolsPdfPage for guests.
@@ -352,7 +353,7 @@ const AppContent: React.FC = () => {
               <Route path="/features/web-bookmarks" element={<FeatureLanding slug="web-bookmarks" />} />
               <Route path="/features/knowledge-dashboard" element={<FeatureLanding slug="knowledge-dashboard" />} />
               <Route path="/features/chat-with-pdf" element={<ChatWithPdfLanding />} />
-              <Route path="/features/pdf-highlighter-notes" element={<FeatureLanding slug="pdf-highlighter-notes" />} />
+              <Route path="/features/pdf-highlighter-notes" element={<PdfHighlighterNotesLanding />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
             </Suspense>

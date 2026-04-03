@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import {
   MessageSquare, Copy, Sparkles, MoreVertical,
   List, AlignJustify, FileText, Scale, Search, GraduationCap, Plus, BookMarked, ExternalLink,
@@ -515,7 +516,7 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
     };
   }, []);
 
-  if (!selection) return null;
+  if (!selection || typeof document === 'undefined') return null;
 
   const iconButtonClass = [
     styles.xplainoIconButton,
@@ -531,7 +532,7 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
     .filter(Boolean)
     .join(' ');
 
-  return (
+  return createPortal(
     <div
       ref={containerElRef}
       className={styles.container}
@@ -764,7 +765,8 @@ export const PdfSelectionTrigger: React.FC<PdfSelectionTriggerProps> = ({
           <span className={styles.tooltip}>Copy selection</span>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

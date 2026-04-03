@@ -1,18 +1,18 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MessageSquare, Highlighter, Users, Upload, Bot, CheckCircle, FileText, RotateCcw, Lock, UserCheck, CreditCard } from 'lucide-react';
+import { Highlighter, MessageSquare, NotebookPen, Users, Upload, Share2, Lock, UserCheck, CreditCard } from 'lucide-react';
 import { VideoModal } from '@/pages/Home/components/FeatureSet/VideoModal/VideoModal';
 import pdfIcon from '@/assets/images/pdf.webp';
-import styles from './ChatWithPdfLanding.module.css';
+import styles from '@/pages/ChatWithPdfLanding/ChatWithPdfLanding.module.css';
 
-const PROMO_VIDEO_URL = 'https://bmicorrect.com/website/features/videos/pdf-chat.webm';
-const CYCLING_WORDS = ['Research', 'Legal Docs', 'PDF Docs'];
+const PROMO_VIDEO_URL = 'https://bmicorrect.com/website/features/videos/pdf-highlight-and-notes.webm';
+const CYCLING_WORDS = ['Research', 'Notes', 'PDFs'];
 
 const STATS = [
-  { icon: <FileText size={28} />, value: '10K+', label: 'Documents Analyzed' },
-  { icon: <MessageSquare size={28} />, value: '100K+', label: 'Questions Answered' },
+  { icon: <Highlighter size={28} />, value: '500K+', label: 'Highlights Created' },
+  { icon: <NotebookPen size={28} />, value: '200K+', label: 'Notes Written' },
   { icon: <Users size={28} />, value: '3K+', label: 'Happy Users' },
-  { icon: <CheckCircle size={28} />, value: '99%', label: 'Accuracy Rate' },
+  { icon: <Lock size={28} />, value: '100%', label: 'Data Secure' },
 ];
 
 const HOW_IT_WORKS = [
@@ -20,46 +20,46 @@ const HOW_IT_WORKS = [
     step: 1,
     icon: <Upload size={28} />,
     title: 'Upload',
-    description: 'Drop your PDF file — research paper, contract, textbook, or any document.',
+    description: 'Drop your PDF — any research paper, contract, or textbook.',
   },
   {
     step: 2,
-    icon: <MessageSquare size={28} />,
-    title: 'Ask',
-    description: 'Type any question, or pick a saved custom prompt you built for this use case.',
+    icon: <Highlighter size={28} />,
+    title: 'Highlight & Annotate',
+    description: 'Select text, add personal notes, and pin comments directly on the page.',
   },
   {
     step: 3,
-    icon: <Bot size={28} />,
-    title: 'Get Answers',
-    description: 'AI responds with precise answers, citations, and relevant highlights.',
+    icon: <Share2 size={28} />,
+    title: 'Share & Collaborate',
+    description: 'Invite others and sync annotations in real time across every device.',
   },
 ];
 
 const FEATURES = [
   {
-    icon: <MessageSquare size={26} />,
-    title: 'Ask Anything',
-    description: 'Conversational AI that understands context across your entire document — not just keyword search.',
-  },
-  {
-    icon: <RotateCcw size={26} />,
-    title: 'Custom Prompts',
-    description: 'Build prompts once for your specific workflow — summarise clauses, extract data, explain terms — and reuse them every session.',
-  },
-  {
     icon: <Highlighter size={26} />,
-    title: 'Highlight & Notes',
-    description: 'Mark key passages and drop personal notes directly on the page. Everything is saved automatically.',
+    title: 'Text Highlights',
+    description: 'Select any passage and highlight it in one click. Highlights persist across every session.',
+  },
+  {
+    icon: <NotebookPen size={26} />,
+    title: 'Personal Notes',
+    description: 'Add margin notes tied to exact page locations. Your private workspace, always saved automatically.',
+  },
+  {
+    icon: <MessageSquare size={26} />,
+    title: 'Pinned Comments',
+    description: 'Leave contextual comments anywhere on the page. Reply, resolve, and keep discussions in context.',
   },
   {
     icon: <Users size={26} />,
     title: 'Share & Collaborate',
-    description: 'Invite teammates, share annotated PDFs, and leave threaded comments — all in real time.',
+    description: 'Invite teammates or classmates. All annotations sync in real time across every device.',
   },
 ];
 
-export const ChatWithPdfLanding: React.FC = () => {
+export const PdfHighlighterNotesLanding: React.FC = () => {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -67,7 +67,6 @@ export const ChatWithPdfLanding: React.FC = () => {
   const [wordIdx, setWordIdx] = useState(0);
   const [animating, setAnimating] = useState(false);
 
-  // Cycle words every 2 s with slide-up transition
   useEffect(() => {
     const t = setInterval(() => {
       setAnimating(true);
@@ -79,7 +78,6 @@ export const ChatWithPdfLanding: React.FC = () => {
     return () => clearInterval(t);
   }, []);
 
-  // IntersectionObserver autoplay for the promo video
   useEffect(() => {
     const video = videoRef.current;
     const container = containerRef.current;
@@ -117,8 +115,8 @@ export const ChatWithPdfLanding: React.FC = () => {
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section className={styles.hero}>
         <div className={styles.heroLeft}>
-          <h1 className={styles.heading}>
-            Chat with your{' '}
+          <h1 className={styles.heading} style={{ display: 'block' }}>
+            Highlight &amp; Add notes in your{' '}
             <span className={`${styles.cyclingWord} ${animating ? styles.cyclingWordExit : styles.cyclingWordEnter}`}>
               {CYCLING_WORDS[wordIdx]}
             </span>
@@ -126,9 +124,9 @@ export const ChatWithPdfLanding: React.FC = () => {
 
           <div className={styles.miniFeatureGrid}>
             {[
-              { icon: <Upload size={16} />, label: 'Upload & Ask Anything' },
-              { icon: <RotateCcw size={16} />, label: 'Write Prompt Once, Reuse' },
               { icon: <Highlighter size={16} />, label: 'Highlight & Add Notes' },
+              { icon: <MessageSquare size={16} />, label: 'Pin Comments Anywhere' },
+              { icon: <NotebookPen size={16} />, label: 'Personal Saved Notes' },
               { icon: <Users size={16} />, label: 'Share & Collaborate' },
             ].map((item) => (
               <div key={item.label} className={styles.miniFeatureItem}>
@@ -168,7 +166,7 @@ export const ChatWithPdfLanding: React.FC = () => {
             onClick={() => setIsModalOpen(true)}
             role="button"
             tabIndex={0}
-            aria-label="Watch Chat with PDF demo"
+            aria-label="Watch PDF Highlighter & Notes demo"
             onKeyDown={(e) => e.key === 'Enter' && setIsModalOpen(true)}
           >
             <video
@@ -179,7 +177,7 @@ export const ChatWithPdfLanding: React.FC = () => {
               muted
               loop
               playsInline
-              title="Chat with PDF — Xplaino"
+              title="PDF Highlighter & Notes — Xplaino"
             />
             <div className={styles.playOverlay}>
               <div className={styles.playIcon}>▶</div>
@@ -227,7 +225,7 @@ export const ChatWithPdfLanding: React.FC = () => {
       {/* ── Features grid ────────────────────────────────────────────────── */}
       <section className={styles.featuresSection}>
         <h2 className={styles.sectionTitle}>Why choose Xplaino PDF?</h2>
-        <p className={styles.sectionSubtitle}>Everything you need to work smarter with documents</p>
+        <p className={styles.sectionSubtitle}>Everything you need to annotate and collaborate on documents</p>
 
         <div className={styles.featuresGrid}>
           {FEATURES.map((f) => (
@@ -242,9 +240,9 @@ export const ChatWithPdfLanding: React.FC = () => {
 
       {/* ── Bottom CTA strip ─────────────────────────────────────────────── */}
       <section className={styles.bottomCta}>
-        <h2 className={styles.bottomCtaTitle}>Ready to understand your documents faster?</h2>
+        <h2 className={styles.bottomCtaTitle}>Ready to organise imporant things smarter?</h2>
         <p className={styles.bottomCtaSubtitle}>
-          Join thousands of users who save hours analysing documents with AI. No signup required.
+          Join thousands of students and teams who highlight, annotate and collaborate on PDFs — no signup needed.
         </p>
         <button className={styles.ctaButton} onClick={handleCta}>
           <img src={pdfIcon} alt="" aria-hidden className={styles.ctaIcon} />
@@ -256,7 +254,7 @@ export const ChatWithPdfLanding: React.FC = () => {
       <VideoModal
         isOpen={isModalOpen}
         videoUrl={PROMO_VIDEO_URL}
-        title="Chat with PDF — Xplaino AI PDF Reader"
+        title="PDF Highlighter & Notes — Xplaino AI PDF Tool"
         sourceElement={containerRef.current}
         onClose={() => setIsModalOpen(false)}
       />
@@ -264,4 +262,4 @@ export const ChatWithPdfLanding: React.FC = () => {
   );
 };
 
-ChatWithPdfLanding.displayName = 'ChatWithPdfLanding';
+PdfHighlighterNotesLanding.displayName = 'PdfHighlighterNotesLanding';

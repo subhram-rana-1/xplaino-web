@@ -17,7 +17,6 @@ import {
   Share2,
   BookMarked,
   Loader2,
-  FileText,
 } from 'lucide-react';
 import { deleteCustomPrompt, setCustomPromptHidden, shareCustomPrompt } from '@/shared/services/customPrompt.service';
 import type { CustomPromptResponse } from '@/shared/types/customPrompt.types';
@@ -240,6 +239,13 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
     onClearSelectedText?.();
     onClearPendingPrompt?.();
   }, [pendingPrompt, chat.preprocessStatus, chat.activeSession, chat.isRequesting]);
+
+  // Auto-focus the chat input when "Ask AI" is triggered from a text selection.
+  useEffect(() => {
+    if (!isOpen || !selectedText) return;
+    const timer = setTimeout(() => inputRef.current?.focus(), 50);
+    return () => clearTimeout(timer);
+  }, [isOpen, selectedText]);
 
   // --- Resize ---
   const handleResizeStart = useCallback((e: React.MouseEvent) => {
@@ -657,19 +663,13 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
                   >
                     {msg.role === 'user' && msg.selectedText && (
                       <span className={styles.selectedTextQuoteWrapper}>
-                        <span className={styles.selectedTextQuote}>
+                        <span
+                          className={`${styles.selectedTextQuote}${onScrollToSelectedText ? ` ${styles.selectedTextQuoteClickable}` : ''}`}
+                          title={onScrollToSelectedText ? 'Go to text in PDF' : undefined}
+                          onClick={onScrollToSelectedText ? () => onScrollToSelectedText(msg.selectedText!) : undefined}
+                        >
                           &ldquo;{msg.selectedText.length > 120 ? msg.selectedText.slice(0, 120) + '...' : msg.selectedText}&rdquo;
                         </span>
-                        {onScrollToSelectedText && (
-                          <button
-                            type="button"
-                            className={styles.refButton}
-                            title="Go to text in PDF"
-                            onClick={() => onScrollToSelectedText(msg.selectedText!)}
-                          >
-                            <FileText size={11} />
-                          </button>
-                        )}
                       </span>
                     )}
                     {msg.role === 'assistant' ? (

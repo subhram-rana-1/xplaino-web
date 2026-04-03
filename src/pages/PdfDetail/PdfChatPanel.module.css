@@ -576,14 +576,11 @@
 
 /* ── Selected text quote in user message ── */
 .selectedTextQuoteWrapper {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
+  display: block;
   margin-bottom: 8px;
 }
 
 .selectedTextQuote {
-  flex: 1;
   display: block;
   padding: 6px 10px;
   border-left: 3px solid var(--teal-light);
@@ -598,26 +595,15 @@
   text-overflow: ellipsis;
 }
 
-.refButton {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  margin-top: 4px;
-  border-radius: 50%;
-  background: var(--teal-rgba-10);
-  border: 1px solid var(--teal-light);
-  color: var(--teal);
+.selectedTextQuoteClickable {
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-.refButton:hover {
-  background: var(--teal);
-  color: #fff;
-  border-color: var(--teal);
+.selectedTextQuoteClickable:hover {
+  background: rgba(13, 128, 112, 0.12);
+  border-left-color: var(--teal);
+  color: var(--teal);
 }
 
 /* ── Inline citation badges ── */
