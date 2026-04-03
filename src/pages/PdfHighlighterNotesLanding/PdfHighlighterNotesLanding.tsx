@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Highlighter, MessageSquare, NotebookPen, Users, Upload, Share2, Lock, UserCheck, CreditCard } from 'lucide-react';
+import { Highlighter, MessageSquare, NotebookPen, Users, Upload, Share2, Lock, CreditCard } from 'lucide-react';
 import { VideoModal } from '@/pages/Home/components/FeatureSet/VideoModal/VideoModal';
 import pdfIcon from '@/assets/images/pdf.webp';
 import styles from '@/pages/ChatWithPdfLanding/ChatWithPdfLanding.module.css';
@@ -145,11 +145,6 @@ export const PdfHighlighterNotesLanding: React.FC = () => {
             <span className={styles.secureTag}>
               <Lock size={13} className={styles.secureTagIcon} />
               100% secure, end to end encrypted
-            </span>
-            <span className={styles.secureTagDivider}>·</span>
-            <span className={styles.secureTag}>
-              <UserCheck size={13} className={styles.secureTagIcon} />
-              No sign up required
             </span>
             <span className={styles.secureTagDivider}>·</span>
             <span className={styles.secureTag}>

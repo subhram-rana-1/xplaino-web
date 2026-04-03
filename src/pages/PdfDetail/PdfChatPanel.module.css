@@ -634,6 +634,12 @@
   border-color: var(--teal);
 }
 
+.inlineCitationBadgeDisabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .citationTooltipPortal {
   position: fixed;
   width: 260px;

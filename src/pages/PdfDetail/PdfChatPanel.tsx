@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo, createContext, useContext } from 'react';
 import { createPortal } from 'react-dom';
 import ReactMarkdown from 'react-markdown';
 import {
@@ -89,6 +89,10 @@ function buildCitedText(text: string): string {
     .join('');
 }
 
+// Context that lets CitationBadge always read the live isRequesting value directly,
+// bypassing any ReactMarkdown memoization of its rendered subtree.
+const ChatRequestingContext = createContext(false);
+
 const CitationBadge: React.FC<{
   cit: PdfChatCitationItem | undefined;
   onCitClick: (c: PdfChatCitationItem) => void;
@@ -97,36 +101,38 @@ const CitationBadge: React.FC<{
   citationsCount: number;
   children: React.ReactNode;
 }> = ({ cit, onCitClick, href, chunkSeq, citationsCount, children }) => {
+  const isRequesting = useContext(ChatRequestingContext);
   const btnRef = useRef<HTMLButtonElement>(null);
   const [hovered, setHovered] = useState(false);
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
 
   useEffect(() => {
-    if (!hovered || !btnRef.current || !cit) { setPos(null); return; }
+    if (isRequesting || !hovered || !btnRef.current || !cit) { setPos(null); return; }
     const rect = btnRef.current.getBoundingClientRect();
     const tooltipW = 260;
     let left = rect.left + rect.width / 2 - tooltipW / 2;
     if (left < 4) left = 4;
     if (left + tooltipW > window.innerWidth - 4) left = window.innerWidth - 4 - tooltipW;
     setPos({ top: rect.top - 8, left });
-  }, [hovered, cit]);
+  }, [hovered, cit, isRequesting]);
 
   return (
     <button
       ref={btnRef}
       type="button"
-      className={styles.inlineCitationBadge}
-      onMouseEnter={() => setHovered(true)}
+      className={`${styles.inlineCitationBadge}${isRequesting ? ` ${styles.inlineCitationBadgeDisabled}` : ''}`}
+      onMouseEnter={() => { if (!isRequesting) setHovered(true); }}
       onMouseLeave={() => setHovered(false)}
       onClick={(e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
+        if (isRequesting || !cit) return;
         console.log('[Citation click]', { href, chunkSeq, cit, citationsCount });
-        if (cit) onCitClick(cit);
+        onCitClick(cit);
       }}
     >
       {children}
-      {cit && hovered && pos && createPortal(
+      {!isRequesting && cit && hovered && pos && createPortal(
         <span
           className={`${styles.citationTooltipPortal} ${styles.citationTooltipPortalVisible}`}
           style={{ top: pos.top, left: pos.left, transform: 'translateY(-100%)' }}
@@ -647,6 +653,7 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
 
       {/* ── Chat area ── */}
       {chat.preprocessStatus === 'COMPLETED' && (
+        <ChatRequestingContext.Provider value={chat.isRequesting}>
         <>
           <div ref={chatAreaRef} className={styles.chatArea}>
             {hasChatHistory && (
@@ -894,6 +901,7 @@ export const PdfChatPanel: React.FC<PdfChatPanelProps> = ({
             )}
           </div>
         </>
+        </ChatRequestingContext.Provider>
       )}
       {customPromptActionMenuId && customPromptActionMenuPos && (() => {
         const activePrompt = customPrompts.find((p) => p.id === customPromptActionMenuId);
