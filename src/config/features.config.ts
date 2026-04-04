@@ -56,7 +56,7 @@ export const FEATURES: FeatureConfig[] = [
     route: '/features/web-highlighter-notes',
     category: 'webpage',
     navTitle: 'Web Highlighter & Notes',
-    navDescription: 'Highlight text, add notes, save to dashboard. Share and collaborate in real time.',
+    navDescription: 'Highlight text, add notes that got auto saved right on the page forever. Share and collaborate with others',
     heading: 'Highlight Text & Take Notes on Any Website',
     headingHighlight: 'Take Notes on Any Website',
     description:
