@@ -179,7 +179,7 @@ export const UninstallFeedback: React.FC = () => {
               {reason === 'TOO_EXPENSIVE' && (
                 <div className={styles.feedbackGroup}>
                   <label htmlFor="desiredPrice" className={styles.label}>
-                    What price would you be willing to pay? <span className={styles.optional}>(per month)</span>
+                    What price would you be willing to pay? <span className={styles.optional}>(Optional)</span>
                   </label>
                   <input
                     id="desiredPrice"
@@ -191,7 +191,7 @@ export const UninstallFeedback: React.FC = () => {
                     disabled={isSubmitting}
                   />
                   <label htmlFor="userFeedback" className={styles.label} style={{ marginTop: '0.75rem' }}>
-                    Anything else? <span className={styles.optional}>(optional)</span>
+                    Anything else? <span className={styles.optional}>(Optional)</span>
                   </label>
                   <textarea
                     id="userFeedback"
@@ -208,7 +208,7 @@ export const UninstallFeedback: React.FC = () => {
               {reason !== '' && reason !== 'MISSING_FEATURES' && reason !== 'EXTENSION_NOT_WORKING' && reason !== 'TOO_EXPENSIVE' && (
                 <div className={styles.feedbackGroup}>
                   <label htmlFor="userFeedback" className={styles.label}>
-                    Tell us more <span className={styles.optional}>(optional)</span>
+                    Tell us more <span className={styles.optional}>(Optional)</span>
                   </label>
                   <textarea
                     id="userFeedback"
@@ -278,13 +278,12 @@ export const UninstallFeedback: React.FC = () => {
             <li>Chat with any PDF — get cited answers instantly</li>
             <li>Highlight, annotate &amp; add personal notes</li>
             <li>Collaborate with teammates on the same doc</li>
-            <li>Share via link or post to LinkedIn, X, WhatsApp</li>
           </ul>
           <button
             onClick={() => navigate('/tools/pdf')}
             className={styles.pdfPromoButton}
           >
-            Try PDF Tool — It's Free
+            Chat PDF & Highlight — Free
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="5" y1="12" x2="19" y2="12" />
               <polyline points="12 5 19 12 12 19" />

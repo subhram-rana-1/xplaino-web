@@ -85,7 +85,7 @@
 
 .optional {
   font-weight: 400;
-  color: var(--text-quaternary);
+  color: var(--red-error);
   font-size: 0.9rem;
 }
 
