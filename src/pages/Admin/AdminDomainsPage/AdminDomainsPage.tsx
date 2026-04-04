@@ -2,6 +2,7 @@ import React from 'react';
 import { Admin } from '../Admin';
 import { AdminDomains } from '../components/AdminDomains';
 import { useAuth } from '@/shared/hooks/useAuth';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 
 /**
  * AdminDomainsPage - Admin domains management page
@@ -9,6 +10,7 @@ import { useAuth } from '@/shared/hooks/useAuth';
  * @returns JSX element
  */
 export const AdminDomainsPage: React.FC = () => {
+  usePageTitle('Domain Management – Xplaino Admin');
   const { accessToken } = useAuth();
 
   return (

@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AlertCircle, Shield, HeartHandshake } from 'lucide-react';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import styles from './Contact.module.css';
 
 /**
  * Contact - Contact page with trust messaging, email, and raise issue CTA
  */
 export const Contact: React.FC = () => {
+  usePageTitle('Contact Us – Xplaino Support');
   const [copied, setCopied] = useState(false);
   const email = 'support@xplaino.com';
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import styles from './PaymentSuccess.module.css';
 
 /**
@@ -10,6 +11,7 @@ import styles from './PaymentSuccess.module.css';
  * @returns JSX element
  */
 export const PaymentSuccess: React.FC = () => {
+  usePageTitle('Payment Successful – Welcome to Xplaino!');
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   

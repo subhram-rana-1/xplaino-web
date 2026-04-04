@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import styles from './PricingEdit.module.css';
 import { getFeatures } from '@/shared/services/features.service';
 import { updatePricing, getPricingById } from '@/shared/services/pricing.service';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import type { Feature } from '@/shared/types/features.types';
 import type { PricingResponse, UpdatePricingRequest, PricingFeature } from '@/shared/types/pricing.types';
 import { PricingStatus, Currency, MaxAllowedType } from '@/shared/types/pricing.types';
@@ -23,6 +24,7 @@ interface FeatureFormData {
  * PricingEdit - Edit pricing plan component
  */
 export const PricingEdit: React.FC = () => {
+  usePageTitle('Edit Pricing Plan – Xplaino Admin');
   const { pricingId } = useParams<{ pricingId: string }>();
   const navigate = useNavigate();
   const location = useLocation();

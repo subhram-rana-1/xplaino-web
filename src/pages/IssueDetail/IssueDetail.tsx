@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import styles from './IssueDetail.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { LoginModal } from '@/shared/components/LoginModal';
 import type { IssueResponse, GetIssueByTicketIdResponse } from '@/shared/types/issues.types';
 import { getIssueByTicketId } from '@/shared/services/issues.service';
@@ -18,6 +19,7 @@ import { IssueStatus } from '@/shared/types/issues.types';
  * @returns JSX element
  */
 export const IssueDetail: React.FC = () => {
+  usePageTitle('Issue Details – Xplaino Support');
   const { isLoggedIn, accessToken, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { ticketId } = useParams<{ ticketId: string }>();

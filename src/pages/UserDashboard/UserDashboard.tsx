@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { RefreshCw, List, LayoutGrid, ArrowUp, ArrowDown, Plus, Check, CornerDownLeft, BookOpen, ExternalLink, ChevronDown, Globe, ChevronsDown, ChevronsUp } from 'lucide-react';
 import styles from './UserDashboard.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import {
   getAllFolders,
   createFolder,
@@ -33,6 +34,7 @@ import { ChromeButton } from '@/shared/components/ChromeButton';
  * UserDashboard - User dashboard with folder management and shared-with-me sections
  */
 export const UserDashboard: React.FC = () => {
+  usePageTitle('My Dashboard – Xplaino');
   const { accessToken } = useAuth();
   const [folders, setFolders] = useState<FolderWithSubFolders[]>([]);
   const [isLoading, setIsLoading] = useState(false);

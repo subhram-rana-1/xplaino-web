@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import styles from './PricingDetail.module.css';
 import { getPricingById, deletePricing } from '@/shared/services/pricing.service';
 import type { PricingResponse } from '@/shared/types/pricing.types';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { Toast } from '@/shared/components/Toast';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
@@ -12,6 +13,7 @@ import { Admin } from '../../Admin';
  * PricingDetail - Read-only pricing details page component
  */
 export const PricingDetail: React.FC = () => {
+  usePageTitle('Pricing Details – Xplaino Admin');
   const { pricingId } = useParams<{ pricingId: string }>();
   const navigate = useNavigate();
   const location = useLocation();

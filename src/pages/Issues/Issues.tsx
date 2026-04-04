@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Copy, Check, Plus, RefreshCw } from 'lucide-react';
 import styles from './Issues.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { LoginModal } from '@/shared/components/LoginModal';
 import { useMyIssues } from '@/shared/hooks/useMyIssues';
 import { Toast } from '@/shared/components/Toast';
@@ -17,6 +18,7 @@ import type { IssueResponse } from '@/shared/types/issues.types';
 type TabFilter = 'ALL' | 'OPEN' | 'WORK_IN_PROGRESS' | 'DISCARDED' | 'RESOLVED';
 
 export const Issues: React.FC = () => {
+  usePageTitle('My Support Tickets – Xplaino');
   const { isLoggedIn, accessToken } = useAuth();
   const { state, fetchIssues, resetIssues } = useMyIssues();
   const navigate = useNavigate();

@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Highlighter, Users, Upload, Bot, CheckCircle, FileText, RotateCcw, Lock, UserCheck, CreditCard } from 'lucide-react';
 import { VideoModal } from '@/pages/Home/components/FeatureSet/VideoModal/VideoModal';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import pdfIcon from '@/assets/images/pdf.webp';
 import styles from './ChatWithPdfLanding.module.css';
 
@@ -60,6 +61,7 @@ const FEATURES = [
 ];
 
 export const ChatWithPdfLanding: React.FC = () => {
+  usePageTitle('Chat with PDF – Xplaino AI');
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);

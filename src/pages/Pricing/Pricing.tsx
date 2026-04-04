@@ -4,6 +4,7 @@ import { X as XIcon, Check as CheckIcon } from 'lucide-react';
 import styles from './Pricing.module.css';
 import { usePaddle } from '@/shared/hooks/usePaddle';
 import { useAuth } from '@/shared/hooks/useAuth';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import type { FormattedPaddlePrice } from '@/shared/types/paddle.types';
 import { paddleConfig } from '@/shared/config/paddle.config';
 import { Toast } from '@/shared/components/Toast';
@@ -62,6 +63,7 @@ const getBasePlanName = (name: string): string => {
  * @returns JSX element
  */
 export const Pricing: React.FC = () => {
+  usePageTitle('Pricing Plans – Xplaino');
   const { monthlyPrices, yearlyPrices, isLoading, error, openCheckout } = usePaddle();
   const { isLoggedIn, user } = useAuth();
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('yearly');

@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { CwsWalkthrough, CWS_WALKTHROUGH_KEY } from '@/shared/components/CwsWalkthrough';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import styles from './GettingStarted.module.css';
 
 const BIOMOLECULES_DIAGRAM_URL = 'https://cdn.testbook.com/1737704974941-biomolecules%20concept%20map.png/1737704976.png';
@@ -28,6 +29,7 @@ const BouncingRightArrow: React.FC = () => (
 );
 
 export const GettingStarted: React.FC = () => {
+  usePageTitle('Getting Started with Xplaino');
   const location = useLocation();
 
   const isCwsSource = useMemo(() => {

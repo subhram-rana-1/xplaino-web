@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { FolderPdf } from './FolderPdf';
 
 /**
@@ -6,6 +7,7 @@ import { FolderPdf } from './FolderPdf';
  * Rendered inside UserDashboardLayout via Outlet
  */
 export const FolderPdfPage: React.FC = () => {
+  usePageTitle('PDF Library – Xplaino Dashboard');
   return <FolderPdf />;
 };
 

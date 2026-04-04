@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import styles from './AdminIssueDetail.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { IssueStatus } from '@/shared/types/issues.types';
 import type { GetIssueByTicketIdResponse } from '@/shared/types/issues.types';
 import { updateIssue, getIssueByTicketId } from '@/shared/services/issues.service';
@@ -18,6 +19,7 @@ import { Toast } from '@/shared/components/Toast';
  * @returns JSX element
  */
 export const AdminIssueDetail: React.FC = () => {
+  usePageTitle('Issue Details – Xplaino Admin');
   const { accessToken, user } = useAuth();
   const navigate = useNavigate();
   const { ticketId } = useParams<{ ticketId: string }>();

@@ -3,6 +3,7 @@ import { useLocation, Link } from 'react-router-dom';
 import { User, Settings, CreditCard, Sparkles } from 'lucide-react';
 import styles from './UserAccount.module.css';
 import { ProfileTab, SettingsTab, SubscriptionTab, CustomPromptTab } from './components';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 
 type TabType = 'profile' | 'settings' | 'subscription' | 'custom-prompt';
 
@@ -23,6 +24,14 @@ export const UserAccount: React.FC = () => {
   };
 
   const activeTab = getActiveTab();
+
+  const PAGE_TITLES: Record<TabType, string> = {
+    profile: 'My Profile – Xplaino',
+    settings: 'Account Settings – Xplaino',
+    subscription: 'Subscription – Xplaino',
+    'custom-prompt': 'Custom Prompts – Xplaino',
+  };
+  usePageTitle(PAGE_TITLES[activeTab]);
 
   const getHeading = () => {
     switch (activeTab) {

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/shared/hooks/useAuth';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import styles from './AdminDashboard.module.css';
 
 /**
@@ -10,6 +11,7 @@ import styles from './AdminDashboard.module.css';
  * @returns JSX element
  */
 export const AdminDashboard: React.FC = () => {
+  usePageTitle('Admin Dashboard – Xplaino');
   const { isLoggedIn, user } = useAuth();
   const navigate = useNavigate();
 

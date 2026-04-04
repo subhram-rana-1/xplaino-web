@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ScrollReveal } from '@/shared/components/ScrollReveal';
 import { VideoModal } from '@/pages/Home/components/FeatureSet/VideoModal/VideoModal';
 import { getFeatureBySlug, CHROME_STORE_URL, WEBPAGE_FEATURES, PDF_FEATURES } from '@/config/features.config';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import chromeIcon from '@/assets/images/google-chrome-icon.png';
 import pdfIcon from '@/assets/images/pdf.webp';
 import styles from './FeatureLanding.module.css';
@@ -17,6 +18,7 @@ interface FeatureLandingProps {
  */
 export const FeatureLanding: React.FC<FeatureLandingProps> = ({ slug }) => {
   const feature = getFeatureBySlug(slug);
+  usePageTitle(feature ? `${feature.navTitle} – Xplaino AI` : 'Xplaino AI');
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);

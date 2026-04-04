@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchPublic } from '@/shared/services/api-client';
 import { authConfig } from '@/config/auth.config';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import styles from './PreLaunch.module.css';
 
 /**
@@ -12,6 +13,7 @@ import styles from './PreLaunch.module.css';
  * @returns JSX element
  */
 export const PreLaunch: React.FC = () => {
+  usePageTitle('Coming Soon – Xplaino AI Research Assistant');
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);

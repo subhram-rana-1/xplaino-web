@@ -6,6 +6,7 @@ import 'react-pdf/dist/Page/AnnotationLayer.css';
 import { Plus, ChevronLeft, ChevronRight, Eye, EyeOff, Share2, Download, MessageCircle, Trash2, Users } from 'lucide-react';
 import styles from './PdfDetail.module.css';
 import { useAuth } from '@/shared/hooks/useAuth';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { getPdfById, getAllPdfs, sharePdf, makePdfPublic, makePdfPrivate, getPdfShareeList, unsharePdf, getDownloadUrl, deletePdf } from '@/shared/services/pdf.service';
 import { getAllFolders, getSharedToEmails } from '@/shared/services/folders.service';
 import type { FolderWithSubFolders, ShareeItem } from '@/shared/types/folders.types';
@@ -83,6 +84,7 @@ function isFeatureDiscoverySeen(): boolean {
  * Two-column layout: sticky sidebar (nav buttons + page thumbnails) + full-width PDF viewer.
  */
 export const PdfDetail: React.FC = () => {
+  usePageTitle('PDF Viewer – Xplaino');
   const { pdfId } = useParams<{ pdfId: string }>();
   const [searchParams] = useSearchParams();
   const folderName = searchParams.get('folderName');

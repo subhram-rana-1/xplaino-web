@@ -1,4 +1,5 @@
 import React, { Suspense, lazy } from 'react';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { ScrollReveal } from '@/shared/components/ScrollReveal';
 import { Promo } from './components/Promo';
 import { TransformationIntro } from './components/TransformationIntro';
@@ -23,6 +24,7 @@ const QuoteTestimonials = lazy(() => import('./components/QuoteTestimonials').th
  * @returns JSX element
  */
 export const Home: React.FC = () => {
+  usePageTitle('Xplaino – AI Research Assistant | Chat with PDFs & Webpages');
   return (
     <div className={styles.home}>
       <Promo />

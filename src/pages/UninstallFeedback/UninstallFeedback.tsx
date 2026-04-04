@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchPublic, extractErrorMessage } from '@/shared/services/api-client';
 import { authConfig } from '@/config/auth.config';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import styles from './UninstallFeedback.module.css';
 
 /**
@@ -25,6 +26,7 @@ const UNINSTALL_REASONS = [
  * @returns JSX element
  */
 export const UninstallFeedback: React.FC = () => {
+  usePageTitle('Share Your Feedback – Xplaino Extension');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const emailFromUrl = searchParams.get('email') ?? undefined;

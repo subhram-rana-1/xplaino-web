@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { RefreshCw } from 'lucide-react';
 import styles from './DomainEdit.module.css';
 import { updateDomain, getDomainById } from '@/shared/services/domain.service';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import type { DomainResponse, UpdateDomainRequest, DomainStatus } from '@/shared/types/domain.types';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { Toast } from '@/shared/components/Toast';
@@ -13,6 +14,7 @@ import { DropdownIcon } from '@/shared/components/DropdownIcon';
  * Shows domain details in view mode, allows editing when fields are changed
  */
 export const DomainEdit: React.FC = () => {
+  usePageTitle('Edit Domain – Xplaino Admin');
   const { domainId } = useParams<{ domainId: string }>();
   const navigate = useNavigate();
   const location = useLocation();

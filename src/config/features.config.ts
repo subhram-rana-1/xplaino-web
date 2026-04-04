@@ -39,7 +39,7 @@ export const FEATURES: FeatureConfig[] = [
     route: '/features/chat-with-webpage',
     category: 'webpage',
     navTitle: 'Chat with Webpage',
-    navDescription: 'Ask AI anything about any page. Annotate, select text, and get instant answers.',
+    navDescription: 'Ask anything about any page without reading it. Setup question once & reuse. Ask on any selected text and get instant answers',
     heading: 'Chat with Webpage — Ask AI Questions Right on the Page',
     headingHighlight: 'Ask AI Questions Right on the Page',
     description:
@@ -126,7 +126,7 @@ export const FEATURES: FeatureConfig[] = [
     route: '/features/chat-with-pdf',
     category: 'pdf',
     navTitle: 'Chat PDF',
-    navDescription: 'Ask AI anything about on PDF, Annotate & ask, Setup your custom prompt and reuse everytime, Share conversations with others and collaborate.',
+    navDescription: 'Ask anything about PDF without reading it, Setup question once & reuse, Ask on any selected text and get instant answers, Share conversations with others and collaborate.',
     heading: 'Chat with PDF — AI-Powered PDF Reader & Annotator',
     headingHighlight: 'AI-Powered PDF Reader & Annotator',
     description:

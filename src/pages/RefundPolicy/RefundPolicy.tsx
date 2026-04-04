@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import styles from './RefundPolicy.module.css';
 
 /**
@@ -7,6 +8,7 @@ import styles from './RefundPolicy.module.css';
  * @returns JSX element
  */
 export const RefundPolicy: React.FC = () => {
+  usePageTitle('Refund Policy – Xplaino');
   const lastUpdated = 'February 2026';
 
   return (

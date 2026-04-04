@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './PricingAdd.module.css';
 import { getFeatures } from '@/shared/services/features.service';
 import { createPricing } from '@/shared/services/pricing.service';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import type { Feature } from '@/shared/types/features.types';
 import type { PricingFeature, CreatePricingRequest } from '@/shared/types/pricing.types';
 import { PricingStatus, Currency, MaxAllowedType } from '@/shared/types/pricing.types';
@@ -23,6 +24,7 @@ interface FeatureFormData {
  * PricingAdd - Add new pricing plan component
  */
 export const PricingAdd: React.FC = () => {
+  usePageTitle('Add Pricing Plan – Xplaino Admin');
   const navigate = useNavigate();
   const { accessToken } = useAuth();
 

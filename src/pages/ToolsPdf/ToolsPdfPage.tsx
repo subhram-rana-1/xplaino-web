@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { CloudUpload, FileText, Check, AlertCircle, RefreshCw, ArrowRight, Info, Monitor, Puzzle } from 'lucide-react';
 import { SiGoogledrive, SiDropbox } from 'react-icons/si';
 import { useAuth } from '@/shared/hooks/useAuth';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { fetchPublic, fetchWithAuth } from '@/shared/services/api-client';
 import { getUnauthenticatedUserId } from '@/shared/services/auth.service';
 import { authConfig } from '@/config/auth.config';
@@ -46,6 +47,7 @@ function isPdfFile(file: File): boolean {
 
 
 export const ToolsPdfPage: React.FC = () => {
+  usePageTitle('PDF Tools – Upload & Analyze PDFs | Xplaino');
   const { isLoggedIn, isLoading, accessToken } = useAuth();
   const navigate = useNavigate();
 

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './ReportIssue.module.css';
 import { DropdownIcon } from '@/shared/components/DropdownIcon';
 import { useAuth } from '@/shared/hooks/useAuth';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { reportIssue } from '@/shared/services/issues.service';
 import { IssueType } from '@/shared/types/issues.types';
 import { Toast } from '@/shared/components/Toast';
@@ -27,6 +28,7 @@ interface FormErrors {
  * @returns JSX element
  */
 export const ReportIssue: React.FC = () => {
+  usePageTitle('Report an Issue – Xplaino Support');
   const { isLoggedIn, accessToken } = useAuth();
   const navigate = useNavigate();
   const [issueType, setIssueType] = useState<IssueType | ''>('');

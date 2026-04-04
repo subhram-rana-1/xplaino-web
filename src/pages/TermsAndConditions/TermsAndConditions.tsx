@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import styles from './TermsAndConditions.module.css';
 
 /**
@@ -7,6 +8,7 @@ import styles from './TermsAndConditions.module.css';
  * @returns JSX element
  */
 export const TermsAndConditions: React.FC = () => {
+  usePageTitle('Terms and Conditions – Xplaino');
   const lastUpdated = 'February 2026';
 
   return (

@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import styles from './PrivacyPolicy.module.css';
 
 /**
@@ -7,6 +8,7 @@ import styles from './PrivacyPolicy.module.css';
  * @returns JSX element
  */
 export const PrivacyPolicy: React.FC = () => {
+  usePageTitle('Privacy Policy – Xplaino');
   const lastUpdated = 'February 2026';
 
   return (

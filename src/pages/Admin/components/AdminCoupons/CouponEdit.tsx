@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { RefreshCw } from 'lucide-react';
 import styles from './CouponEdit.module.css';
 import { updateCoupon, getCouponById } from '@/shared/services/coupon.service';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import type { CouponResponse, UpdateCouponRequest, CouponStatus } from '@/shared/types/coupon.types';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { Toast } from '@/shared/components/Toast';
@@ -13,6 +14,7 @@ import { DropdownIcon } from '@/shared/components/DropdownIcon';
  * Shows coupon details in view mode, allows editing when fields are changed
  */
 export const CouponEdit: React.FC = () => {
+  usePageTitle('Edit Coupon – Xplaino Admin');
   const { couponId } = useParams<{ couponId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
