@@ -6,7 +6,7 @@ import { CHROME_STORE_URL } from '@/config/features.config';
 import chromeIcon from '@/assets/images/google-chrome-icon.png';
 import styles from '@/pages/ChatWithPdfLanding/ChatWithPdfLanding.module.css';
 
-const PROMO_VIDEO_URL = 'https://bmicorrect.com/website/website_1902_720_2.webm';
+const PROMO_VIDEO_URL = 'https://bmicorrect.com/website/features/videos/translate_webpage_v2.webm';
 const CYCLING_WORDS = ['Any Webpage', 'Foreign Articles', 'Research Papers'];
 
 const STATS = [
@@ -177,6 +177,7 @@ export const TranslateWebpageLanding: React.FC = () => {
             <video
               ref={videoRef}
               className={styles.video}
+              style={{ width: '116%', marginLeft: '-8%' }}
               src={PROMO_VIDEO_URL}
               autoPlay
               muted
