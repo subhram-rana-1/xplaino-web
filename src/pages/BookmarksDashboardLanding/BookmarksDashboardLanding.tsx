@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { BookMarked, FileText, LayoutDashboard, Users, Star, ChromeIcon, MessageSquare, Highlighter, ImageIcon, NotebookPen, UserCheck, CreditCard, Share2, BookOpen } from 'lucide-react';
+import { BookMarked, FileText, LayoutDashboard, Users, Star, ChromeIcon, MessageSquare, Highlighter, ImageIcon, NotebookPen, UserCheck, CreditCard, Share2 } from 'lucide-react';
 import { VideoModal } from '@/pages/Home/components/FeatureSet/VideoModal/VideoModal';
 import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { CHROME_STORE_URL } from '@/config/features.config';
@@ -11,8 +11,8 @@ const CYCLING_WORDS = ['Learnings & Insights', 'Articles & Images', 'Passages & 
 
 const STATS = [
   { icon: <Star size={28} />, value: '4.9★', label: 'Chrome Store Rating' },
-  { icon: <BookMarked size={28} />, value: '15K+', label: 'Items Saved' },
-  { icon: <LayoutDashboard size={28} />, value: '30K+', label: 'Pages Bookmarked' },
+  { icon: <BookMarked size={28} />, value: '5K+', label: 'Saved Items' },
+  { icon: <Share2 size={28} />, value: '100+', label: 'Shares' },
   { icon: <Users size={28} />, value: '30+', label: 'Countries So Far' },
 ];
 
@@ -26,7 +26,7 @@ const HOW_IT_WORKS = [
   {
     step: 2,
     icon: <BookMarked size={28} />,
-    title: 'Save',
+    title: 'Save Items',
     description: 'Click to save a page link, image, or any selected text in one action — right from the page.',
   },
   {
