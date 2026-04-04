@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MessageSquare, Highlighter, Users, Upload, Bot, CheckCircle, FileText, RotateCcw, Lock, UserCheck, CreditCard } from 'lucide-react';
+import { MessageSquare, Highlighter, Users, Upload, Bot, CheckCircle, FileText, RotateCcw, Lock, UserCheck, CreditCard, Globe, Bookmark } from 'lucide-react';
 import { VideoModal } from '@/pages/Home/components/FeatureSet/VideoModal/VideoModal';
 import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import pdfIcon from '@/assets/images/pdf.webp';
@@ -45,7 +45,7 @@ const FEATURES = [
   },
   {
     icon: <RotateCcw size={26} />,
-    title: 'Custom Prompts',
+    title: 'Reusable Custom Questions',
     description: 'Build prompts once for your specific workflow — summarise clauses, extract data, explain terms — and reuse them every session.',
   },
   {
@@ -129,7 +129,7 @@ export const ChatWithPdfLanding: React.FC = () => {
           <div className={styles.miniFeatureGrid}>
             {[
               { icon: <Upload size={16} />, label: 'Upload & Ask Anything' },
-              { icon: <RotateCcw size={16} />, label: 'Write Prompt Once, Reuse' },
+              { icon: <RotateCcw size={16} />, label: 'Write Question Once, Reuse' },
               { icon: <Highlighter size={16} />, label: 'Highlight & Add Notes' },
               { icon: <Users size={16} />, label: 'Share & Collaborate' },
             ].map((item) => (
@@ -237,6 +237,26 @@ export const ChatWithPdfLanding: React.FC = () => {
               <div className={styles.featureCardIcon}>{f.icon}</div>
               <h3 className={styles.featureCardTitle}>{f.title}</h3>
               <p className={styles.featureCardDesc}>{f.description}</p>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', margin: '2.5rem 0 1.25rem' }}>
+          <div style={{ flex: 1, height: '1px', background: 'var(--teal-rgba-10, rgba(26,158,143,0.15))' }} />
+          <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-tertiary, #999)', letterSpacing: '0.08em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Also included</span>
+          <div style={{ flex: 1, height: '1px', background: 'var(--teal-rgba-10, rgba(26,158,143,0.15))' }} />
+        </div>
+        <div className={styles.featuresGrid}>
+          {[
+            { icon: <Highlighter size={22} />, label: 'PDF Highlighter & Notes', desc: 'Highlight key passages and add margin notes directly on any PDF page.' },
+            { icon: <Globe size={22} />, label: 'Chat with Webpage', desc: 'Ask AI questions on any article or webpage — no copy-pasting needed.' },
+            { icon: <Bookmark size={22} />, label: 'Web Highlighter & Notes', desc: 'Highlight text and save notes on any website, synced to your dashboard.' },
+            { icon: <Users size={22} />, label: 'Share & Collaborate', desc: 'Invite teammates to view and annotate documents together in real time.' },
+          ].map((item) => (
+            <div key={item.label} className={styles.featureCard}>
+              <div className={styles.featureCardIcon}>{item.icon}</div>
+              <h3 className={styles.featureCardTitle}>{item.label}</h3>
+              <p className={styles.featureCardDesc}>{item.desc}</p>
             </div>
           ))}
         </div>
