@@ -59,6 +59,7 @@ const ChatWithPdfLanding = lazy(() => import('@/pages/ChatWithPdfLanding').then(
 const PdfHighlighterNotesLanding = lazy(() => import('@/pages/PdfHighlighterNotesLanding').then((m) => ({ default: m.PdfHighlighterNotesLanding })));
 const ChatWithWebpageLanding = lazy(() => import('@/pages/ChatWithWebpageLanding').then((m) => ({ default: m.ChatWithWebpageLanding })));
 const WebHighlighterNotesLanding = lazy(() => import('@/pages/WebHighlighterNotesLanding').then((m) => ({ default: m.WebHighlighterNotesLanding })));
+const ChatWithImageLanding = lazy(() => import('@/pages/ChatWithImageLanding').then((m) => ({ default: m.ChatWithImageLanding })));
 
 /**
  * ToolsPdfRoute - Renders ToolsPdfPage for guests.
@@ -351,7 +352,7 @@ const AppContent: React.FC = () => {
               {/* Feature landing pages */}
               <Route path="/features/chat-with-webpage" element={<ChatWithWebpageLanding />} />
               <Route path="/features/web-highlighter-notes" element={<WebHighlighterNotesLanding />} />
-              <Route path="/features/chat-with-image" element={<FeatureLanding slug="chat-with-image" />} />
+              <Route path="/features/chat-with-image" element={<ChatWithImageLanding />} />
               <Route path="/features/web-bookmarks" element={<FeatureLanding slug="web-bookmarks" />} />
               <Route path="/features/knowledge-dashboard" element={<FeatureLanding slug="knowledge-dashboard" />} />
               <Route path="/features/chat-with-pdf" element={<ChatWithPdfLanding />} />

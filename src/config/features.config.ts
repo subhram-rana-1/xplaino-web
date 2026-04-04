@@ -72,8 +72,8 @@ export const FEATURES: FeatureConfig[] = [
     slug: 'chat-with-image',
     route: '/features/chat-with-image',
     category: 'webpage',
-    navTitle: 'Chat with Web Images',
-    navDescription: 'Ask AI about any image in context. Get instant visual understanding.',
+    navTitle: 'Chat with Images in context',
+    navDescription: 'Ask AI about any image in context without downloading it. Setup quesiton once and reuse everytime. Save images to dashboard and share with others',
     heading: 'Chat with Any Image on the Web — AI Visual Understanding',
     headingHighlight: 'AI Visual Understanding',
     description:
