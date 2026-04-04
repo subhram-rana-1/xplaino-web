@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { MessageSquare, Globe, ChromeIcon, Bot, Highlighter, RotateCcw, Star, MousePointerClick, Languages, UserCheck, CreditCard, NotebookPen, Users } from 'lucide-react';
+import { Highlighter, NotebookPen, Users, Globe, Star, ChromeIcon, BookMarked, MessageSquare, LayoutDashboard, Share2, UserCheck, CreditCard, Bot } from 'lucide-react';
 import { VideoModal } from '@/pages/Home/components/FeatureSet/VideoModal/VideoModal';
 import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { CHROME_STORE_URL } from '@/config/features.config';
@@ -7,13 +7,13 @@ import chromeIcon from '@/assets/images/google-chrome-icon.png';
 import styles from '@/pages/ChatWithPdfLanding/ChatWithPdfLanding.module.css';
 
 const PROMO_VIDEO_URL = 'https://bmicorrect.com/website/website_1902_720_2.webm';
-const CYCLING_WORDS = ['Webpages', 'Research Papers', 'Articles'];
+const CYCLING_WORDS = ['Webpages', 'Articles', 'Research'];
 
 const STATS = [
   { icon: <Star size={28} />, value: '4.9★', label: 'Chrome Store Rating' },
-  { icon: <Globe size={28} />, value: '5K+', label: 'Webpages Analyzed' },
-  { icon: <Bot size={28} />, value: '60K+', label: 'Questions Answered' },
-  { icon: <Languages size={28} />, value: '50+', label: 'Languages Supported' },
+  { icon: <Highlighter size={28} />, value: '10K+', label: 'Highlights Created' },
+  { icon: <NotebookPen size={28} />, value: '5K+', label: 'Notes Written' },
+  { icon: <Globe size={28} />, value: '30+', label: 'Countries So Far' },
 ];
 
 const HOW_IT_WORKS = [
@@ -25,43 +25,43 @@ const HOW_IT_WORKS = [
   },
   {
     step: 2,
-    icon: <MessageSquare size={28} />,
-    title: 'Ask',
-    description: 'Open the extension on any page and type your question — or pick a saved custom prompt.',
+    icon: <Highlighter size={28} />,
+    title: 'Highlight & Add Note',
+    description: 'Select any text on the page and click to highlight it or drop a personal note right where it belongs.',
   },
   {
     step: 3,
-    icon: <Bot size={28} />,
-    title: 'Get Answers',
-    description: 'AI reads the full page and responds instantly with accurate, contextual answers.',
+    icon: <LayoutDashboard size={28} />,
+    title: 'See it On the Page',
+    description: 'Your highlights and notes appear right on the webpage as you browse — always in context, no switching tabs.',
   },
 ];
 
 const FEATURES = [
   {
-    icon: <MessageSquare size={26} />,
-    title: 'Ask Anything About Any Page',
-    description: 'Conversational AI that reads and understands the full page content — not just a keyword search.',
-  },
-  {
     icon: <Highlighter size={26} />,
-    title: 'Works Everywhere',
-    description: 'News articles, research papers, documentation, product pages — the extension is active on every website.',
+    title: 'Highlight Any Text',
+    description: 'Select any passage on any page and save it in one click. Highlights persist across every session.',
   },
   {
-    icon: <RotateCcw size={26} />,
-    title: 'Reusable Custom Questions',
-    description: 'Write a question once for your specific workflow and reuse it on any page you visit. One setup, endless reuse.',
+    icon: <NotebookPen size={26} />,
+    title: 'Add Notes in Context',
+    description: 'Drop a personal note right where the text is. Your private workspace, always auto-saved.',
   },
   {
-    icon: <MousePointerClick size={26} />,
-    title: 'Chat on Selected Text',
-    description: 'Highlight any passage and ask AI about just that section for focused, precise answers in context.',
+    icon: <LayoutDashboard size={26} />,
+    title: 'Auto-saved Dashboard',
+    description: 'Every highlight and note syncs to your Xplaino dashboard, organised by source URL for easy review.',
+  },
+  {
+    icon: <Share2 size={26} />,
+    title: 'Share & Collaborate',
+    description: 'Send your annotated pages to teammates. Comments and highlights sync in real time across every device.',
   },
 ];
 
-export const ChatWithWebpageLanding: React.FC = () => {
-  usePageTitle('Chat with Webpage – Xplaino AI');
+export const WebHighlighterNotesLanding: React.FC = () => {
+  usePageTitle('Web Highlighter & Notes – Xplaino AI');
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -117,19 +117,20 @@ export const ChatWithWebpageLanding: React.FC = () => {
       <section className={styles.hero}>
         <div className={styles.heroLeft}>
           <h1 className={styles.heading} style={{ display: 'block' }}>
-            Chat with your
-            <br />
+                        Highlight &amp; add notes on your{' '}
             <span className={`${styles.cyclingWord} ${animating ? styles.cyclingWordExit : styles.cyclingWordEnter}`}>
               {CYCLING_WORDS[wordIdx]}
             </span>
+            <br />
+            Share &amp; Collaborate
           </h1>
 
           <div className={styles.miniFeatureGrid}>
             {[
-              { icon: <MessageSquare size={16} />, label: 'Ask Anything on Any Page' },
-              { icon: <RotateCcw size={16} />, label: 'Write Question Once, Reuse' },
-              { icon: <MousePointerClick size={16} />, label: 'Select Text & Ask AI' },
-              { icon: <Globe size={16} />, label: 'Works on Every Website' },
+              { icon: <Highlighter size={16} />, label: 'Highlight Any Text' },
+              { icon: <NotebookPen size={16} />, label: 'Add Notes Anywhere' },
+              { icon: <LayoutDashboard size={16} />, label: 'Auto-saved to Dashboard' },
+              { icon: <Users size={16} />, label: 'Share & Collaborate' },
             ].map((item) => (
               <div key={item.label} className={styles.miniFeatureItem}>
                 <span className={styles.miniFeatureIcon}>{item.icon}</span>
@@ -148,10 +149,10 @@ export const ChatWithWebpageLanding: React.FC = () => {
 
           <button className={styles.ctaButton} style={{ marginTop: '0.5rem' }} onClick={handleCta}>
             <img src={chromeIcon} alt="" aria-hidden className={styles.ctaIcon} />
-            Understand page faster — Add to Chrome — It's Free
+            Save the best parts — Add to Chrome — It's Free
           </button>
 
-                    <div className={styles.secureRow}>
+          <div className={styles.secureRow}>
             <span className={styles.secureTag}>
               <UserCheck size={13} className={styles.secureTagIcon} />
               No sign up required
@@ -171,7 +172,7 @@ export const ChatWithWebpageLanding: React.FC = () => {
             onClick={() => setIsModalOpen(true)}
             role="button"
             tabIndex={0}
-            aria-label="Watch Chat with Webpage demo"
+            aria-label="Watch Web Highlighter & Notes demo"
             onKeyDown={(e) => e.key === 'Enter' && setIsModalOpen(true)}
           >
             <video
@@ -182,7 +183,7 @@ export const ChatWithWebpageLanding: React.FC = () => {
               muted
               loop
               playsInline
-              title="Chat with Any Webpage — Xplaino AI Extension"
+              title="Web Highlighter & Notes — Xplaino AI Extension"
             />
             <div className={styles.playOverlay}>
               <div className={styles.playIcon}>▶</div>
@@ -229,8 +230,8 @@ export const ChatWithWebpageLanding: React.FC = () => {
 
       {/* ── Features grid ────────────────────────────────────────────────── */}
       <section className={styles.featuresSection}>
-        <h2 className={styles.sectionTitle}>Why choose Xplaino for webpages?</h2>
-        <p className={styles.sectionSubtitle}>Everything you need to read smarter and get answers faster</p>
+        <h2 className={styles.sectionTitle}>Why choose Xplaino<br />for highlights &amp; notes?</h2>
+        <p className={styles.sectionSubtitle}>Everything you need to capture, organise and revisit what matters most</p>
 
         <div className={styles.featuresGrid}>
           {FEATURES.map((f) => (
@@ -249,10 +250,10 @@ export const ChatWithWebpageLanding: React.FC = () => {
         </div>
         <div className={styles.featuresGrid}>
           {[
-            { icon: <Highlighter size={22} />, label: 'Highlight & Notes on Webpages', desc: 'Highlight text and add notes on any website, saved automatically.' },
-            { icon: <MessageSquare size={22} />, label: 'Chat with PDF', desc: 'Upload any PDF and ask AI questions for instant, precise answers.' },
+            { icon: <MessageSquare size={22} />, label: 'Chat with Webpage', desc: 'Ask AI questions on any article or webpage — no copy-pasting needed.' },
+            { icon: <Bot size={22} />, label: 'Chat with PDF', desc: 'Upload any PDF and ask AI questions for instant, precise answers.' },
             { icon: <NotebookPen size={22} />, label: 'Highlight & Notes on PDF', desc: 'Annotate PDF pages with highlights, notes, and pinned comments.' },
-            { icon: <Users size={22} />, label: 'Share & Collaborate', desc: 'Invite teammates to annotate and discuss documents together.' },
+            { icon: <BookMarked size={22} />, label: 'Smart Bookmarks', desc: 'Save pages, images, and text snippets to your knowledge dashboard.' },
           ].map((item) => (
             <div key={item.label} className={styles.featureCard}>
               <div className={styles.featureCardIcon}>{item.icon}</div>
@@ -265,13 +266,13 @@ export const ChatWithWebpageLanding: React.FC = () => {
 
       {/* ── Bottom CTA strip ─────────────────────────────────────────────── */}
       <section className={styles.bottomCta}>
-        <h2 className={styles.bottomCtaTitle}>Double your research output — without reading twice as much.</h2>
+        <h2 className={styles.bottomCtaTitle}>Never lose a great insight again.</h2>
         <p className={styles.bottomCtaSubtitle}>
-          Stop re-reading the same paragraph. Ask AI once and get the answer — on any article, research paper, or webpage, in any language.
+          Your best ideas live on webpages. Capture them the moment they happen — with one click, on any site, in any language.
         </p>
         <button className={styles.ctaButton} onClick={handleCta}>
           <img src={chromeIcon} alt="" aria-hidden className={styles.ctaIcon} />
-          Understand page faster — Add to Chrome — It's Free
+          Save the best parts — Add to Chrome — It's Free
         </button>
         <p className={styles.bottomCtaNote}>Free to install · 4.9★ Chrome Web Store</p>
       </section>
@@ -279,7 +280,7 @@ export const ChatWithWebpageLanding: React.FC = () => {
       <VideoModal
         isOpen={isModalOpen}
         videoUrl={PROMO_VIDEO_URL}
-        title="Chat with Any Webpage — Xplaino AI Extension"
+        title="Web Highlighter & Notes — Xplaino AI Extension"
         sourceElement={containerRef.current}
         onClose={() => setIsModalOpen(false)}
       />
@@ -287,4 +288,4 @@ export const ChatWithWebpageLanding: React.FC = () => {
   );
 };
 
-ChatWithWebpageLanding.displayName = 'ChatWithWebpageLanding';
+WebHighlighterNotesLanding.displayName = 'WebHighlighterNotesLanding';
