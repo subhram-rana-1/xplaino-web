@@ -6,7 +6,7 @@ import { CHROME_STORE_URL } from '@/config/features.config';
 import chromeIcon from '@/assets/images/google-chrome-icon.png';
 import styles from '@/pages/ChatWithPdfLanding/ChatWithPdfLanding.module.css';
 
-const PROMO_VIDEO_URL = 'https://bmicorrect.com/website/website_1902_720_2.webm';
+const PROMO_VIDEO_URL = 'https://bmicorrect.com/website/features/videos/chat-with-webpage.webm';
 const CYCLING_WORDS = ['Webpages', 'Research Papers', 'Articles'];
 
 const STATS = [
