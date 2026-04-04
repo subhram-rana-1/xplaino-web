@@ -54,12 +54,12 @@ const AdminIssueDetail = lazy(() => import('@/pages/Admin/components/AdminIssueD
 const DomainEdit = lazy(() => import('@/pages/Admin/components/AdminDomains').then((m) => ({ default: m.DomainEdit })));
 const CouponEdit = lazy(() => import('@/pages/Admin/components/AdminCoupons').then((m) => ({ default: m.CouponEdit })));
 const ToolsPdfPage = lazy(() => import('@/pages/ToolsPdf').then((m) => ({ default: m.ToolsPdfPage })));
-const FeatureLanding = lazy(() => import('@/pages/FeatureLanding').then((m) => ({ default: m.FeatureLanding })));
 const ChatWithPdfLanding = lazy(() => import('@/pages/ChatWithPdfLanding').then((m) => ({ default: m.ChatWithPdfLanding })));
 const PdfHighlighterNotesLanding = lazy(() => import('@/pages/PdfHighlighterNotesLanding').then((m) => ({ default: m.PdfHighlighterNotesLanding })));
 const ChatWithWebpageLanding = lazy(() => import('@/pages/ChatWithWebpageLanding').then((m) => ({ default: m.ChatWithWebpageLanding })));
 const WebHighlighterNotesLanding = lazy(() => import('@/pages/WebHighlighterNotesLanding').then((m) => ({ default: m.WebHighlighterNotesLanding })));
 const ChatWithImageLanding = lazy(() => import('@/pages/ChatWithImageLanding').then((m) => ({ default: m.ChatWithImageLanding })));
+const BookmarksDashboardLanding = lazy(() => import('@/pages/BookmarksDashboardLanding').then((m) => ({ default: m.BookmarksDashboardLanding })));
 
 /**
  * ToolsPdfRoute - Renders ToolsPdfPage for guests.
@@ -353,8 +353,9 @@ const AppContent: React.FC = () => {
               <Route path="/features/chat-with-webpage" element={<ChatWithWebpageLanding />} />
               <Route path="/features/web-highlighter-notes" element={<WebHighlighterNotesLanding />} />
               <Route path="/features/chat-with-image" element={<ChatWithImageLanding />} />
-              <Route path="/features/web-bookmarks" element={<FeatureLanding slug="web-bookmarks" />} />
-              <Route path="/features/knowledge-dashboard" element={<FeatureLanding slug="knowledge-dashboard" />} />
+              <Route path="/features/bookmarks-dashboard" element={<BookmarksDashboardLanding />} />
+              <Route path="/features/web-bookmarks" element={<Navigate to="/features/bookmarks-dashboard" replace />} />
+              <Route path="/features/knowledge-dashboard" element={<Navigate to="/features/bookmarks-dashboard" replace />} />
               <Route path="/features/chat-with-pdf" element={<ChatWithPdfLanding />} />
               <Route path="/features/pdf-highlighter-notes" element={<PdfHighlighterNotesLanding />} />
               <Route path="*" element={<Navigate to="/" replace />} />
