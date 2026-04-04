@@ -7,46 +7,6 @@
   z-index: 1;
 }
 
-.description + * {
-  margin: 0;
-  margin-top: 2.25rem;
-  align-self: flex-start;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.625rem;
-  padding: 0.625rem 1.25rem;
-  background: var(--bg-white);
-  border: 1px solid var(--teal-rgba-30);
-  border-radius: 50px;
-  width: fit-content;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--teal);
-  font-family: 'Inter', sans-serif;
-  box-shadow: 0 2px 8px var(--teal-rgba-15);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.badgeIcon {
-  font-size: 1rem;
-  animation: sparkle 2s ease-in-out infinite;
-}
-
-@keyframes sparkle {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.8;
-  }
-}
-
 .heading {
   font-size: 3.5rem;
   font-weight: 800;
@@ -62,54 +22,31 @@
   position: relative;
 }
 
-.description {
-  font-size: 1.1875rem;
-  line-height: 1.75;
-  color: var(--text-secondary);
-  margin: 0;
-  font-family: 'Inter', sans-serif;
+.featuresGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1.25rem;
 }
 
-.tagline {
-  font-size: 1.125rem;
-  font-weight: 600;
-  line-height: 1.5;
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.featureIcon {
   color: var(--teal);
-  margin: 0;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.featureLabel {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-secondary);
   font-family: 'Inter', sans-serif;
-  letter-spacing: -0.01em;
-}
-
-.highlight {
-  background: linear-gradient(
-    90deg,
-    #0a5d52 0%,
-    #0d8070 25%,
-    #14b8a6 50%,
-    #0d8070 75%,
-    #0a5d52 100%
-  );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-weight: 600;
-  animation: tealShimmer 3s linear infinite;
-}
-
-@keyframes tealShimmer {
-  0% {
-    background-position: 0% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
-}
-
-
-/* Mobile-only metrics row (hidden on desktop, shown on mobile) */
-.mobileMetrics {
-  display: none;
+  line-height: 1.3;
 }
 
 /* Responsive design */
@@ -121,27 +58,17 @@
     gap: 1.5rem;
   }
 
-  .description + * {
-    align-self: center;
-    margin-top: 2.7rem;
-  }
-
-  .badge {
-    font-size: 0.75rem;
-    padding: 0.5rem 1rem;
-  }
-
   .heading {
     font-size: 2.75rem;
   }
 
-  .description {
-    max-width: 100%;
-    font-size: 1.125rem;
+  .featuresGrid {
+    gap: 0.75rem 1.5rem;
+    max-width: 480px;
   }
 
-  .tagline {
-    font-size: 1.0625rem;
+  .featureItem {
+    justify-content: flex-start;
   }
 }
 
@@ -150,74 +77,12 @@
     gap: 1.25rem;
   }
 
-  .description + * {
-    margin-top: 1rem;
-  }
-
   .heading {
     font-size: 2.25rem;
   }
 
-  .description {
-    font-size: 1.0625rem;
-  }
-
-  .tagline {
-    font-size: 1rem;
-  }
-
-  .mobileMetrics {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1.75rem;
-    flex-wrap: wrap;
-    margin-top: 0.25rem;
-  }
-
-  .mobileMetric {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.2rem;
-  }
-
-  .mobileStarsRow {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.1rem;
-  }
-
-  .mobileStarIcon {
-    width: 1.125rem;
-    height: 1.125rem;
-    color: #f5a623;
-    fill: #f5a623;
-    flex-shrink: 0;
-  }
-
-  .mobileMetricValue {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #7aaba5;
-    font-family: 'Inter', sans-serif;
-    letter-spacing: -0.02em;
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-  }
-
-  .mobileMetricLabel {
+  .featureLabel {
     font-size: 0.875rem;
-    font-weight: 500;
-    color: #7aaba5;
-    font-family: 'Inter', sans-serif;
-  }
-
-  .mobileMetricDivider {
-    width: 1px;
-    height: 2.25rem;
-    background: var(--border-light);
   }
 }
 
@@ -226,36 +91,11 @@
     gap: 1rem;
   }
 
-  .description + * {
-    margin-top: 0.75rem;
-  }
-
   .heading {
     font-size: 1.875rem;
   }
 
-  .description {
-    font-size: 1rem;
-    line-height: 1.65;
-  }
-
-  .tagline {
-    font-size: 0.9375rem;
-  }
-
-  .mobileStarIcon {
-    width: 1rem;
-    height: 1rem;
-  }
-
-  .mobileMetricValue {
-    font-size: 1.125rem;
-    color: #7aaba5;
-  }
-
-  .mobileMetricLabel {
+  .featureLabel {
     font-size: 0.8125rem;
-    color: #7aaba5;
   }
 }
-

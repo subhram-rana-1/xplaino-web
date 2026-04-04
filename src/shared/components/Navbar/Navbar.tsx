@@ -358,15 +358,16 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                     style={{ transition: 'transform 0.2s ease', transform: isToolsDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
                   />
                 </button>
-                <div className={`${styles.dropdownMenu} ${isToolsDropdownOpen ? styles.dropdownMenuOpen : ''}`}>
+                <div className={`${styles.dropdownMenu} ${styles.toolsDropdownMenu} ${isToolsDropdownOpen ? styles.dropdownMenuOpen : ''}`}>
+                  <div className={styles.toolsDropdownItems}>
                   <button
                     className={`${styles.dropdownItem} ${styles.dropdownItemButton}`}
                     onClick={handleToolsExtensionClick}
                   >
                     <img src={chromeExtensionIcon} alt="" aria-hidden className={styles.dropdownItemImgIcon} />
                     <span className={styles.dropdownItemContent}>
-                      <span className={styles.dropdownItemTitle}>Extension</span>
-                      <span className={styles.dropdownItemDesc}>Chat with webpages, Ask AI, Highlight text, Add Notes, Translate webpage to 50+ languages </span>
+                      <span className={styles.dropdownItemTitle}>Chrome Extension</span>
+                      <span className={styles.dropdownItemDesc}>Chat with webpages, Ask about any text, Highlight, Add Inline Notes, Translate webpage to 50+ languages, Share & Collaborate</span>
                     </span>
                   </button>
                   <button
@@ -375,10 +376,11 @@ export const Navbar: React.FC<NavbarProps> = ({ showMiniCoupon, hideNavButtons }
                   >
                     <img src={pdfToolIcon} alt="" aria-hidden className={styles.dropdownItemImgIcon} />
                     <span className={styles.dropdownItemContent}>
-                      <span className={styles.dropdownItemTitle}>Study PDF</span>
-                      <span className={styles.dropdownItemDesc}>Chat with PDF, Ask AI, Highlight text, Add notes &amp; collaborate with teammates</span>
+                      <span className={styles.dropdownItemTitle}>Chat PDF</span>
+                      <span className={styles.dropdownItemDesc}>Chat with PDF, Ask about any text, Highlight, Add Inline notes, Share &amp; collaborate</span>
                     </span>
                   </button>
+                  </div>
                 </div>
               </div>
               <Link 

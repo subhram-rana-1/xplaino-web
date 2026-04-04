@@ -69,6 +69,22 @@ export const FEATURES: FeatureConfig[] = [
     additionalChips: ['Custom AI Prompts'],
   },
   {
+    slug: 'translate-webpage',
+    route: '/features/translate-webpage',
+    category: 'webpage',
+    navTitle: 'Translate Webpage',
+    navDescription: 'Translate any page into 50+ languages instantly. Bilingual reading, native-feel translations — perfect for language learners.',
+    heading: 'Translate Any Webpage — Native-Feel Reading in 50+ Languages',
+    headingHighlight: 'Native-Feel Reading in 50+ Languages',
+    description:
+      'Instantly translate any webpage into your language with a single click. Experience bilingual reading mode to learn while you read, or switch to full translation that feels like a native-language page. Perfect for language learners, international researchers, and anyone reading foreign-language content.',
+    tagline: 'Read the world\'s web in your language.',
+    ctaLabel: 'Translate Any Page — Install Extension',
+    ctaAction: 'extension',
+    videoUrl: PROMO_VIDEO_URL,
+    videoTitle: 'Translate Webpage — Xplaino AI Extension',
+  },
+  {
     slug: 'chat-with-image',
     route: '/features/chat-with-image',
     category: 'webpage',

@@ -21,9 +21,9 @@
 
 .video {
   width: 108%;
-  height: 110%;
+  height: 116%;
   margin-left: -4%;
-  margin-top: -5%;
+  margin-top: -8%;
   aspect-ratio: 16 / 9;
   display: block;
   object-fit: cover;

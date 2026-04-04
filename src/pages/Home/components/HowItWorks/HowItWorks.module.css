@@ -42,7 +42,7 @@
 .stepsGrid {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   flex-wrap: nowrap;
   gap: 1.25rem;
@@ -55,6 +55,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  align-self: center;
   gap: 2px;
   color: var(--teal);
 }

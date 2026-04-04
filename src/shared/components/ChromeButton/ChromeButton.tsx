@@ -5,12 +5,14 @@ import styles from './ChromeButton.module.css';
 export interface ChromeButtonProps {
   /** When true, show "It's Free" on a second line below "Install Chrome Extension" (e.g. for CTA section) */
   stackedLabel?: boolean;
+  /** Override the button label text */
+  label?: string;
 }
 
 /**
  * ChromeButton - Reusable Chrome extension install button
  */
-export const ChromeButton: React.FC<ChromeButtonProps> = ({ stackedLabel = false }) => {
+export const ChromeButton: React.FC<ChromeButtonProps> = ({ stackedLabel = false, label }) => {
   const handleButtonClick = () => {
     window.open(
       'https://chromewebstore.google.com/detail/xplaino/nmphalmbdmddagbllhjnfnmodfmbnlkp',
@@ -32,7 +34,7 @@ export const ChromeButton: React.FC<ChromeButtonProps> = ({ stackedLabel = false
             <span className={styles.buttonLineSecondary}>It's Free</span>
           </>
         ) : (
-          <span className={styles.buttonLinePrimary}>Try Extension — It's Free</span>
+          <span className={styles.buttonLinePrimary}>{label ?? 'Try Extension — It\'s Free'}</span>
         )}
       </span>
     </button>

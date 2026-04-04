@@ -7,7 +7,6 @@ import { ChromeButton } from '@/shared/components/ChromeButton';
 import { PdfButton } from '@/shared/components/PdfButton';
 import styles from './Home.module.css';
 
-const SocialProof = lazy(() => import('./components/SocialProof').then((m) => ({ default: m.SocialProof })));
 const ProblemSection = lazy(() => import('./components/ProblemSection').then((m) => ({ default: m.ProblemSection })));
 const HowItWorks = lazy(() => import('./components/HowItWorks').then((m) => ({ default: m.HowItWorks })));
 const FeatureSet = lazy(() => import('./components/FeatureSet').then((m) => ({ default: m.FeatureSet })));
@@ -28,9 +27,6 @@ export const Home: React.FC = () => {
   return (
     <div className={styles.home}>
       <Promo />
-      <Suspense fallback={null}>
-        <SocialProof />
-      </Suspense>
       <Suspense fallback={null}>
         <ProblemSection />
       </Suspense>

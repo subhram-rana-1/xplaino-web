@@ -60,6 +60,7 @@ const ChatWithWebpageLanding = lazy(() => import('@/pages/ChatWithWebpageLanding
 const WebHighlighterNotesLanding = lazy(() => import('@/pages/WebHighlighterNotesLanding').then((m) => ({ default: m.WebHighlighterNotesLanding })));
 const ChatWithImageLanding = lazy(() => import('@/pages/ChatWithImageLanding').then((m) => ({ default: m.ChatWithImageLanding })));
 const BookmarksDashboardLanding = lazy(() => import('@/pages/BookmarksDashboardLanding').then((m) => ({ default: m.BookmarksDashboardLanding })));
+const TranslateWebpageLanding = lazy(() => import('@/pages/TranslateWebpageLanding').then((m) => ({ default: m.TranslateWebpageLanding })));
 
 /**
  * ToolsPdfRoute - Renders ToolsPdfPage for guests.
@@ -351,6 +352,7 @@ const AppContent: React.FC = () => {
               <Route path="/tools/pdf" element={<ToolsPdfRoute />} />
               {/* Feature landing pages */}
               <Route path="/features/chat-with-webpage" element={<ChatWithWebpageLanding />} />
+              <Route path="/features/translate-webpage" element={<TranslateWebpageLanding />} />
               <Route path="/features/web-highlighter-notes" element={<WebHighlighterNotesLanding />} />
               <Route path="/features/chat-with-image" element={<ChatWithImageLanding />} />
               <Route path="/features/bookmarks-dashboard" element={<BookmarksDashboardLanding />} />
