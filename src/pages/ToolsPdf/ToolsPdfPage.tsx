@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { CloudUpload, FileText, Check, AlertCircle, RefreshCw, ArrowRight, Info, Bookmark, Monitor, MessageSquare, NotebookPen, Users, Star } from 'lucide-react';
+import { CloudUpload, FileText, Check, AlertCircle, RefreshCw, ArrowRight, Info, Monitor, Puzzle } from 'lucide-react';
 import { SiGoogledrive, SiDropbox } from 'react-icons/si';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { fetchPublic, fetchWithAuth } from '@/shared/services/api-client';
@@ -52,6 +53,13 @@ export const ToolsPdfPage: React.FC = () => {
   const [pageState, setPageState] = useState<PageState>('idle');
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [extPromoDismissed, setExtPromoDismissed] = useState(false);
+  const [extPromoVisible, setExtPromoVisible] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setExtPromoVisible(true), 800);
+    return () => clearTimeout(t);
+  }, []);
 
   // Local upload state
   const [isDropZoneHovered, setIsDropZoneHovered] = useState(false);
@@ -429,11 +437,9 @@ export const ToolsPdfPage: React.FC = () => {
       {/* Hero */}
       <div className={styles.hero}>
         <h1 className={styles.heroTitle}>
-          Upload your PDF.
+          Chat PDF. Highlight. Add notes.<br />
+          <span className={styles.heroTitleAccent}>Share &amp; Collaborate.</span>
         </h1>
-        <h2 className={styles.heroTagline}>
-          Ask anything, Highlight text, Add notes, Share &amp; collaborate
-        </h2>
       </div>
 
       {/* Recent PDFs row — shown below hero for unauthenticated users with prior uploads */}
@@ -463,13 +469,7 @@ export const ToolsPdfPage: React.FC = () => {
         </div>
       )}
 
-      {/* Outer row: inner two-column layout */}
-      <div className={styles.outerRow}>
-
-      {/* Inner row: feature list + upload card */}
-      <div className={styles.mainRow}>
-
-      {/* Card */}
+      {/* Card — centered */}
       <div className={styles.card}>
         {/* Tabs */}
         {/* TODO: Re-enable tabs once Drive/Dropbox backend proxy is implemented
@@ -685,41 +685,33 @@ export const ToolsPdfPage: React.FC = () => {
       </div>
 
 
-      {/* Extension promo — right column */}
-      <div className={styles.extensionPromo}>
-        <div className={styles.extensionPromoCard}>
-          <p className={styles.extensionPromoHeading}>Also available as an Extension</p>
-          {[
-            { label: 'Chat with webpages', icon: <MessageSquare size={16} /> },
-            { label: 'Organize insights across pages', icon: <NotebookPen size={16} /> },
-            { label: 'Bookmark page, text, image, words', icon: <Bookmark size={16} /> },
-            { label: 'Team collaboration', icon: <Users size={16} /> },
-          ].map((item) => (
-            <div key={item.label} className={styles.extensionPromoFeature}>
-              <div className={styles.extensionPromoFeatureIcon}>{item.icon}</div>
-              <p className={styles.extensionPromoFeatureLabel}>{item.label}</p>
-            </div>
-          ))}
-          <div className={styles.extensionPromoRating}>
-            <Star size={14} className={styles.trustStarIcon} aria-hidden />
-            <span className={styles.trustMetricValue}>4.9/5</span>
-            <span className={styles.trustMetricLabel}>on Chrome Web Store</span>
-          </div>
-          <a
-            href="https://chromewebstore.google.com/detail/xplaino/nmphalmbdmddagbllhjnfnmodfmbnlkp"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.extensionPromoButton}
+      {/* Extension promo — fixed bottom-right floating badge (portal to escape overflow) */}
+      {extPromoVisible && !extPromoDismissed && createPortal(
+        <div className={styles.extPromoBadge}>
+          <button
+            className={styles.extPromoDismiss}
+            onClick={() => setExtPromoDismissed(true)}
+            aria-label="Dismiss"
           >
-            Try Extension — It's Free
-            <ArrowRight size={14} />
-          </a>
+            ✕
+          </button>
+          <div className={styles.extPromoContent}>
+            <p className={styles.extPromoTitle}>Also on Chrome</p>
+            <p className={styles.extPromoDesc}>Chat with webpage, Highlight, Add notes, bookmark images &amp; pages.</p>
+            <p className={styles.extPromoTagline}>Organise your research smarter.</p>
+            <a
+              href="https://chromewebstore.google.com/detail/xplaino/nmphalmbdmddagbllhjnfnmodfmbnlkp"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.extPromoBtn}
+            >
+              <Puzzle size={13} />
+              Try Extension — It's free
+              <ArrowRight size={12} />
+            </a>
+          </div>
         </div>
-      </div>
-
-      </div>{/* end mainRow */}
-
-      </div>{/* end outerRow */}
+      , document.body)}
 
       {/* View all PDFs modal */}
       {viewAllOpen && (
