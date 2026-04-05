@@ -111,8 +111,7 @@ export const ChatWithPdfLanding: React.FC = () => {
   }, []);
 
   const handleCta = useCallback(() => {
-    trackCtaConversion();
-    navigate('/tools/pdf');
+    trackCtaConversion(() => navigate('/tools/pdf'));
   }, [navigate]);
 
   return (

@@ -7,7 +7,7 @@ import { trackCtaConversion } from '@/shared/utils/trackConversion';
 import chromeIcon from '@/assets/images/google-chrome-icon.png';
 import styles from '@/pages/ChatWithPdfLanding/ChatWithPdfLanding.module.css';
 
-const PROMO_VIDEO_URL = 'https://bmicorrect.com/website/website_1902_720_2.webm';
+const PROMO_VIDEO_URL = 'https://bmicorrect.com/website/features/videos/bookmark_v2.webm';
 const CYCLING_WORDS = ['Learnings & Insights', 'Articles & Images', 'Passages & Inline Notes'];
 
 const STATS = [

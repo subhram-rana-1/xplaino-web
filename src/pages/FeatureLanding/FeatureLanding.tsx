@@ -58,11 +58,11 @@ export const FeatureLanding: React.FC<FeatureLandingProps> = ({ slug }) => {
 
   const handleCtaClick = () => {
     if (!feature) return;
-    trackCtaConversion();
     if (feature.ctaAction === 'extension') {
+      trackCtaConversion();
       window.open(CHROME_STORE_URL, '_blank', 'noopener,noreferrer');
     } else {
-      navigate('/tools/pdf');
+      trackCtaConversion(() => navigate('/tools/pdf'));
     }
   };
 
