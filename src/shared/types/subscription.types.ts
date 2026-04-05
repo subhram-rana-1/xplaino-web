@@ -151,6 +151,48 @@ export interface GetUserSubscriptionResponse {
 }
 
 // =====================================================
+// ADMIN TYPES
+// =====================================================
+
+/**
+ * Admin subscription response from GET /api/admin/subscriptions
+ */
+export interface AdminSubscriptionResponse {
+  id: string;
+  paddle_subscription_id: string;
+  paddle_customer_id: string;
+  customer_email: string | null;
+  user_id: string | null;
+  status: string;
+  currency_code: string;
+  billing_cycle_interval: BillingInterval;
+  billing_cycle_frequency: number;
+  current_billing_period_starts_at: string | null;
+  current_billing_period_ends_at: string | null;
+  next_billed_at: string | null;
+  started_at: string | null;
+  paused_at: string | null;
+  canceled_at: string | null;
+  items: PaddleSubscriptionItem[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GetAllSubscriptionsResponse {
+  subscriptions: AdminSubscriptionResponse[];
+  total: number;
+  offset: number;
+  limit: number;
+  has_next: boolean;
+}
+
+export interface GetAllSubscriptionsFilters {
+  status?: string;
+  offset?: number;
+  limit?: number;
+}
+
+// =====================================================
 // HELPER FUNCTIONS
 // =====================================================
 

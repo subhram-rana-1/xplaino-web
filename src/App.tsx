@@ -38,6 +38,8 @@ const AdminDomainsPage = lazy(() => import('@/pages/Admin/AdminDomainsPage').the
 const AdminCouponPage = lazy(() => import('@/pages/Admin/AdminCouponPage').then((m) => ({ default: m.AdminCouponPage })));
 const AdminUserFeedbackPage = lazy(() => import('@/pages/Admin/AdminUserFeedbackPage').then((m) => ({ default: m.AdminUserFeedbackPage })));
 const AdminExtensionUninstallFeedbackPage = lazy(() => import('@/pages/Admin/AdminExtensionUninstallFeedbackPage').then((m) => ({ default: m.AdminExtensionUninstallFeedbackPage })));
+const AdminUsersPage = lazy(() => import('@/pages/Admin/AdminUsersPage').then((m) => ({ default: m.AdminUsersPage })));
+const AdminSubscriptionsPage = lazy(() => import('@/pages/Admin/AdminSubscriptionsPage').then((m) => ({ default: m.AdminSubscriptionsPage })));
 const PricingAdd = lazy(() => import('@/pages/Admin/components/PricingAdd').then((m) => ({ default: m.PricingAdd })));
 const PricingDetail = lazy(() => import('@/pages/Admin/components/PricingDetail').then((m) => ({ default: m.PricingDetail })));
 const UserDashboard = lazy(() => import('@/pages/UserDashboard').then((m) => ({ default: m.UserDashboard })));
@@ -346,6 +348,22 @@ const AppContent: React.FC = () => {
                 element={
                   <AdminProtectedRoute>
                     <AdminExtensionUninstallFeedbackPage />
+                  </AdminProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <AdminProtectedRoute>
+                    <AdminUsersPage />
+                  </AdminProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/subscriptions"
+                element={
+                  <AdminProtectedRoute>
+                    <AdminSubscriptionsPage />
                   </AdminProtectedRoute>
                 }
               />

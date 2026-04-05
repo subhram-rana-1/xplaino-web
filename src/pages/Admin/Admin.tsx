@@ -6,7 +6,7 @@ interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
-type AdminSection = /* 'pricing' | */ 'ticket' | 'domain' | /* 'coupon' | */ 'user-feedback' | 'uninstall-feedback';
+type AdminSection = /* 'pricing' | */ 'ticket' | 'domain' | /* 'coupon' | */ 'user-feedback' | 'uninstall-feedback' | 'users' | 'subscriptions';
 
 /**
  * Admin - Admin layout component with sidebar navigation
@@ -20,6 +20,8 @@ export const Admin: React.FC<AdminLayoutProps> = ({ children }) => {
     { key: 'ticket', label: 'Issues', path: '/admin/ticket' },
     { key: 'uninstall-feedback', label: 'Uninstall Feedback', path: '/admin/uninstall-feedback' },
     { key: 'user-feedback', label: 'User Feedback', path: '/admin/user-feedback' },
+    { key: 'users', label: 'Users', path: '/admin/users' },
+    { key: 'subscriptions', label: 'Subscriptions', path: '/admin/subscriptions' },
     // { key: 'pricing', label: 'Pricing', path: '/admin/pricing' },
     { key: 'domain', label: 'Domain', path: '/admin/domain' },
     // { key: 'coupon', label: 'Coupon', path: '/admin/coupon' },
@@ -34,6 +36,8 @@ export const Admin: React.FC<AdminLayoutProps> = ({ children }) => {
     // if (path.startsWith('/admin/coupon')) return 'coupon';
     if (path.startsWith('/admin/user-feedback')) return 'user-feedback';
     if (path.startsWith('/admin/uninstall-feedback')) return 'uninstall-feedback';
+    if (path.startsWith('/admin/users')) return 'users';
+    if (path.startsWith('/admin/subscriptions')) return 'subscriptions';
     return 'ticket'; // default
   };
 
