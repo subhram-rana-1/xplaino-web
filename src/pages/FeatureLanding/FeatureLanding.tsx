@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ScrollReveal } from '@/shared/components/ScrollReveal';
 import { VideoModal } from '@/pages/Home/components/FeatureSet/VideoModal/VideoModal';
 import { getFeatureBySlug, CHROME_STORE_URL, WEBPAGE_FEATURES, PDF_FEATURES } from '@/config/features.config';
+import { trackCtaConversion } from '@/shared/utils/trackConversion';
 import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import chromeIcon from '@/assets/images/google-chrome-icon.png';
 import pdfIcon from '@/assets/images/pdf.webp';
@@ -57,6 +58,7 @@ export const FeatureLanding: React.FC<FeatureLandingProps> = ({ slug }) => {
 
   const handleCtaClick = () => {
     if (!feature) return;
+    trackCtaConversion();
     if (feature.ctaAction === 'extension') {
       window.open(CHROME_STORE_URL, '_blank', 'noopener,noreferrer');
     } else {

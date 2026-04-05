@@ -3,6 +3,7 @@ import { Globe, ChromeIcon, Languages, Star, BookOpen, AlignLeft, UserCheck, Cre
 import { VideoModal } from '@/pages/Home/components/FeatureSet/VideoModal/VideoModal';
 import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { CHROME_STORE_URL } from '@/config/features.config';
+import { trackCtaConversion } from '@/shared/utils/trackConversion';
 import chromeIcon from '@/assets/images/google-chrome-icon.png';
 import styles from '@/pages/ChatWithPdfLanding/ChatWithPdfLanding.module.css';
 
@@ -107,6 +108,7 @@ export const TranslateWebpageLanding: React.FC = () => {
   }, []);
 
   const handleCta = useCallback(() => {
+    trackCtaConversion();
     window.open(CHROME_STORE_URL, '_blank', 'noopener,noreferrer');
   }, []);
 

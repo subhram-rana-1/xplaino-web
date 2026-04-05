@@ -19,5 +19,8 @@ declare module '*.module.css' {
   export default classes;
 }
 
-
+interface Window {
+  dataLayer: unknown[];
+  gtag: (...args: unknown[]) => void;
+}
 

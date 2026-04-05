@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { trackCtaConversion } from '@/shared/utils/trackConversion';
 import { Highlighter, MessageSquare, NotebookPen, Users, Upload, Share2, Lock, CreditCard, Globe, Bookmark } from 'lucide-react';
 import { VideoModal } from '@/pages/Home/components/FeatureSet/VideoModal/VideoModal';
 import { usePageTitle } from '@/shared/hooks/usePageTitle';
@@ -108,6 +109,7 @@ export const PdfHighlighterNotesLanding: React.FC = () => {
   }, []);
 
   const handleCta = useCallback(() => {
+    trackCtaConversion();
     navigate('/tools/pdf');
   }, [navigate]);
 
