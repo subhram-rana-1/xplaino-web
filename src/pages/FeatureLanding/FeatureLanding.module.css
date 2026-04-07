@@ -427,6 +427,10 @@
   .featuresGridItems {
     grid-template-columns: 1fr 1fr;
   }
+
+  .featureChipName {
+    text-align: left;
+  }
 }
 
 /* ── Mobile (≤768px) ─────────────────────────────────────────────────── */

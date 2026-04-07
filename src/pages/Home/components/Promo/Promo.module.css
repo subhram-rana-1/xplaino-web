@@ -150,6 +150,14 @@
     gap: 1.5rem;
     padding-top: 1.5rem;
   }
+
+  .trustRow {
+    order: 4;
+  }
+
+  .trustedBy {
+    order: 5;
+  }
 }
 
 /* ===== MOBILE (≤768px) ===== */
